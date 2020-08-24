@@ -9,7 +9,7 @@ using Console = SadConsole.Console;
 
 namespace ArchConsole {
 
-    class CellButton : SadConsole.Console {
+    public class CellButton : SadConsole.Console {
         public delegate bool Active();
         public delegate void Click();
         Active active;
