@@ -8,7 +8,6 @@ using System.Linq;
 using Console = SadConsole.Console;
 
 namespace ArchConsole {
-
     public class CellButton : SadConsole.Console {
         public delegate bool Active();
         public delegate void Click();
@@ -16,10 +15,14 @@ namespace ArchConsole {
         bool isActive;
         Click click;
         MouseWatch mouse;
-        public CellButton(Active active, Click click) : base(1, 1) {
+
+        char ch;
+        public CellButton(Active active, Click click, char ch = '+') : base(1, 1) {
             this.active = active;
             this.click = click;
             this.mouse = new MouseWatch();
+
+            this.ch = ch;
         }
         public void UpdateActive() {
             isActive = active();
@@ -36,9 +39,9 @@ namespace ArchConsole {
         }
         public override void Render(TimeSpan timeElapsed) {
             if (IsMouseOver && mouse.nowLeft && mouse.leftPressedOnScreen) {
-                this.Print(0, 0, "+", Color.White, Color.Black);
+                this.Print(0, 0, $"{ch}", Color.White, Color.Black);
             } else if (isActive) {
-                this.Print(0, 0, "+", Color.Black, IsMouseOver ? Color.Yellow : Color.White);
+                this.Print(0, 0, $"{ch}", Color.Black, IsMouseOver ? Color.Yellow : Color.White);
             } else {
                 this.Print(0, 0, " ", Color.Transparent, Color.Gray);
             }
@@ -217,8 +220,33 @@ namespace ArchConsole {
             }
             buttons.Clear();
         }
-
     }
+    public class KeyedButtonList : Console {
+        public ButtonList buttons;
+        public int navIndex;
+        public KeyedButtonList(Console parent, Point position) : base(parent.Width, parent.Height) {
+            buttons = new ButtonList(this, position);
+        }
+        public override void Render(TimeSpan delta) {
+            var (x, y) = buttons.Position;
+            this.Print(x - 4, y + navIndex, new ColoredString("--->", Color.Yellow, Color.Transparent));
+            base.Render(delta);
+        }
+        public override bool ProcessKeyboard(Keyboard keyboard) {
+            var b = buttons.buttons;
+            if (keyboard.IsKeyDown(Keys.Enter)) {
+                b[navIndex].click?.Invoke();
+            }
+            if (keyboard.IsKeyPressed(Keys.Up)) {
+                navIndex = (navIndex - 1 + b.Count) % b.Count;
+            }
+            if (keyboard.IsKeyPressed(Keys.Down)) {
+                navIndex = (navIndex + 1) % b.Count;
+            }
+            return base.ProcessKeyboard(keyboard);
+        }
+    }
+
     public class LabeledField : ControlsConsole {
         public string label;
         public TextField textBox;
@@ -276,7 +304,7 @@ namespace ArchConsole {
             get { return _text; }
         }
         private string _text;
-        Action click;
+        public Action click;
         MouseWatch mouse;
 
         public LabelButton(string text, Action click) : base(1, 1) {
