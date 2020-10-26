@@ -23,6 +23,8 @@ namespace ArchConsole {
             this.mouse = new MouseWatch();
 
             this.ch = ch;
+
+            UpdateActive();
         }
         public void UpdateActive() {
             isActive = active();
@@ -69,16 +71,21 @@ namespace ArchConsole {
         }
         private int _index;
         private int textStart;
-        public string text;
+
+        public string _text;
+        public string text { get => _text; set {
+                _text = value;
+                TextChanged?.Invoke(this);
+            } }
         public string placeholder;
         private double time;
         private MouseWatch mouse;
 
-        public delegate void TextChange(TextField source);
-        public event TextChange TextChanged;
+        public event Action<TextField> TextChanged;
+        public event Action<TextField> EnterPressed;
         public TextField(int Width) : base(Width, 1) {
             _index = 0;
-            text = "";
+            _text = "";
             placeholder = new string('.', Width);
             time = 0;
             mouse = new MouseWatch();
@@ -107,7 +114,8 @@ namespace ArchConsole {
             Color foreground = IsMouseOver ? Color.Yellow : Color.White;
             Color background = IsFocused ? new Color(51, 51, 51, 255) : Color.Black;
 
-            if (mouse.left == ClickState.Held) {
+            if ((mouse.leftPressedOnScreen && mouse.left == ClickState.Held) ||
+                    (mouse.rightPressedOnScreen && mouse.right == ClickState.Held)) {
                 (foreground, background) = (background, foreground);
             }
             for (int x = 0; x < Width; x++) {
@@ -132,7 +140,6 @@ namespace ArchConsole {
         public override bool ProcessKeyboard(Keyboard keyboard) {
             if (keyboard.KeysPressed.Any()) {
                 //bool moved = false;
-                bool changed = false;
                 foreach (var key in keyboard.KeysPressed) {
                     switch (key.Key) {
                         case Keys.Up:
@@ -155,6 +162,14 @@ namespace ArchConsole {
                             time = 0;
                             UpdateTextStart();
                             break;
+                        case Keys.Home:
+                            _index = 0;
+                            time = 0;
+                            break;
+                        case Keys.End:
+                            _index = text.Length;
+                            time = 0;
+                            break;
                         case Keys.Back:
                             if (text.Length > 0) {
                                 if (_index == text.Length) {
@@ -165,9 +180,11 @@ namespace ArchConsole {
                                 _index--;
                                 time = 0;
                                 UpdateTextStart();
-                                changed = true;
                             }
 
+                            break;
+                        case Keys.Enter:
+                            EnterPressed?.Invoke(this);
                             break;
                         default:
                             if (key.Character != 0) {
@@ -182,18 +199,19 @@ namespace ArchConsole {
                                 }
                                 time = 0;
                                 UpdateTextStart();
-                                changed = true;
                             }
                             break;
                     }
-                }
-                if (changed) {
-                    TextChanged?.Invoke(this);
                 }
             }
             return base.ProcessKeyboard(keyboard);
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
+            mouse.Update(state, IsMouseOver);
+            if(IsMouseOver && mouse.nowLeft) {
+                _index = Math.Min(mouse.nowPos.X, text.Length);
+                time = 0;
+            }
             return base.ProcessMouse(state);
         }
     }
@@ -235,7 +253,7 @@ namespace ArchConsole {
         public override bool ProcessKeyboard(Keyboard keyboard) {
             var b = buttons.buttons;
             if (keyboard.IsKeyDown(Keys.Enter)) {
-                b[navIndex].click?.Invoke();
+                b[navIndex].leftClick?.Invoke();
             }
             if (keyboard.IsKeyPressed(Keys.Up)) {
                 navIndex = (navIndex - 1 + b.Count) % b.Count;
@@ -304,21 +322,25 @@ namespace ArchConsole {
             get { return _text; }
         }
         private string _text;
-        public Action click;
+        public Action leftClick;
+        public Action rightClick;
         MouseWatch mouse;
 
-        public LabelButton(string text, Action click) : base(1, 1) {
+        public LabelButton(string text, Action leftClick, Action rightClick = null) : base(1, 1) {
             this.text = text;
-            this.click = click;
+            this.leftClick = leftClick;
+            this.rightClick = rightClick;
             this.mouse = new MouseWatch();
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, IsMouseOver);
             if (IsMouseOver) {
                 if (mouse.leftPressedOnScreen && mouse.left == ClickState.Released) {
-                    click();
+                    leftClick();
                 }
-
+                if(mouse.rightPressedOnScreen && mouse.right == ClickState.Released) {
+                    rightClick();
+                }
             }
             return base.ProcessMouse(state);
         }
@@ -331,6 +353,78 @@ namespace ArchConsole {
 
 
             base.Render(timeElapsed);
+        }
+    }
+
+    class ScrollVertical : Console {
+        private int _index { get => _index; set {
+                _index = value;
+                ClampIndex();
+            }
+        }
+        int index;
+        private int _range;
+        public int range { get => _range; set {
+                _range = value;
+                ClampIndex();
+            }
+        }
+        Action scrolled;
+        CellButton up, down;
+        public ScrollVertical(int height, int range) : base(1, height) {
+            this.index = 0;
+            this.range = range;
+
+            int delta = Height / 2;
+            up = new CellButton(() => index > 0, () => Up(delta), '-') { Position = new Point(15, 0) };
+            down = new CellButton(() => index < range, () => Down(delta), '+') { Position = new Point(15, Height - 1) };
+            UpdateButtons();
+            this.Children.Add(up);
+            this.Children.Add(down);
+        }
+
+        public void Up(int delta) {
+            index -= delta;
+            scrolled?.Invoke();
+        }
+        public void Down(int delta) {
+            index += delta;
+            scrolled?.Invoke();
+        }
+        private void UpdateButtons() {
+            up.UpdateActive();
+            down.UpdateActive();
+        }
+
+        public void ClampIndex() {
+            _index = Math.Clamp(_index, 0, Math.Max(0, range - Height));
+        }
+        public override bool ProcessMouse(MouseScreenObjectState state) {
+            index += state.Mouse.ScrollWheelValueChange / 60;
+            return base.ProcessMouse(state);
+        }
+        public override void Render(TimeSpan delta) {
+            this.Clear();
+            
+            if (range > Height) {
+                var barSize = Height * Height / range;
+                var y = Height * index / range;
+
+                for (int i = 0; i < y; i++) {
+                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                }
+                for (int i = y; i < y + barSize; i++) {
+                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '#'));
+                }
+                for (int i = y + barSize; i < Height; i++) {
+                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                }
+            } else {
+                for (int i = 0; i < range; i++) {
+                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                }
+            }
+            base.Render(delta);
         }
     }
 }
