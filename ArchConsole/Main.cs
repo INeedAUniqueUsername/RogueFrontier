@@ -356,31 +356,44 @@ namespace ArchConsole {
         }
     }
 
-    class ScrollVertical : Console {
-        private int _index { get => _index; set {
+    public class ScrollVertical : Console {
+        private int _index;
+
+        public int index {
+            get => _index; set {
                 _index = value;
                 ClampIndex();
+                UpdateButtons();
             }
         }
-        int index;
         private int _range;
         public int range { get => _range; set {
                 _range = value;
                 ClampIndex();
+                UpdateButtons();
             }
         }
+
         Action scrolled;
         CellButton up, down;
-        public ScrollVertical(int height, int range) : base(1, height) {
-            this.index = 0;
-            this.range = range;
+
+        MouseWatch mouse;
+        private int yLastPressedOnBar;
+        private int scrollStep => range / Height;
+        public ScrollVertical(int height, int range, Action scrolled) : base(1, height) {
+            this._index = 0;
+            this._range = range;
+            this.scrolled = scrolled;
 
             int delta = Height / 2;
-            up = new CellButton(() => index > 0, () => Up(delta), '-') { Position = new Point(15, 0) };
-            down = new CellButton(() => index < range, () => Down(delta), '+') { Position = new Point(15, Height - 1) };
-            UpdateButtons();
+            up = new CellButton(() => _index > 0, () => Up(delta), '-') { Position = new Point(0, 0) };
+            down = new CellButton(() => _index < range, () => Down(delta), '+') { Position = new Point(0, Height - 1) };
             this.Children.Add(up);
             this.Children.Add(down);
+            UpdateButtons();
+
+            mouse = new MouseWatch();
+            yLastPressedOnBar = -1;
         }
 
         public void Up(int delta) {
@@ -400,23 +413,59 @@ namespace ArchConsole {
             _index = Math.Clamp(_index, 0, Math.Max(0, range - Height));
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
-            index += state.Mouse.ScrollWheelValueChange / 60;
+            var delta = state.Mouse.ScrollWheelValueChange / 60;
+            if (delta != 0) {
+                index += delta;
+                scrolled?.Invoke();
+            }
+            mouse.Update(state, IsMouseOver);
+            if(GetBar(out int barStart, out int barSize) && mouse.leftPressedOnScreen) {
+                if(mouse.left == ClickState.Pressed) {
+                    var y = state.SurfaceCellPosition.Y;
+                    if (y < barStart || y > barStart + barSize) {
+                        index = (range - Height) * y / Height - Height / 2;
+                        yLastPressedOnBar = -1;
+                    } else {
+                        yLastPressedOnBar = y;
+                    }
+                } else if(mouse.left == ClickState.Held) {
+                    var y = state.SurfaceCellPosition.Y;
+                    if (yLastPressedOnBar == -1) {
+                        index = (range - Height) * y / Height - Height / 2;
+                    } else {
+                        if (y != yLastPressedOnBar) {
+                            index += (y - yLastPressedOnBar) * scrollStep;
+                            yLastPressedOnBar = y;
+                        }
+                    }
+                }
+            }
             return base.ProcessMouse(state);
+        }
+
+        public bool GetBar(out int barStart, out int barSize) {
+            if (range > Height) {
+                barStart = Height * index / range;
+                barSize = Height * Height / range;
+                return true;
+            } else {
+                barStart = 0;
+                barSize = Height;
+                return false;
+            }
         }
         public override void Render(TimeSpan delta) {
             this.Clear();
             
-            if (range > Height) {
-                var barSize = Height * Height / range;
-                var y = Height * index / range;
+            if (GetBar(out int barStart, out int barSize)) {
 
-                for (int i = 0; i < y; i++) {
+                for (int i = 0; i < barStart; i++) {
                     this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
                 }
-                for (int i = y; i < y + barSize; i++) {
+                for (int i = barStart; i < barStart + barSize; i++) {
                     this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '#'));
                 }
-                for (int i = y + barSize; i < Height; i++) {
+                for (int i = barStart + barSize; i < Height; i++) {
                     this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
                 }
             } else {
