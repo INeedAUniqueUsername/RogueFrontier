@@ -81,8 +81,9 @@ namespace ArchConsole {
         private double time;
         private MouseWatch mouse;
 
-        public event Action<TextField> TextChanged;
-        public event Action<TextField> EnterPressed;
+        public Predicate<char> CharFilter;
+        public Action<TextField> TextChanged;
+        public Action<TextField> EnterPressed;
         public TextField(int Width) : base(Width, 1) {
             _index = 0;
             _text = "";
@@ -172,12 +173,17 @@ namespace ArchConsole {
                             break;
                         case Keys.Back:
                             if (text.Length > 0) {
-                                if (_index == text.Length) {
-                                    text = text.Substring(0, text.Length - 1);
-                                } else if (_index > 0) {
-                                    text = text.Substring(0, _index) + text.Substring(_index + 1);
+                                if (_index > 0) {
+                                    if (_index >= text.Length) {
+                                        text = text.Substring(0, text.Length - 1);
+                                    } else if (_index > 0) {
+                                        var l = text.Length;
+                                        var before = text.Substring(0, _index - 1);
+                                        var after = text.Substring(_index);
+                                        text = before + after;
+                                    }
+                                    _index--;
                                 }
-                                _index--;
                                 time = 0;
                                 UpdateTextStart();
                             }
@@ -188,17 +194,20 @@ namespace ArchConsole {
                             break;
                         default:
                             if (key.Character != 0) {
-                                if (_index == text.Length) {
-                                    text += key.Character;
-                                    _index++;
-                                } else if (_index > 0) {
-                                    text = text.Substring(0, index) + key.Character + text.Substring(index, 0);
-                                    _index++;
-                                } else {
-                                    text = (key.Character) + text;
+                                if (CharFilter?.Invoke(key.Character) != false) {
+                                    if (_index == text.Length) {
+                                        text += key.Character;
+                                        _index++;
+                                    } else if (_index > 0) {
+                                        text = text.Substring(0, index) + key.Character + text.Substring(index);
+                                        _index++;
+                                    } else {
+                                        text = (key.Character) + text;
+                                        _index++;
+                                    }
+                                    time = 0;
+                                    UpdateTextStart();
                                 }
-                                time = 0;
-                                UpdateTextStart();
                             }
                             break;
                     }
@@ -336,10 +345,10 @@ namespace ArchConsole {
             mouse.Update(state, IsMouseOver);
             if (IsMouseOver) {
                 if (mouse.leftPressedOnScreen && mouse.left == ClickState.Released) {
-                    leftClick();
+                    leftClick?.Invoke();
                 }
                 if(mouse.rightPressedOnScreen && mouse.right == ClickState.Released) {
-                    rightClick();
+                    rightClick?.Invoke();
                 }
             }
             return base.ProcessMouse(state);
