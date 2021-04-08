@@ -333,9 +333,14 @@ namespace ArchConsole {
         private string _text;
         public Action leftClick;
         public Action rightClick;
+
+
+        public Action leftHold;
+        public Action rightHold;
+
         MouseWatch mouse;
 
-        public LabelButton(string text, Action leftClick, Action rightClick = null) : base(1, 1) {
+        public LabelButton(string text, Action leftClick = null, Action rightClick = null) : base(1, 1) {
             this.text = text;
             this.leftClick = leftClick;
             this.rightClick = rightClick;
@@ -344,11 +349,26 @@ namespace ArchConsole {
         public override bool ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, IsMouseOver);
             if (IsMouseOver) {
-                if (mouse.leftPressedOnScreen && mouse.left == ClickState.Released) {
-                    leftClick?.Invoke();
+                if (mouse.leftPressedOnScreen) {
+                    switch(mouse.left) {
+                        case ClickState.Released:
+                            leftClick?.Invoke();
+                            break;
+                        case ClickState.Held:
+                            leftHold?.Invoke();
+                            break;
+                    }
                 }
-                if(mouse.rightPressedOnScreen && mouse.right == ClickState.Released) {
-                    rightClick?.Invoke();
+
+                if(mouse.rightPressedOnScreen) {
+                    switch (mouse.left) {
+                        case ClickState.Released:
+                            rightClick?.Invoke();
+                            break;
+                        case ClickState.Held:
+                            rightHold?.Invoke();
+                            break;
+                    }
                 }
             }
             return base.ProcessMouse(state);
