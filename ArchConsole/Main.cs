@@ -78,8 +78,6 @@ namespace ArchConsole {
                 _text = value;
                 TextChanged?.Invoke(this);
             } }
-
-
         public int selectStart;
         public int selectEnd; //exclusive
 
@@ -180,17 +178,29 @@ namespace ArchConsole {
                             break;
                         case Keys.Back:
                             if (text.Length > 0) {
+                                bool repeat = false;
+                                Delete:
                                 if (_index > 0) {
+                                    char deleted;
+                                    string next;
                                     if (_index >= text.Length) {
-                                        text = text.Substring(0, text.Length - 1);
-                                    } else if (_index > 0) {
-                                        var l = text.Length;
-                                        var before = text.Substring(0, _index - 1);
-                                        var after = text.Substring(_index);
-                                        text = before + after;
+                                        deleted = text.Last();
+                                        next = text.Substring(0, text.Length - 1);
+                                    } else {
+                                        deleted = text[_index];
+                                        next = text.Substring(0, _index - 1) + text.Substring(_index);
                                     }
+                                    if(repeat && !char.IsLetterOrDigit(deleted)) {
+                                        goto Done;
+                                    }
+                                    text = next;
                                     _index--;
+                                    if ((keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl)) && char.IsLetterOrDigit(deleted)) {
+                                        repeat = true;
+                                        goto Delete;
+                                    }
                                 }
+                                Done:
                                 time = 0;
                                 UpdateTextStart();
                             }
