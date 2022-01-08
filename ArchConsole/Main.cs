@@ -62,6 +62,7 @@ namespace ArchConsole {
         public static implicit operator T(ListItem<T> i) => i.item;
     }
     public class TextField : Console {
+        private int _index;
         public int index {
             get => _index;
             set {
@@ -69,7 +70,7 @@ namespace ArchConsole {
                 UpdateTextStart();
             }
         }
-        private int _index;
+
         private int textStart;
 
         public string _text;
@@ -77,6 +78,11 @@ namespace ArchConsole {
                 _text = value;
                 TextChanged?.Invoke(this);
             } }
+
+
+        public int selectStart;
+        public int selectEnd; //exclusive
+
         public string placeholder;
         private double time;
         private MouseWatch mouse;
@@ -115,8 +121,9 @@ namespace ArchConsole {
             Color foreground = IsMouseOver ? Color.Yellow : Color.White;
             Color background = IsFocused ? new Color(51, 51, 51, 255) : Color.Black;
 
-            if ((mouse.leftPressedOnScreen && mouse.left == ClickState.Held) ||
-                    (mouse.rightPressedOnScreen && mouse.right == ClickState.Held)) {
+            if (((mouse.leftPressedOnScreen && mouse.left == ClickState.Held) ||
+                    (mouse.rightPressedOnScreen && mouse.right == ClickState.Held))
+                    && IsMouseOver) {
                 (foreground, background) = (background, foreground);
             }
             for (int x = 0; x < Width; x++) {
@@ -217,8 +224,100 @@ namespace ArchConsole {
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, IsMouseOver);
-            if(IsMouseOver && mouse.nowLeft) {
+            if(IsMouseOver && mouse.nowLeft && mouse.leftPressedOnScreen) {
                 _index = Math.Min(mouse.nowPos.X, text.Length);
+                time = 0;
+            }
+            return base.ProcessMouse(state);
+        }
+    }
+
+    public class TextPainter : Console {
+        public Point pos;
+
+        private double time;
+        private MouseWatch mouse;
+
+        public char[,] image;
+        public Predicate<char> CharFilter;
+        public TextPainter(char[,] image) : base(image.GetLength(0), image.GetLength(1)) {
+            this.image = image;
+            time = 0;
+            mouse = new MouseWatch();
+            FocusOnMouseClick = true;
+        }
+        public override void Update(TimeSpan delta) {
+            time += delta.TotalSeconds;
+            base.Update(delta);
+        }
+        public override void Render(TimeSpan delta) {
+            this.Clear();
+            bool showCursor = time % 2 < 1;
+            Color foreground = IsMouseOver ? Color.Yellow : Color.White;
+            Color background = IsFocused ? new Color(51, 51, 51, 255) : Color.Black;
+            if ((mouse.leftPressedOnScreen && mouse.left == ClickState.Held) ||
+                    (mouse.rightPressedOnScreen && mouse.right == ClickState.Held)) {
+                (foreground, background) = (background, foreground);
+            }
+            Func<Point, ColoredGlyph> getGlyph = p => new ColoredGlyph(foreground, background, image[p.X, p.Y]);
+            if (showCursor && IsFocused) {
+                getGlyph = p =>
+                           p == pos ? new ColoredGlyph(background, foreground, image[p.X, p.Y])
+                                       : new ColoredGlyph(foreground, background, image[p.X, p.Y]);
+            }
+            for (int x = 0; x < Width; x++) {
+                for (int y = 0; y < Height; y++) {
+                    this.SetCellAppearance(x, y, getGlyph((x, y)));
+                }
+            }
+            base.Render(delta);
+        }
+        public override bool ProcessKeyboard(Keyboard keyboard) {
+            if (keyboard.KeysPressed.Any()) {
+                //bool moved = false;
+                foreach (var key in keyboard.KeysPressed) {
+                    switch (key.Key) {
+                        case Keys.Up:
+                            if (pos.Y > 0) {
+                                pos = (pos.X, pos.Y - 1);
+                            }
+                            break;
+                        case Keys.Down:
+                            if (pos.Y < Height - 1) {
+                                pos = (pos.X, pos.Y + 1);
+                            }
+                            break;
+                        case Keys.Right:
+                            if (pos.X < Width - 1) {
+                                pos = (pos.X + 1, pos.Y);
+                            }
+                            break;
+                        case Keys.Left:
+                            if (pos.X > 0) {
+                                pos = (pos.X - 1, pos.Y);
+                            }
+                            break;
+                        case Keys.Back:
+                            image[pos.X, pos.Y] = ' ';
+                            break;
+                        case Keys.Enter:
+                            break;
+                        default:
+                            if (key.Character != 0) {
+                                if (CharFilter?.Invoke(key.Character) != false) {
+                                    image[pos.X, pos.Y] = key.Character;
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            return base.ProcessKeyboard(keyboard);
+        }
+        public override bool ProcessMouse(MouseScreenObjectState state) {
+            mouse.Update(state, IsMouseOver);
+            if (IsMouseOver && mouse.nowLeft) {
+                pos = (Math.Clamp(mouse.nowPos.X, 0, Width - 1), Math.Clamp(mouse.nowPos.Y, 0, Height - 1));
                 time = 0;
             }
             return base.ProcessMouse(state);
@@ -307,7 +406,7 @@ namespace ArchConsole {
         public ColoredString text {
             set {
                 _text = value;
-                Resize(_text.Count, 1, _text.Count, 1, false);
+                Resize(_text.Length, 1, _text.Length, 1, false);
             }
             get {
                 return _text;

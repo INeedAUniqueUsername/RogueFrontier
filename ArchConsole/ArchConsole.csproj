@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SadConsole" Version="9.0.0-beta1" />
+    <PackageReference Include="SadConsole" Version="9.1.1" />
   </ItemGroup>
 
 </Project>
