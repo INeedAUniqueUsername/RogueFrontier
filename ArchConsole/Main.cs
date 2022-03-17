@@ -1,10 +1,12 @@
 ﻿using SadConsole;
+using SadConsole.Components;
 using SadConsole.Input;
 using SadConsole.UI;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Console = SadConsole.Console;
 
 namespace ArchConsole {
@@ -61,6 +63,72 @@ namespace ArchConsole {
         }
         public static implicit operator T(ListItem<T> i) => i.item;
     }
+
+    public static class ControlString {
+        public static void Print(this Console con, Cursor cursor, ref int i, string s) {
+            while(i < s.Length) {
+                var c = s[i];
+                if(c != '[' || (i > 0 && s[i - 1] != '\\')) {
+                    cursor.Print($"{c}");
+                    i++;
+                } else {
+                    Parse(s[i..], ref i);
+                    void Parse(string str, ref int i) {
+                        Match m;
+                        if ((m = new Regex("\\[c:(?<command>[a-zA-Z0-9])(?<args>( [a-zA-Z0-9]+:[a-zA-Z0-9]+)*)\\](?<content>.+)").Match(str)).Success) {
+                            var command = m.Groups["command"].Value;
+                            var args = m.Groups["args"].Value.Split(' ').Select(s => s.Split(':')).ToDictionary(pair => pair[0], pair => pair[1]);
+                            var content = m.Groups["content"].Value;
+                            switch (command) {
+                                case "button":
+                                    var id = args["id"];
+                                    var start = cursor.Position;
+                                    Print(con, cursor, ref i, content);
+                                    var end = cursor.Position;
+
+                                    int y = start.Y;
+
+                                    var state = new ClickableState();
+                                    if(y < end.Y) {
+                                        con.Children.Add(new Clickable(con.Width - start.X, 1, state) { Position = new(start.X, y++) });
+                                        while(y < end.Y) {
+                                            con.Children.Add(new Clickable(con.Width, 1, state) { Position = new(0, y++) });
+                                        }
+                                        con.Children.Add(new Clickable(end.X, 1, state) { Position = new(0, y) });
+                                    } else {
+                                        con.Children.Add(new Clickable(end.X - start.X, 1, state) { Position = new(start.X, y) });
+                                    }
+
+                                    break;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    public class TextAreaState {
+        public int index;
+    }
+    public class ClickableState {
+        //distributed algorithms???
+        public Dictionary<Clickable, bool> IsMouseOver = new();
+    }
+    public class Clickable : Console {
+        public ClickableState state;
+        public Clickable(int width, int height, ClickableState state = null) : base(width, height) {
+            this.state = state ?? new();
+        }
+        public override void Render(TimeSpan delta) {
+            this.Clear();
+            this.Fill(background: new(255, 255, 255, 51));
+            base.Render(delta);
+        }
+    }
+
+
     public class TextField : Console {
         private int _index;
         public int index {
@@ -453,7 +521,7 @@ namespace ArchConsole {
             this.text = text;
             this.leftClick = leftClick;
             this.rightClick = rightClick;
-            this.mouse = new MouseWatch();
+            this.mouse = new();
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, IsMouseOver);
@@ -470,7 +538,7 @@ namespace ArchConsole {
                 }
 
                 if(mouse.rightPressedOnScreen) {
-                    switch (mouse.left) {
+                    switch (mouse.right) {
                         case ClickState.Released:
                             rightClick?.Invoke();
                             break;
@@ -483,13 +551,15 @@ namespace ArchConsole {
             return base.ProcessMouse(state);
         }
         public override void Render(TimeSpan timeElapsed) {
-            if (IsMouseOver && mouse.nowLeft && mouse.leftPressedOnScreen) {
-                this.Print(0, 0, text, Color.Black, Color.White);
+            Color f, b;
+            if (IsMouseOver &&
+                ((mouse.nowLeft && mouse.leftPressedOnScreen)
+                || (mouse.nowRight && mouse.rightPressedOnScreen))) {
+                (f, b) = (Color.Black, Color.White);
             } else {
-                this.Print(0, 0, text, Color.White, IsMouseOver ? Color.Gray : Color.Black);
+                (f, b) = (Color.White, IsMouseOver ? Color.Gray : Color.Black);
             }
-
-
+            this.Print(0, 0, text, f, b);
             base.Render(timeElapsed);
         }
     }
