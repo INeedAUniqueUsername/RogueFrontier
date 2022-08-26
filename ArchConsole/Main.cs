@@ -516,43 +516,51 @@ namespace ArchConsole {
         public Action rightHold;
 
         MouseWatch mouse;
-
-        public LabelButton(string text, Action leftClick = null, Action rightClick = null) : base(1, 1) {
+        public bool enabled;
+        public LabelButton(string text, Action leftClick = null, Action rightClick = null, bool enabled = true) : base(1, 1) {
             this.text = text;
             this.leftClick = leftClick;
             this.rightClick = rightClick;
             this.mouse = new();
+            this.enabled = enabled;
         }
         public override bool ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, IsMouseOver);
-            if (IsMouseOver) {
-                if (mouse.leftPressedOnScreen) {
-                    switch(mouse.left) {
-                        case ClickState.Released:
-                            leftClick?.Invoke();
-                            break;
-                        case ClickState.Held:
-                            leftHold?.Invoke();
-                            break;
-                    }
-                }
-
-                if(mouse.rightPressedOnScreen) {
-                    switch (mouse.right) {
-                        case ClickState.Released:
-                            rightClick?.Invoke();
-                            break;
-                        case ClickState.Held:
-                            rightHold?.Invoke();
-                            break;
-                    }
+            if (!enabled) {
+                goto Done;
+            }
+            if (!IsMouseOver) {
+                goto Done;
+            }
+            if (mouse.leftPressedOnScreen) {
+                switch(mouse.left) {
+                    case ClickState.Released:
+                        leftClick?.Invoke();
+                        break;
+                    case ClickState.Held:
+                        leftHold?.Invoke();
+                        break;
                 }
             }
+            if(mouse.rightPressedOnScreen) {
+                switch (mouse.right) {
+                    case ClickState.Released:
+                        rightClick?.Invoke();
+                        break;
+                    case ClickState.Held:
+                        rightHold?.Invoke();
+                        break;
+                }
+            }
+            Done:
             return base.ProcessMouse(state);
         }
         public override void Render(TimeSpan timeElapsed) {
             Color f, b;
-            if (IsMouseOver &&
+
+            if (!enabled) {
+                (f, b) = (Color.Gray, Color.Black);
+            } else if (IsMouseOver &&
                 ((mouse.nowLeft && mouse.leftPressedOnScreen)
                 || (mouse.nowRight && mouse.rightPressedOnScreen))) {
                 (f, b) = (Color.Black, Color.White);
@@ -563,6 +571,7 @@ namespace ArchConsole {
             base.Render(timeElapsed);
         }
     }
+
 
     public class ScrollVertical : Console {
         private int _index;
