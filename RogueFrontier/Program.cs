@@ -47,12 +47,16 @@ partial class Program {
     static void Main(string[] args) {
         XSave x = null;
 
-        var s = GenerateIntroSystem();
-        s.Save(out var d);
-        var str = d.root.ToString();
+        var o = GenerateIntroSystem();
+        o.Save(out var d);
+        var s1 = d.root.ToString();
 
-        var l = d.root.Load();
-        Console.WriteLine(d.root);
+        var o2 = d.root.Load();
+        o2.Save(out d);
+        var s2 = d.root.ToString();
+        var diff = s1.Length - s2.Length;
+
+		Console.WriteLine($"{diff}");
 
         if (true) return;
         OutputSchema();
@@ -67,7 +71,8 @@ partial class Program {
         */
         StartGame(StartRegular);
     }
-    public static void StartGame(Action OnStart) {
+
+	public static void StartGame(Action OnStart) {
         if (!Directory.Exists("save"))
             Directory.CreateDirectory("save");
         //SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;

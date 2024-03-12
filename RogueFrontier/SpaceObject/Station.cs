@@ -294,18 +294,11 @@ public interface ISegment : MovingObject {
 }
 public class Segment : ISegment {
     //The segment essentially impersonates its parent station but with a different tile
-    [JsonIgnore]
     public System world => parent.world;
-    [JsonIgnore]
     public XY position => parent.position + desc.offset;
-    [JsonIgnore]
     public XY velocity => parent.velocity;
-
-    [JsonProperty]
     public ulong id { get; private set; }
-    [JsonProperty]
     public MovingObject parent { get; private set; }
-    [JsonProperty]
     public SegmentDesc desc { get; private set; }
     public Segment() { }
     public Segment(MovingObject parent, SegmentDesc desc) {
@@ -313,10 +306,8 @@ public class Segment : ISegment {
         this.parent = parent;
         this.desc = desc;
     }
-    [JsonIgnore]
     public bool active => parent.active;
     public void Update(double delta) {}
-    [JsonIgnore]
     public ColoredGlyph tile => desc.tile.Original;
 }
 public class AngledSegment : ISegment {

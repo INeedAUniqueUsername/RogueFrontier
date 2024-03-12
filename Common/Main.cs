@@ -30,6 +30,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using RogueFrontier;
 using SadRogue.Primitives.SpatialMaps;
+using SFML.Audio;
 
 namespace Common;
 public static class Main {
@@ -857,8 +858,23 @@ public static class Main {
         }
     }
 
-    public static bool IsCollection(this Type t) {
+    public interface XForm<T> {
+        static abstract int SaveObject(T t, XSave d);
+		static abstract T LoadObject(XLoad ctx, int index);
+    }
+	public class XFormSoundBuffer : XForm<SoundBuffer> {
+		public static SoundBuffer LoadObject(XLoad ctx, int index) {
+            
+			throw new NotImplementedException();
+		}
+		public static int SaveObject(SoundBuffer t, XSave d) {
+            //(t.Samples, t.ChannelCount, t.SampleRate)
+			throw new NotImplementedException();
+		}
+	}
 
+	public static bool IsCollection(this Type t) {
+        typeof(XForm<int>).GetMethod("SaveObject");
         HashSet<Type> tt = [typeof(List<>), typeof(HashSet<>)];
         return t.IsGenericType ?
             tt.Contains(t.GetGenericTypeDefinition()) :
@@ -879,8 +895,14 @@ public static class Main {
                 _ when val.GetType().IsPrimitive => JsonSerializer.Serialize(val),
                 _ => $"{SaveInner(val, ctx)}"
             };
+
+            if(o is SoundBuffer sb) {
+                o = (sb.Samples, sb.ChannelCount, sb.SampleRate);
+            }
+
             var e = new XElement("Placeholder");
             ctx.root.Add(e);
+			var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 			e.ReplaceWith((XElement)(o switch {
 				XElement ox =>  new("X", ox),
 				string os =>    new("S", os),
@@ -888,42 +910,51 @@ public static class Main {
                 _ when o.GetType() is { AssemblyQualifiedName:{} aqn } t => o switch {
                     IDictionary id => new("D", aqn, id
                         .Keys.Cast<object>().Zip(id.Values.Cast<object>())
-                        .Select(((object key, object val) pair) => new XElement("E",
+                        .Select(((object key, object val) pair) => new XElement("P",
                             new XElement("K", SaveItem(pair.key, ctx)),
                             new XElement("V", SaveItem(pair.val, ctx)))
                         )),
 					IEnumerable ie when t.IsCollection() => new("C", aqn, ie.Cast<object>()
                             .Select(item => new XElement("I", SaveItem(item, ctx))
                         )),
-					_ => new("O", aqn, t
-                        .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+					_ => new("O", aqn, t.GetFields(flags)
 						.Where(f => !f.GetCustomAttributes<CompilerGeneratedAttribute>().Any())
-						.Select(f => new XAttribute(f.Name, SaveItem(f.GetValue(o), ctx))))
+						.Select(f => new XAttribute(f.Name, SaveItem(f.GetValue(o), ctx))),
+						t.GetProperties(flags)
+                        .Select(p => p.DeclaringType.GetProperty(p.Name, flags))
+                        .Where(p => p.GetSetMethod(true) is { } m)
+                        .Select(p => new XAttribute(p.Name, SaveItem(p.GetValue(o), ctx)))
+                        )
 				}
 			}));
 			return i;
 		}
 	}
 
-    public static class XLoad {
-		public record Ctx(XElement root) {
-			public readonly XElement[] children = root.Elements().ToArray();
-			public readonly Dictionary<int, object> table = new();
-		}
+	public record XLoad(XElement root)
+	{
+		public readonly XElement[] children = root.Elements().ToArray();
+		public readonly Dictionary<int, object> table = new();
 	}
-    public static void Load<T>(this XElement root, out T obj) => obj = (T)root.Load();
+	public static void Load<T>(this XElement root, out T obj) => obj = (T)root.Load();
     public static object Load(this XElement root) {
+
         return LoadInner(new(root), 0);
-        object LoadInner(XLoad.Ctx ctx, int index) {
+        object LoadInner(XLoad ctx, int index) {
 			if (ctx.table.TryGetValue(index, out var o))
 				return o;
 			var e = ctx.children[index];
-			object LoadItem(string v, Type t, XLoad.Ctx d) =>
-				v is "null" ?
-					null :
-				t.IsPrimitive ?
-					JsonSerializer.Deserialize(v, t) :
-					LoadInner(ctx, int.Parse(v));
+			object LoadItem(string v, Type t, XLoad d) {
+                if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)){
+                    t = t.GetGenericArguments()[0];
+                }
+				return v is "null" ?
+                    null :
+                t.IsPrimitive ?
+                    JsonSerializer.Deserialize(v, t) :
+                    LoadInner(ctx, int.Parse(v));
+            }
+			var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 			return ctx.table[index] = e.Name.LocalName switch {
                 "X" => e.Elements().First(),
                 "S" => e.Value,
@@ -932,8 +963,16 @@ public static class Main {
 					var tn = e.FirstNode.ToString();
 					var t = Type.GetType(tn);
 					var elements = e.Elements().ToArray();
-					var o = ctx.table[index] = Activator.CreateInstance(t, null);
-                    return null;
+					var o = (IDictionary) (ctx.table[index] = Activator.CreateInstance(t, elements.Length));
+
+                    if (t.GetGenericArguments() is [var pk, var pv]) {
+                        foreach (var pair in elements) {
+                            var key = LoadItem(pair.Element("K").Value, pk, ctx);
+                            var val = LoadItem(pair.Element("V").Value, pv, ctx);
+                            o.Add(key, val);
+                        }
+                    }
+                    return o;
                 }).Value,
                 "C" => new Lazy<dynamic>(() => {
 					var tn = e.FirstNode.ToString();
@@ -956,19 +995,33 @@ public static class Main {
                     return o;
 				}).Value,
                 "O" => new Lazy<dynamic>(() => {
-				var tn = e.FirstNode.ToString();
-				var t = Type.GetType(tn);
-				var o = ctx.table[index] = RuntimeHelpers.GetUninitializedObject(t);
+				    var tn = e.FirstNode.ToString();
+				    var t = Type.GetType(tn);
+				    var o = ctx.table[index] = RuntimeHelpers.GetUninitializedObject(t);
+
+                    if(t == typeof(SoundBuffer)) {
+                        
+                        o = new SoundBuffer(samples, channelCount, sampleRate);
+                    }
 					var fields = t
-						.GetFields(BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance)
-						.Where(f => !f.GetCustomAttributes<CompilerGeneratedAttribute>().Any())
-						.Select(f => f);
+					    .GetFields(flags)
+						.Where(f => !f.GetCustomAttributes<CompilerGeneratedAttribute>().Any()).ToArray();
 					foreach (var f in fields) {
 						if (e.TryAtt(f.Name, out var v)) {
-							f.SetValue(o, LoadItem(v, f.FieldType, ctx));
+                            f.SetValue(o, LoadItem(v, f.FieldType, ctx));
 						}
 					}
-                    return o;
+
+                    var properties = t
+                        .GetProperties(flags)
+                        .Select(f => f.DeclaringType.GetProperty(f.Name, flags));
+
+					foreach (var p in properties) {
+                        if(p.GetSetMethod(true) is { }m && e.TryAtt(p.Name, out var v)) {
+                            m.Invoke(o, [LoadItem(v, p.PropertyType, ctx)]);
+                        }
+					}
+					return o;
 				}).Value
             };
 		}

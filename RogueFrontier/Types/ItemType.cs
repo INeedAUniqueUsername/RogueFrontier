@@ -424,7 +424,8 @@ public record WeaponDesc {
     [Opt] public bool omnidirectional = false;
     [Opt] public double angle = 0, sweep, leftRange, rightRange = 0;
 
-    [Opt(parse = false)] public SoundBuffer sound;
+    
+    [Opt(parse = false)][Ex] public SoundBuffer sound;
     [Opt(parse = false)] public ItemType ammoType;
     [Sub(required = true)] public FragmentDesc Projectile;
     [Sub] public CapacitorDesc Capacitor;

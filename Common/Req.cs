@@ -91,6 +91,12 @@ public class Sub : Attribute, IEle {
 
     public Type type { get; set; } = null;
 }
+
+/// <summary>
+/// Do not serialize this field
+/// </summary>
+public class Ex : Attribute {}
+
 public class Err : Attribute, IXml {
     public bool fallback { get; set; } = true;
     public string msg { get; set; } = "Error";
