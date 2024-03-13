@@ -861,28 +861,45 @@ public static class Main {
     }
 
     public class XMap {
-		Dictionary<Type, Type> map = new();
-		public void Add<K, V>() where V:XForm<K> {
-            map[typeof(K)] = typeof(V);
-        }
-        public XForm<T> Get<T>() => (XForm<T>)map[typeof(T)];
+		Dictionary<Type, LoadObject> load = new();
+		Dictionary<Type, SaveObject> save = new();
+		private delegate int SaveObject(XSave ctx, object source);
+		private delegate object LoadObject(XLoad ctx, XElement source);
+
+		public void Add<K, V>() where V:XPort<K> {
+            //map[typeof(K)] = typeof(V);
+            load[typeof(K)] = (ctx, source) => typeof(V).GetMethod(nameof(LoadObject)).Invoke(null, [ctx, source]);
+			save[typeof(K)] = (ctx, source) => (int)typeof(V).GetMethod(nameof(SaveObject)).Invoke(null, [ctx, source]);
+		}
+        //public XForm<T> Get<T>() => (XForm<T>)map[typeof(T)];
 		public bool Load(Type type, XLoad ctx, XElement source, out object dest) {
-			bool b = map.TryGetValue(type, out Type t);
-			dest = b ? x.LoadObject(source, ctx) : default;
+			bool b = load.TryGetValue(type, out var loadF);
+			dest = b ? loadF(ctx, source) : default;
 			return b;
 		}
-        public bool Save(Type type, object source, XSave ctx, out XElement dest) {
-            bool b = map.TryGetValue(type, out Type t);
-            dest = b ? x.SaveObject(source, ctx) : default;
+        public bool Save(Type type, XSave ctx, object source, out int dest) {
+            bool b = save.TryGetValue(type, out var saveF);
+            dest = b ? saveF(ctx, source) : default;
             return b;
         }
 	}
-	public interface XForm<T>{
-		static abstract int SaveObject(T source, XSave d);
+    public static U CrossConstruct<U>(this object source) {
+        var t = source.GetType();
+		var tc = t.GetConstructors().Where(c => c.GetParameters().Any());
+        var uc = typeof(U).GetConstructors().Where(c => c.GetParameters().Any());
+        var c = uc.First(tcon => uc.Any(ucon =>
+            tcon.GetParameters().Select(p => (p.Name, p.ParameterType)).SequenceEqual(
+                ucon.GetParameters().Select(p => (p.Name, p.ParameterType)
+                ))));
+        return (U)c.Invoke(c.GetParameters().Select(p => t.GetProperty(p.Name).GetValue(source)).ToArray());
+    }
+    
+	public interface XPort<T>{
+		static abstract int SaveObject(XSave ctx, T source);
 		static abstract T LoadObject(XLoad ctx, XElement source);
 	}
-	public class XFormSoundBuffer : XForm<SoundBuffer> {
-        record Data(short[] Samples, uint ChannelCount, uint SampleRate) {
+	public class XFormSoundBuffer : XPort<SoundBuffer> {
+        private record Data(short[] Samples, uint ChannelCount, uint SampleRate) {
             public static explicit operator SoundBuffer(Data d) =>
                 new(d.Samples, d.ChannelCount, d.SampleRate);
             public static explicit operator Data(SoundBuffer s) =>
@@ -890,11 +907,11 @@ public static class Main {
         }
 		public static SoundBuffer LoadObject(XLoad ctx, XElement source) =>
 			(SoundBuffer)ctx.Deserialize<Data>(source);
-		public static int SaveObject(SoundBuffer source, XSave ctx) =>
+		public static int SaveObject(XSave ctx, SoundBuffer source) =>
             ctx.Save((Data)source);
 	}
 	public static bool IsCollection(this Type t) {
-        typeof(XForm<int>).GetMethod("SaveObject");
+        typeof(XPort<int>).GetMethod("SaveObject");
         HashSet<Type> tt = [typeof(List<>), typeof(HashSet<>)];
         return t.IsGenericType ?
             tt.Contains(t.GetGenericTypeDefinition()) :
@@ -914,11 +931,13 @@ public static class Main {
 				_ => $"{Save(source)}"
 			};
             var t = source.GetType();
-			var e = new XElement("O", t.AssemblyQualifiedName);
+			
+            
+            var e = new XElement("O", t.AssemblyQualifiedName);
 			root.Add(e);
 
-            if(map.Save(t, source, this, out var dest)){
-                e.Add(dest);
+            if(map.Save(t, this, source, out i)){
+                return i;
             } else {
 				var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 				e.ReplaceWith((XElement)(source switch {
