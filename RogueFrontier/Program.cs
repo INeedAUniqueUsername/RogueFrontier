@@ -48,7 +48,7 @@ partial class Program {
         XSave x = null;
 
         var o = GenerateIntroSystem();
-        var d = new XSave() { map = { typeof(XFormSoundBuffer) } };
+        var d = new XSave() { map = new(typeof(SoundBufferPort)) };
         d.Save(o);
         var s1 = d.root.ToString();
 
