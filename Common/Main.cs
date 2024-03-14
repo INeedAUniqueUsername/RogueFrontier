@@ -33,6 +33,7 @@ using SadRogue.Primitives.SpatialMaps;
 using SFML.Audio;
 using SadConsole.SplashScreens;
 using SadConsole.EasingFunctions;
+using System.Collections.ObjectModel;
 
 namespace Common;
 public static class Main {
@@ -863,7 +864,7 @@ public static class Main {
     public class XMap {
 		readonly Dictionary<Type, LoadObject> load = new();
 		readonly Dictionary<Type, SaveObject> save = new();
-		private delegate int SaveObject(XSave ctx, object source);
+		private delegate XElement SaveObject(XSave ctx, object source);
 		private delegate object LoadObject(XLoad ctx, XElement source);
         public XMap() { }
         public XMap(params Type[] ports) {
@@ -872,24 +873,24 @@ public static class Main {
                 var tl = u.GetMethod(nameof(LoadObject));
                 var ts = u.GetMethod(nameof(SaveObject));
 				load[t] = (ctx, source) => tl.Invoke(null, [ctx, source]);
-				save[t] = (ctx, source) => (int)ts.Invoke(null, [ctx, source]);
+				save[t] = (ctx, source) => (XElement)ts.Invoke(null, [ctx, source]);
 			}
 		}
 		public void Add<K, V>() where V:XPort<K> {
             //map[typeof(K)] = typeof(V);
             load[typeof(K)] = (ctx, source) => typeof(V).GetMethod(nameof(LoadObject)).Invoke(null, [ctx, source]);
-			save[typeof(K)] = (ctx, source) => (int)typeof(V).GetMethod(nameof(SaveObject)).Invoke(null, [ctx, source]);
+			save[typeof(K)] = (ctx, source) => (XElement)typeof(V).GetMethod(nameof(SaveObject)).Invoke(null, [ctx, source]);
 		}
         //public XForm<T> Get<T>() => (XForm<T>)map[typeof(T)];
 		public bool Load(Type type, XLoad ctx, XElement source, out object dest) {
 			bool b = load.TryGetValue(type, out var loadF);
-			dest = b ? loadF(ctx, source) : default;
+			dest = b ? loadF(ctx, source.Elements().Single()) : default;
 			return b;
 		}
-        public bool Save(Type type, XSave ctx, object source, out int dest) {
+        public bool Save(Type type, XSave ctx, object source, out XElement dest) {
             bool b = save.TryGetValue(type, out var saveF);
-            dest = b ? saveF(ctx, source) : default;
-            return b;
+            dest = b ? new XElement("O", type.AssemblyQualifiedName, saveF(ctx, source)) : default;
+			return b;
         }
 	}
     public static U CrossConstruct<U>(this object source) {
@@ -906,16 +907,16 @@ public static class Main {
     /// Maps <typeparamref name="T"/> to intermediate data format.
     /// </summary>
     /// <typeparam name="T">The type to handle</typeparam>
-	public interface XPort<T>{
+	public interface XPort<T> {
 		/// <summary>
-		/// Save <typeparamref name="T"/> <paramref name="source"/> into <paramref name="ctx"/>. Convert <paramref name="source"/> to intermediate format and call <see cref="XSave.Save(object)"/> to save the intermediate.
+		/// Save <typeparamref name="T"/> <paramref name="source"/> into <paramref name="ctx"/>. Convert <paramref name="source"/> to intermediate format and call <see cref="XSave.SavePointer(object)"/> to save the intermediate.
 		/// </summary>
 		/// <param name="ctx">Contains the object data</param>
 		/// <param name="source">The object to save</param>
 		/// <returns>Index of the object data</returns>
-		static abstract int SaveObject(XSave ctx, T source);
+		static abstract XElement SaveObject(XSave ctx, T source);
 		/// <summary>
-		/// Load <typeparamref name="T"/> object from <paramref name="source"/> data. Call <see cref="XLoad.Deserialize{U}(XElement)"/> to convert <paramref name="source"/> to intermediate.
+		/// Load <typeparamref name="T"/> object from <paramref name="source"/> data. Call <see cref="XLoad.DeserializeValue{U}(XElement)"/> to convert <paramref name="source"/> to intermediate.
 		/// </summary>
 		/// <param name="ctx">Contains the object data</param>
 		/// <param name="source">The data to load from. Fields are stored as indices.</param>
@@ -927,10 +928,10 @@ public static class Main {
         private record Data(short[] Samples, uint ChannelCount, uint SampleRate);
         /// <inheritdoc/>
 		public static SoundBuffer LoadObject(XLoad ctx, XElement source) =>
-			ctx.Deserialize<Data>(source).CrossConstruct<SoundBuffer>();
+			ctx.DeserializeValue<Data>(source).CrossConstruct<SoundBuffer>();
         /// <inheritdoc/>
-		public static int SaveObject(XSave ctx, SoundBuffer source) =>
-            ctx.Save(source.CrossConstruct<Data>());
+		public static XElement SaveObject(XSave ctx, SoundBuffer source) =>
+            ctx.Serialize(source.CrossConstruct<Data>());
 	}
 	public static bool IsCollection(this Type t) {
         //typeof(XPort<int>).GetMethod("SaveObject");
@@ -939,57 +940,106 @@ public static class Main {
             tt.Contains(t.GetGenericTypeDefinition()) :
             t.IsArray;
     }
-    /// <summary>
-    /// Saves objects to XML data.
-    /// </summary>
-    public record XSave {
+
+
+	public class AdaptiveEqualityComparer : IEqualityComparer, IEqualityComparer<object?>{
+        public readonly static AdaptiveEqualityComparer Instance = new();
+		public new bool Equals(object x, object y) {
+            Type tx = x.GetType(), ty = y.GetType();
+            return
+                tx.IsValueType != ty.IsValueType ?
+                    false :
+                tx.IsValueType || tx == typeof(string) ?
+                    Equals(x, y) :
+                    ReferenceEquals(x, y);
+		}
+        public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+	}
+
+	/// <summary>
+	/// Saves objects to XML data.
+	/// </summary>
+	public record XSave {
         /// <summary>Contains ports for unsafe types</summary>
 		public XMap map = new();
         /// <summary>Lazy map from object to index</summary>
-		public readonly ConcurrentDictionary<object, int> table = new();
+		public readonly ConcurrentDictionary<object, int> table = new(AdaptiveEqualityComparer.Instance);
         /// <summary>Contains all saved data</summary>
 		public XElement root = new("R");
+
+        public XElement Serialize<T>(T source) {
+            var t = typeof(T);
+			XElement dest = new("D", t.AssemblyQualifiedName);
+            ToXml(t, dest, source);
+            return dest;
+        }
+		public XElement SerializeValue(object source, Type t) {
+			XElement dest = new("D", t.AssemblyQualifiedName);
+			ToXml(t, dest, source);
+			return dest;
+		}
+
+		public void ToXml(Type t, XElement dest, object source) {
+			var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+			/*
+            t.GetFields(flags)
+							    .Select(f => f.GetCustomAttribute<CompilerGeneratedAttribute>() is null ?
+									new XAttribute(f.Name, SaveItem(f.GetValue(source))) : null),
+							t.GetProperties(flags).Select(
+                                p => p.DeclaringType.GetProperty(p.Name, flags) is { SetMethod:{ } } pp && pp.GetIndexParameters() is [] ?
+									new XAttribute(pp.Name, SaveItem(pp.GetValue(source))) : null)
+             */
+		}
+        private string SaveItem(object source, Type type) {
+			if (type.GenericTypeArguments is [{ } ta] && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
+				type = ta;
+			}
+            return
+                source == null ?
+                    "null" :
+                type.IsPrimitive ?
+                    JsonSerializer.Serialize(source) :
+                /*
+                type.IsValueType ?
+                    $"{SerializeValue(source, type)}" :
+                */
+                $"{SavePointer(source)}";
+        }
 		/// <summary>
 		/// Saves <paramref name="source"/> to XML.
 		/// </summary>
 		/// <param name="source">The object to save</param>
 		/// <returns>Index of the XML data</returns>
-		public int Save(object source) {
+		public int SavePointer(object source) {
 			var found = true;
 			var i = table.GetOrAdd(source, o => { found = false; return table.Count; });
 			if (found) return i;
-			string SaveItem(object source) => source switch {
-				null => "null",
-				_ when source.GetType().IsPrimitive => JsonSerializer.Serialize(source),
-				_ => $"{Save(source)}"
-			};
             var t = source.GetType();
-
-            if(map.Save(t, this, source, out i)){
-                return i;
+			XElement e = new("A");
+			root.Add(e);
+			if (map.Save(t, this, source, out var dest)){
+                e.ReplaceWith(dest);
             } else {
+
 				var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-				root.Add((XElement)(source switch {
+				e.ReplaceWith((XElement)(source switch {
 					XElement ox => new("X", ox),
 					string os => new("S", os),
 					Type { AssemblyQualifiedName: { } aqn } => new("T", aqn),
 					_ when t.AssemblyQualifiedName is { }aqn => source switch {
-						IDictionary id => new("D", aqn, id
-							.Keys.Cast<object>().Zip(id.Values.Cast<object>())
-							.Select(((object key, object val) pair) => new XElement("P",
-								new XElement("K", SaveItem(pair.key)),
-								new XElement("V", SaveItem(pair.val)))
-							)),
-						IEnumerable ie when t.IsCollection() => new("C", aqn, ie.Cast<object>()
-								.Select(item => new XElement("I", SaveItem(item))
-							)),
+						IDictionary id when t.GenericTypeArguments is [{}k,{}v] => new("D", aqn, id.Keys.Cast<object>().Select(key =>
+                            new XElement("P",
+                                new XElement("K", SaveItem(key, k)),
+                                new XElement("V", SaveItem(id[key], v))))),
+						IEnumerable ie when t.IsCollection() =>
+                            new("C", aqn, ie.Cast<object>().Select(item =>
+                                new XElement("I", SaveItem(item, t.IsArray?t.GetElementType():t.GenericTypeArguments[0])))),
 						_ => new("O", aqn, t.GetFields(flags)
-							.Where(f => !f.GetCustomAttributes<CompilerGeneratedAttribute>().Any())
-							.Select(f => new XAttribute(f.Name, SaveItem(f.GetValue(source)))),
-							t.GetProperties(flags)
-							.Select(p => p.DeclaringType.GetProperty(p.Name, flags))
-							.Where(p => p.GetSetMethod(true) is { } m)
-							.Select(p => new XAttribute(p.Name, SaveItem(p.GetValue(source))))
+							    .Select(f => f.GetCustomAttribute<CompilerGeneratedAttribute>() is null ?
+									new XAttribute(f.Name, SaveItem(f.GetValue(source), f.FieldType)) : null),
+							t.GetProperties(flags).Select(
+                                p => p.DeclaringType.GetProperty(p.Name, flags) is { SetMethod:{ } } pp && pp.GetIndexParameters() is [] ?
+									new XAttribute(pp.Name, SaveItem(pp.GetValue(source), pp.PropertyType)) : null)
 							)
 					}
 				}));
@@ -1008,24 +1058,29 @@ public static class Main {
             data = root.Elements().ToList();
             table = new (data.Count);
         }
-        public T Load<T>(int index) => (T)Load(index);
+        public T Load<T>(int index) => (T)LoadPointer(index);
         public T Load<T>(XElement e, string key) => (T)Load(e, key);
-        public object Load(XElement e, string key) => Load(e.ExpectAttInt(key));
-        /* Clone
+        public object Load(XElement e, string key) => LoadPointer(e.ExpectAttInt(key));
+		/* Clone
         public T PopulateObject<T>(T source) {
             var dest = Activator.CreateInstance<T>();
             PopulateObject(typeof(T), dest, source);
             return dest;
 		}
         */
-        public T Deserialize<T>(XElement source) {
-            var dest = Activator.CreateInstance<T>();
-            LoadObject(typeof(T), dest, source);
-            return dest;
+		public T DeserializeValue<T>(XElement source) {
+			var dest = Activator.CreateInstance<T>();
+			FromXml(typeof(T), dest, source);
+			return dest;
 		}
-		public void PopulateObject<T>(T dest, T source) => LoadObject(typeof(T), dest, source);
-		public void PopulateObject<T>(T dest, XElement source) => LoadObject(typeof(T), dest, source);
-		public void LoadObject(Type t, object dest, XElement source){
+		public object DeserializeValue(XElement source, Type t) {
+			var dest = Activator.CreateInstance(t);
+			FromXml(t, dest, source);
+			return dest;
+		}
+		//public void PopulateObject<T>(T dest, T source) => LoadObject(typeof(T), dest, source);
+		//public void PopulateObject<T>(T dest, XElement source) => LoadObject(typeof(T), dest, source);
+		public void FromXml(Type t, object dest, XElement source){
 			var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 			var fields = t.GetFields(flags).Where(
                 f => f.GetCustomAttribute<CompilerGeneratedAttribute>() == null);
@@ -1041,19 +1096,19 @@ public static class Main {
 					m.Invoke(dest, [LoadItem(data, p.PropertyType)]);
 			}
 		}
-		public void LoadObject(Type t, object dest, object source) {
+		public void FromObject(Type t, object dest, object source) {
 			var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 			var fields = t.GetFields(flags).Where(
                 f => f.GetCustomAttribute<CompilerGeneratedAttribute>() is null);
-			var properties = t.GetProperties(flags).Select(
-                f => f.DeclaringType.GetProperty(f.Name, flags));
 			foreach (var f in fields)
                 f.SetValue(dest, f.GetValue(source));
+			var properties = t.GetProperties(flags).Select(
+				f => f.DeclaringType.GetProperty(f.Name, flags));
 			foreach (var p in properties)
 				p.SetValue(dest, p.GetValue(source));
 		}
 		public object LoadItem(string source, Type type) {
-            typeof(List<>).GetGenericTypeDefinition();
+            //typeof(List<>).GetGenericTypeDefinition();
 			if (type.GenericTypeArguments is [{} ta] && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
 				type = ta;
 			}
@@ -1061,16 +1116,21 @@ public static class Main {
 				null :
 			type.IsPrimitive ?
 				JsonSerializer.Deserialize(source, type) :
-				Load(int.Parse(source));
+            type.IsValueType ?
+                DeserializeValue(XElement.Parse(source), type) :
+
+				LoadPointer(int.Parse(source));
 		}
 
+		static string GetContent(XElement e) => string.Join("", e.Nodes().Select(n => n.ToString())).Replace("&lt;", "<").Replace("&gt;", ">");
+
 		//Support serializing methods? https://stackoverflow.com/a/11193717
-        /// <summary>
-        /// Loads object from XML data.
-        /// </summary>
-        /// <param name="index">Index of the XML data to load from</param>
-        /// <returns>The object loaded from the XML element at <paramref name="index"/></returns>
-		public object Load(int index) {
+		/// <summary>
+		/// Loads object from XML data.
+		/// </summary>
+		/// <param name="index">Index of the XML data to load from</param>
+		/// <returns>The object loaded from the XML element at <paramref name="index"/></returns>
+		public object LoadPointer(int index) {
 			if (table.TryGetValue(index, out dynamic dest))
 				return dest;
 			var source = data[index];
@@ -1082,47 +1142,48 @@ public static class Main {
 					var t = Type.GetType(source.FirstNode.ToString());
 					var elements = source.Elements().ToArray();
 					var o = (IDictionary)(table[index] = Activator.CreateInstance(t, elements.Length));
-					if (t.GetGenericArguments() is [var pk, var pv]) {
-						foreach (var pair in elements) {
-							var key = LoadItem(pair.Element("K").Value, pk);
-							var val = LoadItem(pair.Element("V").Value, pv);
-							o.Add(key, val);
+					if (t.GenericTypeArguments is [{}k, {}v]) {
+						foreach (var p in elements) {
+                            if(p.Elements().Select(GetContent).ToArray() is [{}sk, {}sv]){
+								o.Add(LoadItem(sk, k), LoadItem(sv, v));
+							}
 						}
 					}
 					return o;
 				}).Value,
 				"C" => new Lazy<dynamic>(() => {
-					var t = Type.GetType(source.FirstNode.ToString());
 					var elements = source.Elements().ToArray();
-					var pt = t.IsArray ? t.GetElementType() : t.GenericTypeArguments.Single();
-					var items = source.Elements().Select(sub => LoadItem(sub.Value, pt));
-					dest = table[index] =
-						t.IsArray ?
-							Array.CreateInstance(pt, elements.Length) :
-							Activator.CreateInstance(t, elements.Length);
-					if (t.IsArray) {
-						Array.Copy(items.ToArray(), (Array)dest, elements.Length);
+                    var n = elements.Length;
+					Type t = Type.GetType(source.FirstNode.ToString()), pt = null;
+                    if (t.IsArray) {
+						pt = t.GetElementType();
+                        dest = table[index] = Array.CreateInstance(pt, n);
 					} else {
-						foreach (dynamic i in items)
-							dest.Add(i);
+                        pt = t.GenericTypeArguments.Single();
+                        dest = table[index] = Activator.CreateInstance(t, n);
+					}
+					var items = elements.Select(sub => LoadItem(GetContent(sub), pt)).ToArray();
+					if (t.IsArray) {
+						Array.Copy(items, dest, n);
+					} else {
+						foreach (dynamic i in items) dest.Add(i);
 					}
 					return dest;
 				}).Value,
 				"O" => new Lazy<dynamic>(() => {
 					var t = Type.GetType(source.FirstNode.ToString());
 					var dest = table[index] = RuntimeHelpers.GetUninitializedObject(t);
-					if (form.Load(t, this, source, out object data)){
-                        LoadObject(t, dest, data);
-					} else {
-                        LoadObject(t, dest, source);
-                    }
+					if (form.Load(t, this, source, out object data))
+                        FromObject(t, dest, data);
+					else
+                        FromXml(t, dest, source);
 					return dest;
 				}).Value
 			};
 		}
 	}
-	public static void Load<T>(this XElement root, out T obj) => obj = (T)root.Load();
-    public static object Load(this XElement root) => new XLoad(root).Load(0);
+	//public static void Load<T>(this XElement root, out T obj) => obj = (T)root.Load();
+    public static object Load(this XElement root) => new XLoad(root).LoadPointer(0);
 	/// <summary>
 	/// Read data from XML to populate the object fields. For attributes, mark fields with <c>Req</c> and <c>Opt</c>. For elements, mark fields with <c>Self</c> and <c>Sub</c>
 	/// </summary>

@@ -48,13 +48,14 @@ partial class Program {
         XSave x = null;
 
         var o = GenerateIntroSystem();
-        var d = new XSave() { map = new(typeof(SoundBufferPort)) };
-        d.Save(o);
+        var map = new XMap(typeof(SoundBufferPort));
+        var d = new XSave() { map = map };
+        d.SavePointer(o);
         var s1 = d.root.ToString();
 
         var o2 = d.root.Load();
-        d = new XSave();
-        d.Save(o2);
+        d = new XSave() { map = map };
+        d.SavePointer(o2);
         var s2 = d.root.ToString();
         var diff = s1.Length - s2.Length;
 
