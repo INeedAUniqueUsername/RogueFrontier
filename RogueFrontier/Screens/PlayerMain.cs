@@ -64,6 +64,8 @@ public class SilenceListener : IWeaponListener {
         this.silence = s;
     }
 }
+
+record Monitor(System world, Camera camera, int Width, int Height);
 public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
@@ -129,6 +131,8 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             }
         }
         silenceListener.Register(playerShip);
+
+        Monitor m = new(world, camera, Width, Height);
 
         audio = new(playerShip);
         audio.Register(playerShip.world.universe);

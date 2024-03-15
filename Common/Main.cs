@@ -942,18 +942,26 @@ public static class Main {
     }
 
 
-	public class AdaptiveEqualityComparer : IEqualityComparer, IEqualityComparer<object?>{
+	public class AdaptiveEqualityComparer : EqualityComparer<object>{
         public readonly static AdaptiveEqualityComparer Instance = new();
-		public new bool Equals(object x, object y) {
-            Type tx = x.GetType(), ty = y.GetType();
-            return
-                tx.IsValueType != ty.IsValueType ?
-                    false :
-                tx.IsValueType || tx == typeof(string) ?
-                    Equals(x, y) :
-                    ReferenceEquals(x, y);
+
+        private bool E(object? x, object? y){
+			Type tx = x.GetType(), ty = y.GetType();
+            
+
+			if (tx.IsValueType != ty.IsValueType){
+                return false;
+            } else if(x is string s && y is string sy){
+                var b = s.Equals(sy);
+                return b;
+            } else if(tx.IsValueType) {
+                return x.GetHashCode() == y.GetHashCode();
+            } else {
+				return object.ReferenceEquals(x, y);
+            }
 		}
-        public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+        public override bool Equals(object x, object y) => E(x, y);
+		public override int GetHashCode(object obj) => obj is string s ? s.GetHashCode() : RuntimeHelpers.GetHashCode(obj);
 	}
 
 	/// <summary>
@@ -1012,6 +1020,11 @@ public static class Main {
 		/// <returns>Index of the XML data</returns>
 		public int SavePointer(object source) {
 			var found = true;
+
+            if((source as string)?.Contains("ModRoll") == true)
+            {
+                int a = 0;
+            }
 			var i = table.GetOrAdd(source, o => { found = false; return table.Count; });
 			if (found) return i;
             var t = source.GetType();
@@ -1027,14 +1040,15 @@ public static class Main {
 					string os => new("S", os),
 					Type { AssemblyQualifiedName: { } aqn } => new("T", aqn),
 					_ when t.AssemblyQualifiedName is { }aqn => source switch {
-						IDictionary id when t.GenericTypeArguments is [{}k,{}v] => new("D", aqn, id.Keys.Cast<object>().Select(key =>
-                            new XElement("P",
-                                new XElement("K", SaveItem(key, k)),
-                                new XElement("V", SaveItem(id[key], v))))),
+						IDictionary id when t.GenericTypeArguments is [{}k,{}v] =>
+                            new("D", SavePointer(aqn), id.Keys.Cast<object>().Select(key =>
+                                new XElement("P",
+                                    new XElement("K", SaveItem(key, k)),
+                                    new XElement("V", SaveItem(id[key], v))))),
 						IEnumerable ie when t.IsCollection() =>
-                            new("C", aqn, ie.Cast<object>().Select(item =>
+                            new("C", SavePointer(aqn), ie.Cast<object>().Select(item =>
                                 new XElement("I", SaveItem(item, t.IsArray?t.GetElementType():t.GenericTypeArguments[0])))),
-						_ => new("O", aqn, t.GetFields(flags)
+						_ => new("O", SavePointer(aqn), t.GetFields(flags)
 							    .Select(f => f.GetCustomAttribute<CompilerGeneratedAttribute>() is null ?
 									new XAttribute(f.Name, SaveItem(f.GetValue(source), f.FieldType)) : null),
 							t.GetProperties(flags).Select(
@@ -1116,14 +1130,16 @@ public static class Main {
 				null :
 			type.IsPrimitive ?
 				JsonSerializer.Deserialize(source, type) :
+            /*
             type.IsValueType ?
                 DeserializeValue(XElement.Parse(source), type) :
-
+            */
 				LoadPointer(int.Parse(source));
 		}
 
 		static string GetContent(XElement e) => string.Join("", e.Nodes().Select(n => n.ToString())).Replace("&lt;", "<").Replace("&gt;", ">");
 
+        public string LoadString(string index) => (string)LoadPointer(int.Parse(index));
 		//Support serializing methods? https://stackoverflow.com/a/11193717
 		/// <summary>
 		/// Loads object from XML data.
@@ -1139,7 +1155,7 @@ public static class Main {
 				"S" => source.Value,
 				"T" => Type.GetType(source.Value),
 				"D" => new Lazy<dynamic>(() => {
-					var t = Type.GetType(source.FirstNode.ToString());
+					var t = Type.GetType(LoadString(source.FirstNode.ToString()));
 					var elements = source.Elements().ToArray();
 					var o = (IDictionary)(table[index] = Activator.CreateInstance(t, elements.Length));
 					if (t.GenericTypeArguments is [{}k, {}v]) {
@@ -1154,7 +1170,7 @@ public static class Main {
 				"C" => new Lazy<dynamic>(() => {
 					var elements = source.Elements().ToArray();
                     var n = elements.Length;
-					Type t = Type.GetType(source.FirstNode.ToString()), pt = null;
+					Type t = Type.GetType(LoadString(source.FirstNode.ToString())), pt = null;
                     if (t.IsArray) {
 						pt = t.GetElementType();
                         dest = table[index] = Array.CreateInstance(pt, n);
@@ -1171,7 +1187,7 @@ public static class Main {
 					return dest;
 				}).Value,
 				"O" => new Lazy<dynamic>(() => {
-					var t = Type.GetType(source.FirstNode.ToString());
+					var t = Type.GetType(LoadString(source.FirstNode.ToString()));
 					var dest = table[index] = RuntimeHelpers.GetUninitializedObject(t);
 					if (form.Load(t, this, source, out object data))
                         FromObject(t, dest, data);
