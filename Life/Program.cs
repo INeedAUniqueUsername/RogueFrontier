@@ -14,12 +14,12 @@ public class Program {
         Width = Height * 5 / 3;
     }
     public static int Width, Height;
-    public static string font = ("IBMCGA.font");
+    public static string font = "IBMCGA.font";
     static void Main(string[] args) {
         // Setup the engine and create the main window.
-        Game.Create(Width, Height, font);
+        Game.Create(Width, Height, font, (sender, e)=> Start());
         // Hook the start event so we can add consoles to the system.
-        Game.Instance.OnStart = Start;
+        //Game.Instance.OnStart = Start;
         // Start the game.
         Game.Instance.Run();
         Game.Instance.Dispose();

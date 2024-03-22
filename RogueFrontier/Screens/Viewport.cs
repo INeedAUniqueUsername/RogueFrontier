@@ -7,32 +7,33 @@ using System.Threading.Tasks;
 using Console = SadConsole.Console;
 namespace RogueFrontier;
 
-public class Viewport : ScreenSurface {
+public class Viewport {
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     public Camera camera;
     public System world;
     public Dictionary<(int, int), ColoredGlyph> tiles=new();
-
-    public Viewport(ScreenSurface prev, Camera camera, System world) : base(prev.Surface.Width, prev.Surface.Height) {
-        this.camera = camera;
-        this.world = world;
+    public ScreenSurface Surface;
+    public Viewport(Monitor m) {
+        Surface = m.NewSurface;
+        camera = m.camera;
+        world = m.world;
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         tiles.Clear();
         world.PlaceTiles(tiles);
-        base.Update(delta);
+        Surface.Update(delta);
     }
     public void UpdateVisible(TimeSpan delta, Func<Entity, double> getVisibleDistanceLeft) {
         tiles.Clear();
         world.PlaceTilesVisible(tiles, getVisibleDistanceLeft);
-        base.Update(delta);
+        Surface.Update(delta);
     }
     public void UpdateBlind(TimeSpan delta, Func<Entity, double> getVisibleDistanceLeft) {
         world.PlaceTilesVisible(tiles, getVisibleDistanceLeft);
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         Surface.Clear();
         int HalfViewWidth = Width / 2;
         int HalfViewHeight = Height / 2;
@@ -46,7 +47,7 @@ public class Viewport : ScreenSurface {
                 }
             }
         }
-        base.Render(delta);
+        Surface.Render(delta);
     }
     public ColoredGlyph GetTile(int x, int y) {
         XY location = camera.position + new XY(x - Width / 2, y - Height / 2).Rotate(camera.rotation);

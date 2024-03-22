@@ -11,21 +11,29 @@ using System.Linq;
 
 namespace RogueFrontier;
 
-public class PauseScreen : Console {
+public class PauseScreen : ISurface {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
-    public PauseScreen(Mainframe playerMain) : base(playerMain.Width, playerMain.Height) {
-        this.playerMain = playerMain;
+
+    public ScreenSurface Surface { get; private init; }
+    public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
+
+    public int Width => Surface.Width;
+    public int Height => Surface.Height;
+    public PauseScreen(Mainframe playerMain) {
+        Surface = new(playerMain.Width, playerMain.Height);
+
+		this.playerMain = playerMain;
         this.sparkle = new SparkleFilter(Width, Height);
 
         int x = 2;
         int y = 2;
 
-        var fs = FontSize * 3;
+        var fs = Surface.FontSize * 3;
 
-        this.Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
+        Surface.Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
         y++;
-        this.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
+        Surface.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
         y++;
         y++;//this.Children.Add(new LabelButton("Save & Continue", SaveContinue) { Position = new Point(x, y++), FontSize = fs });
         y++;
@@ -33,24 +41,24 @@ public class PauseScreen : Console {
         y++;
         y++;
         y++;
-        this.Children.Add(new LabelButton("Self Destruct", SelfDestruct) { Position = new Point(x, y++), FontSize = fs });
+        Surface.Children.Add(new LabelButton("Self Destruct", SelfDestruct) { Position = new Point(x, y++), FontSize = fs });
         y++;
-        this.Children.Add(new LabelButton("Delete & Quit", DeleteQuit) { Position = new Point(x, y++), FontSize = fs });
+        Surface.Children.Add(new LabelButton("Delete & Quit", DeleteQuit) { Position = new Point(x, y++), FontSize = fs });
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         sparkle.Update();
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
-        this.Clear();
+    public void Render(TimeSpan delta) {
+        Surface.Clear();
 
-        var c = new ConsoleComposite(playerMain.back, playerMain.viewport);
+        var c = new ConsoleComposite(playerMain.back.Surface, playerMain.viewport.Surface);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 var source = c[x, y];
                 var cg = source.Gray();
                 sparkle.Filter(x, y, ref cg);
-                this.SetCellAppearance(x, y, cg);
+                Surface.SetCellAppearance(x, y, cg);
             }
         }
 
@@ -59,20 +67,19 @@ public class PauseScreen : Console {
             int y = 6;
             var controls = playerMain.playerShip.person.Settings;
             foreach (var line in controls.GetString().Replace("\r", null).Split('\n')) {
-                this.Print(x, y++, line.PadRight(Width - x - 4), Color.White, Color.Black);
+                Surface.Print(x, y++, line.PadRight(Width - x - 4), Color.White, Color.Black);
             }
         }
-
-        base.Render(delta);
+        Surface.Render(delta);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public bool ProcessKeyboard(Keyboard info) {
         if (info.IsKeyPressed(Keys.Escape)) {
             Continue();
         }
-        return base.ProcessKeyboard(info);
+        return Surface.ProcessKeyboard(info);
     }
     public void Continue() {
-        IsVisible = false;
+        Surface.IsVisible = false;
     }
     public void Save() {
         var ps = playerMain.playerShip;

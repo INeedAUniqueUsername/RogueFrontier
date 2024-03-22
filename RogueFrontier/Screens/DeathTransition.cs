@@ -19,7 +19,7 @@ public class DeathPause : Con {
     public DeathPause(Mainframe prev, DeathTransition next) : base(prev.Surface.Width, prev.Surface.Height) {
         this.prev = prev;
         this.next = next;
-        view = new Viewport(prev, prev.camera, prev.world);
+        view = new Viewport(prev.monitor);
         view.Update(new());
     }
     public override void Update(TimeSpan delta) {
@@ -37,8 +37,10 @@ public class DeathPause : Con {
         base.Render(delta);
     }
 }
-public class DeathTransition : ScreenSurface {
-    ScreenSurface prev, next;
+public class DeathTransition : Con
+{
+
+	Con Surface, prev, next;
     int Width => Surface.Width;
     int Height => Surface.Height;
     public class Particle {
@@ -47,7 +49,7 @@ public class DeathTransition : ScreenSurface {
     }
     HashSet<Particle> particles;
     double time;
-    public DeathTransition(ScreenSurface prev, ScreenSurface next) : base(prev.Surface.Width, prev.Surface.Height) {
+    public DeathTransition(Con prev, Con next) : base(prev.Surface.Width, prev.Surface.Height) {
         this.prev = prev;
         this.next = next;
         particles = new HashSet<Particle>();

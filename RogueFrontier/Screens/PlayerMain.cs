@@ -19,6 +19,7 @@ using SFML.Audio;
 using Microsoft.Win32.SafeHandles;
 using static Common.ColorCommand;
 using System.Reflection;
+using System.Numerics;
 
 namespace RogueFrontier;
 public class NotifyStationDestroyed : Ob<Station.Destroyed> {
@@ -64,8 +65,15 @@ public class SilenceListener : IWeaponListener {
         this.silence = s;
     }
 }
-
-record Monitor(System world, Camera camera, int Width, int Height);
+interface ISurface{
+    public ScreenSurface Surface { get; }
+    public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
+    public Point Position { get => Surface.Position; set => Surface.Position = value; }
+}
+public record Monitor(System world, PlayerShip playerShip, Camera camera, int Width, int Height){
+    public ScreenSurface NewSurface => new(Width, Height);
+    public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
+}
 public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
@@ -106,6 +114,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     private ListTracker<System> systems;
     public Sound music;
     public System silenceSystem;
+    public Monitor monitor;
     public Mainframe(int Width, int Height, Profile profile, PlayerShip playerShip) : base(Width, Height) {
         UseMouse = true;
         UseKeyboard = true;
@@ -131,23 +140,25 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             }
         }
         silenceListener.Register(playerShip);
+        monitor = new(world, playerShip, camera, Width, Height);
 
-        Monitor m = new(world, camera, Width, Height);
-
-        audio = new(playerShip);
+		audio = new(playerShip);
         audio.Register(playerShip.world.universe);
 
-        back = new(Width, Height, world.backdrop, camera);
-        viewport = new(this, camera, world);
-        uiMegamap = new(camera, playerShip, world.backdrop.layers.Last(), Width, Height);
-        vignette = new(this, playerShip, Width, Height);
+        back = new(monitor);
+        viewport = new(monitor);
+        uiMegamap = new(monitor, world.backdrop.layers.Last());
+        vignette = new(this);
         sceneContainer = new(Width, Height);
         sceneContainer.Focused += (e, o) => this.IsFocused = true;
-        uiMain = new(camera, playerShip, Width, Height);
-        uiEdge = new(camera, playerShip, Width, Height);
-        uiMinimap = new(camera, playerShip, 16, this);
-        powerWidget = new(31, 16, this) { IsVisible = false, Position = new(3, 32) };
-        pauseScreen = new(this) { IsVisible = false };
+        uiMain = new(monitor);
+        uiEdge = new(monitor);
+        uiMinimap = new(monitor, 16);
+        powerWidget = new(31, 16, this);
+        powerWidget.Surface.IsVisible = false;
+        powerWidget.Surface.Position = new(3, 32);
+
+		pauseScreen = new(this) { IsVisible = false };
         networkMap = new(this) { IsVisible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
         systems = new(new List<System>(playerShip.world.universe.systems.Values));
@@ -156,24 +167,24 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {
-        uiMain.IsVisible = false;
+        uiMain.Surface.IsVisible = false;
     }
     public void ShowUI() {
-        uiMain.IsVisible = true;
+        uiMain.Surface.IsVisible = true;
     }
     public void HideAll() {
         //Force exit any scenes
         sceneContainer.Children.Clear();
         //Force exit power menu
-        powerWidget.IsVisible = false;
-        uiMain.IsVisible = false;
+        powerWidget.Surface.IsVisible = false;
+        uiMain.Surface.IsVisible = false;
 
         //Pretty sure this can't happen but make sure
         pauseScreen.IsVisible = false;
     }
     public void Jump() {
-        var prevViewport = new Viewport(this, new(playerShip.position), world);
-        var nextViewport = new Viewport(this, this.camera, world);
+        var prevViewport = new Viewport(monitor with { camera = new(playerShip.position)});
+        var nextViewport = new Viewport(monitor);
 
         back = new(nextViewport);
         viewport = nextViewport;
@@ -191,13 +202,13 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         var destGate = gate.destGate;
         if (destGate == null) {
             world.entities.Remove(playerShip);
-            transition = new GateTransition(new(this, new(playerShip.position), world), null, () => {
+            transition = new GateTransition(new Viewport(monitor.FreezeCamera), null, () => {
                 transition = null;
                 OnPlayerLeft();
             });
             return;
         }
-        var prevViewport = new Viewport(this, new(playerShip.position), world);
+        var prevViewport = new Viewport(monitor.FreezeCamera);
         world.entities.Remove(playerShip);
 
         var nextWorld = destGate.world;
@@ -205,7 +216,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         playerShip.ship.position = destGate.position + (playerShip.ship.position - gate.position);
         nextWorld.entities.Add(playerShip);
         nextWorld.effects.Add(new Heading(playerShip));
-        var nextViewport = new Viewport(this, this.camera, nextWorld);
+        var nextViewport = new Viewport(monitor with { world = nextWorld });
 
         back = new(nextViewport);
         viewport = nextViewport;
@@ -352,7 +363,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         //if(!frameRendered) return;
         if (updatesSinceRender > 2) return;
         updatesSinceRender++;
-        if (pauseScreen.IsVisible) {
+        if (pauseScreen.Surface.IsVisible) {
             pauseScreen.Update(delta);
             return;
         }
@@ -442,7 +453,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         if (sceneContainer.Children.Any()) {
             sceneContainer.Update(delta);
         } else {
-            if (uiMain.IsVisible) {
+            if (uiMain.Surface.IsVisible) {
                 uiMegamap.Update(delta);
 
                 vignette.Update(delta);
@@ -459,7 +470,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
                 uiMegamap.Update(delta);
                 vignette.Update(delta);
             }
-            if (powerWidget.IsVisible) {
+            if (powerWidget.Surface.IsVisible) {
                 powerWidget.Update(delta);
             }
         }
@@ -496,7 +507,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         } else if(playerShip.active) {
             //viewport.UsePixelPositioning = true;
             //viewport.Position = (playerShip.position - playerShip.position.roundDown) * 8 * new XY(1, -1) * -1;
-            if (uiMain.IsVisible) {
+            if (uiMain.Surface.IsVisible) {
                 //If the megamap is completely visible, then skip main render so we can fast travel
                 if (uiMegamap.alpha < 255) {
                     if (transition != null) {
@@ -544,7 +555,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
                     vignette.Render(drawTime);
                 }
             }
-            if (powerWidget.IsVisible) {
+            if (powerWidget.Surface.IsVisible) {
                 powerWidget.Render(drawTime);
             }
         } else {
@@ -579,7 +590,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             pauseScreen.ProcessKeyboard(info);
         } else if (networkMap.IsVisible) {
             networkMap.ProcessKeyboard(info);
-        } else if (powerWidget.IsVisible) {
+        } else if (powerWidget.Surface.IsVisible) {
             playerControls.UpdateInput(info);
             powerWidget.ProcessKeyboard(info);
         } else {
@@ -638,10 +649,10 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             networkMap.ProcessMouseTree(state.Mouse);
         } else if (sceneContainer.Children.Any()) {
             sceneContainer.ProcessMouseTree(state.Mouse);
-        } else if (powerWidget.IsVisible
+        } else if (powerWidget.Surface.IsVisible
             && powerWidget.blockMouse
-            && new MouseScreenObjectState(powerWidget, state.Mouse).IsOnScreenObject) {
-            powerWidget.ProcessMouseTree(state.Mouse);
+            && new MouseScreenObjectState(powerWidget.Surface, state.Mouse).IsOnScreenObject) {
+            powerWidget.Surface.ProcessMouseTree(state.Mouse);
         } else if (state.IsOnScreenObject) {
             if(sleepMouse) {
                 sleepMouse = state.SurfacePixelPosition.Equals(prevMouse.SurfacePixelPosition);
@@ -913,26 +924,31 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         s.Play();
     }
 }
-public class BackdropConsole : ScreenSurface {
+public class BackdropConsole {
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     public Camera camera;
     private readonly XY screenCenter;
     private Backdrop backdrop;
-    public BackdropConsole(Viewport view) : base(view.Width, view.Height) {
-        this.camera = view.camera;
+
+    public ScreenSurface Surface;
+    public BackdropConsole(Viewport view) {
+        Surface = new(view.Width, view.Height);
+
+		this.camera = view.camera;
         this.backdrop = view.world.backdrop;
         screenCenter = new(Width / 2f, Height / 2f);
     }
-    public BackdropConsole(int width, int height, Backdrop backdrop, Camera camera) : base(width, height) {
-        this.camera = camera;
-        this.backdrop = backdrop;
+    public BackdropConsole(Monitor m) {
+        Surface = m.NewSurface;
+        this.camera = m.camera;
+        this.backdrop = m.world.backdrop;
         screenCenter = new XY(Width / 2f, Height / 2f);
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         Surface.Clear();
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
@@ -942,7 +958,7 @@ public class BackdropConsole : ScreenSurface {
                 Surface.SetCellAppearance(x, y, backdrop.GetTile(location, camera.position));
             }
         }
-        base.Render(drawTime);
+        Surface.Render(drawTime);
     }
     public ColoredGlyph GetTile(int x, int y) {
         var offset = new XY(x, Height - y) - screenCenter;
@@ -950,7 +966,7 @@ public class BackdropConsole : ScreenSurface {
         return backdrop.GetTile(location, camera.position);
     }
 }
-public class Megamap : ScreenSurface {
+public class Megamap {
     int Width => Surface.Width;
     int Height => Surface.Height;
     Camera camera;
@@ -961,16 +977,18 @@ public class Megamap : ScreenSurface {
     Dictionary<(int, int), List<(Entity entity, double distance)?>> scaledEntities;
     XY screenSize, screenCenter;
     public byte alpha;
-    public Megamap(Camera camera, PlayerShip player, GeneratedLayer back, int width, int height) : base(width, height) {
-        this.camera = camera;
-        this.player = player;
+    public ScreenSurface Surface;
+    public Megamap(Monitor m, GeneratedLayer back) {
+        Surface = m.NewSurface;
+        this.camera = m.camera;
+        this.player = m.playerShip;
         this.background = back;
 
         screenSize = new(Width, Height);
         screenCenter = screenSize / 2;
     }
     public double delta => Math.Min(targetViewScale / (2 * 30), 1);
-    public override bool ProcessKeyboard(Keyboard info) {
+    public bool ProcessKeyboard(Keyboard info) {
         var p = (Keys k) => info.IsKeyPressed(k);
         var d = (Keys k) => info.IsKeyDown(k);
         if (d(LeftControl) || d(RightControl)) {
@@ -1006,9 +1024,9 @@ public class Megamap : ScreenSurface {
                 targetViewScale = Math.Floor(targetViewScale)*4;
             }
         }
-        return base.ProcessKeyboard(info);
+        return Surface.ProcessKeyboard(info);
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         var d = targetViewScale - viewScale;
         /*
         if(Math.Abs(d) < 0.1) {
@@ -1026,9 +1044,9 @@ public class Megamap : ScreenSurface {
                 ((int x, int y) p) => p is (> -1, > -1) && p.x < Width && p.y < Height,
                 ent => ent is { tile: not null } and not ISegment && player.GetVisibleDistanceLeft(ent) is var dist and > 0 ? (ent, dist) : null
             );
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         Surface.Clear();
 
         var alpha = this.alpha;
@@ -1119,10 +1137,11 @@ public class Megamap : ScreenSurface {
             }
             */
         }
-        base.Render(delta);
+        Surface.Render(delta);
     }
 }
-public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
+public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
+    public ScreenSurface Surface;
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     PlayerShip player;
@@ -1137,6 +1156,7 @@ public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Des
     int recoveryTime;
     public int lightningHit;
     public int flash;
+
 
     Color glowColor = PowerType.glowColors[Voice.Orator];
 
@@ -1158,19 +1178,20 @@ public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Des
     public void Observe(PlayerShip.Destroyed ev) {
         
     }
-    public Vignette(Mainframe main, PlayerShip player, int width, int height) : base(width, height) {
-        this.player = player;
+    public Vignette(Mainframe main) {
+        player = main.playerShip;
+        Surface = main.monitor.NewSurface;
         player.onDamaged += this;
         player.onDestroyed += this;
-        FocusOnMouseClick = false;
+        Surface.FocusOnMouseClick = false;
         glowAlpha = 0;
         particles = new();
-        screenCenter = new(width / 2, height / 2);
+        screenCenter = new(Width / 2, Height / 2);
         r = new();
-        grid = new int[width, height];
-        silenceGrid = new double[width, height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        grid = new int[Width, Height];
+        silenceGrid = new double[Width, Height];
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
                 grid[x, y] = r.Next(0, 240);
 
                 silenceGrid[x, y] = r.NextDouble();
@@ -1178,12 +1199,10 @@ public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Des
         }
 
 
-        silenceViewport = new Viewport(this, main.camera, main.silenceSystem);
+        silenceViewport = new Viewport(main.monitor with { world = main.silenceSystem });
     }
-    public override void Update(TimeSpan delta) {
-
+    public void Update(TimeSpan delta) {
         silenceViewport.Update(delta);
-
         armorDecay = false && player.hull is LayeredArmor la && la.layers.Any(a => a.decay.Any());
         var charging = player.powers.Where(p => p.charging);
         if (charging.Any()) {
@@ -1239,9 +1258,9 @@ public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Des
         particles.RemoveWhere(p => !p.active);
         lightningHit--;
         flash--;
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         Surface.Clear();
 
         if (!player.active) {
@@ -1346,10 +1365,10 @@ public class Vignette : ScreenSurface, Ob<PlayerShip.Damaged>, Ob<PlayerShip.Des
                 }
             }
         }
-        base.Render(delta);
+        Surface.Render(delta);
     }
 }
-public class Readout : ScreenSurface {
+public class Readout {
     /*
     struct Snow {
         public char c;
@@ -1366,10 +1385,11 @@ public class Readout : ScreenSurface {
     public int Height => Surface.Height;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
-
-    public Readout(Camera camera, PlayerShip player, int width, int height) : base(width, height) {
-        this.camera = camera;
-        this.player = player;
+    public ScreenSurface Surface;
+    public Readout(Monitor m) {
+        Surface = m.NewSurface;
+        camera = m.camera;
+        player = m.playerShip;
 
         //arrowDistance = Math.Min(Width, Height)/2 - 6;
         arrowDistance = 24;
@@ -1387,9 +1407,9 @@ public class Readout : ScreenSurface {
             }
         }
         */
-        FocusOnMouseClick = false;
+        Surface.FocusOnMouseClick = false;
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         if (player.GetTarget(out var playerTarget)) {
             DrawTargetArrow(playerTarget, Color.Yellow);
         }
@@ -1424,9 +1444,9 @@ public class Readout : ScreenSurface {
                 Heading.Crosshair(target.world, target.position, c);
             }
         }
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         Surface.Clear();
         var messageY = Height * 3 / 5;
         int targetX = 48, targetY = 1;
@@ -1955,25 +1975,27 @@ public class Readout : ScreenSurface {
             Surface.Print(x, y++, $"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}");
             Surface.Print(x, y++, $"Darkness: {player.ship.silence:0.00}");
         }
-        base.Render(drawTime);
+        Surface.Render(drawTime);
     }
 }
-public class Edgemap : ScreenSurface {
+public class Edgemap {
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     Camera camera;
     PlayerShip player;
     public double viewScale;
-    public Edgemap(Camera camera, PlayerShip player, int width, int height) : base(width, height) {
-        this.camera = camera;
-        this.player = player;
-        FocusOnMouseClick = false;
+    public ScreenSurface Surface;
+    public Edgemap(Monitor m){
+        Surface = m.NewSurface;
+        this.camera = m.camera;
+        this.player = m.playerShip;
+        Surface.FocusOnMouseClick = false;
         viewScale = 1;
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
+        Surface.Update(delta);
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         Surface.Clear();
         var screenSize = new XY(Width - 1, Height - 1);
         var screenCenter = screenSize / 2;
@@ -2017,10 +2039,10 @@ public class Edgemap : ScreenSurface {
                 default: return;
             }
         }
-        base.Render(drawTime);
+        Surface.Render(drawTime);
     }
 }
-public class Minimap : ScreenSurface {
+public class Minimap {
     PlayerShip player;
     public int size;
     Camera camera;
@@ -2032,10 +2054,12 @@ public class Minimap : ScreenSurface {
     List<(int x, int y)> area = new();
 
     XY screenSize, screenCenter;
-    public Minimap(Camera camera, PlayerShip playerShip, int size, ScreenSurface parent) : base(size, size) {
+    public ScreenSurface Surface;
+    public Minimap(Monitor m, int size) {
+        Surface = new(size, size);
 
-        this.Position = new Point(parent.Surface.Width - size - 2, 2);
-        this.player = playerShip;
+		Surface.Position = new Point(m.Width - size - 2, 2);
+        this.player = m.playerShip;
         this.size = size;
         this.camera = camera;
 
@@ -2049,11 +2073,11 @@ public class Minimap : ScreenSurface {
             .SelectMany(x => Enumerable.Range(0, Height).Select(y => (x, y)))
             .Where(((int x, int y) p) => true || center.Dist(new(p.x, p.y)) < Width / 2));
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
+        Surface.Update(delta);
         time += delta.TotalSeconds;
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         var halfSize = size / 2;
         var range = 192;
         var mapScale = (range / halfSize);
@@ -2093,43 +2117,45 @@ public class Minimap : ScreenSurface {
         Parallel.For(0, Width, x => {
         });
         */
-        base.Render(delta);
+        Surface.Render(delta);
     }
 }
-public class CommunicationsWidget : ScreenSurface {
+public class CommunicationsWidget {
     PlayerShip playerShip;
     int ticks;
     CommandMenu? menu;
-    public CommunicationsWidget(int width, int height, PlayerShip playerShip) : base(width, height) {
-        this.playerShip = playerShip;
+    public ScreenSurface Surface;
+    public CommunicationsWidget(int width, int height, PlayerShip playerShip) {
+        Surface = new(width, height);
+		this.playerShip = playerShip;
         menu = null;
     }
-    public override void Update(TimeSpan delta) {
-        if (menu?.IsVisible == true) {
+    public void Update(TimeSpan delta) {
+        if (menu?.Surface.IsVisible == true) {
             menu.Update(delta);
             return;
         }
         if (ticks % 30 == 0) {
             playerShip.wingmates.RemoveAll(w => !w.active);
         }
-        base.Update(delta);
+        Surface.Update(delta);
         ticks++;
     }
-    public override bool ProcessKeyboard(Keyboard info) {
-        if (menu?.IsVisible == true) {
+    public bool ProcessKeyboard(Keyboard info) {
+        if (menu?.Surface.IsVisible == true) {
             return menu.ProcessKeyboard(info);
         }
         foreach (var k in info.KeysPressed) {
             int index = SMenu.keyToIndex(k.Character);
             if (index > -1 && index < 10 && index < playerShip.wingmates.Count) {
-                var w = playerShip.wingmates[index];
-                menu = new(this, playerShip, w) { Position = Position };
-            }
+                menu = new(Surface, playerShip, playerShip.wingmates[index]);
+                menu.Surface.Position = Surface.Position;
+			}
         }
-        return base.ProcessKeyboard(info);
+        return Surface.ProcessKeyboard(info);
     }
-    public override void Render(TimeSpan delta) {
-        if (menu?.IsVisible == true) {
+    public void Render(TimeSpan delta) {
+        if (menu?.Surface.IsVisible == true) {
             menu.Render(delta);
             return;
         }
@@ -2164,16 +2190,18 @@ public class CommunicationsWidget : ScreenSurface {
 
         //this.SetCellAppearance(Width/2, Height/2, new ColoredGlyph(Color.White, Color.White, 'X'));
 
-        base.Render(delta);
+        Surface.Render(delta);
     }
-    public class CommandMenu : ScreenSurface {
+    public class CommandMenu {
         //PlayerShip player;
         AIShip subject;
         public int ticks = 0;
         private Dictionary<string, Action> commands;
-        public CommandMenu(ScreenSurface prev, PlayerShip player, AIShip subject) : base(prev.Surface.Width, prev.Surface.Height) {
-            //this.player = player;
-            this.subject = subject;
+        public ScreenSurface Surface;
+        public CommandMenu(ScreenSurface prev, PlayerShip player, AIShip subject) {
+            Surface = new(prev.Surface.Width, prev.Surface.Height);
+			//this.player = player;
+			this.subject = subject;
             EscortShip GetEscortOrder(int i) {
                 int root = (int)Math.Sqrt(i);
                 int lower = root * root;
@@ -2234,11 +2262,11 @@ public class CommunicationsWidget : ScreenSurface {
                     break;
             }
         }
-        public override void Update(TimeSpan delta) {
+        public void Update(TimeSpan delta) {
             ticks++;
-            base.Update(delta);
+            Surface.Update(delta);
         }
-        public override bool ProcessKeyboard(Keyboard info) {
+        public bool ProcessKeyboard(Keyboard info) {
             foreach (var k in info.KeysPressed) {
                 int index = SMenu.keyToIndex(k.Character);
                 if (index > -1 && index < commands.Count) {
@@ -2246,11 +2274,11 @@ public class CommunicationsWidget : ScreenSurface {
                 }
             }
             if (info.IsKeyPressed(Keys.Escape)) {
-                IsVisible = false;
+                Surface.IsVisible = false;
             }
-            return base.ProcessKeyboard(info);
+            return Surface.ProcessKeyboard(info);
         }
-        public override void Render(TimeSpan delta) {
+        public void Render(TimeSpan delta) {
             int x = 0;
             int y = 0;
 
@@ -2273,40 +2301,39 @@ public class CommunicationsWidget : ScreenSurface {
                 Surface.Print(x, y++, $"[{key}] {w}", Color.White, Color.Black);
             }
 
-            base.Render(delta);
+            Surface.Render(delta);
         }
     }
 }
-public class PowerWidget : ScreenSurface {
+public class PowerWidget {
     PlayerShip playerShip;
     Mainframe main;
     int ticks;
     private bool _blockMouse;
+    public ScreenSurface Surface;
     public bool blockMouse {
         set {
             _blockMouse = value;
-            Surface.DefaultBackground = value ? new Color(0, 0, 0, 127) : Color.Transparent;
+            Surface.Surface.DefaultBackground = value ? new Color(0, 0, 0, 127) : Color.Transparent;
         }
         get => _blockMouse;
     }
-    public PowerWidget(int width, int height, Mainframe main) : base(width, height) {
+    public PowerWidget(int width, int height, Mainframe main) {
         this.playerShip = main.playerShip;
-        this.main = main;
-        FocusOnMouseClick = false;
+        Surface = new(width, height);
+		this.main = main;
+        Surface.FocusOnMouseClick = false;
         InitButtons();
-    }
-    protected override void OnVisibleChanged() {
-        if (IsVisible) {
-            InitButtons();
-        }
-        base.OnVisibleChanged();
+		Surface.IsVisibleChanged += (s, e) => {
+            if (Surface.IsVisible) InitButtons();
+        };
     }
     public void InitButtons() {
         int x = 4;
         int y = 6;
-        this.Children.Clear();
+        Surface.Children.Clear();
         foreach (var p in playerShip.powers) {
-            this.Children.Add(new LabelButton(p.type.name) {
+            Surface.Children.Add(new LabelButton(p.type.name) {
                 Position = new Point(x, y++),
                 leftHold = () => {
                     if (p.ready) {
@@ -2317,7 +2344,7 @@ public class PowerWidget : ScreenSurface {
             });
         }
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         ticks++;
 
         bool charging = false;
@@ -2363,9 +2390,9 @@ public class PowerWidget : ScreenSurface {
                 main.audio.PlayPowerCharge();
             }
         }
-        base.Update(delta);
+        Surface.Update(delta);
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public bool ProcessKeyboard(Keyboard keyboard) {
         foreach (var k in keyboard.KeysDown) {
             var ch = k.Character;
             //If we're pressing a digit/letter, then we're charging up a power
@@ -2401,9 +2428,9 @@ public class PowerWidget : ScreenSurface {
             //IsVisible = false;
         }
 
-        return base.ProcessKeyboard(keyboard);
+        return Surface.ProcessKeyboard(keyboard);
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         int x = 0;
         int y = 0;
         int index = 0;
@@ -2459,7 +2486,7 @@ public class PowerWidget : ScreenSurface {
 
         //this.SetCellAppearance(Width/2, Height/2, new ColoredGlyph(Color.White, Color.White, 'X'));
 
-        base.Render(delta);
+        Surface.Render(delta);
     }
 
 }
