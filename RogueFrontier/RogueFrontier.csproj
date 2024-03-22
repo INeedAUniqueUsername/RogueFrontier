@@ -33,6 +33,9 @@
     <Reference Include="ASECII">
       <HintPath>..\..\ASECII\ASECII\bin\Release\net7.0\ASECII.dll</HintPath>
     </Reference>
+    <Reference Include="GamerLib">
+      <HintPath>D:\GamerLib\GamerLib\bin\Debug\net9.0\GamerLib.dll</HintPath>
+    </Reference>
     <Reference Include="Transgenesis">
       <HintPath>..\..\Transgenesis\Transgenesis\bin\Release\net7.0\Transgenesis.dll</HintPath>
     </Reference>

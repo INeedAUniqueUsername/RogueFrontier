@@ -13,15 +13,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleComposite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debug.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiceGen.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DictCounter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GeneratedGrid.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Grid.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Ob.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SparkleFilter.cs" />
-    <Compile Include="..\Common\Req.cs" />
-    <Compile Include="..\Common\IContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)QTree.cs" />
     <Compile Include="..\Common\Main.cs" />
   </ItemGroup>
   <ItemGroup>
