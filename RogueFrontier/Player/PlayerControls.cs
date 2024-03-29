@@ -89,7 +89,7 @@ public class PlayerControls {
     public void ProcessCommon() {
         if (input.ToggleUI) {
             playerMain.audio.button_press.Play();
-            playerMain.uiMain.IsVisible = !playerMain.uiMain.IsVisible;
+            playerMain.uiMain.Surface.IsVisible = !playerMain.uiMain.Surface.IsVisible;
         }
         if (input.Gate) {
             playerShip.DisengageAutopilot();
@@ -157,15 +157,15 @@ public class PlayerControls {
         var pw = playerMain.powerWidget;
         if (input.Escape) {
             playerMain.audio.button_press.Play();
-            if (pw?.IsVisible == true) {
-                pw.IsVisible = false;
+            if (pw?.Surface.IsVisible == true) {
+                pw.Surface.IsVisible = false;
             } else {
                 playerMain.pauseScreen.IsVisible = true;
             }
         }
         if (input.InvokePowers && pw != null) {
             playerMain.audio.button_press.Play();
-            pw.IsVisible = !pw.IsVisible;
+            pw.Surface.IsVisible = !pw.Surface.IsVisible;
         }
         if (keys != null && keys.IsKeyPressed(U)) {
             playerMain.audio.button_press.Play();

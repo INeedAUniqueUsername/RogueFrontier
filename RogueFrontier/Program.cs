@@ -45,6 +45,7 @@ partial class Program {
         File.WriteAllText("RogueFrontierSchema.xml", module.ToString());
     }
     static void Main(string[] args) {
+#if false
         XSave x = null;
 
         var o = GenerateIntroSystem();
@@ -62,7 +63,8 @@ partial class Program {
 		Console.WriteLine($"{diff}");
 
         if (true) return;
-        OutputSchema();
+#endif
+        //OutputSchema();
         SadConsole.Settings.WindowTitle = $"Rogue Frontier v{Assembly.GetExecutingAssembly().GetName().Version}";
         /*
         var w = new System();

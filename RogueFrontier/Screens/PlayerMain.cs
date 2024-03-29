@@ -644,7 +644,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     }
     public override bool ProcessMouse(MouseScreenObjectState state) {
         if (pauseScreen.IsVisible) {
-            pauseScreen.ProcessMouseTree(state.Mouse);
+            pauseScreen.Surface.ProcessMouseTree(state.Mouse);
         } else if (networkMap.IsVisible) {
             networkMap.ProcessMouseTree(state.Mouse);
         } else if (sceneContainer.Children.Any()) {

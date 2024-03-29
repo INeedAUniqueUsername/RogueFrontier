@@ -531,8 +531,11 @@ public class PlayerShip : IShip {
     public record WeaponFired(PlayerShip playerShip, Weapon w, List<Projectile> p, bool sound = true);
     public Vi<WeaponFired> onWeaponFire = new();
     public List<AIShip> wingmates = new();
+
+
     public Dictionary<ulong, double> visibleDistanceLeft=new();
     public Dictionary<ActiveObject, int> tracking = new();
+    
     public PlayerShip() { }
     public PlayerShip(Player person, BaseShip ship, Sovereign sovereign) {
         this.person = person;

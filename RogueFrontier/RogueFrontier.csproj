@@ -23,8 +23,8 @@
     <PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
     <PackageReference Include="Namotion.Reflection" Version="3.1.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-    <PackageReference Include="SadConsole" Version="10.0.2" />
-    <PackageReference Include="SadConsole.Host.SFML" Version="10.0.0" />
+    <PackageReference Include="SadConsole" Version="10.0.3" />
+    <PackageReference Include="SadConsole.Host.SFML" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ArchConsole">
