@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DictCounter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GeneratedGrid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Grid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ListIndex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ob.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SparkleFilter.cs" />

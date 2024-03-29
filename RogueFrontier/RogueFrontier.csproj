@@ -8,6 +8,11 @@
 	<ApplicationIcon>RogueFrontierContent\Icon.ico</ApplicationIcon>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Behavior\**" />
+    <EmbeddedResource Remove="Behavior\**" />
+    <None Remove="Behavior\**" />
+  </ItemGroup>
 	
     <ItemGroup>
         <EmbeddedResource Include="RogueFrontierContent/Icon.ico" />
@@ -383,7 +388,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Behavior\" />
 	  <Folder Include="RogueFrontierContent\text\" />
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />

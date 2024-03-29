@@ -6,15 +6,15 @@ using Newtonsoft.Json;
 using SadConsole;
 using SadRogue.Primitives;
 using Con = SadConsole.ScreenSurface;
-using G = RogueFrontier.PlayerStory.GetDockScreen;
+using G = RogueFrontier.Timeline.GetDockScreen;
 namespace RogueFrontier;
 
 public interface IPlayerInteraction {
     Con GetScene(Con prev, PlayerShip playerShip, IDockable d);
 }
 public class IntroMeeting : IPlayerInteraction {
-    PlayerStory story;
-    public IntroMeeting(PlayerStory story) {
+    Timeline story;
+    public IntroMeeting(Timeline story) {
         this.story = story;
     }
     public Con GetScene(Con prev, PlayerShip playerShip, IDockable d) {
@@ -276,11 +276,11 @@ That is all.""";
     }
 }
 class IntroTraining : IPlayerInteraction {
-    PlayerStory story;
+    Timeline story;
     Station station;
     public AIShip[] drones;
     public int startTick;
-    public IntroTraining(PlayerStory story, Station station, PlayerShip player) {
+    public IntroTraining(Timeline story, Station station, PlayerShip player) {
         this.story = story;
         this.station = station;
         var w = station.world;
@@ -363,10 +363,10 @@ and services for money. Some might have jobs that you can take.""
     }
 }
 class IntroExploration : IPlayerInteraction {
-    PlayerStory story;
+    Timeline story;
     Station station;
     HashSet<Station> targets;
-    public IntroExploration(PlayerStory story, Station station, PlayerShip playerShip) {
+    public IntroExploration(Timeline story, Station station, PlayerShip playerShip) {
         this.story = story;
         this.station = station;
         var w = station.world;
@@ -423,10 +423,10 @@ go and start destroying Errorists.""",
     }
 }
 class IntroOuterEnemy : IPlayerInteraction {
-    PlayerStory story;
+    Timeline story;
     Station station;
     Station target;
-    public IntroOuterEnemy(PlayerStory story, Station station, PlayerShip playerShip) {
+    public IntroOuterEnemy(Timeline story, Station station, PlayerShip playerShip) {
         this.story = story;
         this.station = station;
         var w = station.world;
@@ -532,7 +532,7 @@ public static class SPlayerStory {
 They are mad with weaponry and will destroy whatever they please.
 There's a reason why we never agree to negotiate with them.
 */
-public class PlayerStory : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destroyed> {
+public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destroyed> {
     public HashSet<IPlayerInteraction> mainInteractions;
     public HashSet<IPlayerInteraction> secondaryInteractions;
     public HashSet<IPlayerInteraction> completedInteractions;
@@ -690,7 +690,7 @@ public class PlayerStory : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Des
         item_debug_missile = 0,
         item_debug_missile_launcher = 0
     }.ToDict<int>();
-    public PlayerStory(PlayerShip playerShip) {
+    public Timeline(PlayerShip playerShip) {
         var i = playerShip.world.types.GetDict<ItemType>();
         stdPrice = stdPriceTable.ToDictionary(pair => i[pair.Key], pair => pair.Value);
         var missing = i.Keys.Except(stdPriceTable.Keys).ToList();

@@ -1,6 +1,7 @@
 ﻿namespace RogueFrontier;
 
-public interface Event {
+public interface Event
+{
     bool active { get; }
     void Update(double delta);
 }

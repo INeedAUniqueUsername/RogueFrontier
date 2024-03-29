@@ -10,6 +10,7 @@ using ArchConsole;
 using SFML.Audio;
 using System.ComponentModel.DataAnnotations;
 using CloudJumper;
+using RogueFrontier;
 
 namespace RogueFrontier;
 public static partial class SMenu {
@@ -91,7 +92,7 @@ public static partial class SMenu {
             p.IsFocused = true;
         }
     }
-    public static ListMenu<IPlayerInteraction> Missions(ScreenSurface prev, PlayerShip player, PlayerStory story) {
+    public static ListMenu<IPlayerInteraction> Missions(ScreenSurface prev, PlayerShip player, Timeline story) {
         ListMenu<IPlayerInteraction> screen = null;
         List<IPlayerInteraction> missions = new();
         void UpdateList() {

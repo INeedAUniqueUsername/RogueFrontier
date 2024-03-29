@@ -13,9 +13,9 @@ namespace RogueFrontier;
 class ShipMenu : ScreenSurface {
     public ScreenSurface prev;
     public PlayerShip playerShip;
-    public PlayerStory story;
+    public Timeline story;
     //Idea: Show an ASCII-art map of the ship where the player can walk around
-    public ShipMenu(ScreenSurface prev, PlayerShip playerShip, PlayerStory story) : base(prev.Surface.Width, prev.Surface.Height) {
+    public ShipMenu(ScreenSurface prev, PlayerShip playerShip, Timeline story) : base(prev.Surface.Width, prev.Surface.Height) {
         this.prev = prev;
         this.playerShip = playerShip;
         this.story = story;

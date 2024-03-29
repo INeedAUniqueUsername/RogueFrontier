@@ -84,7 +84,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public System world => playerShip.world;
     public Camera camera { get; private set; }
     public Profile profile;
-    public PlayerStory story;
+    public Timeline story;
     public PlayerShip playerShip;
     public PlayerControls playerControls;
     public Noisemaker audio;
