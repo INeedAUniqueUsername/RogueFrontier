@@ -1,43 +1,24 @@
-# ASECII: ASCII Sprite Editor Console II
+# Rogue Frontier
+![Cover](RogueFrontier/Assets/sprites/PosterNoText.asc.png)
 
-![Banner](https://user-images.githubusercontent.com/15680274/194045908-117d3e8a-4f01-41bb-b0a1-357310de8ea8.png)
+_Rogue Frontier_ is an ambitious ASCII-style space adventure set in an alternate timeline of *Transcendence* (and its predecessor, *Frontier*) - a space-opera roguelike by George Moromisato. The player receives an invitation from a deity known as The Orator to travel towards the Galactic Core. 
 
-ASECII is a custom-made ASCII painter developed for Rogue Frontier.
-## Features
-### Menu
-- Size
-  - Infinite
-  - Finite
-- Palette
-  - Tile
-  - Color
-- Color Selection
-  - Modes: RGBA / HSBA
-  - Picker
-  - Bars
-- History (press Z to show)
-- Layer
-  - Add
-  - Rename
-  - Move
-  - Merge Down
-  - Visible
-  - Apply Glyph
-  - Apply Foreground
-  - Apply Background
-### Keyboard controls
-- Brush (B)
-- Fill (F)
-- Type (T)
-- Undo (Left Ctrl + U)
-- Redo (Left Ctrl + R)
-- Shape Select (S): Rect / Circle / Freeform / Polygon
-- Wand Select (W): Local / Global
-- Deselect (D)
-- Move (M)
-- Delete (Del)
-- Pan (Space)
-- Mouse Zoom (Ctrl + Wheel)
-- Mouse Scroll (Wheel / Shift + Wheel): Vertical / Horizontal
+There are three main themes in the design of Rogue Frontier:
+- Persistence: Factions engage in dynamic warfare. Systems update even while the player is in another system. Enemies can pursue the player across stargates.
+- Mortality: All resources are limited. Armor degrades over time. Weapons run out of ammo. Reactors run out of fuel.
+- Aesthetic: The world is painted with colored, extended ASCII tiles in order to push the limits of art.
 
-Image files export to JSON-serialized SpriteModel objects, JSON-serialized `Dictionary<Point, ColoredGlyph>`, and plain text (without color data).
+This game is in early development and set to release at least prior to the heat death of the universe.
+
+_Transcendence_ is property of Kronosaur Productions. _Rogue Frontier_ is an independent fangame.
+
+## Play
+Download and extract the ZIP archive. Run RogueFrontier.exe to play.
+
+## Build
+- Visual Studio 2022
+- NET 6.0
+- SadConsole (with SFML host)
+- [ArchConsole](https://github.com/INeedAUniqueUsername/ArchConsole)
+- [ASECII](https://github.com/INeedAUniqueUsername/ASECII)
+

@@ -9,6 +9,8 @@
     <Import_RootNamespace>Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ArchConsole.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BoxGlyph.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ColorImage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleComposite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debug.cs" />
@@ -17,9 +19,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)GeneratedGrid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Grid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ListIndex.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MouseWatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ob.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SparkleFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SpriteLoader.cs" />
     <Compile Include="..\Common\Req.cs" />
     <Compile Include="..\Common\IContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QTree.cs" />

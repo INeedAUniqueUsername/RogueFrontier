@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>RogueFrontier</RootNamespace>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
 	<StartupObject>RogueFrontier.Program</StartupObject>
@@ -24,23 +24,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreCLR-NCalc" Version="2.2.113" />
+    <PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
     <PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
-    <PackageReference Include="Namotion.Reflection" Version="3.1.0" />
+    <PackageReference Include="Namotion.Reflection" Version="3.1.1" />
     <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
     <PackageReference Include="SadConsole" Version="10.0.3" />
     <PackageReference Include="SadConsole.Host.SFML" Version="10.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="ArchConsole">
-      <HintPath>..\..\ArchConsole\ArchConsole\bin\Release\net7.0\ArchConsole.dll</HintPath>
-    </Reference>
-    <Reference Include="ASECII">
-      <HintPath>..\..\ASECII\ASECII\bin\Release\net7.0\ASECII.dll</HintPath>
-    </Reference>
-    <Reference Include="Transgenesis">
-      <HintPath>..\..\Transgenesis\Transgenesis\bin\Release\net7.0\Transgenesis.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="app.manifest">
@@ -390,5 +379,7 @@
   <ItemGroup>
 	  <Folder Include="Assets\text\" />
   </ItemGroup>
-  <Import Project="..\Common\Common.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\ASECII\ASECII.csproj" />
+  </ItemGroup>
 </Project>

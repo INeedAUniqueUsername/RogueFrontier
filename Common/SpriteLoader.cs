@@ -10,7 +10,7 @@ using SadRogue.Primitives;
 using static SadConsole.ColoredString;
 using System.IO;
 
-namespace ASECII {
+namespace Common {
     //https://stackoverflow.com/a/57319194
     public static class STypeConverter {
         public static void PrepareConvert() {
@@ -19,18 +19,6 @@ namespace ASECII {
             
             TypeDescriptor.AddAttributes(typeof((uint, uint)), new TypeConverterAttribute(typeof(UInt2Converter)));
             //TypeDescriptor.AddAttributes(typeof(Color), new TypeConverterAttribute(typeof(ColorConverter)));
-        }
-    }
-    public static class ASECIILoader {
-        public static Dictionary<(int, int), TileValue> LoadCG(string path) =>
-            DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(path));
-        public static T DeserializeObject<T>(string s) {
-            STypeConverter.PrepareConvert();
-            return JsonConvert.DeserializeObject<T>(s, SFileMode.settings);
-        }
-        public static string SerializeObject(object o) {
-            STypeConverter.PrepareConvert();
-            return JsonConvert.SerializeObject(o, SFileMode.settings);
         }
     }
     public class ColorConverter : TypeConverter {

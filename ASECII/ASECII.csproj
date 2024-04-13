@@ -52,8 +52,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SadConsole" Version="10.0.2" />
-    <PackageReference Include="SadConsole.Host.SFML" Version="10.0.0" />
+    <PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
+    <PackageReference Include="Namotion.Reflection" Version="3.1.1" />
+    <PackageReference Include="SadConsole" Version="10.0.3" />
+    <PackageReference Include="SadConsole.Host.SFML" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -76,5 +78,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
 
 </Project>
