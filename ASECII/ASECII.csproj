@@ -59,12 +59,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ArchConsole">
-      <HintPath>..\..\ArchConsole\ArchConsole\bin\Release\net7.0\ArchConsole.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Content\IBMCGA+.font">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
