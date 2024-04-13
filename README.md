@@ -41,6 +41,3 @@ ASECII is a custom-made ASCII painter developed for Rogue Frontier.
 - Mouse Scroll (Wheel / Shift + Wheel): Vertical / Horizontal
 
 Image files export to JSON-serialized SpriteModel objects, JSON-serialized `Dictionary<Point, ColoredGlyph>`, and plain text (without color data).
-
-## Preview
-![image](https://user-images.githubusercontent.com/15680274/194050053-8676dd42-e4f7-4cb6-99cd-8e518c891cb5.png)
