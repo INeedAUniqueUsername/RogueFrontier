@@ -1,0 +1,407 @@
+﻿<Module>
+    <ShipClass  codename="ship_amethyst_i"
+                name="Amethyst-class yacht"
+				attributes="Amethyst"
+                thrust="0.5"
+                maxSpeed="25"
+
+                rotationAccel="6"
+                rotationDecel="12"
+                rotationMaxSpeed="8"
+
+                glyph="A"
+                foreground="Magenta"
+	    >
+		<RestrictWeapon require="Amethyst"/>
+	    <Devices>
+			<Weapon codename="item_amethyst_laser_i"/>
+			<Weapon codename="item_magic_blaster_i"/>
+			<Shield codename="item_shimmer_shield_i"/>
+			<Reactor codename="item_amethyst_25mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+        </Devices>
+		<Items>
+			<Item codename="item_simple_fuel_rod" count="12"/>
+			<Item codename="item_amethyst_member_card"	count="1"/>
+			<Item codename="item_amethyst_repair_kit_i"	count="4"/>
+		</Items>
+        <LayeredArmorSystem>
+			<Armor  codename="item_gemsteel_plate_i"/>
+			<Armor  codename="item_gemsteel_plate_i"/>
+        </LayeredArmorSystem>
+        <PlayerSettings
+            startingClass="true"
+            description="The Amethyst-class yacht (64 ton edition), more than just a symbol of middle-class conspicuous consumption, is a well-rounded multipurpose starship designed for the everyday pilot."
+            >
+            <Map>                                     
+                       __                       
+                      /%%\                      
+                     /%%%%\                     
+                    //.LL.\\                    
+                   ||......||                   
+                    \\....//                    
+                     |#..#|                     
+                 /--/##..##\--\                 
+               /++#####..#####++\               
+              /+/-----#..#-----\+\              
+             //#/  /###..###\  \#\\             
+            //#/   |--|--|--|   \#\\            
+           //=/    |--|--|--|    \=\\           
+          //#/    /|--|--|--|\    \#\\          
+         //#/    //\########/\\    \#\\         
+        //#/     //    ||    \\     \#\\        
+       /#/      //     ||     \\      \#\       
+     /#/        //     ||     \\        \#\     
+   /#/         //      ||      \\         \#\   
+ /#/          //       ||       \\          \#\ 
+            </Map>
+        </PlayerSettings>
+    </ShipClass>
+	
+    <ShipClass  codename="ship_amethyst_ii"
+                name="Amethyst-class yacht"
+				attributes="Amethyst"
+                thrust="0.5"
+                maxSpeed="25"
+
+                rotationAccel="6"
+                rotationDecel="12"
+                rotationMaxSpeed="8"
+
+                glyph="A"
+                foreground="Magenta"
+	    >
+		<RestrictWeapon require="Amethyst"/>
+	    <Devices>
+			<Weapon codename="item_amethyst_laser_ii"/>
+			<Weapon codename="item_magic_blaster_ii"/>
+			<Weapon codename="item_light_launcher_i"/>
+			<Shield codename="item_shimmer_shield_ii"/>
+			<Reactor codename="item_amethyst_50mw_generator"/>
+			<Reactor codename="item_20mw_secondary"/>
+        </Devices>
+		<Items>
+			<Item codename="item_simple_fuel_rod" count="12"/>
+			<Item codename="item_amethyst_member_card"	count="1"/>
+			<Item codename="item_amethyst_repair_kit_i"	count="4"/>
+		</Items>
+        <LayeredArmorSystem>
+			<Armor  codename="item_gemsteel_plate_ii"/>
+			<Armor  codename="item_gemsteel_plate_ii"/>
+        </LayeredArmorSystem>
+        <PlayerSettings
+            startingClass="false"
+            description="The Amethyst-class yacht (64 ton edition) (second generation), more than just a symbol of middle-class conspicuous consumption, is a well-rounded multipurpose starship designed for the everyday pilot."
+            >
+            <Map>                                     
+                       __                       
+                      /%%\                      
+                     /%%%%\                     
+                    //.LL.\\                    
+                   ||......||                   
+                    \\....//                    
+                     |#..#|                     
+                 /--/##..##\--\                 
+               /++#####..#####++\               
+              /+/-----#..#-----\+\              
+             //#/  /###..###\  \#\\             
+            //#/   |--------|   \#\\            
+           //=/    |--------|    \=\\           
+          //#/    /|--------|\    \#\\          
+         //#/    /|\########/|\    \#\\         
+        //#/    /|     ||     |\    \#\\        
+       /#/      ||     ||     ||      \#\       
+     /#/       /|      ||      |\       \#\     
+   /#/        /|       ||       |\        \#\   
+ /#/         /|        ||        |\         \#\ 
+            </Map>
+        </PlayerSettings>
+    </ShipClass>
+	<ShipClass    codename="ship_beowulf"
+				  name="Beowulf-class gunship"
+				  attributes=	"BeowulfClub"
+				  thrust="1"
+				  maxSpeed="30"
+
+				  rotationAccel="8"
+				  rotationDecel="15"
+				  rotationMaxSpeed="10"
+
+				  glyph="b"
+				  foreground="White"
+				  background="Black"
+        >
+		<Items>
+			<Item codename="item_klaw_missile" count="40"/>
+			<Item codename="item_simple_fuel_rod" count="24"/>
+			<Item codename="item_armor_repair_patch"	count="6"/>
+		</Items>
+		<Devices>
+			<Weapon codename="item_beowulf_dual_laser_cannon"/>
+			<Weapon codename="item_klaw_missile_launcher"/>
+			<Shield codename="item_buckler_shield"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_loneheart"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+        </LayeredArmorSystem>
+		<PlayerSettings
+			startingClass="true"
+			description="A starship preferred by space-age bikers, self-protection enthusiasts, and folk heroes alike, a Beowulf-class gunship highlights the tougher and harder parts of one's personality."
+        >
+			<Map>
+      //                              \\      
+      ||              __              ||      
+     //              /()\              \\     
+    |||             /O..O\             |||    
+    |||             |....|             |||    
+   ///         //---|....|---\\         \\\   
+   |||     //--.....|....|......-\\     |||   
+   |||  //-.........\..../.........-\\  |||   
+   ||| /-........//--|..|--\\........-\ |||   
+  /// /......../-====|..|====-\........\ \\\  
+  |||/......../======\../======\........\|||  
+  |||........|========||========|........|||  
+  |||==\\\....\\_=====||=====_//....///==|||  
+  ||||OOOO\\....|\____||____/|....//OOOO||||  
+     |T||T|\\...| | | || | | |...//|T||T|     
+     |T||T|  |__|_|_|_||_|_|_|__|  |T||T|     
+     |T||T|  |_|_|_|T/TT\T|_|_|_|  |T||T|     
+     |T||T|        |T|TT|T|        |T||T|     
+     |T||T|        |T|TT|T|        |T||T|     
+     |/--\|        |/----\|        |/--\|     
+            </Map>
+		</PlayerSettings>
+	</ShipClass>
+	<ShipClass  codename="ship_ulysses"
+				inherit="ship_beowulf"
+				name="Ulysses-class gunship"
+				attributes=	"BeowulfClub"
+        >
+		<Items>
+			<Item codename="item_klaw_missile" count="64"/>
+			<Item codename="item_simple_fuel_rod" count="30"/>
+			<Item codename="item_armor_repair_patch"	count="12"/>
+		</Items>
+		<Devices>
+			<Weapon codename="item_beowulf_dual_laser_repeater"/>
+			<Weapon codename="item_klaw_missile_launcher"/>
+			<Shield codename="item_buckler_shield"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass="false"
+			description="The Ulysses is an upgraded version of the Beowulf-class gunship."
+        />
+	</ShipClass>
+	<ShipClass codename=            "ship_clark"
+               name=                "Clark-class transport"
+               thrust=              "0.3"
+			   maxSpeed=            "20"
+
+			   rotationAccel=       "6"
+			   rotationDecel=       "12"
+			   rotationMaxSpeed=    "8"
+
+               glyph=                "c"
+               foreground=          "Orange"
+			   background=			"Black"
+        >
+		<Items>
+			<Item codename="item_simple_fuel_rod"	count="24"/>
+			<Item codename="item_armor_repair_patch"	count="8"/>
+			<Item codename="item_scanner_drone"	count="4"/>
+			<Item codename="item_sidearm_turret"	count="2"/>
+
+			<Item codename="item_dynamite_charge" count="24"/>
+		</Items>
+        <Devices>
+			<Weapon codename="item_musket_turret"/>
+			<Weapon codename="item_dynamite_cannon"/>
+			<Weapon codename="item_missile_defender"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+			<Solar codename="item_20mw_solar"/>
+		</Devices>
+        <LayeredArmorSystem>
+			<Armor  codename="item_bumpersteel_plate"/>
+			<Armor  codename="item_bumpersteel_plate"/>
+        </LayeredArmorSystem>
+		<PlayerSettings
+            startingClass=  "true"
+            description=    "Whether you used to be a banker, carpenter, or farmer before taking to the stars, a pioneer like you could use a fully stocked Clark-class transport to survive the galactic trail."
+            >
+            <Map>
+                        __                        
+                       /()\                       
+                      /O..O\                      
+                      |....|                      
+           _____------|....|------_____           
+          |     ______|....|______     |          
+       /--+----- |    |....|    | -----+--\       
+       |--\  | | |    |....|    | |  | /--|       
+       |===\-\ | |    |....|    | | /-/===|       
+       |======\-\|   _|....|_   |/-/======|       
+       |=========|  /  \__/  \  |=========|       
+       |=========|-|   (__)   |-|=========|       
+       |=========|  \_      _/  |=========|       
+       |======/-/|  | ------ |  |\-\======|       
+       |===/-/ | |  | |||||| |  | | \-\===|       
+     __|/-/  | | |  -- |||| --  | | |  \-\|__     
+    /-- _|_\ | | |-- -- || -- --| | | /_|_ --\    
+   /---- |   | | |--- | || | ---| | |   | ----\   
+  \     |    |----------------------|    |     /  
+   \    |    /----------------------\    |    /   
+    \___|___/                        \___|___/    
+     \-----/                          \-----/     
+            </Map>
+        </PlayerSettings>
+    </ShipClass>
+	<ShipClass codename="ship_clark_merchant"
+			   name="Clark-class merchant"
+			   inherit="ship_clark"
+			   crimeOnDestroy="true"
+			   >
+		<Items>
+			<Item codename="item_armor_repair_patch"	count="24"/>
+			<Item codename="item_simple_fuel_rod" count="120"/>
+			<ItemTable count="120">
+				<Item chance="1" codename="item_simple_fuel_rod" count="4"/>
+				<Item chance="1" codename="item_klaw_missile_launcher" count="1"/>
+				<Item chance="1" codename="item_klaw_missile" count="20"/>
+				<Item chance="1" codename="item_scanner_drone" count="1"/>
+				<Item chance="1" codename="item_dynamite_cannon" count="1"/>
+				<Item chance="1" codename="item_dynamite_charge" count="10"/>
+				<Item chance="1" codename="item_shield_bash" count="1"/>
+				<Item chance="1" codename="item_buckler_shield" count="1"/>
+			</ItemTable>
+		</Items>
+		<PlayerSettings startingClass="false"/>
+	</ShipClass>
+	<ShipClass codename=            "ship_lewis"
+			   inherit=				"ship_clark"
+               name=                "Lewis-class transport"
+        >
+		<Items>
+			<Item codename="item_simple_fuel_rod" count="24"/>
+			<Item codename="item_armor_repair_patch"	count="8"/>
+		</Items>
+		<Devices>
+			<Weapon codename="item_musket_turret"/>
+			<Weapon codename="item_missile_defender"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_bumpersteel_plate"/>
+			<Armor  codename="item_bumpersteel_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+            startingClass=  "false"
+            description=    "The Lewis-class transport is an upgrade to the Clark-class transport."
+            >
+		</PlayerSettings>
+	</ShipClass>
+	<ShipClass codename=            "ship_errant"
+			   name=                "Knight-Errant-class gunship"
+			   thrust=              "0.15"
+			   maxSpeed=            "20"
+
+			   rotationAccel=       "4"
+			   rotationDecel=       "8"
+			   rotationMaxSpeed=    "4"
+
+			   glyph=                "k"
+			   foreground=          "Cyan"
+        >
+		<Devices>
+			<Weapon codename="item_flintlock"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+            <Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass=  "false"
+			description=    "As an entry-level defender, the Knight-Errant-class gunship features two layers of reliable Knightscale plate."
+            />
+	</ShipClass>
+	<ShipClass codename=            "ship_vassal"
+			   name=                "Knight-Vassal-class gunship"
+			   thrust=              "0.25"
+			   maxSpeed=            "20"
+
+			   rotationAccel=       "4"
+			   rotationDecel=       "8"
+			   rotationMaxSpeed=    "4"
+
+			   glyph=                "K"
+			   foreground=          "LightBlue"
+        >
+		<Devices>
+			<Weapon codename="item_flintlock"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+            <Armor  codename="item_knightsteel_plate"/>
+            <Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass=  "false"
+			description=    "The Knight-Vassal-class gunship is a medium-priced entry in the Knight lineup of defense ships."
+            />
+	</ShipClass>
+    <ShipClass codename=            "ship_templar"
+			   name=                "Templar-class gunship"
+			   thrust=              "0.25"
+			   maxSpeed=            "20"
+
+			   rotationAccel=       "4"
+			   rotationDecel=       "8"
+			   rotationMaxSpeed=    "4"
+
+			   glyph=                "t"
+			   foreground=          "LightBlue"
+        >
+		<Devices>
+			<Weapon codename="item_sabre"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+            <Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+    <ShipClass codename=            "ship_prospector"
+			   name=                "Prospector-class miner"
+			   thrust=              "0.25"
+			   maxSpeed=            "20"
+
+			   rotationAccel=       "4"
+			   rotationDecel=       "8"
+			   rotationMaxSpeed=    "4"
+
+			   glyph=                "p"
+			   foreground=          "LightBlue"
+        >
+		<Devices>
+			<Weapon codename="item_dynamite_cannon"/>
+		</Devices>
+		<Items>
+			<Item codename="item_dynamite_charge" count="32"/>
+		</Items>
+		<LayeredArmorSystem>
+			<Armor  codename="item_bumpersteel_plate"/>
+			<Armor  codename="item_bumpersteel_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+</Module>

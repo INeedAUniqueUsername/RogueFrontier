@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Types>
+	<Character	type="chSoldierOfFortune"
+		name=		"Soldier of Fortune"
+		desc=		"This fortunate son likes to brag about his inheritance while shooting anyone whom he personally dislikes. He does not kill for malice or self-defense, but merely for sport."
+		>
+		<Talk>
+			<Knowledge	type="itHiredGun"	text="Oh, this? It's just one of those toy guns that my parents give me for Christmas whenever I ask them for a machine gun."/>
+		</Talk>
+		<Equip>
+		</Equip>
+		<Escorts>
+			<Bodyguard	type="chBodyguard"/>
+			<Bodyguard	type="chBodyguard"/>
+			<Bodyguard	type="chBodyguard"/>
+			<Bodyguard	type="chBodyguard"/>
+			<Bodyguard	type="chBodyguard"/>
+		</Escorts>
+	</Character>
+	<Item
+		name=		"Dangerous Arm Brace"
+		desc=		"Ideal arm protection for the armed and dangerous Arms Dealer who likes to strong-arm his way into a good trade."
+		>
+	</Item>
+	<Item
+		name=		"The Private Army"
+		desc=		""
+		>
+	</Item>
+	<Item
+		name=		"The Penny Launcher"
+		desc=		"A gold-plated peashooter designed to teach wealthy military children about the Do's and Do-Not's about gun safety on the battlefield."
+		>
+	</Item>
+	<Item
+		name=		"The Hired Gun"
+		desc=		"When there's no such thing as a stolen lunch, sometimes you just have to put your money where your muzzle is."
+		>
+	</Item>
+	<Item
+		name=		"The Semiautonomous Rifle"
+		desc=		"This gun is capable of aiming itself. All you have to do is choose your target and pull the trigger."
+		>
+	</Item>
+</Types>

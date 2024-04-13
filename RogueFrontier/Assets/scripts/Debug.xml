@@ -1,0 +1,89 @@
+﻿<Module>
+	<ItemType	codename=	"item_debug_missile"
+				name=		"Debug missile"
+				level=		"2"
+				mass=		"200"
+				value=		"8"
+				
+				desc=		"The Fang missile carries a payload of corrosive 'magic' energy."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_debug_missile_launcher"
+			name=		"Debug missile launcher"
+			level=		"2"
+			mass=		"2000"
+			value=		"400"
+			invoke=		"installWeapon"
+			desc=		"The Klaw missile launcher fires two quick tracking missiles at a time."
+		>
+		<Weapon	powerUse=		"10"
+				fireCooldown=	"45"
+				ammoType=		"item_debug_missile"
+				sound=			"Assets/sounds/klaw_launcher.wav"
+			>
+			<Capacitor
+				minChargeToFire=		"0"
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/90"
+				maxCharge=				"100"
+				bonusSpeedPerCharge=	"20/100"
+				bonusDamagePerCharge=	"15/100"
+				/>
+			<Projectile	count=			"2"
+						spreadAngle=	"30"
+						maneuver=		"4"
+						missileSpeed=	"60"
+						damageType=		"1"
+						damageHP=		"5d3"
+						shock=			"3"
+						lifetime=		"180"
+						glyph=			"m"
+						foreground=		"White"
+				>
+				<Decay lifetime="30" damageRate="1/60" degradeFactor="2.5" lethal="true" descend="true"/>
+				<Trail
+					lifetime=	"120"
+					glyph=		"*"
+					foreground=	"55FF55FF"
+					background=	"77DDBBFF"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ShipClass    codename="ship_player_test"
+				  name=			"TEST"
+				  attributes=	""
+				  thrust=		"1"
+				  maxSpeed=		"30"
+
+				  rotationAccel="8"
+				  rotationDecel="15"
+				  rotationMaxSpeed="10"
+
+				  glyph="b"
+				  foreground="White"
+				  background="Black"
+        >
+		<Items>
+			<Item codename="item_simple_fuel_rod" count="24"/>
+			<Item codename="item_armor_repair_patch"	count="6"/>
+		</Items>
+		<Devices>
+			<Weapon codename="item_demon_cannon"/>
+			<Shield codename="item_buckler_shield"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_shining_armor"/>
+			<Armor  codename="item_knightsteel_plate"/>
+			<Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass="true"
+			description="A starship preferred by space-age bikers, self-protection enthusiasts, and folk heroes alike, a Beowulf-class gunship highlights the tougher and harder parts of one's personality."
+        >
+			<Map>
+			</Map>
+		</PlayerSettings>
+	</ShipClass>
+</Module>

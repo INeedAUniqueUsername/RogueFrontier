@@ -1,0 +1,19 @@
+﻿<Module>
+	<SystemType	codename=	"system_intro"
+				name=		"Intro"
+		>
+		<SystemGroup>
+			<Star	 radius="50"/>
+
+
+			<Orbital radius="350" angle="0">
+				<Station codename="station_constellation_shipyard"/>
+
+				<Orbital radius="50" angle="0" increment="equidistant" count="4">
+					<Station	codename="station_iron_pirates_foundry"/>
+				</Orbital>
+
+			</Orbital>
+		</SystemGroup>
+	</SystemType>
+</Module>

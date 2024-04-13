@@ -1,0 +1,430 @@
+﻿<Module>
+	<StationType	codename="station_amethyst_store"
+					name=		"The Amethyst Store"
+					sovereign=	"sovereign_constellation"
+
+					behavior=	"amethystStore"
+					
+					structure=	"Assets/sprites/AmethystStore.asc.cg"
+					
+					crimeOnDestroy="true"
+		>
+		<HP	maxHP="300"/>
+		<Dock>
+			<MultiPoint offsetX="2" offsetY="0" angleInc="90"/>
+		</Dock>
+		<Ships>
+			<Ship	count="4"	codename="ship_amethyst_i"/>
+		</Ships>
+		<Cargo>
+			<Item count="8"	codename="item_amethyst_laser_i"/>
+			<Item count="8"	codename="item_amethyst_laser_ii"/>
+			<Item count="8"	codename="item_amethyst_laser_iii"/>
+			<Item count="8"	codename="item_magic_blaster_i"/>
+			<Item count="8"	codename="item_magic_blaster_ii"/>
+			<Item count="8"	codename="item_light_launcher_i"/>
+			<Item count="32"	codename="item_gemsteel_plate_i"/>
+			<Item count="32"	codename="item_gemsteel_plate_ii"/>
+			<Item count="8"	codename="item_shimmer_shield_i"/>
+			<Item count="8"	codename="item_prescience_book"/>
+		</Cargo>
+		
+		<Weapons>
+			<Weapon codename="item_amethyst_laser_ii" posX="2" posY="2"		angle="90" leftRange="90" rightRange="135"/>
+			<Weapon codename="item_amethyst_laser_ii" posX="2" posY="-2"	angle="-90" leftRange="135" rightRange="90"/>
+			<Weapon codename="item_amethyst_laser_ii" posX="-2" posY="2"	angle="90" leftRange="135" rightRange="90"/>
+			<Weapon codename="item_amethyst_laser_ii" posX="-2" posY="-2"	angle="-90" leftRange="90" rightRange="135"/>
+		</Weapons>
+	</StationType>
+
+	<ShipClass  codename="ship_amethyst_i_32t"
+				inherit=	"ship_amethyst_i"
+				capacity=	"32"
+	    >
+		<PlayerSettings startingClass="false"/>
+	</ShipClass>
+	<ShipClass  codename="ship_amethyst_i_64t"
+				inherit=	"ship_amethyst_i"
+				capacity=	"64"
+	    >
+		<PlayerSettings startingClass="false"/>
+	</ShipClass>
+	<ShipClass  codename="ship_amethyst_i_128t"
+				inherit=	"ship_amethyst_i"
+				capacity=	"120"
+		>
+		<PlayerSettings startingClass="false"/>
+	</ShipClass>
+	<ItemType	codename=	"item_amethyst_member_card"
+		name=		"Amethyst membership card"
+		level=		"1"
+		mass=		"2000"
+		value=		"200"
+		desc=		"This card is made from a laser-carved slab of translucent amethyst crystal. It provides proof of purchase for your Amethyst-class yacht. Present at any licensed Amethyst Store to receive a discount on maintenance services."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_25mw_generator"
+				name=		"Amethyst 25MW generator"
+				level=		"1"
+				mass=		"3000"
+		>
+		<Reactor
+			maxOutput=		"25"
+			capacity=		"4000"
+			efficiency=		"1.2"
+			rechargeable=	"false"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_50mw_generator"
+				name=		"Amethyst 50MW generator"
+				level=		"1"
+				mass=		"3000"
+		>
+		<Reactor
+			maxOutput=		"50"
+			capacity=		"8000"
+			efficiency=		"1.2"
+			rechargeable=		"false"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_laser_i"
+				name=		"Amethyst laser cannon"
+				level=		"1"
+				mass=		"1000"
+				value=		"4800"
+				
+				attributes= "Amethyst"
+
+				desc=		"The Amethyst laser cannon fires a magenta-colored beam that deals more damage to shields. Its internal specifications are a trade secret."
+		>
+		<Weapon
+			initialCharges=	"1200"
+			powerUse=		"10"
+			fireCooldown=	"20"
+			
+			sweep=			"60"
+			sound=			"Assets/sounds/amethyst_laser.wav"
+			>
+			<Projectile
+				missileSpeed=	"100"
+				damageType=		"1"
+				damageHP=		"4d2"
+				shieldFactor=	"2"
+				lifetime=		"75"
+				glyph=			"\249"
+				foreground=		"Magenta"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_magic_blaster_i"
+			name=		"Magic Blaster"
+			level=		"1"
+			mass=		"1000"
+			value=		"4800"
+				
+			attributes= "Amethyst"
+
+			desc=		"The first-generation Magic Blaster fires a burst of corrosive energy. Its directed-energy technology is sufficiently proprietary as to be indistinguishable from magic."
+		>
+		<Weapon
+			initialCharges=	"240"
+			powerUse=		"10"
+			fireCooldown=	"20"
+			sound=			"Assets/sounds/magic_blaster.wav"
+			>
+			<Projectile
+				count=			"5"
+				spreadAngle=	"15"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"1d8"
+				
+				lifetime=		"40"
+				glyph=			"*"
+				foreground=		"FF55FFFF"
+				>
+				<Decay lifetime="10" damageRate="1/60" degradeFactor="2.5"/>
+				<Trail
+					lifetime=	"10"
+					glyph=		"*"
+					foreground=	"FF55FFFF"
+					background=	"BB77DDFF"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_laser_ii"
+			name=		"Amethyst laser cannon"
+			level=		"1"
+			mass=		"1000"
+			value=		"6000"
+				
+			attributes= "Amethyst"
+
+			desc=		"The second-generation Amethyst laser cannon features improved damage output. Its internal specifications are protected behind several layers of legal fees."
+		>
+		<Weapon
+			initialCharges=	"1800"
+			powerUse=		"10"
+			fireCooldown=	"15"
+			
+			sweep=			"60"
+			sound=			"Assets/sounds/amethyst_laser.wav"
+			>
+			<Projectile
+				missileSpeed=	"100"
+				damageType=		"1"
+				damageHP=		"4d3"
+				shieldFactor=	"2"
+				lifetime=		"90"
+				glyph=			"\249"
+				foreground=		"Magenta"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_magic_blaster_ii"
+		name=		"Magic Blaster"
+		level=		"1"
+		mass=		"1000"
+		value=		"4800"
+				
+		attributes= "Amethyst"
+
+		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is incomprehensibly advanced."
+		>
+		<Weapon
+			initialCharges=	"240"
+			powerUse=		"10"
+			fireCooldown=	"20"
+			sound=			"Assets/sounds/magic_blaster.wav"
+			>
+			<Projectile
+				count=			"5"
+				spreadAngle=	"15"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"2d8"
+				
+				lifetime=		"40"
+				glyph=			"*"
+				foreground=		"FF55FFFF"
+				>
+				<Decay lifetime="20" damageRate="2/60" degradeFactor="2.5"/>
+				<Trail
+					lifetime=	"10"
+					glyph=		"*"
+					foreground=	"FF55FFFF"
+					background=	"BB77DDFF"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_laser_iii"
+		name=		"Amethyst laser cannon"
+		level=		"1"
+		mass=		"1000"
+		value=		"7200"
+				
+		attributes= "Amethyst"
+
+		desc=		"The third-generation Amethyst laser cannon features yet improved damage output."
+		>
+		<Weapon
+			initialCharges=	"1800"
+			powerUse=		"10"
+			fireCooldown=	"15"
+			
+			sweep=			"60"
+			sound=			"Assets/sounds/amethyst_laser.wav"
+			>
+			<Projectile
+				missileSpeed=	"100"
+				damageType=		"1"
+				damageHP=		"4d4"
+				lifetime=		"90"
+				glyph=			"\249"
+				foreground=		"Magenta"
+				
+				shieldFactor=	"2"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_light_launcher_i"
+		name=		"Light launcher"
+		level=		"1"
+		mass=		"1000"
+		value=		"7200"
+				
+		attributes= "Amethyst"
+
+		desc=		"The Light launcher by Amethyst, Inc fires multiple independent high-speed missiles that deal extra damage to shields."
+		>
+		<Weapon
+			powerUse=		"30"
+			fireCooldown=	"30"
+			initialCharges= "720"
+			
+			repeat="5"
+			repeatDelay=	"6"
+			>
+			<Projectile
+				maneuver=		"4"
+				missileSpeed=	"70"
+				damageType=		"1"
+				damageHP=		"1d8"
+				shieldFactor=	"2"
+				
+				hitNonTarget=	"false"
+				
+				multiTarget=	"true"
+				
+				lifetime=		"180"
+				glyph=			"+"
+				foreground=		"Violet"
+				
+				tracker=		"8"
+				>
+				<Flash intensity="8"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_shimmer_shield_i"
+		name=		"Shimmer shield"
+		level=		"2"
+		mass=		"200"
+		value=		"400"
+		
+		attributes= "Amethyst"
+				
+		desc=		"Fight fast. Recover fast. Repeat. Shimmer shield is designed for the pilot that boldly goes."
+		>
+		<Shield
+			powerUse=		"20"
+			idlePowerUse=	"2"
+			maxHP=			"60"
+			damageDelay=	"60"
+			depletionDelay=	"120"
+			regen=			"60 / 150"
+			>
+		</Shield>
+	</ItemType>
+	<ItemType	codename=	"item_shimmer_shield_ii"
+		name=		"Shimmer shield II"
+		level=		"3"
+		mass=		"200"
+		value=		"800"
+		
+		attributes= "Amethyst"
+				
+		desc=		"Fight faster. Recover faster. Repeat. Shimmer shield is designed for the pilot that boldly goes."
+		>
+		<Shield
+			powerUse=		"30"
+			idlePowerUse=	"3"
+			maxHP=			"120"
+			damageDelay=	"60"
+			depletionDelay=	"120"
+			regen=			"60 / 150"
+			>
+		</Shield>
+	</ItemType>
+	
+	
+	<ItemType	codename=	"item_amethyst_repair_kit_i"
+				name=		"Amethyst Armor Repair Kit"
+				level=		"1"
+				mass=		"1000"
+				value=		"500"
+				
+				attributes=	"Amethyst"
+
+				invoke=		"repairArmor"
+				repairHP=	"75"
+
+				desc=		"Gemsteel plate is ONLY repairable using the patented Amethyst armor repair kit. This kit repairs 75 hp."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_amethyst_repair_kit_ii"
+				name=		"Amethyst Armor Repair Kit"
+				level=		"2"
+				mass=		"1000"
+				value=		"1000"
+				
+				attributes=	"Amethyst"
+
+				invoke=		"repairArmor"
+				repairHP=	"150"
+
+				desc=		"Gemsteel plate is ONLY repairable using the patented Amethyst armor repair kit. This kit repairs 150 hp."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_gemsteel_plate_i"
+		name=		"Gemsteel plate"
+		mass=		"4000"
+		level=		"1"
+		value=		"1500"
+
+		attributes= "Amethyst"
+				
+		desc=		"Designed for the Amethyst-class yacht, this semicrystalline armor maintains its aesthetic beauty at any condition. It glows brightly when exposed to starlight, so it's not good for stealth ships."
+		>
+		<Armor	initialHP=	"100"
+				maxHP=		"75"
+				stealth=	"-2"
+				lifetimeDegrade="1 / 750"
+			>
+			<RestrictRepair require="Amethyst"/>
+		</Armor>
+	</ItemType>
+	<ItemType	codename=	"item_gemsteel_plate_ii"
+		name=		"Gemsteel plate"
+		mass=		"4000"
+		level=		"1"
+		value=		"4000"
+				
+		attributes= "Amethyst"
+				
+		desc=		"Second-generation Gemsteel armor has improved durability."
+		>
+		<Armor	initialHP=	"200"
+				maxHP=		"150"
+				stealth=	"-2"
+				lifetimeDegrade="1 / 1500"
+			>
+			<RestrictRepair require="Amethyst"/>
+		</Armor>
+	</ItemType>
+	<ItemType	codename=	"item_prescience_book"
+			name=		"Prospering With Prescience: The Ultimate Guide - Hardcover Edition"
+			level=		"1"
+			mass=		"1000"
+			value=		"500"
+				
+			attributes=	"Amethyst"
+
+			invoke=		"unlockPrescience"
+
+			desc=		"This book from the founder of Amethyst, Inc. will teach you the secrets of achieving guaranteed prosperity using the power of PRESCIENCE!"
+		>
+	</ItemType>
+	<ItemType	codename=	"item_shine_charm"
+			name=		"SHINE charm"
+			level=		"1"
+			mass=		"1000"
+			value=		"3000"
+			invoke=		"invokePower"
+			powerType=	"power_shine"
+			charges=	"5"
+			desc=		""
+		>
+	</ItemType>
+	<PowerType codename="power_shine"
+		name=			"SHINE"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You SHINE bright in the fire"
+		voice=			"Orator"
+		>
+		<ProjectileBarrier barrierType="shield" lifetime="900" radius="6" shape="diamond" color="FF55FFFF"/>
+		<ProjectileBarrier barrierType="shield" lifetime="900" radius="5" shape="diamond" color="FF55FFFF"/>
+	</PowerType>
+</Module>

@@ -1,0 +1,169 @@
+﻿<Module>
+	<ItemType	codename=	"item_20mw_generator"
+				name=		"20MW generator"
+				level=		"2"
+				mass=		"1000"
+		>
+		<Reactor
+			maxOutput=		"20"
+			degradeDelay=	"8000"
+			capacity=		"8000"
+			efficiency=		"0.5"
+			rechargeable=		"false"
+			/>
+	</ItemType>
+	
+	
+
+	<ItemType	codename=	"item_50mw_generator"
+			name=		"50MW generator"
+			level=		"4"
+			mass=		"1000"
+		>
+		<Reactor
+			maxOutput=		"50"
+			capacity=		"20000"
+			efficiency=		"0.6"
+			rechargeable=	"false"
+			/>
+	</ItemType>
+
+
+
+	<ItemType	codename=	"item_10mw_loneheart"
+				name=		"10MW Loneheart primary cell"
+				level=		"2"
+				mass=		"1000"
+				desc=		"This primary cell is efficient at powering weapons and shields"
+		>
+		<Reactor
+			maxOutput=		"10"
+			degradeDelay=	"8000"
+			capacity=		"8000"
+			efficiency=		"0.5"
+			rechargeable=	"false"
+			combatFactor=	"2.0"
+			/>
+	</ItemType>
+
+	<ItemType	codename=	"item_20mw_primary"
+			name=		"20MW primary cell"
+			level=		"4"
+			mass=		"1000"
+		>
+		<Reactor
+			maxOutput=		"20"
+			capacity=		"20000"
+			efficiency=		"1.0"
+			allowRefuel=	"false"
+			rechargeable=	"false"
+			/>
+	</ItemType>
+
+	<ItemType	codename=	"item_10mw_secondary"
+			name=		"10MW secondary cell"
+			level=		"1"
+			mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"20"
+			maxOutput=		"10"
+			capacity=		"200"
+			degradeDelay=	"200"
+			lifetimeDegrade="1/200"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_20mw_secondary"
+			name=		"20MW secondary cell"
+			level=		"1"
+			mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"40"
+			maxOutput=		"20"
+			capacity=		"400"
+			degradeDelay=	"400"
+			lifetimeDegrade="1/400"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_30mw_secondary"
+			name=		"30MW secondary cell"
+			level=		"1"
+			mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"60"
+			maxOutput=		"30"
+			capacity=		"600"
+			degradeDelay=	"600"
+			lifetimeDegrade="1/600"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_40mw_secondary"
+			name=		"40MW secondary cell"
+			level=		"1"
+		mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"80"
+			maxOutput=		"40"
+			capacity=		"800"
+			degradeDelay=	"800"
+			lifetimeDegrade="1/800"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_50mw_secondary"
+			name=		"50MW secondary cell"
+			level=		"1"
+			mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"100"
+			maxOutput=		"50"
+			capacity=		"1000"
+			degradeDelay=	"1000"
+			lifetimeDegrade="1/1000"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+	<ItemType	codename=	"item_60mw_secondary"
+		name=		"60MW secondary cell"
+		level=		"1"
+		mass=		"1000"
+		>
+		<Reactor
+			allowRefuel=	"false"
+			maxInput=		"120"
+			maxOutput=		"60"
+			capacity=		"1200"
+			degradeDelay=	"1200"
+			lifetimeDegrade="1/1200"
+			efficiency=		"1.0"
+			rechargeable=	"true"
+			/>
+	</ItemType>
+
+	<ItemType	codename=	"item_20mw_solar"
+			name=		"20MW Solar panel"
+			level=		"1"
+			mass=		"1000"
+		>
+		<Solar
+			maxOutput=		"20"
+			/>
+	</ItemType>
+</Module>

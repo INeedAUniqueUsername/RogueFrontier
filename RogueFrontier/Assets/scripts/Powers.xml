@@ -1,0 +1,175 @@
+﻿<Module>
+	<!-- The Orator -->
+
+	<PowerType codename="power_silence_orator"
+		name=			"SILENCE"
+		scareEnemies=	"true"
+		invokeDelay=	"90"
+		cooldownTime=	"3600"
+		message=		"You channel the energy of SILENCE"
+		voice=			"Orator"
+		>
+		<RechargeWeapon codename="item_magic_blaster_i" maxCharges="200"/>
+		<RechargeWeapon codename="item_magic_blaster_ii" maxCharges="200"/>
+		<Projectile
+			magic=			"true"
+			
+			count=			"120"
+			spreadAngle=	"360"
+			missileSpeed=	"40"
+			damageType=		"1"
+			damageHP=		"12"
+			lifetime=		"30"
+			glyph=			"*"
+			foreground=		"FF55FFFF"
+			>
+			<Trail
+				lifetime=	"20"
+				glyph=		"*"
+				foreground=	"FF55FFFF"
+				background=	"BB77DDFF"/>
+		</Projectile>
+	</PowerType>
+	<PowerType codename="power_recite_orator"
+		name=			"RECITE"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You RECITE the healing words"
+		voice=			"Orator"
+		>
+		<Heal/>
+	</PowerType>
+	<PowerType codename="power_protect"
+		name=			"PROTECT"
+		invokeDelay=	"150"
+		cooldownTime=	"3600"
+		message=		"You PROTECT yourself from bad faith"
+		voice=			"Orator"
+		>
+		<ProjectileBarrier barrierType="shield" lifetime="900" radius="4"/>
+	</PowerType>
+	<PowerType codename="power_enlighten"
+		name=			"ENLIGHTEN"
+		invokeDelay=	"180"
+		cooldownTime=	"3600"
+		message=		"You ENLIGHTEN yourself about nearby threats"
+		voice=			"Orator"
+		>
+		<Reveal/>
+	</PowerType>
+	<PowerType codename="power_reflect"
+		name=			"REFLECT"
+		invokeDelay=	"210"
+		cooldownTime=	"3600"
+		message=		"In the face of death, you REFLECT on past events"
+		onDestroyCheck=	"true"
+		voice=			"Orator"
+		>
+		<ProjectileBarrier barrierType="bubble" lifetime="900" radius="1"/>
+		<!--
+		<Projectile
+			count=			"120"
+			spreadAngle=	"360"
+			missileSpeed=	"40"
+			damageType=		"1"
+			damageHP=		"12"
+			lifetime=		"30"
+			glyph=			"*"
+			foreground=		"FFFFFFFF"
+			hitBarrier=		"false"
+			>
+			<Trail
+				lifetime=	"20"
+				glyph=		"*"
+				foreground=	"FFFFFFFF"
+				background=	"BBBBBBFF"/>
+		</Projectile>
+		-->
+	</PowerType>
+	<PowerType codename="power_silence_dictator"
+		name=			"SILENCE"
+		scareEnemies=	"true"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You channel the energy of SILENCE"
+		voice=			"Dictator"
+		>
+		<Projectile
+			count=			"120"
+			spreadAngle=	"360"
+			missileSpeed=	"40"
+			damageType=		"1"
+			damageHP=		"12"
+			lifetime=		"30"
+			glyph=			"*"
+			foreground=		"FF1111FF"
+			>
+			<Trail
+				lifetime=	"20"
+				glyph=		"*"
+				foreground=	"FF1111FF"
+				background=	"BB1111FF"/>
+		</Projectile>
+	</PowerType>
+	<PowerType codename="power_deflect_dictator"
+		name=			"DEFLECT"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You DEFLECT oncoming attacks"
+		voice=			"Dictator"
+		>
+		<ProjectileBarrier barrierType="bounce" lifetime="900" radius="4"/>
+	</PowerType>
+	<PowerType codename="power_decry"
+		name=			"DECRY"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You DECRY the actions of your attackers"
+		voice=			"Dictator"
+		>
+		<ProjectileBarrier barrierType="multiplyAttack" lifetime="900" radius="4"/>
+	</PowerType>
+	<PowerType codename="power_jump"
+		name=			"JUMP"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You JUMP to conclusions."
+		voice=			"Dictator"
+		>
+		<Jump/>
+	</PowerType>
+	<PowerType codename="power_execute_dictator"
+		name=			"EXECUTE"
+		scareEnemies=	"true"
+		invokeDelay=	"120"
+		cooldownTime=	"3600"
+		message=		"You EXECUTE anyone who dares to oppose you"
+		voice=			"Dictator"
+		>
+		<Clonewall/>
+	</PowerType>
+
+	<Unused>
+		<PowerType codename="power_purge"
+			name=			"PURGE"
+			invokeDelay=	"120"
+			cooldownTime=	"3600"
+			>
+		</PowerType>
+		<PowerType codename="power_raze"
+			name=			"RAZE"
+			invokeDelay=	"120"
+			cooldownTime=	"3600"
+			>
+		</PowerType>
+		
+		<!--The Instigator-->
+		<PowerType codename="power_silence"
+			name=			"RIOT"
+			invokeDelay=	"120"
+			cooldownTime=	"3600"
+			>
+			<Storm/>
+		</PowerType>
+	</Unused>
+</Module>

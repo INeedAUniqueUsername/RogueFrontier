@@ -1,0 +1,93 @@
+﻿<Module>
+	<ShipClass  codename="ship_sleuth"
+                name="Sleuth-class gunship"
+                thrust="0.5"
+                maxSpeed="25"
+
+                rotationAccel="6"
+                rotationDecel="12"
+                rotationMaxSpeed="8"
+
+                glyph="s"
+                foreground="LightGray"
+	    >
+		<Devices>
+			<Weapon codename="item_trackbug_launcher"/>
+			<Weapon codename="item_popper_cannon"/>
+		</Devices>
+		<Items>
+		</Items>
+		<LayeredArmorSystem>
+			<Armor  codename="item_gemsteel_plate_i"/>
+			<Armor  codename="item_gemsteel_plate_i"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<ItemType	codename=	"item_trackbug_launcher"
+		name=		"Trackbug launcher"
+		level=		"2"
+		mass=		"200"
+		value=		"8"
+
+		invoke=		"installWeapon"
+				
+		desc=		"The Trackbug tags hulls upon hit, allowing you to bypass their stealth."
+		>
+
+		<Weapon
+			powerUse=		"30"
+			fireCooldown=	"30"
+			initialCharges= "240"
+			>
+			<Projectile
+				omnidirectional="true"
+				maneuver=		"2"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"1"
+				lifetime=		"240"
+				glyph=			"+"
+				foreground=		"SpringGreen"
+				
+				tracker=		"true"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_popper_cannon"
+		name=		"Popper cannon"
+		level=		"2"
+		mass=		"200"
+		value=		"8"
+				
+		desc=		"This mass driver is specialized to bust through energy-based shields."
+		>
+
+		<Weapon
+			powerUse=		"30"
+			fireCooldown=	"30"
+			initialCharges= "240"
+			>
+			<Projectile
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"2"
+				shieldFactor="5"
+				lifetime=		"240"
+				glyph=			"-"
+				foreground=		"Cyan"
+				/>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_spear_of_truth"
+		name=		"The Spear of Truth"
+		level=		"2"
+		mass=		"200"
+		value=		"8"
+				
+		invoke=		"fireWeapon"
+				
+		desc=		""
+		>
+	</ItemType>
+
+</Module>

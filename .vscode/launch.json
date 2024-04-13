@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "TranscendenceRL",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/TranscendenceRL/bin/Debug/netcoreapp3.1/TranscendenceRL.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/TranscendenceRL",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Island Hopper",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/IslandHopper/bin/Debug/netcoreapp3.1/IslandHopper.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/IslandHopper",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ]
+}

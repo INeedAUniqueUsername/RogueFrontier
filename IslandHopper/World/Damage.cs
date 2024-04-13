@@ -1,0 +1,5 @@
+﻿namespace IslandHopper;
+
+class Damage {
+
+}

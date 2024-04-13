@@ -1,0 +1,20 @@
+﻿<Module>
+	<StationType	codename=	"station_constellation_shipyard"
+					name=		"Constellation Shipyard"
+					sovereign=	"sovereign_constellation"
+
+					behavior=	"constellationShipyard"
+
+					crimeOnDestroy="true"
+
+					structure=	"Assets/sprites/station_constellation_shipyard.asc.cg"
+		>
+
+		<HP	maxHP="700"/>
+		<Ships>
+			<Ship	count="2"	codename="ship_clark"/>
+		</Ships>
+		<Weapons>
+		</Weapons>
+	</StationType>
+</Module>

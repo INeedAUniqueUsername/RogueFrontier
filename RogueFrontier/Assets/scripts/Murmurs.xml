@@ -1,0 +1,151 @@
+﻿<Module>
+	<Sovereign	codename=	"sovereign_murmurs"
+				alignment=	"DestructiveOrder"
+	/>
+	<StationType	codename="station_murmur_outpost"
+				name=		"Murmur outpost"
+				sovereign=	"sovereign_murmurs"
+				
+				attributes=	"Murmurs"
+					
+				glyph=		"O"
+				foreground= "5511AAFF"
+				background=	"Black"
+				structure="Assets/sprites/MurmurOutpost.asc.cg"
+		>
+
+		<HP	maxHP="800"/>
+		<Segments>
+		</Segments>
+		<Guards>
+			<Ship codename="ship_quietus" count="5"/>
+		</Guards>
+		<Weapons>
+			<Weapon	codename="item_dark_lightning_cannon" posX="5" posY="0" angle="0" leftRange="60" rightRange="60"/>
+			<Weapon	codename="item_dark_lightning_cannon" posX="0" posY="5" angle="90" leftRange="60" rightAngle="60"/>
+			<Weapon	codename="item_dark_lightning_cannon" posX="-5" posY="0" angle="180" leftRange="60" rightAngle="60"/>
+			<Weapon	codename="item_dark_lightning_cannon" posX="0" posY="-5" angle="270" leftRange="60" rightAngle="60"/>
+
+			<Weapon	codename="item_dark_magic_blaster" posX="6" posY="6" angle="45" leftRange="15" rightRange="15"/>
+			<Weapon	codename="item_dark_magic_blaster" posX="-6" posY="6" angle="135" leftRange="15" rightRange="15"/>
+			<Weapon	codename="item_dark_magic_blaster" posX="-6" posY="-6" angle="225" leftRange="15" rightRange="15"/>
+			<Weapon	codename="item_dark_magic_blaster" posX="6" posY="-6" angle="315" leftRange="15" rightRange="15"/>
+		</Weapons>
+	</StationType>
+	<ShipClass  codename="ship_quietus"
+			name="Quietus"
+			attributes=	"Murmurs"
+			thrust="1"
+			maxSpeed="30"
+			rotationAccel="8"
+			rotationDecel="15"
+			rotationMaxSpeed="10"
+
+			glyph="q"
+			foreground="5511AAFF"
+			background="Black"
+        >
+		<Devices>
+			<Weapon	codename="item_dark_magic_blaster"/>
+		</Devices>
+		<Cargo>
+			<Item codename="item_dark_magic_blaster" count="100"/>
+		</Cargo>
+		<LayeredArmorSystem>
+			<Armor  codename="item_darkened_knightsteel_plate"/>
+			<Armor  codename="item_darkened_knightsteel_plate"/>
+			<Armor  codename="item_darkened_knightsteel_plate"/>
+			<Armor  codename="item_darkened_knightsteel_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+
+	<ItemType	codename=	"item_dark_magic_blaster"
+		name=		"Dark magic blaster"
+		level=		"6"
+		mass=		"1000"
+		value=		"4800"
+				
+		attributes= ""
+
+		desc=		""
+		>
+		<Weapon
+			initialCharges=	"240"
+			powerUse=		"10"
+			fireCooldown=	"20"
+			
+			shieldDrill=		"0.1"
+			>
+			<Projectile
+				count=			"15"
+				spreadAngle=	"30"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"2d8"
+				
+				multiTarget=	"true"
+				
+				lifetime=		"75"
+				glyph=			"*"
+				foreground=		"AA55FFFF"
+				
+				silenceFactor=	"1.0"
+				silenceInflict=	"1/100"
+				>
+				<Decay lifetime="30" damageRate="2/60" degradeFactor="5"/>
+				<Trail
+					lifetime=	"10"
+					glyph=		"*"
+					foreground=	"551155FF"
+					background=	"AA77FFFF"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_dark_lightning_cannon"
+	name=		"Dark lightning cannon"
+	level=		"3"
+	mass=		"4000"
+	desc=		""
+		>
+		<Weapon
+			powerUse=		"60"
+			fireCooldown=	"60"
+			
+			shieldDrill=		"0.1"
+			>
+			<!--
+			
+				count=			"3"
+				spreadAngle=	"15"
+				multiTarget=	"true"
+				omnidirectional="true"
+			
+			-->
+			<Projectile
+				missileSpeed=	"50"
+				damageType=		"1"
+				damageHP=		"6"
+				lifetime=		"90"
+				glyph=			"*"
+				foreground=		"8000FFFF"
+				
+				lightning=		"true"
+				
+				shock=			"3"
+				
+				silenceFactor=	"1.0"
+				silenceInflict=	"1/100"
+				>
+			</Projectile>
+			<Capacitor
+				minChargeToFire=		"0"
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/60"
+				maxCharge=				"100"
+				
+				bonusDamagePerCharge=	"12/100"
+				/>
+		</Weapon>
+	</ItemType>
+</Module>

@@ -1,0 +1,82 @@
+﻿<Module>
+	<Sovereign codename="sovereign_daughters"
+			   alignment="ConstructiveChaos"
+	></Sovereign>
+	<StationType codename=	"station_daughters_outpost"
+				 name=		"Daughters of the Orator"
+				 sovereign=	"sovereign_daughters"
+
+				 behavior=  "daughtersOutpost"
+
+				 glyph=		"S"
+				 foreground="Magenta"
+		>
+
+		<HP	maxHP="400"/>
+		<Segments>
+			<Point offsetX="-1"
+				   offsetY="0"
+				   glyph="&lt;"
+				   foreground="Yellow"/>
+			<Point offsetX="1"
+				   offsetY="0"
+				   glyph="&gt;"
+				   foreground="Yellow"/>
+		</Segments>
+		<Guards>
+			<Ship	codename="ship_templar"/>
+			<Ship	codename="ship_templar"/>
+			<Ship	codename="ship_templar"/>
+		</Guards>
+		<HeroImage tint="ffbbeeff">
+                 /\                         
+                 /\                         
+                /\|\_                       
+              __//|\/\_                     
+             | // |   ||                    
+             | ||\|\\ ||                    
+             | ||=\_\\||                    
+             |_||_____||_                   
+            |  ||___  || \                  
+            |==||___  == \                  
+            |==||= = / \ \                  
+            |==||= =/ ==\\                  
+         ___|______/_____\____              
+        |=#|[+++][+++][+++] =\              
+        |=#| ===  ===  ===  =\\             
+        |=#|[+++][+++][+++] =\#\            
+        |=#|=   =    = = =  =\##\           
+        |=#|= = = = = = = = =\###\          
+        ===========================         
+        |_||___||#################|         
+        | ||   ||#################|         
+        | ||   ||#################|         
+++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++
+         ====_________________________      
+         ====________________________=      
+          =__________________________=      
+          ==__==_____________________=      
+          ==__==__=_______==__=_=____=      
+           _______=__==_==_==_=__=_=_=      
+             |= = =___==_====_=_=_=         
+               |=_____==__==__=___|         
+                 |_____________=__|         
+                 |=_=__________=_=|         
+                 |==___________==|          
+                  |____##########|          
+                  |====##########|          
+                  |_____________|           
+		</HeroImage>
+	</StationType>
+	<ItemType	codename=	"item_gem_of_monologue"
+			name=		"Gem of monologue"
+			level=		"1"
+			mass=		"1000"
+
+			value=		"3000"
+			
+			desc=		"This gem holds channelled energy from The Orator."
+		>
+	</ItemType>
+</Module>

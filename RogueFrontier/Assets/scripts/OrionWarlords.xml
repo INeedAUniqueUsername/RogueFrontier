@@ -1,0 +1,417 @@
+﻿<Module>
+	<Sovereign	codename=	"sovereign_orion_warlords"
+				alignment=	"DestructiveOrder"
+	/>
+	<ItemType	codename=	"item_orion_bolter"
+				name=		"Bronze bolter"
+				attributes=	"OrionWarlords"
+				mass=		"3000"
+				level=		"2"
+				value=		"400"
+				desc=		"The Orion bolter is a crossbow designed to accomodate both close-range fighters and long-range snipers. While idle, it charges up power for the next shot. The shells from this weapon can fly scary fast when fully charged."
+				invoke=		"installWeapon"
+		>
+		<Weapon
+			powerUse=		"20"
+			fireCooldown=	"30"
+			initialCharges=	"200"
+			
+			sound=			"Assets/sounds/crossbow_light.wav"
+			>
+			<Projectile
+				missileSpeed=	"20"
+				damageType=		"2"
+				damageHP=		"3-8"
+				lifetime=		"60"
+				glyph=			"+"
+				foreground=		"Orange"
+				/>
+			<Capacitor
+				dischargeOnFire=		"50"
+				rechargePerTick=			"1/6"
+				maxCharge=				"50"
+				bonusSpeedPerCharge=	"70/100"
+				bonusDamagePerCharge=	"30/100"
+				bonusLifetimePerCharge=	"90/100"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_orion_longbow"
+				name=		"Bronze longbow"
+				attributes=	"OrionWarlords"
+				mass=		"5000"
+				level=		"3"
+				value=		"800"
+				desc=		"A fully charged shot from this crossbow can be lethal to small gunships. As most of its destructive power comes from charged up shots, it has a relatively complicated design compared to other weapons."				
+				invoke=		"installWeapon"
+		>
+		<Weapon	
+			powerUse=		"20"
+			fireCooldown=	"30"
+			initialCharges=	"200"
+			
+			sound=			"Assets/sounds/crossbow_medium.wav"
+			>
+			<Projectile
+				missileSpeed=	"20"
+				damageType=		"2"
+				damageHP=		"5-25"
+				lifetime=		"60"
+				glyph=			"+"
+				foreground=		"Orange"
+				/>
+			<Capacitor
+				dischargeOnFire=		"100"
+				rechargePerTick=			"1/3"
+				maxCharge=				"100"
+
+				bonusSpeedPerCharge=	"70/100"
+				bonusDamagePerCharge=	"30/100"
+				bonusLifetimePerCharge=	"90/100"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_orion_skewer"
+		name=		"Bronze trident"
+		attributes=	"OrionWarlords"
+		mass=		"8000"
+		level=		"4"
+		value=		"2000"
+		desc=		"This kinetic weapon fires three bolts per shot."
+		invoke=		"installWeapon"
+		>
+		<Weapon	
+			powerUse=		"50"
+			fireCooldown=	"60"
+			initialCharges=	"200"
+			>
+			<Projectile
+				missileSpeed=	"30"
+				damageType=		"2"
+				damageHP=		"5d5"
+				lifetime=		"60"
+				count=			"3"
+				glyph=			"+"
+				foreground=		"Orange"
+				/>
+			<Capacitor
+				dischargeOnFire=		"100"
+				rechargePerTick=		"1/6"
+				maxCharge=				"100"
+
+				bonusSpeedPerCharge=	"60/100"
+				bonusDamagePerCharge=	"25/100"
+				bonusLifetimePerCharge=	"120/100"
+				/>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_orion_ballista"
+				name=		"Bronze ballista"
+				attributes=	"OrionWarlords"
+				mass=		"5000"
+				level=		"3"
+				value=		"800"
+				desc=		"The Bronze ballista is the strongest crossbow created by the Orion Warlords. It fires heavy shots that can severely hurt targets from afar."
+				invoke=		"installWeapon"
+		>
+		<Weapon
+			powerUse=		"60"
+			fireCooldown=	"60"
+			initialCharges=	"200"
+			
+			sound=			"Assets/sounds/crossbow_heavy.wav"
+			>
+			<Projectile
+				missileSpeed=	"20"
+				damageType=		"2"
+				damageHP=		"1-30"
+				lifetime=		"120"
+				glyph=			"+"
+				foreground=		"Orange"
+				
+				shock=			"2"
+				>
+				<Trail
+					lifetime=	"15"
+					glyph=		"+"
+					foreground=	"Orange"
+					background=	"552200"/>
+			</Projectile>
+			<Capacitor
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/180"
+				maxCharge=				"100"
+
+				bonusSpeedPerCharge=	"70/100"
+				bonusDamagePerCharge=	"30/100"
+				bonusLifetimePerCharge=	"60/100"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_hunterscale_plate"
+		name=		"Hunter's plate"
+		attributes=	"OrionWarlords"
+		mass=		"1000"
+		level=		"1"
+		value=		"200"
+		desc=		"This low-tech armor provides modest stealth."
+		>
+		<Armor	maxHP=		"25"
+				stealth="2"
+			>
+		</Armor>
+	</ItemType>
+	<ItemType	codename=	"item_skullhelm_plate"
+		name=		"Skullhelm plate"
+		attributes=	"OrionWarlords"
+		mass=		"5000"
+		level=		"2"
+		value=		"400"
+		desc=		"This hardened low-tech armor provides modest stealth."
+		>
+		<Armor	maxHP=		"50"
+				stealth="4"
+			>
+		</Armor>
+	</ItemType>
+	<ItemType	codename=	"item_bronze_rice"
+		name=		"Barrel of bronze rice"
+		attributes=	"OrionWarlords"
+		mass=		"1000"
+		level=		"2"
+		value=		"400"
+		desc=		"Bronze rice is a bioengineered rice designed to provide high protein."
+		>
+	</ItemType>
+	<ShipClass	codename=			"ship_orion_raider"
+				name=				"Orion raider"
+				thrust=				"0.1"
+				maxSpeed=			"10"
+
+				stealth="2"
+
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+
+				glyph=				"r"
+				foreground=			"70AEFFFF"
+		>
+		<Devices>
+			<Weapon	codename="item_orion_bolter" modifierChance="40/100" damageHPInc="4"/>
+		</Devices>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="0-2"/>
+		</Cargo>
+		<LayeredArmorSystem>
+			<Armor	codename="item_hunterscale_plate"/>
+			<Armor	codename="item_hunterscale_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass=  "false"
+			description=    "Besides being a patched-up rustbucket, the Orion raider is known for its Orion bolter, a kinetic weapon that hits hard and fast when fully charged."
+            />
+	</ShipClass>
+	<ShipClass	codename=			"ship_orion_huntsman"
+				name=				"Orion huntsman"
+				thrust=				"0.3"
+				maxSpeed=			"15"
+
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+
+				glyph=				"R"
+				foreground=			"70AEFFFF"
+		>
+		<Devices>
+			<Weapon	codename="item_orion_longbow" modifierChance="40/100" damageHPInc="8"/>
+		</Devices>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="1-4"/>
+		</Cargo>
+		<LayeredArmorSystem>
+			<Armor	codename="item_skullhelm_plate"/>
+			<Armor	codename="item_hunterscale_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass=  "false"
+			description=    "The Orion huntsman adapts to both short-range skirmishes and long-range duels with the Orion Longbow, which hits at high velocity when fully charged."
+            />
+	</ShipClass>
+	<ShipClass	codename=			"ship_william_sulphin"
+				name=				"William Sulphin"
+				thrust=				"0.4"
+				maxSpeed=			"25"
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+				glyph=				"R"
+				foreground=			"Cyan"
+				behavior=			"sulphin"
+		>
+		<Devices>
+			<Weapon	codename="item_orion_skewer"/>
+		</Devices>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="4-8"/>
+		</Cargo>
+		<LayeredArmorSystem>
+			<Armor	codename="item_skullhelm_plate"/>
+			<Armor	codename="item_skullhelm_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<StationType	codename="station_orion_warlords_camp"
+					name=		"Orion Warlord camp"
+					sovereign=	"sovereign_orion_warlords"
+					stealth=	"4"
+					behavior=	"orionWarlords"
+					structure=	"Assets/sprites/OrionWarlordsCamp.asc.cg"
+		>
+
+		<HP	maxHP="250"/>
+		<Ships>
+			<Ship	count="7-10"	codename="ship_orion_raider"/>
+		</Ships>
+		<Weapons>
+			<Weapon	codename="item_orion_bolter"/>
+		</Weapons>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="2-8"/>
+			<Item codename="item_orion_turret" count="4-6"/>
+		</Cargo>
+	</StationType>
+	<ItemType	codename=	"item_orion_turret"
+		name=		"Bronze turret"
+		attributes=	"OrionWarlords"
+		
+		invoke=		"deployStation"
+		stationType="station_orion_turret"
+		
+		mass=		"8000"
+		level=		"2"
+		value=		"800"
+		desc=		"The Orion Warlords deploy this turret near enemy stations to catch passing travelers off-guard."
+		>
+	</ItemType>
+	<StationType	codename="station_orion_turret"
+					name=		"Bronze turret"
+					sovereign=	"sovereign_orion_warlords"
+					stealth=	"8"
+					glyph=		"T"
+					foreground="70AEFFFF"
+					background="Black"
+		>
+
+		<HP	maxHP="100"/>
+		<Segments>
+			<Point offsetX="1" offsetY="1"	glyph="/" foreground="LightBlue"/>
+			<Point offsetX="1" offsetY="-1"	glyph="\" foreground="LightBlue"/>
+			<Point offsetX="-1" offsetY="1"	glyph="\" foreground="LightBlue"/>
+			<Point offsetX="-1" offsetY="-1"	glyph="/" foreground="LightBlue"/>
+		</Segments>
+		<Weapons>
+			<Weapon	codename="item_orion_bolter"/>
+		</Weapons>
+	</StationType>
+	<ItemType	codename=	"item_orion_sentry"
+		name=		"Bronze sentry"
+		attributes=	"OrionWarlords"
+		
+		invoke=		"deployStation"
+		stationType="station_orion_sentry"
+		
+		mass=		"8000"
+		level=		"2"
+		value=		"2000"
+		desc=		"."
+		>
+	</ItemType>
+	<StationType	codename="station_orion_sentry"
+				name=		"Bronze sentry"
+				sovereign=	"sovereign_orion_warlords"
+				stealth=	"4"
+				glyph=		"S"
+				foreground="70AEFFFF"
+				background="Black"
+		>
+
+		<HP	maxHP="200"/>
+		<Segments>
+			<Point offsetX="1" offsetY="1"	glyph="/" foreground="LightBlue"/>
+			<Point offsetX="0" offsetY="1"	glyph="-" foreground="LightBlue"/>
+			<Point offsetX="1" offsetY="-1"	glyph="\" foreground="LightBlue"/>
+			<Point offsetX="-1" offsetY="0"	glyph="|" foreground="LightBlue"/>
+			<Point offsetX="1" offsetY="0"	glyph="|" foreground="LightBlue"/>
+			<Point offsetX="-1" offsetY="1"	glyph="\" foreground="LightBlue"/>
+			<Point offsetX="0" offsetY="-1"	glyph="-" foreground="LightBlue"/>
+			<Point offsetX="-1" offsetY="-1"	glyph="/" foreground="LightBlue"/>
+		</Segments>
+		<Weapons>
+			<Weapon	codename="item_orion_longbow"/>
+		</Weapons>
+	</StationType>
+	
+	
+	
+	<StationType	codename="station_orion_warlords_stronghold"
+					name=		"Orion Warlord stronghold"
+					sovereign=	"sovereign_orion_warlords"
+
+					stealth=	"4"
+					
+					behavior=	"orionWarlords"
+
+					structure=	"Assets/sprites/OrionWarlordsStronghold.asc.cg"
+		>
+
+		<HP	maxHP="500"/>
+		<Ships>
+			<Ship	count="13-20"	codename="ship_orion_raider"/>
+			<Ship	count="2-4"	codename="ship_orion_huntsman"/>
+		</Ships>
+		<Weapons>
+			<Weapon	codename="item_orion_ballista" omnidirectional="true"/>
+			<Weapon	codename="item_orion_bolter" posX="3" posY="3"	angle="90" leftRange="45" rightRange="45"/>
+			<Weapon	codename="item_orion_bolter" posX="3" posY="-3"	angle="-90" leftRange="45" rightRange="45"/>
+			<Weapon	codename="item_orion_bolter" posX="-3" posY="3"	angle="90" leftRange="45" rightRange="45"/>
+			<Weapon	codename="item_orion_bolter" posX="-3" posY="-3"	angle="-90" leftRange="45" rightRange="45"/>
+		</Weapons>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="4-16"/>
+			<Item codename="item_orion_turret" count="8-12"/>
+		</Cargo>
+	</StationType>
+	<StationType	codename="station_arnold_habitat"
+				name=		"William Sulphin's container habitat"
+				sovereign=	"sovereign_orion_warlords"
+
+				glyph=		"H"
+				foreground= "3366BBFF"
+		>
+		<HP	maxHP="200"/>
+		<Segments>
+			<Point offsetX="0"
+				   offsetY="-1"
+				   glyph="#"
+				   foreground="White"/>
+			<Point offsetX="0"
+				   offsetY="1"
+				   glyph="#"
+				   foreground="White"/>
+		</Segments>
+		<Ships>
+			<Ship	count="6"	codename="ship_orion_raider" sovereign="sovereign_orion_warlords" order="patrol" patrolRadius="20"/>
+			<Ship	count="1"	codename="ship_william_sulphin" sovereign="sovereign_orion_warlords" order="patrol" patrolRadius="5"/>
+		</Ships>
+		<Weapons>
+		</Weapons>
+		<Cargo>
+			<Item codename="item_bronze_rice" count="8"/>
+		</Cargo>
+		<!--
+		<HeroImage path="Assets/ConstellationAstra.asc"/>
+		-->
+	</StationType>
+</Module>

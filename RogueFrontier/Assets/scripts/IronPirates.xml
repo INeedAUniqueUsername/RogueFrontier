@@ -1,0 +1,284 @@
+﻿<Module>
+	<Sovereign	codename=	"sovereign_iron_pirates"
+				alignment=	"DestructiveOrder"
+	/>
+
+	<ItemType	codename=	"item_iron_cannon"
+				name=		"Iron Cannon"
+				attributes=	"IronPirates"
+				mass=		"8000"
+				level=		"4"
+				invoke=		"installWeapon"
+				desc=		"The Iron Cannon fires a heavy kinetic shell with crude seeking capabilities."
+				>
+		<Weapon		powerUse=		"50"
+					fireCooldown=	"60"
+					initialCharges=	"100"
+					sound=		"Assets/sounds/iron_cannon.wav"
+			>
+			<Projectile	missileSpeed=	"30"
+						damageType=		"2"
+						damageHP=		"15"
+						lifetime=		"120"
+						
+						glyph=			"+"
+						foreground=		"White"
+						maneuver="2"
+				/>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_iron_driver"
+			name=		"Iron Driver"
+			attributes=	"IronPirates"
+			mass=		"3000"
+			level=		"2"
+			invoke=		"installWeapon"
+			desc=		"The Iron Driver is a makeshift kinetic mass driver with rapid-fire capabilities."
+			>
+		<Weapon		powerUse=		"15"
+					fireCooldown=	"20"
+					initialCharges=	"300"
+					armorDrill=		"0.1"
+					sound=			"Assets/sounds/iron_driver.wav"
+			>
+			<Projectile	missileSpeed=	"60"
+						damageType=		"2"
+						damageHP=		"4"
+						lifetime=		"60"
+						glyph=			"-"
+						foreground=		"White"
+				/>
+			<Capacitor
+					bonusDamagePerCharge=	"2/100"
+					minChargeToFire=		"10"
+					dischargeOnFire=		"10"
+					rechargePerTick=		"6/30"
+					maxCharge=				"100"
+				/>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_hull_puncher"
+		name=		"Hull Puncher"
+		attributes=	"IronPirates"
+		mass=		"3000"
+		level=		"2"
+		desc=		"This powerful mass driver can punch holes in armor, cutting down to the hull with ease."
+				>
+		<Weapon		powerUse=		"15"
+					fireCooldown=	"20"
+					initialCharges=	"180"
+					armorDrill=	"0.3"
+			>
+			<Projectile	missileSpeed=	"60"
+						damageType=		"2"
+						damageHP=		"8"
+						lifetime=		"60"
+						glyph=			"+"
+						foreground=		"White"
+				/>
+			<Capacitor
+					minChargeToFire=		"10"
+					dischargeOnFire=		"10"
+					rechargePerTick=			"6/30"
+					maxCharge=				"100"
+				/>
+		</Weapon>
+	</ItemType>
+	
+	<ItemType	codename=	"item_iron_hook_cannon"
+			name=		"Hook Cannon"
+			attributes=	"IronPirates"
+			mass=		"3000"
+			level=		"2"
+			invoke=		"installWeapon"
+			desc=		"This cannon launches Iron Hooks which can latch onto an enemy and pull them closer."
+				>
+		<Weapon		ammoType=		"item_iron_hook"
+					powerUse=		"15"
+					fireCooldown=	"60"
+			>
+			<Projectile	missileSpeed=	"60"
+						damageType=		"2"
+						damageHP=		"5"
+						lifetime=		"60"
+						glyph=			"?"
+						foreground=		"White"
+						hook=			"true"
+				/>
+		</Weapon>
+	</ItemType>
+	
+	<ItemType	codename=	"item_iron_hook"
+			name=		"Iron Hook"
+			attributes=	"IronPirates"
+			mass=		"10"
+			level=		"2"
+			desc=		"This giant hook is fired by the Hook cannon. It is one of various metal products that the Iron Pirates like to make in their secret foundries."
+		/>
+
+	<ItemType	codename=	"item_ironclad_plate"
+				name=		"Ironclad plate"
+				mass=		"1000"
+				level=		"1"
+				desc=		"This armor is made of iron, which would rust if the Iron Pirates ever visited a planet known as Earth."
+		>
+		<Armor	maxHP=		"60"/>
+	</ItemType>
+	<ItemType	codename=	"item_ironside_plate"
+				name=		"Ironside plate"
+				mass=		"5000"
+				level=		"2"
+				desc=		"When this armor is on its last HP, nothing will take it down except for a very strong hit (likely) or very severe rusting (unlikely)."
+		>
+		<Armor	maxHP=		"90"
+				killHP=		"6"/>
+	</ItemType>
+	<ShipClass	codename=			"ship_iron_gunboat"
+				name=				"Blockade-class gunboat"
+				thrust=				"0.3"
+				maxSpeed=			"15"
+
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+
+				glyph=				"i"
+				foreground=			"Yellow"
+		>
+		<Cargo>
+			<Item count="12" codename="item_iron_hook"/>
+		</Cargo>
+		<Devices>
+			<Weapon	codename="item_iron_driver"/>
+			<Weapon	codename="item_iron_hook_cannon"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_ironclad_plate"/>
+			<Armor	codename="item_ironclad_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<ShipClass	codename=			"ship_iron_missileship"
+				name=				"Embargo-class missileship"
+				thrust=				"0.3"
+				maxSpeed=			"15"
+
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+				
+				glyph=				"I"
+				foreground=			"Yellow"
+		>
+		<Devices>
+			<Weapon	codename="item_iron_cannon"/>
+			<Weapon	codename="item_iron_driver" omnidirectional="true"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_ironside_plate"/>
+			<Armor	codename="item_ironclad_plate"/>
+			<Armor	codename="item_ironclad_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<ShipClass	codename=			"ship_iron_destroyer"
+				name=				"Ironside-class destroyer"
+				thrust=				"0.3"
+				maxSpeed=			"15"
+
+				rotationAccel=		"3"
+				rotationDecel=		"6"
+				rotationMaxSpeed=	"4"
+				
+				glyph=				"7"
+				foreground=			"Yellow"
+		>
+		<Cargo>
+			<Item count="120"	codename="item_iron_hook"/>
+		</Cargo>
+		<Devices>
+			<Weapon	codename="item_iron_hook_cannon" omnidirectional="true"/>
+			<Weapon	codename="item_iron_driver" omnidirectional="true"/>
+			<Weapon	codename="item_iron_driver" omnidirectional="true"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_ironside_plate"/>
+			<Armor	codename="item_ironclad_plate"/>
+			<Armor	codename="item_ironclad_plate"/>
+			<Armor	codename="item_ironside_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+
+	<ShipClass	codename=			"ship_iron_frigate"
+			name=				"Iron frigate"
+			thrust=				"0.4"
+			maxSpeed=			"20"
+
+			rotationAccel=		"3"
+			rotationDecel=		"6"
+			rotationMaxSpeed=	"4"
+				
+			behavior=			"swift"
+				
+			glyph=				"F"
+			foreground=			"LightYellow"
+		>
+		<Names>
+			Tom Swift
+			John Hawkins
+		</Names>
+		<Cargo>
+			<Item count="120"	codename="item_iron_hook"/>
+		</Cargo>
+		<Devices>
+			<Weapon	codename="item_iron_hook_cannon" omnidirectional="true"/>
+			<Weapon	codename="item_hull_puncher" omnidirectional="true"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_ironside_plate"/>
+			<Armor	codename="item_ironside_plate"/>
+			<Armor	codename="item_ironside_plate"/>
+			<Armor	codename="item_ironside_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<StationType	codename=	"station_iron_pirates_hideout"
+					name=		"Iron Pirates hideout"
+					sovereign=	"sovereign_iron_pirates"
+					behavior=	"pirate"
+					structure=	"Assets/sprites/station_iron_pirates_hideout.asc.cg"
+		>
+
+		<HP	maxHP="250"/>
+		<Ships>
+			<Ship	count="10"	codename="ship_iron_gunboat"/>
+			<Ship	count="2"	codename="ship_iron_missileship" order="patrol" patrolRadius="25"/>
+		</Ships>
+		<Weapons>
+			<Weapon	codename="item_iron_driver"/>
+		</Weapons>
+	</StationType>
+	<StationType	codename="station_iron_pirates_foundry"
+		name=		"Iron Pirates foundry"
+		sovereign=	"sovereign_iron_pirates"
+		behavior=	"pirate"
+		structure=	"Assets/sprites/station_iron_pirates_foundry.asc.cg"
+		>
+
+		<HP	maxHP="500"/>
+		<Ships>
+			<Ship	count="15"	codename="ship_iron_gunboat"/>
+			<Ship	count="3"	codename="ship_iron_missileship" order="patrol" patrolRadius="15">
+				<Ships>
+					<Ship count="4" codename="ship_iron_gunboat" order="escort"/>
+				</Ships>
+			</Ship>
+			<Ship	count="1"	codename="ship_iron_destroyer" order="patrol" patrolRadius="30"/>
+		</Ships>
+		<Weapons>
+			<Weapon	codename="item_iron_cannon"/>
+		</Weapons>
+		<Cargo>
+			<Item count="300"	codename="item_iron_hook"/>
+		</Cargo>
+	</StationType>
+</Module>

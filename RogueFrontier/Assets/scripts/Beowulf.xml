@@ -1,0 +1,268 @@
+﻿<Module>
+	
+	<!--
+		Scenario: The player can join the Constellation's police force,
+		taking on combat missions and getting access to military gateway.
+		When the player reaches a certain rank, they get a mission in which
+		they have to recon an unidentified station:
+		
+		"There's an unidentified structure %distance% about light-seconds 
+		from here. We're not sure whether it's some new warlord camp or
+		drug lab or bomb stockpile or what, so we want you to go recon it.
+		If it turns out to be something illegal, then be sure to destroy it
+		before you come back. Otherwise, just ask them to identify themselves
+		and we'll take it from there."
+		
+		The unidentified station is a Beowulf Club. The player has two options:
+		1. Destroy the Beowulf Club and call it an outlaw base.
+		2. Dock with the Beowulf Club and join its members.
+	-->
+	<Sovereign	codename="sovereign_beowulf_club"
+				alignment=	"ConstructiveChaos"
+		/>
+	<StationType	codename="station_beowulf_club"
+				name=		"Beowulf Club"
+				sovereign=	"sovereign_beowulf_club"
+
+				behavior=	"none"
+					
+				structure=	"Assets/sprites/BeowulfClub.asc.cg"
+		>
+
+		<HP	maxHP="300"/>
+		<!--
+		<Satellites>
+			<Orbital count="4" angle="0" increment="90">
+				<Orbital count="4" angleInc="30" radius="6" increment="15">
+					<Station codename="station_barricade"/>
+				</Orbital>
+			</Orbital>
+		</Satellites>
+		-->
+		<Dock>
+			<MultiPoint offsetX="2" offsetY="0" angleInc="90"/>
+			<MultiPoint offsetX="4" offsetY="0" angleInc="90"/>
+			<MultiPoint offsetX="5" offsetY="0" angleInc="90"/>
+			<MultiPoint offsetX="6" offsetY="0" angleInc="90"/>
+			<MultiPoint offsetX="7" offsetY="0" angleInc="90"/>
+		</Dock>
+		<Ships>
+			<Ship	count="4"	codename="ship_beowulf"/>
+			<Ship	count="2"	codename="ship_ulysses"/>
+		</Ships>
+		<Cargo>
+			<Item count="480"	codename="item_klaw_missile"/>
+			<Item count="32"	codename="item_scanner_drone"/>
+			<Item count="32"	codename="item_combat_drone_i"/>
+			<Item count="12"	codename="item_beowulf_dual_laser_upgrade"/>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_klaw_missile_launcher" posX="2" posY="2"		angle="45"/>
+			<Weapon codename="item_klaw_missile_launcher" posX="2" posY="-2"	angle="-45"/>
+			<Weapon codename="item_klaw_missile_launcher" posX="-2" posY="2"	angle="135"/>
+			<Weapon codename="item_klaw_missile_launcher" posX="-2" posY="-2"	angle="-135"/>
+		</Weapons>
+	</StationType>
+	<StationType	codename="station_barricade"
+			name=		"Barricade"
+			sovereign=	"sovereign_beowulf_club"
+
+			behavior=	"none"
+					
+			glyph=		"#"
+			foreground=	"White"
+			background=	"Black"
+		>
+
+		<HP	maxHP="150"/>
+	</StationType>
+	<ItemType	codename=	"item_beowulf_dual_laser_upgrade"
+		name=		"Beowulf laser cannon upgrade"
+		level=		"1"
+		mass=		"2000"
+		value=		"3000"
+				
+		invoke=		"replaceDevice"
+		from=		"item_beowulf_dual_laser_cannon"
+		to=			"item_beowulf_dual_laser_repeater"
+
+		desc=		"This device upgrades a Beowulf dual laser cannon into a Beowulf dual laser repeater."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_scanner_drone"
+				name=		"scanner drone"
+				level=		"2"
+				mass=		"12000"
+				value=		"5000"
+
+				invoke=		"deployShip"
+				shipClass=	"ship_scanner_drone"
+				
+				desc=		"The scanner drone marks enemies with a tracking laser, allowing you to break through stealth with ease."
+		>
+	</ItemType>
+	<ShipClass codename=    "ship_scanner_drone"
+		   name=                "scanner drone"
+		   thrust=              "0.4"
+		   maxSpeed=            "25"
+
+		   rotationAccel=       "4"
+		   rotationDecel=       "8"
+		   rotationMaxSpeed=    "4"
+
+		   glyph=                "d"
+		   foreground=          "White"
+        >
+		<Devices>
+			<Weapon codename="item_tracking_laser"/>
+			<Weapon codename="item_scanning_laser"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_bumpersteel_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+
+	<ItemType	codename=	"item_combat_drone_i"
+				name=		"Beowulf drone v1"
+				level=		"2"
+				mass=		"12000"
+				value=		"10000"
+
+				invoke=		"deployShip"
+				shipClass=	"ship_combat_drone_i"
+				
+				desc=		""
+		>
+	</ItemType>
+	<ShipClass codename=    "ship_combat_drone_i"
+		   name=                "Beowulf drone v1"
+		   thrust=              "0.4"
+		   maxSpeed=            "25"
+
+		   rotationAccel=       "4"
+		   rotationDecel=       "8"
+		   rotationMaxSpeed=    "4"
+
+		   glyph=                "d"
+		   foreground=          "White"
+        >
+		<Devices>
+			<Weapon codename="item_beowulf_dual_laser_cannon"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_knightsteel_plate"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	
+	
+
+
+
+
+
+
+
+
+
+	<ItemType	codename=	"item_flakbang_cannon"
+			name=		"Flakbang cannon"
+			level=		"6"
+			mass=		"2000"
+			desc=		"."
+		>
+		<Weapon	initialCharges="400"
+				powerUse=		"30"
+				fireCooldown=	"90"
+				sound=			"Assets/sounds/flashbang_cannon.wav"
+			>
+			<Projectile
+				missileSpeed=	"40"
+				recoil=			"5"
+				damageType=		"1"
+				damageHP=		"5"
+				lifetime=		"60"
+				glyph=			"*"
+				foreground=		"White"
+				background=		"Black"
+				
+				detonateRadius=	"5"
+				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
+				>
+				<Flash intensity="20"/>
+				<Fragment
+					precise=		"false"
+					hitSource=		"true"
+					
+					blind=			"5d4"
+					count=			"45"
+					spreadAngle=	"360"
+					missileSpeed=	"200"
+					damageType=		"1"
+					damageHP=		"0, 0, 1"
+					lifetime=		"6"
+					glyph=			" "
+					foreground=		"Transparent"
+					background=		"Transparent"
+					/>
+
+				<Fragment
+					precise=		"false"
+					hitSource=		"true"
+					
+					count=			"60"
+					spreadAngle=	"360"
+					missileSpeed=	"45"
+					damageType=		"1"
+					damageHP=		"0, 0, 0, 1, 1, 2, 3, 4"
+					lifetime=		"16"
+					glyph=			"z"
+					foreground=		"White"
+					background=		"Transparent"
+					/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	
+	
+	
+	
+	<!--
+	<ItemType	codename=	"item_flamethrower"
+			name=		"flamethrower"
+			level=		"1"
+			mass=		"1000"
+			value=		"4800"
+				
+			attributes= ""
+
+			desc=		"The directed-energy technology of the Magic Blaster is sufficiently proprietary as to be indistinguishable from magic."
+		>
+		<Weapon
+			initialCharges=	"240"
+			powerUse=		"10"
+			fireCooldown=	"10"
+			sound=			"Assets/sounds/magic_blaster.wav"
+			>
+			<Projectile
+				count=			"5"
+				spreadAngle=	"15"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"1d8"
+				
+				lifetime=		"40"
+				glyph=			"*"
+				foreground=		"FFB655FF"
+				>
+				<Decay lifetime="120" rate="1/60"/>
+				<Trail
+					lifetime=	"10"
+					glyph=		"v"
+					foreground=	"FFB655FF"
+					background=	"DD7777FF"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	-->
+	
+</Module>

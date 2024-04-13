@@ -1,0 +1,279 @@
+﻿<Module>
+	<Sovereign codename="sovereign_constellation"
+			   alignment="ConstructiveOrder"
+		/>
+	<StationType	codename="station_constellation_astra"
+					name=		"Constellation Astra"
+					sovereign=	"sovereign_constellation"
+					
+					crimeOnDestroy="true"
+
+					glyph=		"U"
+					foreground="LightGray"
+
+					behavior=	"reinforceNearby"
+		>
+
+		<HP	maxHP="600"/>
+		<Segments>
+			<MultiPoint offsetX="2" offsetY="-1" angleInc="90"
+				   glyph="+" foreground="White"/>
+			<MultiPoint offsetX="2" offsetY="0" angleInc="90"
+				   glyph="+" foreground="White"/>
+			<MultiPoint offsetX="2" offsetY="1" angleInc="90"
+				   glyph="+" foreground="White"/>
+			<MultiPoint offsetX="2" offsetY="2" angleInc="90"
+				   glyph="#" foreground="LightGray"/>
+			<MultiPoint offsetX="3" offsetY="0" angleInc="90"
+				   glyph="=" foreground="LightGray"/>
+			<MultiPoint offsetX="4" offsetY="0" angleInc="90"
+				   glyph="=" foreground="White"/>
+			<Ring/>
+		</Segments>
+		<Dock>
+			<MultiPoint offsetX="3" offsetY="0" angleInc="90"/>
+			<MultiPoint offsetX="4" offsetY="0" angleInc="90"/>
+		</Dock>
+		<Ships>
+			<!--
+			<Ship	count="1"	codename="ship_beowulf" order="patrolCircuit" patrolRadius="20"/>
+			-->
+			<Ship	count="3"	codename="ship_beowulf"/>
+			<Ship	count="2"	codename="ship_amethyst_i"/>
+			<Ship	count="1"	codename="ship_clark_merchant"/>
+
+			<Ship	count="1"	codename="ship_amethyst_i" behavior="trader"/>
+			<Ship	count="3"	codename="ship_clark_merchant" behavior="trader"/>
+		</Ships>
+		<Cargo>
+			<Item count="80-120"	codename="item_simple_fuel_rod"/>
+			<Item count="16-32"	codename="item_armor_repair_patch"/>
+			<Item count="8-16"	codename="item_klaw_missile_launcher"/>
+			<Item count="240-360"	codename="item_klaw_missile"/>
+
+			<Item count="12-24" codename="item_20mw_generator"/>
+			<Item count="4-8" codename="item_50mw_generator"/>
+
+			<Item count="8-16" codename="item_10mw_secondary"/>
+			<Item count="8-16" codename="item_20mw_secondary"/>
+			<Item count="8-16" codename="item_30mw_secondary"/>
+			<Item count="8-16" codename="item_40mw_secondary"/>
+			<Item count="8-16" codename="item_50mw_secondary"/>
+			<Item count="8-16" codename="item_60mw_secondary"/>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_musket_turret"/>
+		</Weapons>
+		<!--
+		<Dock type="united_constellation"/>
+		<HeroImage path="Assets/sprites/ConstellationAstra.asc.cg"/>
+		-->
+	</StationType>
+
+	<StationType	codename="station_constellation_missile_sentry"
+				name=		"Constellation missile sentry"
+				sovereign=	"sovereign_constellation"
+
+				crimeOnDestroy="true"
+
+				glyph=		"M"
+				foreground="BB6633FF"
+		>
+
+		<HP	maxHP="200"/>
+		<Segments>
+			<Point offsetX="0"
+				   offsetY="-1"
+				   glyph="-"
+				   foreground="White"/>
+			<Point offsetX="0"
+				   offsetY="1"
+				   glyph="-"
+				   foreground="White"/>
+		</Segments>
+		<Cargo>
+			<Item codename="item_nova_missile" count="64"/>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_nova_missile_launcher" omnidirectional="true"/>
+		</Weapons>
+		<Explosion
+			missileSpeed=	"100"
+			damageType=		"2"
+			damageHP=		"90"
+			shock=			"5"
+			
+			lifetime=		"60"
+			spreadAngle=	"360"
+			count=			"120"
+
+			hitProjectile=	"true"
+						
+			glyph=			"*"
+			foreground=		"Orange"
+			background=		"Transparent"
+			/>
+	</StationType>
+	<StationType	codename="station_constellation_habitat"
+					name=		"Constellation Habitat"
+					sovereign=	"sovereign_constellation"
+
+					crimeOnDestroy="true"
+
+					glyph=		"H"
+					foreground="BB6633FF"
+		>
+
+		<HP	maxHP="250"/>
+		<Segments>
+			<Point offsetX="0"
+				   offsetY="-1"
+				   glyph="#"
+				   foreground="White"/>
+			<Point offsetX="0"
+				   offsetY="1"
+				   glyph="#"
+				   foreground="White"/>
+		</Segments>
+
+		<Ships>
+			<Ship	count="2"	codename="ship_clark"/>
+			<Ship	count="1"	codename="ship_amethyst_i"/>
+		</Ships>
+		<Weapons>
+		</Weapons>
+		<!--
+		<HeroImage path="Assets/ConstellationAstra.asc"/>
+		-->
+	</StationType>
+	<StationType	codename="station_armor_shop"
+					name=		"Armor shop"
+					sovereign=	"sovereign_constellation"
+
+					crimeOnDestroy="true"
+
+					glyph=		"A"
+					foreground="LightGray"
+		>
+
+		<HP	maxHP="400"/>
+		<Segments>
+			<Point offsetX="2" offsetY="0"
+				   glyph="=" foreground="White"/>
+			<Point offsetX="3" offsetY="0"
+				   glyph="]" foreground="White"/>
+			
+			<Point offsetX="-2" offsetY="0"
+				   glyph="=" foreground="White"/>
+			<Point offsetX="-3" offsetY="0"
+				   glyph="[" foreground="White"/>
+			<Ring/>
+		</Segments>
+		<Dock>
+			<Point offsetX="2" offsetY="0"/>
+			<Point offsetX="-2" offsetY="0"/>
+		</Dock>
+		<Ships>
+			<Ship	count="1"	codename="ship_beowulf"/>
+			<Ship	count="2"	codename="ship_amethyst_i"/>
+			<Ship	count="1"	codename="ship_clark"/>
+		</Ships>
+		<Cargo>
+			<Item count="40"	codename="item_armor_repair_patch"/>
+			<Item count="8" codename="item_gemsteel_plate_i"/>
+			<Item count="8" codename="item_knightsteel_plate"/>
+			<Item count="8" codename="item_bumpersteel_plate"/>
+			
+			<Item count="8" codename="item_buckler_shield"/>
+
+			<Item count="8" codename="item_shimmer_shield_i"/>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_missile_defender"/>
+		</Weapons>
+	</StationType>
+
+	<StationType	codename="station_arms_dealer"
+					name=		"Arms dealer"
+					sovereign=	"sovereign_constellation"
+					crimeOnDestroy="true"
+
+					glyph=		"A"
+					foreground="LightGray"
+		>
+
+		<HP	maxHP="400"/>
+		<Segments>
+			<Point offsetX="2" offsetY="0"
+				   glyph="=" foreground="White"/>
+			<Point offsetX="3" offsetY="0"
+				   glyph="&gt;" foreground="White"/>
+
+			<Point offsetX="-2" offsetY="0"
+				   glyph="=" foreground="White"/>
+			<Point offsetX="-3" offsetY="0"
+				   glyph="&lt;" foreground="White"/>
+			<Ring/>
+		</Segments>
+		<Dock>
+			<Point offsetX="2" offsetY="0"/>
+			<Point offsetX="-2" offsetY="0"/>
+		</Dock>
+		<Ships>
+			<Ship	count="2"	codename="ship_beowulf"/>
+			<Ship	count="1"	codename="ship_amethyst_i"/>
+			<Ship	count="1"	codename="ship_clark"/>
+		</Ships>
+		<Cargo>
+			<Item count="8" codename="item_tracking_laser"/>
+			<Item count="8" codename="item_amethyst_laser_i"/>
+			<Item count="8" codename="item_dynamite_cannon"/>
+			<Item count="320" codename="item_dynamite_charge"/>
+			<Item count="8" codename="item_beowulf_dual_laser_cannon"/>
+			<Item count="8" codename="item_klaw_missile_launcher"/>
+			<Item count="240" codename="item_klaw_missile"/>
+			<Item count="8"	codename="item_musket_turret"/>
+			<Item count="8"	codename="item_sidearm_turret"/>
+			<Item count="8" codename="item_missile_defender"/>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_beowulf_dual_laser_cannon"/>
+		</Weapons>
+	</StationType>
+	<StationType	codename="station_constellation_bunker"
+				name=		"Constellation bunker"
+				sovereign=	"sovereign_constellation"
+
+				crimeOnDestroy="true"
+
+				glyph=		"#"
+				foreground="LightGray"
+		>
+
+		<HP	maxHP="450"/>
+		<Segments>
+			<Point offsetX="1" offsetY="0"
+				   glyph="+" foreground="LightGray"/>
+			<Point offsetX="-1" offsetY="0"
+				   glyph="+" foreground="LightGray"/>
+			<Point offsetX="0" offsetY="1"
+				   glyph="+" foreground="LightGray"/>
+			<Point offsetX="0" offsetY="-1"
+				   glyph="+" foreground="LightGray"/>
+		</Segments>
+		<Dock>
+			<Point offsetX="2" offsetY="0"/>
+			<Point offsetX="-2" offsetY="0"/>
+		</Dock>
+		<Ships>
+			<Ship	count="3"	codename="ship_beowulf" order="patrolCircuit" patrolRadius="20"/>
+			<Ship	count="5"	codename="ship_beowulf" order="guard"/>
+			<Ship	count="3"	codename="ship_ulysses" order="guard"/>
+		</Ships>
+		<Cargo>
+		</Cargo>
+		<Weapons>
+			<Weapon codename="item_beowulf_dual_laser_cannon"/>
+		</Weapons>
+	</StationType>
+</Module>

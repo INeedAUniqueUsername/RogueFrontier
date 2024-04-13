@@ -1,0 +1,16 @@
+﻿<Universe>
+	<Topology>
+		<System id="1" codename="system_orion" name="Aneridi"	 x="0" y="0"/>
+		<System id="2" codename="system_2" name="Elandal"		 x="3" y="4"/>
+		<System id="3" codename="system_3" name="Ornio" x="6" y="6"/>
+		<System id="4" codename="system_4" name="Orion's Star 4" x="8" y="5"/>
+		<System id="5" codename="system_5" name="Orion's Star 5" x="10" y="2"/>
+		<System id="6" codename="system_6" name="Cerethi"		 x="9" y="-1"/>
+
+		<Link fromGateId="1:Next"	toGateId="2:Prev"/>
+		<Link fromGateId="2:Next"	toGateId="3:Prev"/>
+		<Link fromGateId="3:Next"	toGateId="4:Prev"/>
+		<Link fromGateId="4:Next"	toGateId="5:Prev"/>
+		<Link fromGateId="5:Next"	toGateId="6:Prev"/>
+	</Topology>
+</Universe>

@@ -1,0 +1,148 @@
+﻿<Module>
+	<Sovereign	codename=	"sovereign_royal_shade"
+				alignment=	"DestructiveOrder"
+	/>
+	<ItemType	codename=	"item_dark_cannon"
+		name=		"Dark cannon"
+		level=		"2"
+		mass=		"2000"
+		invoke=		"installWeapon"
+		desc=		"This powerful mass driver fires bullets at high velocity."
+		>
+		<Weapon
+			powerUse=		"10"
+			fireCooldown=	"120"
+			recoil=			"9"
+			>
+			<Projectile
+				missileSpeed=	"200"
+				damageType=		"1"
+				damageHP=		"12"
+				lifetime=		"20"
+				shock=			"4"
+				glyph=			"*"
+				foreground=		"FFFFFFFF"
+				>
+				<!--
+				<Fragment count=	"8"
+					spreadAngle=	"360"
+					damageType=		"1"
+					damageHP=		"0"
+					missileSpeed=	"40"
+					lifetime=		"12"
+					glyph=			"*"
+					foreground=		"FFFFFFFF"
+					/>
+				-->
+			</Projectile>
+			<Trail
+				lifetime=	"40"
+				glyph=		"*"
+				foreground=	"FFFFFFFF"
+				background=	"000000FF"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_thorn_missile"
+				name=		"Thorn missile"
+				level=		"2"
+				mass=		"200"
+				
+				desc=		"The Thorn missile maintains distance from its target while firing the automatic laser turret on its warhead."
+		>
+	</ItemType>
+	<ItemType	codename=	"item_thorn_missile_system"
+			name=		"Thorn missile system"
+			level=		"2"
+			mass=		"2000"
+
+			invoke=		"installWeapon"
+				
+			desc=		"The Thorn missile system substitutes explosive power for sustained laser fire."
+		>
+		<Weapon
+			powerUse=		"10"
+			fireCooldown=	"90"
+			
+			ammoType="item_thorn_missile"
+			>
+			<Projectile
+				maneuver=		"4"
+				maneuverRadius=	"12"
+				missileSpeed=	"40"
+				damageType=		"1"
+				damageHP=		"6"
+				lifetime=		"240"
+
+				glyph=			"s"
+				foreground=		"Orange"
+				>
+				<Fragment
+					count=				"1"
+					targetLocked=		"true"
+					omnidirectional=	"true"
+					fragmentInterval=	"20"
+					missileSpeed=		"60"
+					lifetime=			"60"
+					damageType=			"1"
+					damageHP=			"6"
+				
+					glyph=				"\249"
+					foreground=			"Red"
+					/>
+				<Fragment
+					count=				"9"
+					targetLocked=		"true"
+					omnidirectional=	"true"
+					spreadAngle=		"20"
+					missileSpeed=		"60"
+					lifetime=			"60"
+					damageType=			"1"
+					damageHP=			"6"
+				
+					glyph=				"\249"
+					foreground=			"Red"
+					/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ShipClass  codename="ship_royal_guard"
+                name="Royal Guard"
+                thrust="0.5"
+                maxSpeed="25"
+
+                rotationAccel="6"
+                rotationDecel="12"
+                rotationMaxSpeed="8"
+
+                glyph="g"
+                foreground="FF0080FF"
+		>
+	    <Devices>
+
+			<Weapon codename="item_dark_cannon"/>
+		    <Weapon codename="item_thorn_missile_system"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+        </Devices>
+		<Items>
+			<Item count="25" codename="item_thorn_missile"/>
+		</Items>
+        <LayeredArmorSystem>
+			<Armor  codename="item_gemsteel_plate_i"/>
+        </LayeredArmorSystem>
+    </ShipClass>
+	<StationType	codename="station_royal_tower"
+					name=		"Royal tower"
+					sovereign=	"sovereign_royal_shade"
+
+					glyph=		"R"
+					foreground=	"FF0080FF"
+		>
+
+		<HP	maxHP="250"/>
+		<Ships>
+			<Ship codename="ship_royal_guard" count="4" order="guard"/>
+		</Ships>
+	</StationType>
+</Module>

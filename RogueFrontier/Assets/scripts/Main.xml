@@ -1,0 +1,28 @@
+﻿<Module>
+	<!--For every hero, there is a villain-->
+	<Module file="Genomes.xml"/>
+	<Module file="Amethyst.xml"/>
+	<Module file="Beowulf.xml"/>
+	<Module file="Campers.xml"/>
+	<Module file="Constellation.xml"/>
+	<Module file="ConstellationFleet.xml"/>
+	<Module file="Daughters.xml"/>
+	<Module file="DarkStar.xml"/>
+	<Debug>
+		<Module file="Debug.xml"/>
+	</Debug>
+	<Module file="Errorist.xml"/>
+	<Module file="IronPirates.xml"/>
+	<Module file="Perfectron.xml"/>
+	<Module file="OrionWarlords.xml"/>
+	<Module file="Player.xml"/>
+	<Module file="RoyalShade.xml"/>
+	<Module file="Shifters.xml"/>
+	<Module file="Items.xml"/>
+	<Module file="Powers.xml"/>
+	<Module file="Reactors.xml"/>
+	<Module file="Ships.xml"/>
+	<Module file="Systems.xml"/>
+	<Module file="Murmurs.xml"/>
+	<Module file="Intro.xml"/>
+</Module>

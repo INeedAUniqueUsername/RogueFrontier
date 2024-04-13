@@ -1,0 +1,23 @@
+         Rogue Frontier           
+                                  
+  A game by INeedAUniqueUsername  
+                                  
+----------------------------------
+                                  
+Based on the lore of Transcendence
+                                  
+       by George Moromisato       
+                                  
+----------------------------------
+                                  
+        Engine || C#              
+                  SadConsole      
+                  SFML            
+                                  
+         Music || MuseScore       
+                                  
+           SFX || ChipTone        
+                                  
+----------------------------------
+                                  
+ https://rogue-frontier.github.io 

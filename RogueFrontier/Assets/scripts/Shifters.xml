@@ -1,0 +1,24 @@
+﻿<Module>
+	<!--Solitude Soliloquy Sojourn-->
+    <ShipClass  codename="ship_shifter_platform"
+                name="Shifter platform"
+                thrust="0.5"
+                maxSpeed="10"
+
+                rotationAccel="6"
+                rotationDecel="12"
+                rotationMaxSpeed="8"
+
+                glyph="S"
+                foreground="Yellow"
+	    >
+	    <Devices>
+		    <Weapon codename="item_amethyst_laser_i"/>
+			<Reactor codename="item_20mw_generator"/>
+			<Reactor codename="item_10mw_secondary"/>
+        </Devices>
+        <LayeredArmorSystem>
+			<Armor  codename="item_gemsteel_plate_i"/>
+        </LayeredArmorSystem>
+    </ShipClass>
+</Module>

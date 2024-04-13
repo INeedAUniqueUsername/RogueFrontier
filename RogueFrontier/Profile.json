@@ -1,0 +1,9 @@
+{
+  "$id": "1",
+  "$type": "RogueFrontier.Profile, RogueFrontier",
+  "allowDictator": false,
+  "achievements": {
+    "$type": "System.Collections.Generic.HashSet`1[[RogueFrontier.Achievement, RogueFrontier]], System.Private.CoreLib",
+    "$values": []
+  }
+}

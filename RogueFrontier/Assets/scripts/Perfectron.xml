@@ -1,0 +1,201 @@
+﻿<Module>
+	<!--We need an anti-stealth capability to counter Dark Star-->
+	<Sovereign	codename=	"sovereign_perfectron"
+				alignment=	"DestructiveOrder"
+	/>
+	<ItemType codename=		"item_grinder"
+			  name=			"Grinder device"
+			  attributes=	"Perfectrons"
+			  level=		"3"
+			  mass=			"2000"
+			  desc=			""
+			  >
+		<Service interval="30" type="grind" powerUse="5"/>
+	</ItemType>
+	<ItemType	codename=	"item_deflect_device"
+		name=		"Deflect device"
+		attributes=	"Perfectrons"
+		level=		"3"
+		mass=		"4000"
+		desc=		"This rare device is capable of hijacking missiles and redirecting them back at enemies."
+		>
+		<Service interval="10" type="missileJack" powerUse="5"/>
+	</ItemType>
+	<ItemType	codename=	"item_lightning_cannon"
+		name=		"Lightning cannon"
+		attributes=	"Perfectrons"
+		level=		"5"
+		mass=		"4000"
+		desc=		"This weapon can unleash a deadly rapid-fire barrage of energy beams onto a target after priming its hull with an initial connecting hit."
+		>
+		<Weapon
+			powerUse=		"60"
+			fireCooldown=	"60"
+			sound=			"Assets/sounds/lightning_cannon.wav"
+			>
+			<Projectile
+				missileSpeed=	"50"
+				damageType=		"1"
+				damageHP=		"3"
+				lifetime=		"90"
+				glyph=			"*"
+				foreground=		"FF0080FF"
+				
+				lightning=		"true"
+				>
+			</Projectile>
+			<Capacitor
+				minChargeToFire=		"0"
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/60"
+				maxCharge=				"100"
+				
+				bonusDamagePerCharge=	"6/100"
+				/>
+		</Weapon>
+	</ItemType>
+
+	<ItemType	codename=	"item_flashbang_cannon"
+				name=		"Flashbang cannon"
+				attributes=	"Perfectrons"
+				level=		"6"
+				mass=		"2000"
+				desc=		"A high-energy flashbang unleashes a huge blinding explosion, effectively disrupting targeting systems. The flashbang is powerful enough to blind its user though so be careful."
+		>
+		<Weapon	initialCharges="500"
+				powerUse=		"30"
+				fireCooldown=	"90"
+				sound=			"Assets/sounds/flashbang_cannon.wav"
+			>
+			<Projectile
+				missileSpeed=	"50"
+				damageType=		"1"
+				damageHP=		"5"
+				lifetime=		"60"
+				glyph=			"*"
+				foreground=		"Cyan"
+				background=		"Black"
+				
+				detonateRadius="5"
+				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
+				>
+				<Flash intensity="60"/>
+				<Fragment
+					precise=		"false"
+					hitSource=		"true"
+					
+					blind=			"15d4"
+					count=			"24*5"
+					spreadAngle=	"360"
+					missileSpeed=	"200"
+					damageType=		"1"
+					damageHP=		"0-2"
+					lifetime=		"8"
+					glyph=			" "
+					foreground=		"Transparent"
+					background=		"Transparent"
+					/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_lightning_vent"
+		name=		"Lightning vent"
+		attributes=	"Perfectrons"
+		level=		"3"
+		mass=		"4000"
+		desc=		"The Perfectron generator discharges excess generated power in the form of lightning bolts."
+		>
+		<Weapon
+			powerUse=		"60"
+			fireCooldown=	"30"
+			spray=			"true"
+			structural=		"true"
+			>
+			<Projectile
+				missileSpeed=	"50"
+				damageType=		"1"
+				damageHP=		"3"
+				lifetime=		"90"
+				glyph=			"*"
+				foreground=		"FF0080FF"
+				
+				lightning=		"true"
+				>
+			</Projectile>
+			<Capacitor
+				minChargeToFire=		"0"
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/30"
+				maxCharge=				"100"
+				bonusDamagePerCharge=	"6/100"
+				/>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_shining_armor"
+		name=		"Shining armor"
+		attribute=	"Perfectrons"
+		mass=		"8000"
+		level=		"6"
+		value=		"32000"
+		desc=		"This highly valuable armor is made of a nano-boosted metal that automatically rebuilds itself after damage."
+		>
+		<Armor	maxHP=		"150"
+				recoveryFactor="0.8"
+				recoveryRate="10/30"
+				powerUse=	"20"
+				/>
+	</ItemType>
+	<ShipClass	codename=	"ship_flawless"
+		name=				"Flawless-class fighter"
+		thrust=				"0.2"
+		maxSpeed=			"15"
+		rotationAccel=		"3"
+		rotationDecel=		"6"
+		rotationMaxSpeed=	"4"
+		glyph=				"n"
+		foreground=			"LightBlue"
+		>
+		<Devices>
+			<Service codename="item_deflect_device"/>
+			<Weapon codename="item_flashbang_cannon"/>
+			<Weapon codename="item_lightning_cannon" omnidirectional="true"/>
+			<Reactor codename="item_50mw_generator"/>
+			<Reactor codename="item_30mw_secondary"/>
+			<Reactor codename="item_30mw_secondary"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor  codename="item_shining_armor"/>
+			<Armor  codename="item_shining_armor"/>
+			<Armor  codename="item_shining_armor"/>
+		</LayeredArmorSystem>
+	</ShipClass>
+	<StationType	codename="station_perfectron_fortress"
+					name=		"Perfectron fortress"
+					sovereign=	"sovereign_perfectron"
+					structure="Assets/sprites/NRobotFortress.asc.cg"
+		>
+
+		<HP	maxHP="600"/>
+		<Weapons>
+			<Weapon codename="item_lightning_cannon"	posX="4" posY="-4"/>
+			<Weapon codename="item_lightning_cannon"	posX="-4" posY="4"/>
+		</Weapons>
+		<Ships>
+			<Ship codename="ship_flawless" count="4" order="guard"/>
+		</Ships>
+	</StationType>
+	<StationType	codename="station_perfectron_power_station"
+					name=		"Perfectron generator"
+					sovereign=	"sovereign_perfectron"
+					structure="Assets/sprites/NRobotPowerStation.asc.cg"
+		>
+		<HP	maxHP="400"/>
+		<Weapons>
+			<Weapon codename="item_lightning_vent"	posX="3" posY="0" angle="0" leftRange="75" rightRange="75"/>
+			<Weapon codename="item_lightning_vent"	posX="-3" posY="0" angle="180" leftRange="75" rightRange="75"/>
+		</Weapons>
+		<Ships>
+			<Ship codename="ship_flawless" count="4" order="guard"/>
+		</Ships>
+	</StationType>
+</Module>
