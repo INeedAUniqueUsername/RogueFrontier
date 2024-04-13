@@ -1,5 +1,4 @@
 ﻿using ArchConsole;
-using Microsoft.Xna.Framework.Content;
 using Newtonsoft.Json;
 using SadConsole;
 using SadConsole.Input;
@@ -9,14 +8,11 @@ using SadConsole.UI.Controls;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using ArchConsole;
 using static SadConsole.Input.Keys;
-using Microsoft.Xna.Framework.Graphics;
 using Console = SadConsole.Console;
 using SadConsole.Renderers;
 using Label = ArchConsole.Label;
@@ -30,7 +26,6 @@ namespace ASECII {
         public EditorMain(int width, int height, SpriteModel model) :base(width, height) {
             UseKeyboard = true;
             UseMouse = true;
-            DefaultBackground = Color.Black;
 
             this.model = model;
 
@@ -56,7 +51,6 @@ namespace ASECII {
             controlsMenu = new Console(16, Height) {
                 UseKeyboard = true,
                 UseMouse = true,
-                DefaultBackground = Color.Black
             };
 
             Action UpdateChannels = () => { };
@@ -368,7 +362,7 @@ namespace ASECII {
                         break;
                     }
                 case ColorMode.Grayscale: {
-                        colorMenu = new Console(controlsMenu.Width, 16) { DefaultBackground = Color.AnsiCyan, Position = new Point(0, yColorMenu) };
+                        colorMenu = new Console(controlsMenu.Width, 16) { Position = new Point(0, yColorMenu) };
 
                         AddPaletteMenu();
 
@@ -1240,7 +1234,7 @@ namespace ASECII {
             }
             c.Render(new TimeSpan());
             var t = (c.Renderer as ScreenSurfaceRenderer)._backingTexture;
-            t.Save($"{filepath}.png");
+            t.Texture.CopyToImage().SaveToFile($"{filepath}.png");
 
             AddAction(new SaveEdit());
         }

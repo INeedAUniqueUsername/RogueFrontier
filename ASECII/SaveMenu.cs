@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SadConsole;
 using SadConsole.Input;
-using SadConsole.Host.MonoGame;
 using SadConsole.UI;
 using SadConsole.UI.Controls;
-using SadConsole.UI.Themes;
 using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
@@ -111,10 +109,6 @@ namespace ASECII {
         string console = "";
 
         public FileMenu(int width, int height, FileMode mode) : base(width, height) {
-
-            DefaultBackground = Color.Black;
-
-
             this.recentFiles = File.Exists(RECENTFILES) ? ASECIILoader.DeserializeObject<HashSet<string>>(File.ReadAllText(RECENTFILES)).Where(f => File.Exists(f)).ToHashSet() : new HashSet<string>();
             this.preloaded = new Dictionary<string, ILoadResult>();
             this.recentListing = new List<LabelButton>();

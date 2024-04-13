@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>ASECII</RootNamespace>
     <AssemblyName>ASECII</AssemblyName>
     <StartupObject>ASECII.Program</StartupObject>
@@ -52,12 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SadConsole.Host.MonoGame" Version="9.2.1" />
+    <PackageReference Include="SadConsole" Version="10.0.2" />
+    <PackageReference Include="SadConsole.Host.SFML" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ArchConsole">
-      <HintPath>..\..\ArchConsole\ArchConsole\bin\Release\net6.0\ArchConsole.dll</HintPath>
+      <HintPath>..\..\ArchConsole\ArchConsole\bin\Release\net7.0\ArchConsole.dll</HintPath>
     </Reference>
   </ItemGroup>
 

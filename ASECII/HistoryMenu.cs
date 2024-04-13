@@ -1,6 +1,5 @@
 ﻿
 using ArchConsole;
-using Microsoft.Xna.Framework.Media;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
