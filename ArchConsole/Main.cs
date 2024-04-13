@@ -10,6 +10,14 @@ using System.Text.RegularExpressions;
 using Console = SadConsole.Console;
 
 namespace ArchConsole {
+
+    public class Start
+    {
+        public static void Main(string[] args)
+        {
+
+        }
+    }
     public class CellButton : SadConsole.Console {
         public delegate bool Active();
         public delegate void Click();
@@ -103,7 +111,6 @@ namespace ArchConsole {
                             }
                         }
                     }
-
                 }
             }
         }
@@ -127,8 +134,6 @@ namespace ArchConsole {
             base.Render(delta);
         }
     }
-
-
     public class TextField : Console {
         private int _index;
         public int index {
@@ -138,9 +143,7 @@ namespace ArchConsole {
                 UpdateTextStart();
             }
         }
-
         private int textStart;
-
         public string _text;
         public string text { get => _text; set {
                 _text = value;
@@ -148,11 +151,9 @@ namespace ArchConsole {
             } }
         public int selectStart;
         public int selectEnd; //exclusive
-
         public string placeholder;
         private double time;
         private MouseWatch mouse;
-
         public Predicate<char> CharFilter;
         public Action<TextField> TextChanged;
         public Action<TextField> EnterPressed;
@@ -450,12 +451,10 @@ namespace ArchConsole {
             return base.ProcessKeyboard(keyboard);
         }
     }
-
     public class LabeledField : ControlsConsole {
         public string label;
         public TextField textBox;
         public LabeledField(string label, string text = "", Action<TextField, string> TextChanged = null) : base((label.Length / 8 + 1) * 8 + 16, 1) {
-            (DefaultBackground, DefaultForeground) = (Color.Black, Color.White);
             this.label = label;
             this.textBox = new TextField(16) {
                 text = text,
@@ -575,7 +574,6 @@ namespace ArchConsole {
 
     public class ScrollVertical : Console {
         private int _index;
-
         public int index {
             get => _index; set {
                 _index = value;
@@ -677,17 +675,17 @@ namespace ArchConsole {
             if (GetBar(out int barStart, out int barSize)) {
 
                 for (int i = 0; i < barStart; i++) {
-                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                    this.Print(0, i, "|", Color.White, Color.Black);
                 }
                 for (int i = barStart; i < barStart + barSize; i++) {
-                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '#'));
+                    this.Print(0, i, "#", Color.White, Color.Black);
                 }
                 for (int i = barStart + barSize; i < Height; i++) {
-                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                    this.Print(0, i, "|", Color.White, Color.Black);
                 }
             } else {
                 for (int i = 0; i < range; i++) {
-                    this.Print(0, i, new ColoredGlyph(Color.White, Color.Black, '|'));
+                    this.Print(0, i, "|", Color.White, Color.Black);
                 }
             }
             base.Render(delta);
