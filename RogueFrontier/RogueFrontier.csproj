@@ -5,7 +5,7 @@
     <RootNamespace>RogueFrontier</RootNamespace>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
 	<StartupObject>RogueFrontier.Program</StartupObject>
-	<ApplicationIcon>RogueFrontierContent\Icon.ico</ApplicationIcon>
+	<ApplicationIcon>Assets\Icon.ico</ApplicationIcon>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 	
     <ItemGroup>
-        <EmbeddedResource Include="RogueFrontierContent/Icon.ico" />
+        <EmbeddedResource Include="RogueFrontierContent\Icon.ico" />
     </ItemGroup> 
   <ItemGroup>
     <Content Include="RogueFrontierContent\Icon.png" />
@@ -169,7 +169,7 @@
     <None Update="RogueFrontierContent\sounds\generic_shield_damage.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RogueFrontierContent\sounds\generic_thrust.wav">
+    <None Update="Assets\sounds\generic_thrust.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="RogueFrontierContent\sounds\autopilot_off.wav">
@@ -301,7 +301,7 @@
     <None Update="RogueFrontierContent\sprites\IBMCGA.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RogueFrontierContent\Icon.pdn">
+    <None Update="Assets\Icon.pdn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="RogueFrontierContent\Icon.txt">
@@ -343,7 +343,7 @@
     <None Update="RogueFrontierContent\scripts\Ships.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RogueFrontierContent\SplashBackground.asc.cg">
+    <None Update="Assets\SplashBackground.asc.cg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="RogueFrontierContent\sprites\SplashBackgroundV2.asc">

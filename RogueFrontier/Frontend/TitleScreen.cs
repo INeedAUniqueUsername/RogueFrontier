@@ -20,7 +20,7 @@ public class TitleScreen : Console {
     Console credits;
     public Profile profile;
     public System World;
-    public static string[] title = File.ReadAllText("RogueFrontierContent/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
+    public static string[] title = File.ReadAllText("Assets/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
     public Settings settings;
     public AIShip pov;
     public int povTimer;
@@ -28,7 +28,7 @@ public class TitleScreen : Console {
     //XY screenCenter;
     public XY camera;
     public Dictionary<(int, int), ColoredGlyph> tiles;
-    public Sound titleMusic = new(new SoundBuffer("RogueFrontierContent/music/Title.wav")) {
+    public Sound titleMusic = new(new SoundBuffer("Assets/music/Title.wav")) {
         Volume = 33
     };
     public TitleScreen(int width, int height, System World) : base(width, height) {
@@ -111,7 +111,7 @@ public class TitleScreen : Console {
             crawl = new(Width, Height, () => null) { IsFocused = true };
             SadConsole.Game.Instance.Screen = crawl;
 
-            var crawlMusic = new Sound(new SoundBuffer("RogueFrontierContent/music/Crawl.wav")) {
+            var crawlMusic = new Sound(new SoundBuffer("Assets/music/Crawl.wav")) {
                 Volume = 33
             };
             crawlMusic.Play();
@@ -121,7 +121,7 @@ public class TitleScreen : Console {
             void CreateWorld() {
 
                 var universeDesc = new UniverseDesc(World.types, XElement.Parse(
-                    File.ReadAllText("RogueFrontierContent/scripts/Universe.xml")
+                    File.ReadAllText("Assets/scripts/Universe.xml")
                     ));
 
                 //Name is seed
@@ -560,7 +560,7 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
             Genome = World.types.Get<GenomeType>().First()
         };
         var universeDesc = new UniverseDesc(World.types, XElement.Parse(
-            File.ReadAllText("RogueFrontierContent/scripts/Universe.xml")
+            File.ReadAllText("Assets/scripts/Universe.xml")
             ));
         //Name is seed
         var seed = player.name.GetHashCode();

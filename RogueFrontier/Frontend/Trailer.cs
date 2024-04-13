@@ -14,7 +14,7 @@ public class Trailer {
 
     public static void Main2(string[] args) {
         // Setup the engine and create the main window.
-        SadConsole.Game.Create(Width, Height, "RogueFrontierContent/sprites/IBMCGA.font", (o, gh) => { });
+        SadConsole.Game.Create(Width, Height, "Assets/sprites/IBMCGA.font", (o, gh) => { });
         // Hook the start event so we can add consoles to the system.
         SadConsole.Game.Instance.Started += (o, gh) => Init();
 #if DEBUG
@@ -39,9 +39,9 @@ public class Trailer {
 			return;
 #endif
         System w = new System();
-        w.types.LoadFile("RogueFrontierContent/scripts/Main.xml");
+        w.types.LoadFile("Assets/scripts/Main.xml");
 
-        var poster = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("RogueFrontierContent/sprites/RogueFrontierPoster.cg")));
+        var poster = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/RogueFrontierPoster.cg")));
 
         Console container = new Console(Width, Height);
         GameHost.Instance.Screen = container;

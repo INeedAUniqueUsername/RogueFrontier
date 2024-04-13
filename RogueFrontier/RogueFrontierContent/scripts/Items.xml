@@ -244,7 +244,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"45"
 				ammoType=		"item_klaw_missile"
-				sound=			"RogueFrontierContent/sounds/klaw_launcher.wav"
+				sound=			"Assets/sounds/klaw_launcher.wav"
 			>
 			<Projectile	count=			"2"
 						spreadAngle=	"30"
@@ -282,7 +282,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"45"
 				ammoType=		"item_fang_missile"
-				sound=			"RogueFrontierContent/sounds/klaw_launcher.wav"
+				sound=			"Assets/sounds/klaw_launcher.wav"
 			>
 			<Capacitor
 				minChargeToFire=		"0"
@@ -333,7 +333,7 @@
 				fireCooldown=	"300"
 				ammoType=		"item_nova_missile"
 				structural=		"true"
-				sound=			"RogueFrontierContent/sounds/generic_missile.wav"
+				sound=			"Assets/sounds/generic_missile.wav"
 			>
 			<Projectile	count=			"1"
 						maneuver=		"4"
@@ -534,7 +534,7 @@
 			powerUse=		"10"
 			fireCooldown=	"30"
 			ammoType=		"item_dynamite_charge"
-			sound=			"RogueFrontierContent/sounds/generic_missile.wav"
+			sound=			"Assets/sounds/generic_missile.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -546,7 +546,7 @@
 				
 				detonateFailChance="0.25"
 				
-				detonateSound=	"RogueFrontierContent/sounds/dynamite.wav"
+				detonateSound=	"Assets/sounds/dynamite.wav"
 				>
 				<Fragment
 					count=			"36"

@@ -26,7 +26,7 @@
 
 				behavior=	"none"
 					
-				structure=	"RogueFrontierContent/sprites/BeowulfClub.asc.cg"
+				structure=	"Assets/sprites/BeowulfClub.asc.cg"
 		>
 
 		<HP	maxHP="300"/>
@@ -173,7 +173,7 @@
 		<Weapon	initialCharges="400"
 				powerUse=		"30"
 				fireCooldown=	"90"
-				sound=			"RogueFrontierContent/sounds/flashbang_cannon.wav"
+				sound=			"Assets/sounds/flashbang_cannon.wav"
 			>
 			<Projectile
 				missileSpeed=	"40"
@@ -186,7 +186,7 @@
 				background=		"Black"
 				
 				detonateRadius=	"5"
-				detonateSound=	"RogueFrontierContent/sounds/flashbang_explosion.wav"
+				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
 				>
 				<Flash intensity="20"/>
 				<Fragment
@@ -241,7 +241,7 @@
 			initialCharges=	"240"
 			powerUse=		"10"
 			fireCooldown=	"10"
-			sound=			"RogueFrontierContent/sounds/magic_blaster.wav"
+			sound=			"Assets/sounds/magic_blaster.wav"
 			>
 			<Projectile
 				count=			"5"

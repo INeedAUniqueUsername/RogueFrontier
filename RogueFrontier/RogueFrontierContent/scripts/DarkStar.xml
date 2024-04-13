@@ -56,7 +56,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"90"
 				ammoType=		"item_shrapnel_bomb"
-				sound=			"RogueFrontierContent/sounds/generic_missile.wav"
+				sound=			"Assets/sounds/generic_missile.wav"
 			>
 			<Projectile
 				missileSpeed=	"50"
@@ -69,7 +69,7 @@
 				
 				detonateRadius="5"
 				
-				detonateSound=	"RogueFrontierContent/sounds/dynamite.wav"
+				detonateSound=	"Assets/sounds/dynamite.wav"
 				>
 				<Fragment
 					count=			"18"
@@ -283,7 +283,7 @@
 					sovereign=	"sovereign_dark_star"
 					
 					stealth="2"
-					structure="RogueFrontierContent/sprites/DarkStarFortress.asc.cg"
+					structure="Assets/sprites/DarkStarFortress.asc.cg"
 		>
 		<HP	maxHP="600"/>
 		<Weapons>
@@ -299,7 +299,7 @@
 					name=		"Dark Star shipyard"
 					sovereign=	"sovereign_dark_star"
 					stealth="2"
-					structure="RogueFrontierContent/sprites/DarkStarShipyard.asc.cg"
+					structure="Assets/sprites/DarkStarShipyard.asc.cg"
 		>
 
 		<HP	maxHP="900"/>

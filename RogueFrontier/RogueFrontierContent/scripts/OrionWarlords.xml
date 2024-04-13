@@ -16,7 +16,7 @@
 			fireCooldown=	"30"
 			initialCharges=	"200"
 			
-			sound=			"RogueFrontierContent/sounds/crossbow_light.wav"
+			sound=			"Assets/sounds/crossbow_light.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -50,7 +50,7 @@
 			fireCooldown=	"30"
 			initialCharges=	"200"
 			
-			sound=			"RogueFrontierContent/sounds/crossbow_medium.wav"
+			sound=			"Assets/sounds/crossbow_medium.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -120,7 +120,7 @@
 			fireCooldown=	"60"
 			initialCharges=	"200"
 			
-			sound=			"RogueFrontierContent/sounds/crossbow_heavy.wav"
+			sound=			"Assets/sounds/crossbow_heavy.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -267,7 +267,7 @@
 					sovereign=	"sovereign_orion_warlords"
 					stealth=	"4"
 					behavior=	"orionWarlords"
-					structure=	"RogueFrontierContent/sprites/OrionWarlordsCamp.asc.cg"
+					structure=	"Assets/sprites/OrionWarlordsCamp.asc.cg"
 		>
 
 		<HP	maxHP="250"/>
@@ -363,7 +363,7 @@
 					
 					behavior=	"orionWarlords"
 
-					structure=	"RogueFrontierContent/sprites/OrionWarlordsStronghold.asc.cg"
+					structure=	"Assets/sprites/OrionWarlordsStronghold.asc.cg"
 		>
 
 		<HP	maxHP="500"/>
@@ -411,7 +411,7 @@
 			<Item codename="item_bronze_rice" count="8"/>
 		</Cargo>
 		<!--
-		<HeroImage path="RogueFrontierContent/ConstellationAstra.asc"/>
+		<HeroImage path="Assets/ConstellationAstra.asc"/>
 		-->
 	</StationType>
 </Module>

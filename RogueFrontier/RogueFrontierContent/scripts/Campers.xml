@@ -8,7 +8,7 @@
 
 		behavior=	"none"
 
-		structure=	"RogueFrontierContent/sprites/CamperOutpost.asc.cg"
+		structure=	"Assets/sprites/CamperOutpost.asc.cg"
 		>
 
 		<HP	maxHP="300"/>
@@ -168,7 +168,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"90"
 				ammoType=		"item_magic_bomb"
-				sound=			"RogueFrontierContent/sounds/generic_missile.wav"
+				sound=			"Assets/sounds/generic_missile.wav"
 			>
 			<Projectile
 				missileSpeed=	"40"

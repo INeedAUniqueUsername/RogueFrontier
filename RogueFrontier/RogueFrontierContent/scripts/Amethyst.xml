@@ -5,7 +5,7 @@
 
 					behavior=	"amethystStore"
 					
-					structure=	"RogueFrontierContent/sprites/AmethystStore.asc.cg"
+					structure=	"Assets/sprites/AmethystStore.asc.cg"
 					
 					crimeOnDestroy="true"
 		>
@@ -103,7 +103,7 @@
 			fireCooldown=	"20"
 			
 			sweep=			"60"
-			sound=			"RogueFrontierContent/sounds/amethyst_laser.wav"
+			sound=			"Assets/sounds/amethyst_laser.wav"
 			>
 			<Projectile
 				missileSpeed=	"100"
@@ -130,7 +130,7 @@
 			initialCharges=	"240"
 			powerUse=		"10"
 			fireCooldown=	"20"
-			sound=			"RogueFrontierContent/sounds/magic_blaster.wav"
+			sound=			"Assets/sounds/magic_blaster.wav"
 			>
 			<Projectile
 				count=			"5"
@@ -168,7 +168,7 @@
 			fireCooldown=	"15"
 			
 			sweep=			"60"
-			sound=			"RogueFrontierContent/sounds/amethyst_laser.wav"
+			sound=			"Assets/sounds/amethyst_laser.wav"
 			>
 			<Projectile
 				missileSpeed=	"100"
@@ -195,7 +195,7 @@
 			initialCharges=	"240"
 			powerUse=		"10"
 			fireCooldown=	"20"
-			sound=			"RogueFrontierContent/sounds/magic_blaster.wav"
+			sound=			"Assets/sounds/magic_blaster.wav"
 			>
 			<Projectile
 				count=			"5"
@@ -233,7 +233,7 @@
 			fireCooldown=	"15"
 			
 			sweep=			"60"
-			sound=			"RogueFrontierContent/sounds/amethyst_laser.wav"
+			sound=			"Assets/sounds/amethyst_laser.wav"
 			>
 			<Projectile
 				missileSpeed=	"100"

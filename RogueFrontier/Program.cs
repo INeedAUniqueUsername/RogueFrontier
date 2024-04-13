@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace RogueFrontier;
 public static class Tones {
-    public static Sound pressed = new(new SoundBuffer("RogueFrontierContent/sounds/button_press.wav")) {
+    public static Sound pressed = new(new SoundBuffer("Assets/sounds/button_press.wav")) {
         Volume = 33
     };
 }
@@ -28,10 +28,10 @@ partial class Program {
         Width = Height * 5 / 3;
     }
     public static int Width, Height;
-    public static string font = ExpectFile("RogueFrontierContent/sprites/IBMCGA+.font");
-    public static string main = ExpectFile("RogueFrontierContent/scripts/Main.xml");
-    public static string cover = ExpectFile("RogueFrontierContent/sprites/RogueFrontierPosterV2.asc.cg");
-    public static string splash = ExpectFile("RogueFrontierContent/sprites/SplashBackgroundV2.asc.cg");
+    public static string font = ExpectFile("Assets/sprites/IBMCGA+.font");
+    public static string main = ExpectFile("Assets/scripts/Main.xml");
+    public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.asc.cg");
+    public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.asc.cg");
     
     static void OutputSchema() {
 
@@ -102,7 +102,7 @@ partial class Program {
         //var files = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}save", "*.trl");
         //SaveGame.Deserialize(File.ReadAllText(files.First()));
 
-        var splashMusic = new Sound(new SoundBuffer("RogueFrontierContent/music/Splash.wav")) {
+        var splashMusic = new Sound(new SoundBuffer("Assets/music/Splash.wav")) {
             Volume = 33
         };
         var poster = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(cover)));

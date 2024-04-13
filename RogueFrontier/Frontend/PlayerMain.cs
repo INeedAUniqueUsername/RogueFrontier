@@ -759,7 +759,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         dock_start,
         dock_end,
         power_charge, power_release;
-    public static SoundBuffer Load(string file) => new($"RogueFrontierContent/Sounds/{file}.wav");
+    public static SoundBuffer Load(string file) => new($"Assets/Sounds/{file}.wav");
     static Noisemaker() {
         var props = typeof(Noisemaker)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -771,7 +771,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     PlayerShip player;
     List<IShip> exhaustList = new();
     const float distScale = 1 / 16f;
-    public Sound button_press = new(new SoundBuffer("RogueFrontierContent/sounds/button_press.wav")) {
+    public Sound button_press = new(new SoundBuffer("Assets/sounds/button_press.wav")) {
         Volume = 33
     };
     private ListTracker<Sound>

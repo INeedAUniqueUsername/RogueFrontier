@@ -17,7 +17,7 @@ namespace RogueFrontier;
 
 class OutroCrawl : Console {
 
-    public static readonly SoundBuffer music = new SoundBuffer("RogueFrontierContent/music/IntroductionToTheSnow.wav");
+    public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
     public Sound bgm = new Sound() { Volume = 50, SoundBuffer = music };
     
     int tick;
@@ -32,7 +32,7 @@ class OutroCrawl : Console {
 
     Console cloudLayer;
     public OutroCrawl(int width, int height, Action next) : base(width, height) {
-        var frame1 = new ImageDisplay(width, height, ColorImage.FromFile("RogueFrontierContent/epilogue_1.asc.cg"), new());
+        var frame1 = new ImageDisplay(width, height, ColorImage.FromFile("Assets/epilogue_1.asc.cg"), new());
 
         Children.Add(cloudLayer = new(width, height));
 

@@ -181,7 +181,7 @@ public class Dialog : Console {
     int descY => 8;
     public static double maxCharge = 0.5;
     
-    private Sound button_press = new(new SoundBuffer("RogueFrontierContent/sounds/button_press.wav")) {
+    private Sound button_press = new(new SoundBuffer("Assets/sounds/button_press.wav")) {
         Volume = 33
     };
     public Dialog(ScreenSurface prev, string desc, List<NavChoice> navigation) : base(prev.Surface.Width, prev.Surface.Height) {

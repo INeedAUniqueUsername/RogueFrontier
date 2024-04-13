@@ -19,7 +19,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"45"
 				ammoType=		"item_debug_missile"
-				sound=			"RogueFrontierContent/sounds/klaw_launcher.wav"
+				sound=			"Assets/sounds/klaw_launcher.wav"
 			>
 			<Capacitor
 				minChargeToFire=		"0"

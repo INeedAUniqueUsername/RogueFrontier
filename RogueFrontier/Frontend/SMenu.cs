@@ -755,8 +755,8 @@ public static partial class SMenu {
 
         Sound s = new();
         SoundBuffer
-            start = new("RogueFrontierContent/sounds/repair_start.wav"),
-            stop = new("RogueFrontierContent/sounds/repair_stop.wav");
+            start = new("Assets/sounds/repair_start.wav"),
+            stop = new("Assets/sounds/repair_stop.wav");
 
 
         return screen = new(prev,

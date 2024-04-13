@@ -66,7 +66,7 @@
 		</Weapons>
 		<!--
 		<Dock type="united_constellation"/>
-		<HeroImage path="RogueFrontierContent/sprites/ConstellationAstra.asc.cg"/>
+		<HeroImage path="Assets/sprites/ConstellationAstra.asc.cg"/>
 		-->
 	</StationType>
 
@@ -143,7 +143,7 @@
 		<Weapons>
 		</Weapons>
 		<!--
-		<HeroImage path="RogueFrontierContent/ConstellationAstra.asc"/>
+		<HeroImage path="Assets/ConstellationAstra.asc"/>
 		-->
 	</StationType>
 	<StationType	codename="station_armor_shop"

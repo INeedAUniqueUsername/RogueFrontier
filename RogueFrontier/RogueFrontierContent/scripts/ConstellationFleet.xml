@@ -7,7 +7,7 @@
 
 					crimeOnDestroy="true"
 
-					structure=	"RogueFrontierContent/sprites/station_constellation_shipyard.asc.cg"
+					structure=	"Assets/sprites/station_constellation_shipyard.asc.cg"
 		>
 
 		<HP	maxHP="700"/>

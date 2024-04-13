@@ -13,7 +13,7 @@ class RenderShip : Console {
 
     static void Main2(string[] args) {
         // Setup the engine and create the main window.
-        SadConsole.Game.Create(Width, Height, "RogueFrontierContent/sprites/IBMCGA.font", (o, gh) => { });
+        SadConsole.Game.Create(Width, Height, "Assets/sprites/IBMCGA.font", (o, gh) => { });
         SadConsole.Game.Instance.DefaultFontSize = IFont.Sizes.Two;
         SadConsole.Game.Instance.Started += (o, gh) => Init();
         SadConsole.Game.Instance.Run();
@@ -21,7 +21,7 @@ class RenderShip : Console {
     }
     private static void Init() {
 
-        TypeCollection tc = new TypeCollection("RogueFrontierContent/scripts/Main.xml");
+        TypeCollection tc = new TypeCollection("Assets/scripts/Main.xml");
 
         Directory.CreateDirectory("RogueFrontierRenders");
         foreach ((var codename, var sc) in tc.GetDict<ShipClass>()) {

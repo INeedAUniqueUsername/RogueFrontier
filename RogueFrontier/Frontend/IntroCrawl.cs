@@ -15,8 +15,8 @@ namespace RogueFrontier;
 
 class IntroCrawl : Console {
     private readonly ColorImage[] images = {
-            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("RogueFrontierContent/sprites/NewEra.cg"))),
-            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("RogueFrontierContent/sprites/PillarsOfCreation.cg")))
+            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
+            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
         };
     private readonly string[] text = new[] {
 @"In a vision I could see

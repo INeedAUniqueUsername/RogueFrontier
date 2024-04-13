@@ -31,7 +31,7 @@
 		<Weapon
 			powerUse=		"60"
 			fireCooldown=	"60"
-			sound=			"RogueFrontierContent/sounds/lightning_cannon.wav"
+			sound=			"Assets/sounds/lightning_cannon.wav"
 			>
 			<Projectile
 				missileSpeed=	"50"
@@ -65,7 +65,7 @@
 		<Weapon	initialCharges="500"
 				powerUse=		"30"
 				fireCooldown=	"90"
-				sound=			"RogueFrontierContent/sounds/flashbang_cannon.wav"
+				sound=			"Assets/sounds/flashbang_cannon.wav"
 			>
 			<Projectile
 				missileSpeed=	"50"
@@ -77,7 +77,7 @@
 				background=		"Black"
 				
 				detonateRadius="5"
-				detonateSound=	"RogueFrontierContent/sounds/flashbang_explosion.wav"
+				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
 				>
 				<Flash intensity="60"/>
 				<Fragment
@@ -172,7 +172,7 @@
 	<StationType	codename="station_perfectron_fortress"
 					name=		"Perfectron fortress"
 					sovereign=	"sovereign_perfectron"
-					structure="RogueFrontierContent/sprites/NRobotFortress.asc.cg"
+					structure="Assets/sprites/NRobotFortress.asc.cg"
 		>
 
 		<HP	maxHP="600"/>
@@ -187,7 +187,7 @@
 	<StationType	codename="station_perfectron_power_station"
 					name=		"Perfectron generator"
 					sovereign=	"sovereign_perfectron"
-					structure="RogueFrontierContent/sprites/NRobotPowerStation.asc.cg"
+					structure="Assets/sprites/NRobotPowerStation.asc.cg"
 		>
 		<HP	maxHP="400"/>
 		<Weapons>
