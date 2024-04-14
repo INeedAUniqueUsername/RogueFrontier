@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://ba8fr87wo3i44"
+path="res://.godot/imported/IBMCGA+.font-cd50f826e1d1c3925cd9635ca1850c08.fontdata"
+
+[deps]
+
+source_file="res://Lib/Frontier/Assets/sprites/IBMCGA+.font"
+dest_files=["res://.godot/imported/IBMCGA+.font-cd50f826e1d1c3925cd9635ca1850c08.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

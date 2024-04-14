@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bhfmle558ikos"
+path="res://.godot/imported/Quietus (Rogue Frontier).wav-900324a442637d27e26a7af144124838.sample"
+
+[deps]
+
+source_file="res://Lib/Frontier/Assets/sprites/Quietus (Rogue Frontier).wav"
+dest_files=["res://.godot/imported/Quietus (Rogue Frontier).wav-900324a442637d27e26a7af144124838.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

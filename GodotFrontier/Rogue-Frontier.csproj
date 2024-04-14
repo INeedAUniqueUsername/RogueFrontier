@@ -6,4 +6,10 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>RogueFrontier</RootNamespace>
   </PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Lib/*/*.cs" />
+		<Compile Remove="Lib/Frontier/*/*.cs" />
+		<Compile Remove="Lib/*/obj/*/*/*.cs" />
+		<Compile Include="Lib/Common/*.cs" />
+	</ItemGroup>
 </Project>

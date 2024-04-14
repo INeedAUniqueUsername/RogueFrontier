@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://425cwgfq7yh7"
+path="res://.godot/imported/Square.font-e387bb213a81a8a4d1d83d144199536c.fontdata"
+
+[deps]
+
+source_file="res://Lib/ASECII/Content/Square.font"
+dest_files=["res://.godot/imported/Square.font-e387bb213a81a8a4d1d83d144199536c.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2
