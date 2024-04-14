@@ -21,6 +21,7 @@ using Namotion.Reflection;
 
 namespace Common;
 public static class Main {
+
     public static double Lerp(double x, double fromMin, double fromMax, double toMin, double toMax, double pow) {
         var fromRange = fromMax - fromMin;
         var toRange = toMax - toMin;

@@ -129,13 +129,13 @@ public class CompositeLayer : ILayer {
 }
 
 public class CompositeColorLayer {
-    Rectangle active = new();
+    Rect active = new();
 
     private List<GeneratedGrid<uint>> layers = new List<GeneratedGrid<uint>>();
     public CompositeColorLayer() { }
-    public void AddLayer(int index, GeneratedGrid<Tile> layer, Rectangle area) {
+    public void AddLayer(int index, GeneratedGrid<uint> layer, Rect area) {
         layers.Insert(index, layer);
-        active = Rectangle.GetUnion(active, area);
+        active = active.Union(area);
     }
 
     public uint GetBackgroundFixed(XY point) {

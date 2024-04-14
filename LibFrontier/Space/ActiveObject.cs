@@ -1,12 +1,11 @@
 ﻿using Common;
-using SadConsole;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 namespace RogueFrontier;
 public interface IDockable : StructureObject {
     IEnumerable<XY> GetDockPoints();
-    ScreenSurface GetDockScene(ScreenSurface prev, PlayerShip player);
+    IScene GetDockScene(IScene prev, PlayerShip player);
 }
 public interface MovingObject : Entity {
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace RogueFrontier;
+namespace LibGamer;
 public class ListTracker<T> {
     private int _index = 0;
     public int index {

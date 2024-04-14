@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using LibGamer;
 using Newtonsoft.Json;
 using G = RogueFrontier.Timeline.GetDockScreen;
 namespace RogueFrontier;
 
 public interface IPlayerInteraction {
-	RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d);
+	IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d);
 }
 public class IntroMeeting : IPlayerInteraction {
     Timeline story;
     public IntroMeeting(Timeline story) {
         this.story = story;
     }
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         var t = (d as Station)?.type;
         if(t?.codename != "station_daughters_outpost")
             return null;
@@ -30,13 +31,13 @@ The rows of stained glass windows glow warmly with
 orange light. Nevertheless, you can't help but think...
 
 You are a complete stranger here.";
-            var sc = new Dialog(prev, t, new() {
+            var sc = new Dialog(t, [
                 new("Continue", Intro2),
                 new("Leave", Intro2b, NavFlags.ESC)
-            }) { background = heroImage };
+            ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro2 (RogueFrontier.IScene from) {
+		Dialog Intro2 (IScene from) {
             var t =
 @"Walking into the main hall, You see a great monolith of
 sparkling crystals and glowing symbols. A low hum reflectes
@@ -50,21 +51,21 @@ You must be new here - We are currently listening
 for the Galactic Song, a magical harmony unlike
 any other. We may also receive a message from
 The Orator today!"" the guard says.";
-            var sc = new Dialog(prev, t, new() {
+            var sc = new Dialog(t, [
                 new(@"""Ummm, yeah, The Orator?""", Intro3)
-            }) { background = heroImage };
+            ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro2b (RogueFrontier.IScene from) {
+		Dialog Intro2b (IScene from) {
             var t =
 @"You decide to step away from the station,
 much to the possible chagrin of some mysterious
 entity and several possibly preferred timelines.".Replace("\r", null);
-            return new (prev, t, new() {
+            return new (t, [
                 new("Undock")
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Intro3 (RogueFrontier.IScene from) {
+		Dialog Intro3 (IScene from) {
             var t =
 @"""Ummm, yeah, The Orator?""
 
@@ -75,12 +76,12 @@ The Orator tells us truth and truth only, and grants us
 the power to break silences. But interestingly, to hear
 The Orator also requires holding silence. So, to be a
 good Listener means knowing the right time to speak!""";
-            var sc = new Dialog(prev, t, new() {
+            var sc = new Dialog(t, [
                 new(@"""Well, The Orator told me...""", Intro4)
-            }) { background = heroImage };
+            ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro4 (RogueFrontier.IScene from) {
+		Dialog Intro4 (IScene from) {
             string t =
 @"""Well, The Orator told me...
 that there is something terribly wrong
@@ -106,12 +107,12 @@ And...""
 Wait, how are you saying all of this- Your mind blanks out.
 
 ""...And I... I witnessed all of this in a strange dream I had.""";
-            var sc = new Dialog(prev, t, new() {
+            var sc = new Dialog(t, [
                 new("Continue", Intro5)
-            }) { background = heroImage };
+            ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro5 (RogueFrontier.IScene from) {
+		Dialog Intro5 (IScene from) {
             string t =
 @"The guard replies:
 
@@ -140,12 +141,12 @@ Daughters of the Orator, I welcome you to reside here.""
 shining through the window, ""...far out there.""
 
 ""Does it?""";
-            var sc = new Dialog(prev, t, new() {
+            var sc = new Dialog(t, [
                 new(@"""It does.""", Intro6, NavFlags.ESC)
-            }) { background = heroImage };
+            ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro6 (RogueFrontier.IScene from) {
+		Dialog Intro6 (IScene from) {
             string t =
 @"
 After a long pause, you respond.
@@ -160,11 +161,11 @@ We don't really see modern builds like yours
 around here... Not since the last war ended.
 
 You really intend to see what's out there.""";
-            return new(prev, t, new() {
+            return new(t, [
                 new(@"""That is correct.""", Intro7, NavFlags.ESC)
-            }) { background = heroImage }; ;
+            ]) { background = heroImage }; ;
         }
-		Dialog Intro7 (RogueFrontier.IScene from) {
+		Dialog Intro7 (IScene from) {
             string t =
 @"He looks at you with doubt.
 
@@ -177,11 +178,11 @@ I don't care how ready you think you are
 to go wherever you think you're going.
 
 Are you prepared to die?""";
-            return new(prev, t, new() {
+            return new(t, [
                 new(@"""Huh?!?!?!""", Intro8)
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Intro8 (RogueFrontier.IScene from) {
+		Dialog Intro8 (IScene from) {
             string t =
 @"He looks somewhat tense.
 
@@ -206,42 +207,42 @@ through the gateway... before they'd shut the door
 and lock it behind us.
 
 So, tell me, what is it that you intend to do?""";
-            return new Dialog(prev, t, new() {
+            return new Dialog(t, [
                 new(@"""I intend to reach the Celestial Center.""", Intro9a),
                 new("...", Intro9b)
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Intro9a (RogueFrontier.IScene from) {
+		Dialog Intro9a (IScene from) {
 			story.mainInteractions.Remove(this);
             string t =
 @"The man sighs and stares at the ground for a second.
 
 ""So you do. Okay. I won't try to change your mind.
 Just remember...""";
-            return new(prev, t, new() {
+            return new(t, [
                 new("Continue", Intro11)
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Intro9b (RogueFrontier.IScene from) {
+		Dialog Intro9b (IScene from) {
 			story.mainInteractions.Remove(this);
             string t =
 @"You pause for a moment.";
             t = t.Replace("\r", null);
-            return new(prev, t, new() {
+            return new(t, [
                 new('I', @"""I intend to reach the Celestial Center.""", Intro10a),
-            }) { background = heroImage }; ;
+            ]) { background = heroImage }; ;
         }
 
-		Dialog Intro10a (RogueFrontier.IScene prev) {
+		Dialog Intro10a (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"""You sound uncertain there.
 Do you truly intend to do that?""";
-            return new(prev, t, new() {
+            return new(t, [
                 new('I', @"I intend to reach the Celestial Center.", Intro9a),
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Intro11 (RogueFrontier.IScene prev) {
+		Dialog Intro11 (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"""You will meet many different friends and foes
@@ -262,11 +263,11 @@ Orator, have seen enough of that happen.
 
 That is all.""";
             t = t.Replace("\r", null);
-            return new(prev, t, new() {
+            return new(t, [
                 new('C', @"Undock", Done),
-            }) { background = heroImage };
+            ]) { background = heroImage };
         }
-		Dialog Done (RogueFrontier.IScene prev) {
+		Dialog Done (IScene prev) {
 			story.mainInteractions.Remove(this);
             return null;
         }
@@ -297,7 +298,7 @@ class IntroTraining : IPlayerInteraction {
             station.world.AddEffect(new Heading(d));
         }
     }
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         if (d == station) {
             var s = station;
             var heroImage = s.type.HeroImage;
@@ -313,11 +314,11 @@ class IntroTraining : IPlayerInteraction {
 
 ""There's still {count} drones left.""
 ".Replace("\r", null);
-                return new(prev, t, new() {
+                return new(t, [
                     new("Continue")
-                }) { background = heroImage };
+                ]) { background = heroImage };
             }
-			RogueFrontier.IScene Complete() {
+			IScene Complete () {
                 var sec = (station.world.tick - startTick) / 60;
                 var t =
 @$"Benjamin meets you at the docking bay.
@@ -327,13 +328,13 @@ class IntroTraining : IPlayerInteraction {
 {(sec < 60 ?
     @"""I figured you were ready for that.""" :
     @"""So now you should know how to aim.""")}";
-                var sc = new Dialog(prev, t, new() {
+                var sc = new Dialog(t, [
                     new("Continue", Explore)
-                }) { background = heroImage };
+                ]) { background = heroImage };
                 return sc;
             }
 
-			RogueFrontier.IScene Explore(RogueFrontier.IScene prev) {
+			IScene Explore (IScene prev) {
 
                 var t =
 @$"""There are lots of people - friendly or unfriendly - out there.
@@ -345,12 +346,12 @@ and services for money. Some might have jobs that you can take.""
 ""Only time will tell who is who.""
 
 ""Take a look around this system and find out who can help you.""";
-                var sc = new Dialog(prev, t, new() {
+                var sc = new Dialog(t, [
                     new("Undock", Undock)
-                }) { background = heroImage };
+                ]) { background = heroImage };
                 return sc;
             }
-			RogueFrontier.IScene Undock(RogueFrontier.IScene prev) {
+			IScene Undock (IScene prev) {
 				story.mainInteractions.Remove(this);
 				story.mainInteractions.Add(new IntroExploration(story, station, playerShip));
                 return null;
@@ -370,30 +371,30 @@ class IntroExploration : IPlayerInteraction {
         targets = new HashSet<Station>(w.entities.all.OfType<Station>().Where(
             s => s.sovereign.IsFriend(playerShip)));
     }
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         var s = station;
         if (d != s) return null;
 
         var heroImage = s.type.HeroImage;
         int c = targets.Count - targets.Intersect(playerShip.known).Count();
         if (c > 0) {
-            return new Dialog(prev,
+            return new Dialog(
 @$"""You've found all but {c} friendly station{(c > 1 ? "s" : "")} in this system.
 Use your starship's megamap to look for them.""",
-                new() {
+                [
                     new("Undock")
-                }) { background = heroImage };
+                ]) { background = heroImage };
         } else {
 
-            return new Dialog(prev,
+            return new Dialog(
 @$"""You've found all the friendly stations in the system. Now that
 you know what services each provide you can return to them when
 needed.""",
-            new() {
+            [
                 new("Continue", Continue)
-            }) { background = heroImage };
-			RogueFrontier.IScene Continue(RogueFrontier.IScene prev) {
-                return new Dialog(prev,
+            ]) { background = heroImage };
+			IScene Continue (IScene prev) {
+                return new Dialog(
 @$"""Now that you're learning to find what you need,
 let me give you another goal.""
 
@@ -407,11 +408,11 @@ inhumane experiments involving radiation.""
 ""Fight back at the Orion Warlords and Iron Pirates.
 And when you've gotten used to fighting warlords and pirates,
 go and start destroying Errorists.""",
-                new() {
+                [
                     new("Continue", Undock)
-                }) { background = heroImage };
+                ]) { background = heroImage };
             }
-			RogueFrontier.IScene Undock(RogueFrontier.IScene prev) {
+			IScene Undock (IScene prev) {
 				story.mainInteractions.Remove(this);
 				story.mainInteractions.Add(new IntroOuterEnemy(story, station, playerShip));
                 return null;
@@ -433,7 +434,7 @@ class IntroOuterEnemy : IPlayerInteraction {
         target.CreateGuards();
         w.AddEntity(target);
     }
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         if (d != station) {
             return null;
         }
@@ -442,18 +443,18 @@ class IntroOuterEnemy : IPlayerInteraction {
 
         if (target.active) {
 
-            return new Dialog(prev,
+            return new Dialog(
 @$"""Go and destroy the Errorist compound when you're ready.""",
-                new() { new("Undock") }) { background = heroImage };
+                [new("Undock")]) { background = heroImage };
         } else {
-            var sc = new Dialog(prev,
+            var sc = new Dialog(
 @$"""Well, congratulations. You've survived my final exam.
 That's all the training I have for you. Hopefully now you
 have at least a fighting chance when you leave this place.""
 
 ""Goodbye.""",
-                new() { new("Continue", Undock) }) { background = heroImage };
-			RogueFrontier.IScene Undock(RogueFrontier.IScene prev) {
+                [new("Continue", Undock)]) { background = heroImage };
+			IScene Undock (IScene prev) {
 				story.mainInteractions.Remove(this);
                 return null;
             }
@@ -462,34 +463,34 @@ have at least a fighting chance when you leave this place.""
     }
 }
 record InvestigateBeowulfClub(Station dest) {
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         if(d == dest) {
-            return new Dialog(prev,
+            return new Dialog(
 @"You are docked at an independent chapter
 of the Beowulf Club, a galaxy-wide alliance
 of civilian gunship pilots.
 
 A heavily armored guard calls out to you.
 ""Hey! Who do you think you are with that
-brittle piece of junk? Get outta here!""", new() {
+brittle piece of junk? Get outta here!""", [
                 new("Respond", A2)
-            });
+            ]);
 
 
-			RogueFrontier.IScene A2(RogueFrontier.IScene prev) {
-                return new Dialog(prev,
+			IScene A2 (IScene prev) {
+                return new Dialog(
 @"You say:
 
 ""The Constellation Militia has received
 reports of weapons trafficking happening
 on this station. I am here to investigate.""
-",                          new() {
+",                          [
                     new("Continue", A3)
-                });
+                ]);
             }
-			RogueFrontier.IScene A3(RogueFrontier.IScene prev) {
+			IScene A3 (IScene prev) {
                 playerShip.GiveItem("item_specrom_magic_blaster_i");
-                return new Dialog(prev,
+                return new Dialog(
 @"The guard slowly approaches you:
 
 ""Oh, I'm sorry. The Beowulf Club is a most
@@ -694,10 +695,9 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         if (missing.Any()) {
             throw new Exception(string.Join('\n', missing.Select(m => @$"[""{m}""] = 0,")));
         }
-        mainInteractions = new();
-        mainInteractions.Add(new IntroMeeting(this));
-        secondaryInteractions = new();
-        completedInteractions = new();
+        mainInteractions = [new IntroMeeting(this)];
+        secondaryInteractions = [];
+        completedInteractions = [];
         var univ = playerShip.world.universe;
         foreach (var e in univ.GetAllEntities()) {
             Register(e);
@@ -720,8 +720,8 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
     public void Update(PlayerShip playerShip) {
 
     }
-    public delegate RogueFrontier.IScene GetDockScreen(RogueFrontier.IScene prev, PlayerShip playerShip, Station source);
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip p, IDockable d) {
+    public delegate IScene GetDockScreen(IScene prev, PlayerShip playerShip, Station source);
+    public IScene GetScene(IScene prev, PlayerShip p, IDockable d) {
         return
 			mainInteractions.Select(m => m.GetScene(prev, p, d)).FirstOrDefault(s => s != null) is RogueFrontier.IScene c ?
                 c :
@@ -729,14 +729,14 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
                 g(prev, p, st) :
             null;
     }
-    public RogueFrontier.IScene AmethystStore(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene AmethystStore (IScene prev, PlayerShip playerShip, Station source) {
         var discount = playerShip.cargo.Any(i => i.type.codename == "item_amethyst_member_card");
         var buyAdj = discount ? 0.8 : 1;
         return
             CheckConstellationArrest(prev, playerShip, source) ??
             Intro();
         Dialog Intro() {
-            return new(prev,
+            return new(
 @$"You are docked at The Amethyst Store,
 one of several commercial stations
 established by Amethyst, Inc to serve
@@ -750,20 +750,20 @@ purchases and repair services.
 "maintenance and upgrades at this station."
 : "")}
 ",
-            new() {
+            [
                 new("Trade", Trade),
                 SNav.DockDeviceInstall(playerShip, GetInstallPrice),
                 SNav.DockDeviceRemoval(playerShip, GetRemovePrice),
                 SNav.DockArmorRepair(playerShip, GetRepairPrice),
                 SNav.DockArmorReplacement(playerShip, GetReplacePrice),
                 new("Undock")
-            });
+            ]);
         }
         int GetRepairPrice(Armor a) =>
             !a.source.IsAmethyst() ? -1 :
             discount ? 1 :
             3;
-		RogueFrontier.IScene Trade(RogueFrontier.IScene from) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
             (object i) => (int)(GetStdPrice(i) * buyAdj),
             (object i) => i.IsAmethyst() ? GetStdPrice(i) / 10 : -1);
         int GetInstallPrice(Device d) =>
@@ -773,31 +773,31 @@ purchases and repair services.
         int GetReplacePrice(Device i) =>
             !i.source.IsAmethyst() ? -1 : discount ? 80 : 100;
     }
-    public RogueFrontier.IScene BeowulfClub(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene BeowulfClub (IScene prev, PlayerShip playerShip, Station source) {
         if (!playerShip.shipClass.attributes.Contains("BeowulfClub")) {
-            return new Dialog(prev,
+            return new Dialog(
 @"You are docked at an independent chapter
 of the Beowulf Club, a galaxy-wide alliance
 of civilian gunship pilots.
 
 A heavily armored guard calls out to you.
 ""Hey! Who do you think you are? Get your
-piece of junk off of this station!""", new() { new("Undock immediately") });
+piece of junk off of this station!""", [new("Undock immediately")]);
         }
         return Intro();
         Dialog Intro() {
-            return new(prev,
+            return new(
 @"You are docked at an independent branch
 of the Beowulf Club, a galaxy-wide alliance
 of civilian gunship pilots.",
-            new() {
+            [
                 new("Trade", Trade),
                 SNav.DockArmorRepair(playerShip, GetArmorRepairPrice),
                 SNav.DockArmorReplacement(playerShip, GetArmorReplacePrice),
                 SNav.DockDeviceInstall(playerShip, GetDeviceInstallPrice),
                 SNav.DockDeviceRemoval(playerShip, GetDeviceRemovalPrice),
                 new("Undock")
-            });
+            ]);
         }
         int GetArmorRepairPrice(Armor a) {
             if (a.source.IsAmethyst()) {
@@ -814,11 +814,11 @@ of civilian gunship pilots.",
         int GetDeviceRemovalPrice(Device d) {
             return 100;
         }
-		RogueFrontier.IScene Trade(RogueFrontier.IScene from) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
             GetStdPrice,
             (object i) => GetStdPrice(i) / 4);
     }
-    public RogueFrontier.IScene CamperOutpost(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene CamperOutpost (IScene prev, PlayerShip playerShip, Station source) {
         var lookup = (string s) => playerShip.world.types.Lookup<ItemType>(s);
         var recipes = new Dictionary<string, Dictionary<string, int>> {
             ["item_orion_longbow"] = new() {
@@ -835,11 +835,11 @@ of civilian gunship pilots.",
                 pair => pair.Value));
         return Intro();
         Dialog Intro() {
-            return new(prev,
+            return new(
 @"You are docked at a Campers Outpost,
 an independent enclave of tinkers,
 craftspersons, and adventurers.",
-            new() {
+            [
                 new("Trade", Trade),
                 new("Workshop", Workshop),
                 SNav.DockArmorRepair(playerShip, GetArmorRepairPrice),
@@ -847,44 +847,44 @@ craftspersons, and adventurers.",
                 SNav.DockDeviceInstall(playerShip, GetDeviceInstallPrice),
                 SNav.DockDeviceRemoval(playerShip, GetDeviceRemovalPrice),
                 new("Undock")
-            });
+            ]);
         }
         int GetArmorRepairPrice(Armor a) => a.source.IsAmethyst() ? -1 : 2;
         int GetArmorReplacePrice(Armor a) => a.source.IsAmethyst() ? -1 : 100;
         int GetDeviceInstallPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
         int GetDeviceRemovalPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
 
-		RogueFrontier.IScene Trade(RogueFrontier.IScene from) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
             GetStdPrice,
             (object i) => GetStdPrice(i) / 4);
-		RogueFrontier.IScene Workshop(RogueFrontier.IScene from) => SMenu.Workshop(from, playerShip, recipes, null);
+		IScene Workshop (IScene from) => SMenu.Workshop(from, playerShip, recipes, null);
     }
-    public TradeMenu TradeStation(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) =>
+    public TradeMenu TradeStation(IScene prev, PlayerShip playerShip, Station source) =>
         new (prev, playerShip, source, GetStdPrice, i => GetStdPrice(i) / 2);
 
-    public RogueFrontier.IScene CheckConstellationArrest(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene CheckConstellationArrest (IScene prev, PlayerShip playerShip, Station source) {
         return GetConstellationCrimes(playerShip, source).FirstOrDefault() is ICrime c ?
             ConstellationArrest(prev, playerShip, source, c) : null;
     }
-    public RogueFrontier.IScene ConstellationArrest(RogueFrontier.IScene prev, PlayerShip playerShip, Station source, ICrime c) {
-        return new Dialog(prev,
+    public IScene ConstellationArrest (IScene prev, PlayerShip playerShip, Station source, ICrime c) {
+        return new Dialog(
 @"Constellation soldiers approach your ship
 as you dock.",
-            new() {
+            [
                 new("Continue docking", Arrest),
                 new("Cancel", Cancel)
-            });
-		RogueFrontier.IScene Arrest(RogueFrontier.IScene prev) {
-            return new Dialog(prev,
+            ]);
+		IScene Arrest (IScene prev) {
+            return new Dialog(
 @$"The soldiers storm your ship and restrain
 you on the ground before you can invoke SILENCE.
 
 ""You are under immediate arrest for
 {c.name}.""",
-            new() { new("Continue", Death) }
+            [new("Continue", Death)]
             );
         }
-		RogueFrontier.IScene Cancel(RogueFrontier.IScene prev) {
+		IScene Cancel (IScene prev) {
             if (playerShip.world.karma.NextDouble() < 1) {
                 if(source.behavior is ConstellationAstra c) {
                     foreach(var g in c.reserves.Take(playerShip.world.karma.NextInteger(4, 8)).ToList()) {
@@ -897,7 +897,7 @@ you on the ground before you can invoke SILENCE.
             }
             return null;
         }
-		RogueFrontier.IScene Death(RogueFrontier.IScene prev) {
+		IScene Death (IScene prev) {
             playerShip.Destroy(source);
             return null;
         }
@@ -907,38 +907,38 @@ you on the ground before you can invoke SILENCE.
             && ReferenceEquals(d.destroyed.sovereign, source.sovereign)
             && !d.resolved);
     }
-    public RogueFrontier.IScene ArmorDealer(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene ArmorDealer (IScene prev, PlayerShip playerShip, Station source) {
         return CheckConstellationArrest(prev, playerShip, source) ??
-            new Dialog(prev,
+            new Dialog(
 @"You are docked at an armor shop station.", new() {
             new("Trade: Armor", Trade),
             new("Undock")
         }) { background = source.type.HeroImage };
-        TradeMenu Trade(RogueFrontier.IScene c) =>
+        TradeMenu Trade(IScene c) =>
             new(c, playerShip, source, GetStdPrice, (object i) => i.armor is Armor a ?
                     (int)(a.valueFactor * 0.5 * GetStdPrice(i)) :
                     -1);
     }
-    public RogueFrontier.IScene ArmsDealer(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene ArmsDealer (IScene prev, PlayerShip playerShip, Station source) {
         return CheckConstellationArrest(prev, playerShip, source) ?? 
-            new Dialog(prev,
+            new Dialog(
 @"You are docked at an arms dealer station", new() {
             new("Trade: Weapons", Trade),
             new("Undock")
         }) { background = source.type.HeroImage };
-        TradeMenu Trade(RogueFrontier.IScene c) =>
+        TradeMenu Trade(IScene c) =>
             new(c, playerShip, source, GetStdPrice, (object i) => i.weapon is Weapon w ?
                 (int)(w.valueFactor * 0.5 * GetStdPrice(i)) :
                 -1);
     }
-    public HashSet<IShip> militiaRecordedKills = new();
+    public HashSet<IShip> militiaRecordedKills = [];
     public bool constellationMilitiaMember; 
-    public RogueFrontier.IScene ConstellationAstra(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene ConstellationAstra (IScene prev, PlayerShip playerShip, Station source) {
         var friendlyOnly = ItemFilter.Parse("-OrionWarlords -IronPirates -Errorists -Perfectrons -DarkStar");
         return CheckConstellationArrest(prev, playerShip, source) ??
             Intro(prev);
-		Dialog Intro (RogueFrontier.IScene prev) {
-            return new(prev,
+		Dialog Intro (IScene prev) {
+            return new(
 @"You are docked at a Constellation Astra,
 a major residential and commercial station
 of the United Constellation.
@@ -952,7 +952,7 @@ From a distance, the place looks almost like
 a spinning pinwheel.
 
 There is a modest degree of artificial gravity here.",
-            new() {
+            [
                 new("Trade", Trade),
                 SNav.DockDeviceInstall(playerShip, GetInstallPrice),
                 SNav.DockDeviceRemoval(playerShip, GetRemovePrice),
@@ -960,9 +960,9 @@ There is a modest degree of artificial gravity here.",
                 SNav.DockArmorReplacement(playerShip, GetReplacePrice),
                 new("Militia Headquarters", MilitiaHeadquarters),
                 new("Undock")
-            }) { background = source.type.HeroImage };
+            ]) { background = source.type.HeroImage };
         }
-		RogueFrontier.IScene Trade(RogueFrontier.IScene from) =>
+		IScene Trade (IScene from) =>
             new TradeMenu(from, playerShip, source, GetStdPrice,
                 (object i) => (!i.HasDevice() || friendlyOnly.Matches(i)) ? GetStdPrice(i) / 5 : -1
                 );
@@ -970,9 +970,9 @@ There is a modest degree of artificial gravity here.",
         int GetInstallPrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
         int GetRemovePrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
         int GetReplacePrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
-		RogueFrontier.IScene MilitiaHeadquarters(RogueFrontier.IScene from) {
+		IScene MilitiaHeadquarters (IScene from) {
             if (!constellationMilitiaMember) {
-                return new Dialog(from,
+                return new Dialog(
 @"You enter the lobby area before the
 Militia Headquarters. The room is mostly
 empty, save for a kiosk where civilians
@@ -994,24 +994,24 @@ Membership shall be revoked if you are found
 guilty of any criminal activity.
 
 To join, please sign your name below.""",
-                    new() {
+                    [
                         new("Sign", Sign),
                         new("Decline", Intro)
-                    });
-				RogueFrontier.IScene Sign(RogueFrontier.IScene from) {
+                    ]);
+				IScene Sign (IScene from) {
 					constellationMilitiaMember = true;
 					militiaRecordedKills.UnionWith(playerShip.shipsDestroyed);
-                    return new Dialog(from,
+                    return new Dialog(
 @"You have joined the Citizens' Defense program.
 
 Thank you for doing your part in maintaining
 our collective security.",
-                        new() {
+                        [
                             new("Continue", Rookie)
-                        });
+                        ]);
                 }
-				RogueFrontier.IScene Rookie(RogueFrontier.IScene from) {
-                    return new Dialog(from,
+				IScene Rookie (IScene from) {
+                    return new Dialog(
 @"""Now *before* you run off...""
 
 An unseen officer abruptly chimes in
@@ -1035,9 +1035,9 @@ The officer points to a distant star
 on their tablet showing a tactical map.
 
 ""...far out there. Got it?""",
-                        new() {
+                        [
                             new("Continue", MilitiaHeadquarters)
-                        });
+                        ]);
                 }
             } else {
                 var rewardTable = (new {
@@ -1065,45 +1065,45 @@ on their tablet showing a tactical map.
                     .Count();
                 if(totalKills > 10) {
                 }
-                return new Dialog(from,
+                return new Dialog(
 @"You are in the Militia Headquarters.",
-                    new() {
+                    [
                         new("Mission", Mission, enabled:mission != null),
                         new("Collect", Collect, enabled:groups.Any()),
                         new("Leave", Intro)
-                        });
-				RogueFrontier.IScene Mission(RogueFrontier.IScene prev) {
+                        ]);
+				IScene Mission (IScene prev) {
                     return null;
                 }
-				RogueFrontier.IScene Collect(RogueFrontier.IScene prev) {
+				IScene Collect (IScene prev) {
 					militiaRecordedKills.UnionWith(playerShip.shipsDestroyed);
                     playerShip.person.money += groups.Sum(pair => pair.payment);
-                    return new Dialog(prev,
+                    return new Dialog(
 @$"You collect payment for the following kills:
 
 {string.Join("\n", groups.Select(pair => $"{pair.payment} for {pair.count}x {pair.name}"))}
 
 Thank you for doing your part in maintaining
 our collective security.",
-                        new() { new("Continue", MilitiaHeadquarters) });
+                        [new("Continue", MilitiaHeadquarters)]);
                 }
             }
         }
     }
-    public RogueFrontier.IScene ConstellationVillage(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene ConstellationVillage (IScene prev, PlayerShip playerShip, Station source) {
         return CheckConstellationArrest(prev, playerShip, source) ??
             Intro(prev);
-		RogueFrontier.IScene Intro(RogueFrontier.IScene prev) {
-            return new Dialog(prev,
+		IScene Intro (IScene prev) {
+            return new Dialog(
 @"You are docked at a Constellation Village,
 a residential station assembled out of 
 shipping containers and various spare parts.",
-                new() {
+                [
                     new("Meeting Hall", MeetingHall),
                     new("Undock")
-                });
+                ]);
         }
-		RogueFrontier.IScene MeetingHall(RogueFrontier.IScene prev) {
+		IScene MeetingHall (IScene prev) {
             var mission = mainInteractions.OfType<DestroyTarget>().FirstOrDefault(i => i.source == source);
             if (mission != null) {
                 return mission.GetScene(prev, playerShip, source);
@@ -1113,25 +1113,25 @@ shipping containers and various spare parts.",
                 && (s.position - source.position).magnitude < 256
             );
             if (target == null) {
-                return new Dialog(prev,
+                return new Dialog(
 @"The meeting hall is empty.",
-                new() {
+                [
                     new("Leave", Intro)
-                });
+                ]);
             }
             if (mainInteractions.OfType<DestroyTarget>().Any(i => i.targets.Contains(target))) {
-                return new Dialog(prev,
+                return new Dialog(
 @"You aimlessly stand in the center of the empty Meeting Hall.
 After 2 minutes, the station master approaches you.
 
 ""Hi, uh, we're currently dealing with a particularly annoying
 Orion Warlords camp but I've been told that you're going to
 destroy it for us. So, uh, thank you and good luck!""",
-                new() {
+                [
                     new("Continue", Intro)
-                });
+                ]);
             }
-            return new Dialog(prev,
+            return new Dialog(
 @"You aimlessly stand in the center of the Meeting Hall.
 After 10 minutes, the station master approaches you.
 
@@ -1144,58 +1144,58 @@ than these idiots.""
 
 ""I'll pay you 400 to shut them up indefinitely.
 What do you say?""",
-            new() {
+            [
                 new("Accept", Accept),
                 new("Decline", Reject)
-            });
-			RogueFrontier.IScene Accept(RogueFrontier.IScene prev) {
-                return new Dialog(prev,
+            ]);
+			IScene Accept (IScene prev) {
+                return new Dialog(
 @"""Okay, thank you! Go destroy them and
 then I'll see you back here.""",
-                    new() {
+                    [
                         new("Undock", Accepted)
-                    });
+                    ]);
             }
-			Dialog Accepted (RogueFrontier.IScene prev) {
+			Dialog Accepted (IScene prev) {
 				DestroyTarget mission = null;
                 mission = new DestroyTarget(playerShip, source, target) { inProgress = InProgress, debrief = Debrief };
 				mainInteractions.Add(mission);
                 return null;
-				Dialog InProgress (RogueFrontier.IScene prev) {
-                    return new(prev,
+				Dialog InProgress (IScene prev) {
+                    return new(
 @"""Hey, you're going to destroy that station, right?""",
-                        new() {
+                        [
                             new("Undock")
-                        });
+                        ]);
                 }
-				Dialog Debrief (RogueFrontier.IScene prev) {
-                    return new(prev,
+				Dialog Debrief (IScene prev) {
+                    return new(
 @"""Thank you very much for destroying those warlords for us!
 As promised, here's your 400""",
-                        new() {
+                        [
                             new("Undock", Debriefed)
-                        });
+                        ]);
                 }
-				Dialog Debriefed (RogueFrontier.IScene prev) {
+				Dialog Debriefed (IScene prev) {
                     playerShip.person.money += 400;
 					mainInteractions.Remove(mission);
                     //completedInteractions.Add(mission);
                     return null;
                 }
             }
-			Dialog Reject (RogueFrontier.IScene prev) {
-                return new(prev,
+			Dialog Reject (IScene prev) {
+                return new(
 @"""Oh man, what the hell is it with you people?
 Okay, fine, I'll just find someone else to do it.""",
-                    new() {
+                    [
                         new("Undock")
-                    });
+                    ]);
             }
         }
     }
 
     public int contemplationCount;
-    public RogueFrontier.IScene DaughtersOutpost(RogueFrontier.IScene prev, PlayerShip playerShip, Station source) {
+    public IScene DaughtersOutpost (IScene prev, PlayerShip playerShip, Station source) {
 
         var status = (DaughtersOutpost)source.behavior;
         var univ = source.world.universe;
@@ -1204,22 +1204,22 @@ Okay, fine, I'll just find someone else to do it.""",
         }
 
         return Intro(prev);
-		RogueFrontier.IScene Intro(RogueFrontier.IScene prev) {
-            return new Dialog(prev,
+		IScene Intro (IScene prev) {
+            return new Dialog(
 @"You are docked at an outpost of the
 Daughters of the Orator.",
-                new() {
+                [
                     new("Sanctum", Sanctum),
                     //new("Donation", null),
                     new("Undock", null)
-                });
+                ]);
         }
-		RogueFrontier.IScene Sanctum(RogueFrontier.IScene prev) {
+		IScene Sanctum (IScene prev) {
             if (!status.sanctumReady && status.funds - 1000 is int i && i >= 0) {
                 status.funds = i;
                 status.sanctumReady = true;
             }
-            return new Dialog(prev,
+            return new Dialog(
 @"You are in the sanctum of the Daughters
 of the Orator. You hear a quiet hum all
 around you. " + (status.sanctumReady ? "" :
@@ -1234,19 +1234,19 @@ One of the Daughters stands at the entrance.
 ""Sorry, the sanctum is closed for repairs.
 We would appreciate any donation you could
 make to help us cover the cost."""),
-                new() {
+                [
                     new("Contemplate", Contemplate, enabled: status.sanctumReady),
                     new("Donate", Donate),
                     new("Leave", Intro)
-                });
+                ]);
         }
-		RogueFrontier.IScene Contemplate(RogueFrontier.IScene prev) {
+		IScene Contemplate (IScene prev) {
 			contemplationCount++;
-            return new Dialog(prev,
+            return new Dialog(
 @"You attune yourself to the hum
 that permeates throughout the sanctum.",
-                new() { new("Continue", Result) });
-			RogueFrontier.IScene Result(RogueFrontier.IScene prev) {
+                [new("Continue", Result)]);
+			IScene Result (IScene prev) {
                 switch (contemplationCount) {
                     case 1:
                         AddPower("power_silence_orator");
@@ -1269,10 +1269,10 @@ then RECITE the words against doom.""");
                 }
 
             }
-			RogueFrontier.IScene Info(RogueFrontier.IScene prev, string desc) =>
-                new Dialog(prev, desc, new() { new("Continue", Shambles) });
-			RogueFrontier.IScene Shambles(RogueFrontier.IScene prev) {
-                return new Dialog(prev,
+			IScene Info (IScene prev, string desc) =>
+                new Dialog(desc, [new("Continue", Shambles)]);
+			IScene Shambles (IScene prev) {
+                return new Dialog(
 @"An unusual energy strikes and shakes
 the Santum's micro-engraved plasteel-plated
 walls as you contemplate.
@@ -1287,21 +1287,21 @@ burnt from the bursts of channelled energy.
 
 As you leave, abbey technicians
 hurry in and begin checking the walls.",
-                new() {
+                [
                     new("Continue", Done)
-                });
-				RogueFrontier.IScene Done(RogueFrontier.IScene prev) {
+                ]);
+				IScene Done (IScene prev) {
                     status.sanctumReady = false;
                     return Sanctum(prev);
                 }
             }
         }
-		RogueFrontier.IScene Donate(RogueFrontier.IScene prev) {
+		IScene Donate (IScene prev) {
 			Action a (Action b) => b;
             ListMenu<Item> screen = null;
             var dict = (new {
                 item_prescience_book = a(() => {
-                    screen.Replace(new Dialog(prev,
+                    screen.Replace(new Dialog(
 @"""Thank you for your donation of-
 
 Oh. This is garbage.
@@ -1311,32 +1311,32 @@ someone trying to exploit The Orator's
 influence for financial gain...
 
 You didn't read it, did you?""",
-                        new() {
+                        [
                             new("Continue", Sanctum)
-                        }));
+                        ]));
                 }),
                 item_gem_of_monologue = a(Regular)
             }).ToDict<Action>();
             void Regular() {
                 status.funds += stdPrice[screen.list.currentItem.type];
-                screen.Replace(new Dialog(prev,
+                screen.Replace(new Dialog(
 @"""Thank you for your donation of this
 resonant artifact - may The Orator smile
 upon you.""",
-                    new() {
+                    [
                         new("Continue", Sanctum)
-                    }));
+                    ]));
             }
 
             return screen = new(prev, playerShip, $"{playerShip.name}: Cargo", playerShip.cargo.Where(i => dict.ContainsKey(i.type.codename)), (object i) => i.name, GetDesc, Choose, Escape);
-			List<ColoredString> GetDesc (Item i) {
-				List<ColoredString> result = new();
+            List<Tile[]> GetDesc (Item i) {
+                List<Tile[]> result = [];
                 var desc = i.type.desc.SplitLine(64);
                 if (desc.Any()) {
-                    result.AddRange(desc.Select(Main.ToColoredString));
-                    result.Add(new(""));
+                    result.AddRange(desc.Select(c => Tile.Arr(c, ABGR.White, ABGR.Black)));
+                    result.Add([]);
                 }
-                result.Add(new("[Enter] Donate", Color.Yellow, Color.Black));
+                result.Add(Tile.Arr("[Enter] Donate", ABGR.Yellow, ABGR.Black));
                 return result;
             }
             void Choose(Item i) {
@@ -1348,9 +1348,9 @@ upon you.""",
             }
         }
     }
-    public RogueFrontier.IScene OrionWarlordsCamp(RogueFrontier.IScene home, PlayerShip playerShip, Station source) {
-		Dialog Intro (RogueFrontier.IScene prev) {
-            return new(prev,
+    public IScene OrionWarlordsCamp (IScene home, PlayerShip playerShip, Station source) {
+		Dialog Intro (IScene prev) {
+            return new(
 source.damageSystem.GetHP() >= 50 ?
 @"You are docked at an Orion Warlords Camp.
 Enemy soldiers glare at you from the windows
@@ -1358,34 +1358,34 @@ of the station." :
 @"You are docked at an Orion Warlords Camp.
 Your ship identifies a distress signal
 originating from this station.",
-                new() {
+                [
                     new("Break In", BreakIn),
                     new("Undock")
-                });
+                ]);
         }
-		Dialog BreakIn (RogueFrontier.IScene prev) {
+		Dialog BreakIn (IScene prev) {
             if (source.damageSystem.GetHP() < 50) {
                 if(source.behavior is Ob<Station.Destroyed> d)
                     source.onDestroyed -= d;
                 source.Destroy(playerShip);
                 var wreck = source.destroyed.wreck;
-                return new(prev,
+                return new(
 @"You break down the entry gate with your primary weapon.
 You make your way to the bridge and destroy the
 black box, shutting off the distress signal.
 
 You leave the station in ruins.",
-                    new() {
+                    [
                         new("Scavenge", Scavenge),
                         new("Undock")
-                    });
-				RogueFrontier.IScene Scavenge(RogueFrontier.IScene prev) => wreck.GetDockScene(home, playerShip);
+                    ]);
+				IScene Scavenge (IScene prev) => wreck.GetDockScene(home, playerShip);
             }
-            return new(prev,
+            return new(
 @"The entry gate refuses to budge...",
-                new() {
+                [
                     new("Continue", Intro)
-                });
+                ]);
         }
         return Intro(home);
     }
@@ -1396,7 +1396,7 @@ class DestroyTarget : IPlayerInteraction, Ob<AIShip.Destroyed>, Ob<Station.Destr
     public HashSet<ActiveObject> targets;
     public bool complete => targets.Count == 0;
     [JsonIgnore]
-    public Func<RogueFrontier.IScene, RogueFrontier.IScene> inProgress, debrief;
+    public Func<IScene, IScene> inProgress, debrief;
     public DestroyTarget(PlayerShip attacker, Station source, params ActiveObject[] targets) {
         this.attacker = attacker;
         this.source = source;
@@ -1426,7 +1426,7 @@ class DestroyTarget : IPlayerInteraction, Ob<AIShip.Destroyed>, Ob<Station.Destr
             s.onDestroyed -= this;
         }
     }
-    public RogueFrontier.IScene GetScene(RogueFrontier.IScene prev, PlayerShip playerShip, IDockable d) {
+    public IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d) {
         if (d != source) {
             return null;
         }

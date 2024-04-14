@@ -18,7 +18,7 @@ public interface IPlayerMessage {
 public class Transmission : IPlayerMessage {
     public Entity source;
     public Message msg;
-    public Sound sound;
+    public byte[] sound;
     public Transmission() { }
 	public Transmission (Entity source, string text, uint Foreground = ABGR.White, uint Background = ABGR.Black) {
 		this.source = source;

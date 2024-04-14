@@ -283,7 +283,7 @@ public class Station : ActiveObject, ITrader, IDockable {
         weapons?.ForEach(w => w.Update(delta, this));
         behavior?.Update(delta, this);
     }
-    public ScreenSurface GetDockScene(ScreenSurface prev, PlayerShip playerShip) => null;
+    public IScene GetDockScene(IScene prev, PlayerShip playerShip) => null;
     [JsonIgnore]
     public Tile tile => type.tile.Original;
 }
