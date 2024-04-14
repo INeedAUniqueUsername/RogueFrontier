@@ -828,17 +828,17 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
     }
     public Tile[] GetBar(int BAR) {
         if (ammo?.AllowFire == false) {
-            return Tile.Array(new(' ', BAR), ABGR.Transparent, ABGR.Black);
+            return Tile.Arr(new(' ', BAR), ABGR.Transparent, ABGR.Black);
         }
         var fireBar = (int)(BAR * (double)(desc.fireCooldown - delay) / desc.fireCooldown);
         Tile[] bar;
         if (capacitor != null && capacitor.desc.minChargeToFire > 0) {
             var chargeBar = (int)(BAR * Math.Min(1, capacitor.charge / capacitor.desc.minChargeToFire));
             bar = [
-                ..Tile.Array(new('>', chargeBar), ABGR.Gray, ABGR.Black),
-                ..Tile.Array(new(' ', BAR - chargeBar), ABGR.Transparent, ABGR.Black)];
+                ..Tile.Arr(new('>', chargeBar), ABGR.Gray, ABGR.Black),
+                ..Tile.Arr(new(' ', BAR - chargeBar), ABGR.Transparent, ABGR.Black)];
         } else {
-            bar = Tile.Array(new('>', BAR), ABGR.Gray, ABGR.Black);
+            bar = Tile.Arr(new('>', BAR), ABGR.Gray, ABGR.Black);
         }
         Array.Copy(bar.Take(fireBar).Select(t => t with { Foreground = ABGR.White }).ToArray(), bar, fireBar);
 

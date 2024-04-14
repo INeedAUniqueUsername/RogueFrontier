@@ -6,6 +6,8 @@ using Console = SadConsole.Console;
 namespace LibSadConsole;
 public class SadSurf: ISurf {
 	Console console;
+	public int Width => console.Width;
+	public int Height => console.Height;
 	public ISurf.Grid<uint> Front { get; set; }
 	public ISurf.Grid<uint> Back { get; set; }
 	public ISurf.Grid<uint> Glyph { get; set; }
@@ -17,6 +19,7 @@ public class SadSurf: ISurf {
 		Glyph = (GetGlyph, SetGlyph);
 		Tile = (GetTile, SetTile);
 	}
+	public void Clear () => console.Clear();
 	public uint GetFront (int x, int y) => console.GetForeground(x, y).PackedValue;
 	public void SetFront (int x, int y, uint c) => console.SetForeground(x, y, new Color(c));
 	public uint GetBack (int x, int y) => console.GetBackground(x, y).PackedValue;
@@ -27,10 +30,13 @@ public class SadSurf: ISurf {
 		var g = console.GetCellAppearance(x, y);
 		return new Tile(g.Foreground.PackedValue, g.Background.PackedValue, g.Glyph); 
 	}
-	public void SetTile (int x, int y, Tile t) => console.SetCellAppearance(x, y, new ColoredGlyph(
+	public void SetTile (int x, int y, Tile t) => console.SetCellAppearance(x, y, ToColoredGlyph(t));
+	public ColoredGlyph ToColoredGlyph (Tile t) => new ColoredGlyph(
 		new Color(t.Foreground),
 		new Color(t.Background),
 		(int)t.Glyph
-		));
-
+		);
+	public void Print (int x, int y, params Tile[] t) {
+		console.Print(x, y, t.Select(ToColoredGlyph));
+	}
 }

@@ -1,20 +1,14 @@
 ﻿using Common;
-using SadConsole;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using SadRogue.Primitives;
-using Con = SadConsole.ScreenSurface;
-using Newtonsoft.Json;
-using SFML.Audio;
-using NCalc.Domain;
-using SadConsole.UI;
-
+using LibGamer;
+using System.IO;
 namespace RogueFrontier;
 public interface ItemUse {
     string GetDesc(PlayerShip player, Item item);
-    void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) { }
+    void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) { }
 }
 public record DeployShip : ItemUse {
     [Req(parse = false)] public ShipClass shipClass;
@@ -25,7 +19,7 @@ public record DeployShip : ItemUse {
         });
     }
     public string GetDesc(PlayerShip player, Item item) => $"Deploy {shipClass.name}";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var w = new Wingmate(player);
         var a = new AIShip(
             new(player.world, shipClass, player.position),
@@ -50,7 +44,7 @@ public record DeployStation : ItemUse {
         });
     }
     public string GetDesc(PlayerShip player, Item item) => $"Deploy {stationType.name}";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var a = new Station(player.world, stationType, player.position) { sovereign = player.sovereign };
         player.world.AddEntity(a);
         a.CreateSegments();
@@ -64,7 +58,7 @@ public record DeployStation : ItemUse {
 public record InstallWeapon : ItemUse {
     public string GetDesc(PlayerShip player, Item item) =>
         player.cargo.Contains(item) ? "Install this weapon" : "Remove this weapon";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         if (player.cargo.Contains(item)) {
 
             if(player.shipClass.restrictWeapon?.Matches(item) == false) {
@@ -92,7 +86,7 @@ public record RepairArmor : ItemUse {
     public RepairArmor(XElement e) {
         e.Initialize(this);
     }
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback) {
         var p = prev.Parent;
         p.Children.Remove(prev);
         p.Children.Add(SMenu.RepairArmorFromItem(prev, player, item, this, callback));
@@ -109,7 +103,7 @@ public record InvokePower : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Invoke {powerType.name} ({charges} charges remaining)";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         player.AddMessage(new Message($"Invoked the power of {item.type.name}"));
 
         charges--;
@@ -127,7 +121,7 @@ public record Refuel : ItemUse {
         e.Initialize(this);
     }
     public string GetDesc(PlayerShip player, Item item) => "Refuel reactor";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var p = prev.Parent;
         p.Children.Remove(prev);
         p.Children.Add(SMenu.RefuelFromItem(prev, player, item, this, callback));
@@ -139,7 +133,7 @@ public record DepleteTargetShields() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         player.GetTarget(out var t) ? $"Deplete shields on {t.name}" : "Deplete shields on target";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
 
         //var am = Common.Main.PreBind(player.AddMessage, (string s) => new Message(s));
         var am = Main.PreBind((string s) => player.AddMessage(new Message(s)));
@@ -171,7 +165,7 @@ public record ReplaceDevice() : ItemUse {
         
     public string GetDesc(PlayerShip player, Item item) =>
         $"Replace installed {from.name}";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var p = prev.Parent;
         p.Children.Remove(prev);
         p.Children.Add(SMenu.ReplaceDeviceFromItem(prev, player, item, this, callback));
@@ -190,7 +184,7 @@ public record RechargeWeapon() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Recharged {item.name}";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var p = prev.Parent;
         p.Children.Remove(prev);
         p.Children.Add(SMenu.RechargeWeaponFromItem(prev, player, item, this, callback));
@@ -209,7 +203,7 @@ public record UnlockPrescience() : ItemUse {
     });
     public string GetDesc(PlayerShip player, Item item) =>
         $"Read book";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         if (player.powers.Contains(prescience)) {
             player.AddMessage(new Message("You already have PRESCIENCE!"));
         } else {
@@ -226,7 +220,7 @@ public record ApplyMod() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Apply modifier to item (shows menu)";
-    public void Invoke(Con prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
         var p = prev.Parent;
         p.Children.Remove(prev);
         p.Children.Add(SMenu.SetMod(prev, player, item, mod, callback));
@@ -426,7 +420,7 @@ public record WeaponDesc {
     [Opt] public double angle = 0, sweep, leftRange, rightRange = 0;
 
     
-    [Opt(parse = false)][Ex] public SoundBuffer sound;
+    [Opt(parse = false)] public byte[] sound;
     [Opt(parse = false)] public ItemType ammoType;
     [Sub(required = true)] public FragmentDesc Projectile;
     [Sub] public CapacitorDesc Capacitor;
@@ -448,7 +442,7 @@ public record WeaponDesc {
             [nameof(rightRange)] = toRad,
 
             [nameof(ammoType)] = (string at) => types.Lookup<ItemType>(at),
-            [nameof(sound)] = (string s) => new SoundBuffer(s)
+            [nameof(sound)] = (string s) => File.ReadAllBytes(s)
         });
         //Projectile = new(e.ExpectElement("Projectile"));
         //sound = e.TryAtt("sound", out string s) ? new SoundBuffer(s) : null;
@@ -556,7 +550,7 @@ public record FragmentDesc {
     [Par] public StaticTile effect;
     [Sub] public TrailDesc Trail;
 
-    [Opt(parse = false)] public SoundBuffer detonateSound;
+    [Opt(parse = false)] public byte[] detonateSound;
     public FragmentDesc() { }
     public FragmentDesc(XElement e) {
         Initialize(e);
@@ -573,7 +567,7 @@ public record FragmentDesc {
                 this.spreadAngle = count == 1 ? 0 : 3 * Math.PI / 180;
                 return c;
             },
-            [nameof(detonateSound)] = (string s) => new SoundBuffer(s),
+            [nameof(detonateSound)] = (string s) => File.ReadAllBytes(s),
             [nameof(spreadAngle)] = (double d) => d * Math.PI / 180,
             [nameof(spreadOmni)] = (bool b) => {
                 spreadAngle = 2 * Math.PI / count;
@@ -638,11 +632,14 @@ public record FragmentDesc {
 public record TrailDesc : ITrail {
     [Req] public int lifetime;
     [Req] public char glyph;
-    [Req] public Color foreground;
-    [Req] public Color background;
+    [Req(parse = false)] public uint foreground;
+    [Req(parse = false)] public uint background;
     public TrailDesc() { }
     public TrailDesc(XElement e) {
-        e.Initialize(this);
+        e.Initialize(this, transform: new(){
+            ["foreground"] = (string s) => (string)null ?? throw new Exception(),
+            ["background"] = (string s) => (string)null ?? throw new Exception()
+        });
     }
     public Effect GetParticle(XY Position, XY Velocity = null) => new FadingTile(Position, new(foreground, background, glyph), lifetime);
 }

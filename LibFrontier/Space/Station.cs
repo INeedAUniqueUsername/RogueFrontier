@@ -49,7 +49,7 @@ public class Wreck : MovingObject, IDockable {
     public IEnumerable<XY> GetDockPoints() {
         yield return XY.Zero;
     }
-    public ScreenSurface GetDockScene(ScreenSurface prev, PlayerShip playerShip) => new WreckScene(prev, playerShip, this);
+    public IScene GetDockScene(IScene prev, PlayerShip playerShip) => new WreckScene(prev, playerShip, this);
     public void Damage(Projectile p) {}
     public void Destroy(ActiveObject source) {
         active = false;

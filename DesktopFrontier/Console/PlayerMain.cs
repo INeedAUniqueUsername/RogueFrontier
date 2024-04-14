@@ -931,7 +931,7 @@ public class BackdropConsole {
     private readonly XY screenCenter;
     private Backdrop backdrop;
 
-    public ScreenSurface Surface;
+    public ISurf Surface;
     public BackdropConsole(Viewport view) {
         Surface = new(view.Width, view.Height);
 
@@ -946,7 +946,6 @@ public class BackdropConsole {
         screenCenter = new XY(Width / 2f, Height / 2f);
     }
     public void Update(TimeSpan delta) {
-        Surface.Update(delta);
     }
     public void Render(TimeSpan drawTime) {
         Surface.Clear();
@@ -955,10 +954,9 @@ public class BackdropConsole {
                 //var g = this.GetGlyph(x, y);
                 var offset = new XY(x, Height - y) - screenCenter;
                 var location = camera.position + offset.Rotate(camera.rotation);
-                Surface.SetCellAppearance(x, y, backdrop.GetTile(location, camera.position));
+                Surface.Tile[x, y] = backdrop.GetTile(location, camera.position);
             }
         }
-        Surface.Render(drawTime);
     }
     public Tile GetTile(int x, int y) {
         var offset = new XY(x, Height - y) - screenCenter;
@@ -977,7 +975,7 @@ public class Megamap {
     Dictionary<(int, int), List<(Entity entity, double distance)?>> scaledEntities;
     XY screenSize, screenCenter;
     public byte alpha;
-    public ScreenSurface Surface;
+    public ISurf Surface;
     public Megamap(Monitor m, GeneratedLayer back) {
         Surface = m.NewSurface;
         this.camera = m.camera;
@@ -988,7 +986,7 @@ public class Megamap {
         screenCenter = screenSize / 2;
     }
     public double delta => Math.Min(targetViewScale / (2 * 30), 1);
-    public bool ProcessKeyboard(Keyboard info) {
+    public void ProcessKeyboard(Keyboard info) {
         var p = (Keys k) => info.IsKeyPressed(k);
         var d = (Keys k) => info.IsKeyDown(k);
         if (d(LeftControl) || d(RightControl)) {
@@ -1024,7 +1022,6 @@ public class Megamap {
                 targetViewScale = Math.Floor(targetViewScale)*4;
             }
         }
-        return Surface.ProcessKeyboard(info);
     }
     public void Update(TimeSpan delta) {
         var d = targetViewScale - viewScale;
@@ -1044,7 +1041,6 @@ public class Megamap {
                 ((int x, int y) p) => p is (> -1, > -1) && p.x < Width && p.y < Height,
                 ent => ent is { tile: not null } and not ISegment && player.GetVisibleDistanceLeft(ent) is var dist and > 0 ? (ent, dist) : null
             );
-        Surface.Update(delta);
     }
     public void Render(TimeSpan delta) {
 
@@ -1063,7 +1059,7 @@ public class Megamap {
                         var glyph = t.Glyph;
                         var background = ABGR.PremultiplySet(t.Background, alpha);
                         var foreground = ABGR.PremultiplySet(t.Foreground, alpha);
-                        Surface.SetCellAppearance(x, Height - y, new Tile(foreground, background, glyph));
+                        Surface.Tile[x, Height - y] = new Tile(foreground, background, glyph);
                     }
                     var environment = player.world.backdrop.planets.GetTile(pos.Snap(viewScale), XY.Zero);
                     if (environment.IsVisible) {
@@ -1088,13 +1084,13 @@ public class Megamap {
                     var glyph = cg.Glyph;
                     var background = cg.Background.BlendPremultiply(starlight, alpha);
                     var foreground = ABGR.PremultiplySet(cg.Foreground, alpha);
-                    Surface.SetCellAppearance(x, Height - y - 1, new Tile(foreground, background, glyph));
+                    Surface.Tile[x, Height - y - 1] = new Tile(foreground, background, glyph);
                 }
             }
             var visiblePerimeter = new Rectangle(new(Width / 2, Height / 2), (int)(Width / (viewScale * 2) - 1), (int)(Height / (viewScale * 2) - 1));
             foreach (var point in visiblePerimeter.PerimeterPositions()) {
-                var b = Surface.GetBackground(point.X, point.Y);
-                Surface.SetBackground(point.X, point.Y, b.BlendPremultiply(new Color(255, 255, 255, (int)(128/viewScale))));
+                var b = Surface.Back[point.X, point.Y];
+                Surface.Back[point.X, point.Y] = b.BlendPremultiply(new Color(255, 255, 255, (int)(128/viewScale)));
             }
             
             foreach ((var offset, var visible) in scaledEntities) {
@@ -1107,8 +1103,8 @@ public class Megamap {
                 if (distance < threshold) {
                     f = ABGR.MA(f) * 0 + (byte)(255 * distance / threshold);
                 }
-                t = new(f, ABGR.Blend(Surface.GetBackground(x, y), (t.Background)), t.Glyph);
-                Surface.SetCellAppearance(x, y, t);
+                t = new(f, ABGR.Blend(Surface.Back[x, y], t.Background), t.Glyph);
+                Surface.Tile[x, y] = t;
             }
             /*
             Parallel.ForEach(scaledEntities.space, pair => {
@@ -1136,11 +1132,10 @@ public class Megamap {
             }
             */
         }
-        Surface.Render(delta);
     }
 }
 public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
-    public ScreenSurface Surface;
+    public ISurf Surface;
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     PlayerShip player;
@@ -1182,7 +1177,6 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         Surface = main.monitor.NewSurface;
         player.onDamaged += this;
         player.onDestroyed += this;
-        Surface.FocusOnMouseClick = false;
         glowAlpha = 0;
         particles = new();
         screenCenter = new(Width / 2, Height / 2);
@@ -1241,7 +1235,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                     int lifetime = 60;
                     var v = new XY(p.xi == 0 ? speed : p.xi == screenPerimeter.Width - 1 ? -speed : 0,
                                     p.yi == 0 ? speed : p.yi == screenPerimeter.Height - 1 ? -speed : 0);
-                    particles.Add(new EffectParticle(p, new(Color.Cyan, Color.Transparent, '#'), lifetime) { Velocity = v });
+                    particles.Add(new EffectParticle(p, (ABGR.Cyan, ABGR.Transparent, '#'), lifetime) { Velocity = v });
                 }
             }
         }
@@ -1255,7 +1249,6 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         particles.RemoveWhere(p => !p.active);
         lightningHit--;
         flash--;
-        Surface.Update(delta);
     }
     public void Render(TimeSpan delta) {
         Surface.Clear();
@@ -1309,7 +1302,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
 
                     var inc = r.Next(102);
                     var c = ABGR.IncRGB(borderColor, inc).Gray().SetAlpha(alpha);
-                    Surface.SetBackground(x, y, c);
+                    Surface.Back[x, y] = c;
                 }
             }
         } else {
@@ -1322,31 +1315,31 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                 foreach (var point in screenPerimeter.PerimeterPositions()) {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
                     var (x, y) = point;
-                    Surface.SetBackground(x, y, c);
+                    Surface.Back[x, y] = c;
                 }
             }
         }
         if (lightningHit > 0) {
             var i = 1;
-            var c = new Color(255, 0, 0, 153 * lightningHit/5);
+            var c = ABGR.RGBA(255, 0, 0, (byte)(153 * lightningHit/5));
             foreach(var p in new Rectangle(i, i, Width - i * 2, Height - i * 2).PerimeterPositions()) {
                 var (x, y) = p;
-                Surface.SetBackground(x, y, Surface.GetBackground(x, y).Blend(c));
+                Surface.Back[x, y] = ABGR.Blend(Surface.Back[x, y], c);
                 //Surface.SetBackground(x, y, c);
             }
         }
         if (armorDecay) {
             var i = 2;
-            var c = new Color(255, 255, 0, 255 - 48 + (int)(Math.Sin(ticks / 5f) * 24));
+            var c = ABGR.RGBA(255, 255, 0, (byte)(255 - 48 + (int)(Math.Sin(ticks / 5f) * 24)));
             foreach (var p in new Rectangle(i, i, Width - i * 2, Height - i * 2).PerimeterPositions()) {
                 var (x, y) = p;
-                Surface.SetBackground(x, y, c);
+                Surface.Back[x, y] = c;
             }
         }
         foreach (var p in particles) {
             var (x, y) = p.position;
             var (fore, glyph) = (p.tile.Foreground, p.tile.Glyph);
-            Surface.SetCellAppearance(x, y, new Tile(fore, Surface.GetBackground(x, y), glyph));
+            Surface.Tile[x, y] = (fore, Surface.Back[x, y], glyph);
         }
 
         silence += (player.ship.silence - silence) * delta.TotalSeconds * 10;
@@ -1358,11 +1351,10 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                         continue;
                     }
                     var t = silenceViewport.GetTile(x, y);
-                    Surface.SetCellAppearance(x, Height - y - 1, new Tile(ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), t.Glyph));
+                    Surface.Tile[x, Height - y - 1] = (ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), t.Glyph);
                 }
             }
         }
-        Surface.Render(delta);
     }
 }
 public class Readout {
@@ -1382,7 +1374,7 @@ public class Readout {
     public int Height => Surface.Height;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
-    public ScreenSurface Surface;
+    public ISurf Surface;
     public Readout(Monitor m) {
         Surface = m.NewSurface;
         camera = m.camera;
@@ -1404,7 +1396,6 @@ public class Readout {
             }
         }
         */
-        Surface.FocusOnMouseClick = false;
     }
     public void Update(TimeSpan delta) {
         if (player.GetTarget(out var playerTarget)) {
@@ -1441,7 +1432,6 @@ public class Readout {
                 Heading.Crosshair(target.world, target.position, c);
             }
         }
-        Surface.Update(delta);
     }
     public void Render(TimeSpan drawTime) {
         Surface.Clear();
@@ -1475,21 +1465,21 @@ public class Readout {
 
                 screenX++;
                 messagePos.x++;
-                Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                     e = Line.Single,
                     //n = Line.Single,
                     //s = Line.Single
                     w = Line.Single
-                }]));
+                }]);
                 screenX++;
                 messagePos.x++;
 
 
                 for (int j = 0; j < i; j++) {
-                    Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         e = lineWidth,
                         w = lineWidth
-                    }]));
+                    }]);
                     screenX++;
                     messagePos.x++;
                 }
@@ -1513,40 +1503,40 @@ public class Readout {
                 int screenLineY = offset.yi + (offset.yi < 0 ? 0 : 1);
                 int screenLineX = offset.xi;
                 if (screenLineY != 0) {
-                    Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y > 0 ? lineWidth : Line.None,
                         s = offset.y < 0 ? lineWidth : Line.None,
                         w = lineWidth,
                         e = offset.y == 0 ? lineWidth : Line.None
-                    }]));
+                    }]);
                     screenY -= Math.Sign(screenLineY);
                     screenLineY -= Math.Sign(screenLineY);
 
                     while (screenLineY != 0) {
-                        Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                        Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             n = lineWidth,
                             s = lineWidth
-                        }]));
+                        }]);
                         screenY -= Math.Sign(screenLineY);
                         screenLineY -= Math.Sign(screenLineY);
                     }
                 }
                 if (screenLineX != 0) {
-                    Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y < 0 ? lineWidth : offset.y > 0 ? Line.None : Line.Single,
                         s = offset.y > 0 ? lineWidth : offset.y < 0 ? Line.None : Line.Single,
 
                         e = offset.x > 0 ? lineWidth : offset.x < 0 ? Line.None : Line.Single,
                         w = offset.x < 0 ? lineWidth : offset.x > 0 ? Line.None : Line.Single
-                    }]));
+                    }]);
                     screenX += Math.Sign(screenLineX);
                     screenLineX -= Math.Sign(screenLineX);
 
                     while (screenLineX != 0) {
-                        Surface.SetCellAppearance(screenX, screenY, new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                        Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             e = lineWidth,
                             w = lineWidth
-                        }]));
+                        }]);
                         screenX += Math.Sign(screenLineX);
                         screenLineX -= Math.Sign(screenLineX);
                     }
@@ -1564,14 +1554,14 @@ public class Readout {
 
         ActiveObject target;
         if (player.GetTarget(out target)) {
-            Surface.Print(targetX, targetY++, "[Target]", Color.White, Color.Black);
+            Surface.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
         } else if(player.primary.item?.target is ActiveObject found) {
             target = found;
-            Surface.Print(targetX, targetY++, "[Auto]", Color.White, Color.Black);
+            Surface.Print(targetX, targetY++, Tile.Arr("[Auto]", ABGR.White, ABGR.Black));
         } else {
             goto SkipTarget;
         }
-        Surface.Print(targetX, targetY++, Tile.Array(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
+        Surface.Print(targetX, targetY++, Tile.Arr(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
         PrintTarget(targetX, targetY, target);
     SkipTarget:
         
@@ -1601,21 +1591,21 @@ public class Readout {
                             _   => ('=', ABGR.White)
                         };
                         int length = (int)Math.Ceiling(BAR * reactor.energy / reactor.desc.capacity);
-                        bar = [..Tile.Array(new string('=', length - 1) + arrow, f, b),
-                            ..Tile.Array(new string('=', BAR - length), ABGR.Gray, b)];
+                        bar = [..Tile.Arr(new string('=', length - 1) + arrow, f, b),
+                            ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)];
                     } else {
-                        bar = Tile.Array(new string('=', BAR), ABGR.Gray, b);
+                        bar = Tile.Arr(new string('=', BAR), ABGR.Gray, b);
                     }
 
                     int l = (int)Math.Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
                     Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
 
-                    Surface.Print(x, y, (Tile[])[
-                        ..Tile.Array("[", ABGR.White, b),
-                        bar,
-                        ..Tile.Array("]", ABGR.White, b),
-                        new Tile(ABGR.White, b, ' '),
-                        ..Tile.Array($"{reactor.source.type.name}", ABGR.White, b)
+                    Surface.Print(x, y, [
+                        ..Tile.Arr("[", ABGR.White, b),
+                        ..bar,
+                        ..Tile.Arr("]", ABGR.White, b),
+                        (ABGR.White, b, ' '),
+                        ..Tile.Arr($"{reactor.source.type.name}", ABGR.White, b)
                         ]);
                     y++;
                 }
@@ -1624,9 +1614,9 @@ public class Readout {
                         int length = (int)Math.Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
                         int sublength = s.maxOutput > 0 ? (int)Math.Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
                         Tile[] bar = [
-                            ..Tile.Array(new string('=', sublength), ABGR.Yellow, ABGR.DarkKhaki),
-                            ..Tile.Array(new string('=', length - sublength), ABGR.Cyan, b),
-                            ..Tile.Array(new string('=', BAR - length), ABGR.Gray, b)];
+                            ..Tile.Arr(new string('=', sublength), ABGR.Yellow, ABGR.DarkKhaki),
+                            ..Tile.Arr(new string('=', length - sublength), ABGR.Cyan, b),
+                            ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)];
                         /*
                         int l = (int)Math.Ceiling(-16f * s.maxOutput / s.desc.maxOutput);
                         for (int i = 0; i < l; i++) {
@@ -1635,11 +1625,11 @@ public class Readout {
                         }
                         */
                         Surface.Print(x, y, [
-                            ..Tile.Array("[", ABGR.White, b),
+                            ..Tile.Arr("[", ABGR.White, b),
                             ..bar,
-                            ..Tile.Array("]", ABGR.White, b),
-                            ..Tile.Array(" ", ABGR.White, b),
-                            ..Tile.Array($"{s.source.type.name}", ABGR.White, b)
+                            ..Tile.Arr("]", ABGR.White, b),
+                            ..Tile.Arr(" ", ABGR.White, b),
+                            ..Tile.Arr($"{s.source.type.name}", ABGR.White, b)
                             ]);
                         y++;
                     }
@@ -1660,10 +1650,10 @@ public class Readout {
                             w.firing || w.delay > 0 ?
                                 ABGR.Yellow :
                             ABGR.White;
-                        Surface.Print(x, y,
-                            Tile.Array("[", ABGR.White, b)
-                            + w.GetBar(BAR)
-                            + Tile.Array($"] {w.source.type.name} {enhancement}", foreground, b));
+                        Surface.Print(x, y,[
+                            ..Tile.Arr("[", ABGR.White, b),
+                            ..w.GetBar(BAR),
+                            ..Tile.Arr($"] {w.source.type.name} {enhancement}", foreground, b)]);
                         y++;
                         i++;
                     }
@@ -1673,7 +1663,7 @@ public class Readout {
                     foreach (var m in misc) {
                         string tag = m.source.type.name;
                         var f = ABGR.White;
-                        Surface.Print(x, y, Tile.Array($"{tag}", f, b));
+                        Surface.Print(x, y, Tile.Arr($"{tag}", f, b));
                         y++;
                     }
                     y++;
@@ -1690,10 +1680,10 @@ public class Readout {
 								ABGR.Cyan :
 							ABGR.White;
                         int l = BAR * s.hp / s.desc.maxHP;
-                        Surface.Print(x, y, "[", f, b);
-                        Surface.Print(x + 1, y, new('=', BAR), ABGR.Gray, b);
-                        Surface.Print(x + 1, y, new('=', l), f, b);
-                        Surface.Print(x + 1 + BAR, y, $"] {name}", f, b);
+                        Surface.Print(x, y, Tile.Arr("[", f, b));
+                        Surface.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                        Surface.Print(x + 1, y, Tile.Arr(new('=', l), f, b));
+                        Surface.Print(x + 1 + BAR, y, Tile.Arr($"] {name}", f, b));
                         y++;
                     }
                     y++;
@@ -1705,42 +1695,42 @@ public class Readout {
                             foreach (var armor in las.layers.Reverse<Armor>()) {
                                 var f =
                                     tick - armor.lastDamageTick < 15 ?
-                                        Color.Yellow :
+                                        ABGR.Yellow :
                                     armor.hp > 0 ?
-                                        Color.White :
+                                        ABGR.White :
                                     armor.canAbsorb ?
-                                        Color.Orange :
-                                    Color.Gray;
+                                        ABGR.Orange :
+                                    ABGR.Gray;
                                 var bb =
                                     armor.decay.Any() ?
-                                        Color.Black.Blend(Color.Red.SetAlpha(128)) :
+                                        ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Red, 128)) :
                                     tick - armor.lastRegenTick < 15 ?
-                                        Color.Black.Blend(Color.Cyan.SetAlpha(128)) :
+                                        ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Cyan, 128)) :
                                     !armor.allowRecovery ?
-                                        Color.Black.Blend(Color.Yellow.SetAlpha(128)) :
+                                        ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Yellow, 128)) :
                                         b;
                                 int available = BAR * Math.Min(armor.maxHP, armor.desc.maxHP) / Math.Max(1, armor.desc.maxHP);
 
                                 int active = available * Math.Min(armor.hp, armor.maxHP) / Math.Max(1, armor.maxHP);
                                 
-                                Surface.Print(x, y, Main.Concat(
-                                    ("[", f, b),
-                                    (new('=', active), f, b),
-                                    (new('=', available - active), Color.Gray, b),
-                                    (new(' ', BAR - available), Color.Gray, b),
-                                    ($"] {armor.hp,3}/{armor.maxHP,3} ", f, b),
-                                    ($"{armor.source.type.name}", f, bb)
-                                ));
+                                Surface.Print(x, y, [
+                                    ..Tile.Arr("[", f, b),
+									..Tile.Arr(new('=', active), f, b),
+									..Tile.Arr(new('=', available - active), ABGR.Gray, b),
+									..Tile.Arr(new(' ', BAR - available), ABGR.Gray, b),
+									..Tile.Arr($"] {armor.hp,3}/{armor.maxHP,3} ", f, b),
+									..Tile.Arr($"{armor.source.type.name}", f, bb)
+                                ]);
                                 y++;
                             }
                             break;
                         }
                     case HP hp: {
-                            var f = Color.White;
-                            Surface.Print(x, y, "[", f, b);
-                            Surface.Print(x + 1, y, new('=', BAR), Color.Gray, b);
-                            Surface.Print(x + 1, y, new('=', BAR * hp.hp / hp.maxHP), f, b);
-                            Surface.Print(x + 1 + BAR, y, $"] HP: {hp.hp}", f, b);
+                            var f = ABGR.White;
+                            Surface.Print(x, y, Tile.Arr("[", f, b));
+                            Surface.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                            Surface.Print(x + 1, y, Tile.Arr(new('=', BAR * hp.hp / hp.maxHP), f, b));
+                            Surface.Print(x + 1 + BAR, y, Tile.Arr($"] HP: {hp.hp}", f, b));
                             break;
                         }
                 }

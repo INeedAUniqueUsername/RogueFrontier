@@ -14,6 +14,8 @@ using JsonIgnoreAttribute = Newtonsoft.Json.JsonIgnoreAttribute;
 namespace LibGamer;
 
 public record ABGR(uint packed) {
+
+	public static uint Parse (string name) => (uint)typeof(ABGR).GetField(name).GetValue(null);
 	public uint SetR (byte a) => SetR(this, a);
 	public uint SetG (byte a) => SetG(this, a);
 	public uint SetB (byte a) => SetB(this, a);
@@ -224,13 +226,10 @@ public record ABGR(uint packed) {
 	YellowGreen = 0xff32cd9a;
 }
 public record Tile (uint Foreground, uint Background, uint Glyph) {
-	
-
 	public static Tile empty { get; } = new(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
-	public static Tile[] Array (string str, uint Foreground, uint Background) => [.. str.Select(c => new Tile(Foreground, Background, c))];
-
+	public static Tile[] Arr (string str, uint Foreground, uint Background) => [.. str.Select(c => new Tile(Foreground, Background, c))];
 	public static IEnumerable<Tile> WithA (IEnumerable<Tile> str, byte front, byte back) =>
 		str.Select(t => t with { Foreground = front, Background = back });
 	public Tile PremultiplySet (byte alpha) {
@@ -239,11 +238,15 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 		}
 		return new(ABGR.PremultiplySet(Foreground, alpha), ABGR.PremultiplySet(Background, alpha), Glyph);
 	}
-
-
 	public bool IsVisible => Glyph != ' ' || Background != ABGR.Transparent;
 	public static implicit operator Tile ((uint Foreground, uint Background, uint Glyph) t) => new(t.Foreground, t.Background, t.Glyph);
 }
+public record TileArr (Tile[] arr) {
+	public static implicit operator TileArr ((string str, uint Foreground, uint Background) t) => new(Tile.Arr(t.str, t.Foreground, t.Background));
+
+	public static implicit operator Tile[] (TileArr t) => t.arr;
+}
+
 public interface ITile {
 	public Tile Original { get; }
 	void Update () { }
@@ -270,8 +273,8 @@ public record StaticTile () : ITile {
 	public StaticTile (char c, uint foreground, uint background) : this() =>
 		(this.foreground, this.background, glyph) = (foreground, background, c);
 	public StaticTile (char c, string foreground, string background) : this() {
-		this.foreground = (uint)typeof(ABGR).GetField(foreground).GetValue(null);
-		this.background = (uint)typeof(ABGR).GetField(background).GetValue(null);
+		this.foreground = ABGR.Parse(foreground);
+		this.background = ABGR.Parse(background);
 		this.glyph = c;
 	}
 	

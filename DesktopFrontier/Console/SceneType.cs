@@ -29,15 +29,6 @@ public static class SNav {
     public static NavChoice DockDeviceRemoval(PlayerShip p, Func<Device, int> GetPrice) =>
         new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(prev, p, GetPrice, null));
 }
-public enum NavFlags : long {
-    ESC = 0b1,
-    ENTER = 0b10
-}
-public record NavChoice(char key, string name, Func<ScreenSurface, ScreenSurface> next, NavFlags flags = 0, bool enabled = true) {
-    public NavChoice() : this('\0', "", null, 0) { }
-    public NavChoice(string name) : this(name, null, 0) { }
-    public NavChoice(string name, Func<ScreenSurface, ScreenSurface> next, NavFlags flags = 0, bool enabled = true) : this(name.FirstOrDefault(char.IsLetterOrDigit), name, next, flags, enabled) { }
-}
 public static partial class SMenu {
     public static Dictionary<(int, int), U> Normalize<U>(this Dictionary<(int, int), U> d) {
         int left = int.MaxValue;
