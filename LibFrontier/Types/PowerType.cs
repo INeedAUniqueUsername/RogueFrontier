@@ -79,15 +79,12 @@ public record PowerRechargeWeapon() : PowerEffect {
         }
     }
 }
-public record PowerJump() : PowerEffect {
+public record PowerJump () : PowerEffect {
     [Opt] public int distance = 100;
-    public PowerJump(XElement e) : this() => e.Initialize(this);
-    public void Invoke(Mainframe main) {
-        main.Jump();
-        Invoke(main.playerShip);
-    }
-    public void Invoke(PlayerShip player) =>
+    public PowerJump (XElement e) : this() => e.Initialize(this);
+    public void Invoke (PlayerShip player) {
         player.position += XY.Polar(player.rotationRad, distance);
+    }
 }
 public record PowerStorm() : PowerEffect {
     public PowerStorm(XElement e) : this() => e.Initialize(this);

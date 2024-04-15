@@ -819,7 +819,7 @@ of civilian gunship pilots.",
             (object i) => GetStdPrice(i) / 4);
     }
     public IScene CamperOutpost (IScene prev, PlayerShip playerShip, Station source) {
-        var lookup = (string s) => playerShip.world.types.Lookup<ItemType>(s);
+        var lookup = playerShip.world.types.Lookup<ItemType>;
         var recipes = new Dictionary<string, Dictionary<string, int>> {
             ["item_orion_longbow"] = new() {
                 ["item_orion_bolter"] = 4
@@ -1390,7 +1390,7 @@ You leave the station in ruins.",
         return Intro(home);
     }
 }
-class DestroyTarget : IPlayerInteraction, Ob<AIShip.Destroyed>, Ob<Station.Destroyed> {
+public class DestroyTarget : IPlayerInteraction, Ob<AIShip.Destroyed>, Ob<Station.Destroyed> {
     public PlayerShip attacker;
     public Station source;
     public HashSet<ActiveObject> targets;

@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 
 namespace RogueFrontier;
 
+
 public interface IScene {
-	public delegate void Transition (IScene next);
+	public delegate void Set (IScene next);
+	public Set Transition { set; get; }
 }
 public enum NavFlags : long {
 	ESC = 0b1,
@@ -26,7 +28,7 @@ public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFl
 }
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
-	public event IScene.Transition transition;
+	public IScene.Set Transition { get; set; }
 	public event Action PrintComplete;
 	public string descStr;
 	public Tile[] desc;
@@ -117,7 +119,7 @@ public class Dialog : IScene {
 			if(c >= maxCharge) {
 				//Make sure we aren't sent back to the screen again
 				prevEnter = false;
-				transition(navigation[navIndex].next?.Invoke(this));
+				Transition(navigation[navIndex].next?.Invoke(this));
 				c = maxCharge - 0.01;
 			}
 		} else {
@@ -177,9 +179,9 @@ public class Dialog : IScene {
 			}
 		}
 	}
-	public bool ProcessKeyboard (KB kb) {
+	public void ProcessKeyboard (KB kb) {
 		charging = false;
-		if(kb[KeyCode.Escape] == KeyState.Pressed || prevEscape && kb[KeyCode.Escape, 1]) {
+		if(kb[KC.Escape] == KS.Pressed || prevEscape && kb[KC.Escape, 1]) {
 			if(!prevEscape) {
 				button_press.Play();
 			}
@@ -191,7 +193,7 @@ public class Dialog : IScene {
 			prevEscape = false;
 
 
-			enter = kb[KeyCode.Enter, 1];
+			enter = kb[KC.Enter, 1];
 			if(enter) {
 
 				if(!prevEnter) {
@@ -205,7 +207,7 @@ public class Dialog : IScene {
 					charging = true;
 				}
 			} else if(allowEnter) {
-				if(kb[KeyCode.Right, 1]) {
+				if(kb[KC.Right, 1]) {
 					enter = true;
 					charging = true;
 				}
@@ -223,17 +225,17 @@ public class Dialog : IScene {
 					enter = true;
 				}
 			}
-			if(kb[KeyCode.Up] == KeyState.Pressed) {
+			if(kb[KC.Up] == KS.Pressed) {
 				button_press.Play();
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
-			if(kb[KeyCode.Down] == KeyState.Down) {
+			if(kb[KC.Down] == KS.Down) {
 				button_press.Play();
 				navIndex = (navIndex + 1) % navigation.Count;
 			}
 		}
 	}
-	public override bool ProcessMouse (MouseScreenObjectState state) {
+	public void ProcessMouse (MouseScreenObjectState state) {
 		foreach(var c in Children) {
 			c.ProcessMouse(state);
 		}
@@ -243,6 +245,5 @@ public class Dialog : IScene {
 				allowEnter = false;
 			}
 		}
-		return base.ProcessMouse(state);
 	}
 }

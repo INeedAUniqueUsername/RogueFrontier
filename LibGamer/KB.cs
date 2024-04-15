@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace LibGamer;
-public enum KeyState : byte {
+public enum KS : byte {
 	//Current = 0b01,
 	Up =		0b00,
 	Down =		0b01,
@@ -14,38 +14,38 @@ public enum KeyState : byte {
 	Pressed =	0b11,
 }
 public class KB {
-	public KeyState[] state = new KeyState[255];
+	public KS[] state = new KS[255];
 	public HashSet<byte> Pressed = [], Released = [], Down = [];
-	public KeyState this[KeyCode k] => this[(byte)k];
-	public bool this[KeyCode k, byte bit] => ((int)this[k] & bit) != 0;
-	public KeyState this[byte x] {
+	public KS this[KC k] => this[(byte)k];
+	public bool this[KC k, byte bit] => ((int)this[k] & bit) != 0;
+	public KS this[byte x] {
 		get => state[x];
 		set => state[x] = value;
 	}
 	public void Update (HashSet<byte> nextDown) {
 		foreach(var code in Released) {
-			state[code] = KeyState.Up;
+			state[code] = KS.Up;
 		}
 		Released.Clear();
 		Pressed.Clear();
 		foreach(var code in nextDown) {
-			state[code] = KeyState.Down;
+			state[code] = KS.Down;
 			var prevDown = Down.Contains(code);
 			if(!prevDown) {
-				state[code] = KeyState.Pressed;
+				state[code] = KS.Pressed;
 				Pressed.Add(code);
 			}
 			Down.Remove(code);
 		}
 		foreach(var code in Down) {
-			state[code] = KeyState.Released;
+			state[code] = KS.Released;
 			Released.Add(code);
 		}
 		Down = nextDown;
 	}
 }
 
-public enum KeyCode {
+public enum KC {
 	/// <summary>
 	/// Reserved.
 	/// </summary>

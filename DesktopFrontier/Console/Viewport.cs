@@ -14,25 +14,22 @@ public class Viewport {
     public Camera camera;
     public System world;
     public Dictionary<(int, int), Tile> tiles=new();
-    public ScreenSurface Surface;
-    public Viewport(Monitor m) {
-        Surface = m.NewSurface;
+    public ISurf Surface;
+    public Viewport(ISurf Surface, Monitor m) {
+        this.Surface = Surface;
         camera = m.camera;
         world = m.world;
     }
     public void Update(TimeSpan delta) {
         tiles.Clear();
         world.PlaceTiles(tiles);
-        Surface.Update(delta);
     }
     public void UpdateVisible(TimeSpan delta, Func<Entity, double> getVisibleDistanceLeft) {
         tiles.Clear();
         world.PlaceTilesVisible(tiles, getVisibleDistanceLeft);
-        Surface.Update(delta);
     }
     public void UpdateBlind(TimeSpan delta, Func<Entity, double> getVisibleDistanceLeft) {
         world.PlaceTilesVisible(tiles, getVisibleDistanceLeft);
-        Surface.Update(delta);
     }
     public void Render(TimeSpan delta) {
         Surface.Clear();
@@ -44,11 +41,10 @@ public class Viewport {
                 if (tiles.TryGetValue(location.roundDown, out var tile)) {
                     var xScreen = x + HalfViewWidth;
                     var yScreen = HalfViewHeight - y;
-                    Surface.SetCellAppearance(xScreen, yScreen, tile);
+                    Surface.Tile[xScreen, yScreen] = tile;
                 }
             }
         }
-        Surface.Render(delta);
     }
     public Tile GetTile(int x, int y) {
         XY location = camera.position + new XY(x - Width / 2, y - Height / 2).Rotate(camera.rotation);

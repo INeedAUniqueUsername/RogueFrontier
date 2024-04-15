@@ -5,7 +5,6 @@ using System.Linq;
 using Helper = Common.Main;
 using Newtonsoft.Json;
 using System.Xml.Linq;
-using static Common.ColorCommand;
 using LibGamer;
 
 namespace RogueFrontier;

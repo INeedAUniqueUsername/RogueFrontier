@@ -47,7 +47,17 @@ public record ABGR(uint packed) {
 		}
 		public static implicit operator uint (Mut left) => left.packed;
 	}
+	public static uint BlendPremultiply (uint b, uint f, byte a = 0xff) {
 
+		var alpha = A(f);
+		var inv_alpha = (byte)(255 - A(f));
+		return RGBA(
+			r: (byte)((alpha * R(f) + inv_alpha * R(b) * A(b) / 255) >> 8),
+			g: (byte)((alpha * G(f) + inv_alpha * G(b) * A(b) / 255) >> 8),
+			b: (byte)((alpha * B(f) + inv_alpha * B(b) * A(b) / 255) >> 8),
+			a: a
+			);
+	}
 	//Essentially the same as blending this color over Color.Black
 	public static uint Premultiply (uint abgr) {
 		var (a, b, g, r) = Data(abgr);
@@ -73,14 +83,20 @@ public record ABGR(uint packed) {
 	g >> 16 +
 	r >> 24
 	);
-	public static uint IncA (uint abgr, byte inc) => abgr + (abgr + inc) & 0xFF000000;
-
-	public static uint SetR (uint abgr, byte r) => (abgr & 0xFFFFFF00) + r;
-	public static uint SetG (uint abgr, byte g) => (abgr & 0xFFFFFF00) + g;
-	public static uint SetB (uint abgr, byte b) => (abgr & 0xFFFFFF00) + b;
+	public static uint IncR (uint abgr, byte inc) => (abgr & 0xFFFFFF00) + (abgr + inc) & ~0xFFFFFF00;
+	public static uint IncG (uint abgr, byte inc) => (abgr & 0xFFFF00FF) + (abgr + inc) & ~0xFFFF00FF;
+	public static uint IncB (uint abgr, byte inc) => (abgr & 0xFF00FFFF) + (abgr + inc) & ~0xFF00FFFF;
+	public static uint IncA (uint abgr, byte inc) => (abgr & 0x00FFFFFF) + (abgr + inc) & 0xFF000000;
+	public static uint IncRGB (uint abgr, byte inc) => (byte)(
+		(abgr & 0xFF000000) +
+		(inc >> 24) +
+		(inc >> 16) +
+		(inc >> 08)
+		);
+	public static uint SetR (uint abgr, byte r) => (abgr & 0xFFFFFF00) + r >> 24;
+	public static uint SetG (uint abgr, byte g) => (abgr & 0xFFFF00FF) + g >> 16;
+	public static uint SetB (uint abgr, byte b) => (abgr & 0xFF00FFFF) + b >> 8;
 	public static uint SetA (uint abgr, byte a) => (abgr & 0x00FFFFFF) + a;
-	
-
 	public const uint TransparentBlack = 0,
 	Transparent = 0,
 	AliceBlue = 0xfffff8f0,
@@ -229,7 +245,7 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 	public static Tile empty { get; } = new(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
-	public static Tile[] Arr (string str, uint Foreground, uint Background) => [.. str.Select(c => new Tile(Foreground, Background, c))];
+	public static Tile[] Arr (string str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => [.. str.Select(c => new Tile(Foreground, Background, c))];
 	public static IEnumerable<Tile> WithA (IEnumerable<Tile> str, byte front, byte back) =>
 		str.Select(t => t with { Foreground = front, Background = back });
 	public Tile PremultiplySet (byte alpha) {
