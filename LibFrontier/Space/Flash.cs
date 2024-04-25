@@ -1,7 +1,6 @@
 ﻿using Common;
+using LibGamer;
 using RogueFrontier;
-using SadConsole;
-using SadRogue.Primitives;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -30,7 +29,7 @@ public record FlashDesc(){
         public double lifetime;
         public int brightness => (int) (maxBrightness * Math.Sqrt(lifetime / maxLifetime));
         public bool active => brightness>128;
-        public ColoredGlyph tile => new(Color.Transparent, new(255, 255, 255, brightness), ' ');
+        public Tile tile => (ABGR.Transparent, ABGR.RGBA(255, 255, 255, (byte)brightness), ' ');
         public Center(XY position, int brightness, int lifetime) {
             this.position = position;
             this.maxBrightness = brightness;
@@ -47,7 +46,7 @@ public record FlashDesc(){
         public double distance;
         public int brightness => (int)(parent.brightness / distance);
         public bool active => brightness> 128;
-        public ColoredGlyph tile => delay > 0 ? null : new(Color.Transparent, new(255, 255, 255, brightness), ' ');
+        public Tile tile => delay > 0 ? null : (ABGR.Transparent, ABGR.RGBA(255, 255, 255, (byte)brightness), ' ');
 
         public double delay;
         public Particle(Center parent, XY position) {

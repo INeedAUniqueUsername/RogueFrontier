@@ -81,7 +81,7 @@ public class BaseShip {
     [JsonIgnore]
     public string name => shipClass.name;
     [JsonIgnore]
-    public Tile tile => shipClass.tile.Original;
+    public Tile tile => shipClass.tile;
 
     [JsonIgnore]
     public double stoppingRotation {

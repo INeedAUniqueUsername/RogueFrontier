@@ -141,13 +141,13 @@ class ShipMenu : ScreenSurface {
         }
         return base.ProcessKeyboard(info);
     }
-    public void ShowInvokable() => Transition(SMenu.Usable(this, playerShip));
-    public void ShowPower() => Transition(SMenu.DeviceManager(this, playerShip));
-    public void ShowCargo() => Transition(SMenu.Cargo(this, playerShip));
-    public void ShowLoadout() => Transition(SMenu.Installed(this, playerShip));
-    public void ShowLogs() => Transition(SMenu.Logs(this, playerShip));
-    public void ShowMissions() => Transition(SMenu.Missions(this, playerShip, story));
-    public void ShowRefuel() => Transition(SMenu.RefuelReactor(this, playerShip));
+    public void ShowInvokable() => Transition(SScene.Usable(this, playerShip));
+    public void ShowPower() => Transition(SScene.DeviceManager(this, playerShip));
+    public void ShowCargo() => Transition(SScene.Cargo(this, playerShip));
+    public void ShowLoadout() => Transition(SScene.Installed(this, playerShip));
+    public void ShowLogs() => Transition(SScene.Logs(this, playerShip));
+    public void ShowMissions() => Transition(SScene.Missions(this, playerShip, story));
+    public void ShowRefuel() => Transition(SScene.RefuelReactor(this, playerShip));
     public void Transition(ScreenSurface s) {
         Tones.pressed.Play();
         Parent.Children.Add(s);

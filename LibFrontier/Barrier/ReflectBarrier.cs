@@ -1,14 +1,11 @@
 ﻿using Common;
-using SadConsole;
-using SadRogue.Primitives;
+using LibGamer;
 using System.Collections.Generic;
-
 namespace RogueFrontier;
-
 //Surrounds the playership, reflects their projectiles back so that they bounce around
 class ReflectBarrier : ProjectileBarrier {
     public bool active => lifetime > 0;
-    public ColoredGlyph tile => new ColoredGlyph(Color.Goldenrod, Color.Black, '*');
+    public Tile tile => (ABGR.Goldenrod, ABGR.Black, '*');
     public ulong id { get; private set; }
     public ActiveObject owner;
     public XY offset;

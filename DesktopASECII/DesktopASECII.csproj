@@ -61,6 +61,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GamerLib\LibGamer.csproj" />
+    <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
     <ProjectReference Include="..\LibSadConsole\LibSadConsole.csproj" />
   </ItemGroup>
 

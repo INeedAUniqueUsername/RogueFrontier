@@ -37,6 +37,8 @@ public class Pointer {
     public bool prevRight;
     public bool nowLeft;
     public bool nowRight;
+
+    public int MouseWheelScroll;
     public void Update ((int x, int y) pos, bool leftDown, bool rightDown, bool IsMouseOver) {
 		prevPos = nowPos;
 		nowPos = pos;

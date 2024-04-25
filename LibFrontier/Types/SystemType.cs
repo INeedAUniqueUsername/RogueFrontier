@@ -1,10 +1,9 @@
 ﻿using Common;
-using SadRogue.Primitives;
-using SadConsole;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using LibGamer;
 namespace RogueFrontier;
 public record SystemType : IDesignType {
     [Req] public string codename;
@@ -280,7 +279,7 @@ public record SystemPlanet() : SystemElement {
         var center = new XY(radius, radius);
 
         var r = lc.world.karma;
-        ColoredGlyph[,] tiles = new ColoredGlyph[diameter, diameter];
+        Tile[,] tiles = new Tile[diameter, diameter];
         for (int x = 0; x < diameter; x++) {
             var xOffset = Math.Abs(x - radius);
             var yRange = Math.Sqrt(radius2 - (xOffset * xOffset));
@@ -289,11 +288,11 @@ public record SystemPlanet() : SystemElement {
             for (int y = yStart; y < yEnd; y++) {
                 var pos = lc.pos + (new XY(x, y) - center);
 
-                var f = Color.LightBlue;
-                f = f.Blend(Color.DarkBlue.SetAlpha((byte)r.NextInteger(0, 153)));
-                f = f.Blend(Color.Gray.SetAlpha(102));
+                var f = ABGR.LightBlue;
+                f = ABGR.Blend(f, ABGR.SetA(ABGR.DarkBlue, (byte)r.NextInteger(0, 153)));
+                f = ABGR.Blend(f, ABGR.SetA(ABGR.Gray, 102));
 
-                var tile = new ColoredGlyph(f, Color.Black, '%');
+                var tile = new Tile(f, ABGR.Black, '%');
                 lc.world.backdrop.planets.tiles[pos] = tile;
                 tiles[x, y] = tile;
                 //lc.world.AddEffect(new FixedTile(tile, pos));
@@ -308,8 +307,8 @@ public record SystemPlanet() : SystemElement {
             for (int y = yStart; y < yEnd; y++) {
                 var loc = r.NextDouble() * circ * (radius - 2);
                 var from = center + XY.Polar(loc % 2 * Math.PI, loc / circ);
-                var t = tiles[x, y];
-                t.Foreground = t.Foreground.Blend(tiles[from.xi, from.yi].Foreground.SetAlpha((byte)r.NextInteger(0, 51)));
+                ref var t = ref tiles[x, y];
+                t = t with { Foreground = ABGR.Blend(t.Foreground, ABGR.SetA(tiles[from.xi, from.yi].Foreground, (byte)r.NextInteger(0, 51))) };
             }
         }
 #if false
@@ -369,7 +368,7 @@ public record SystemNebula() : SystemElement {
             for (int j = -localSize / 2; j < localSize / 2; j++) {
                 var p = XY.Polar(lc.angleRad + i / lc.radius, lc.radius + j);
 
-                var tile = new ColoredGlyph(Color.Violet.SetAlpha((byte)(64 + 128 * lc.world.karma.NextDouble())), Color.Transparent, '%');
+                var tile = new Tile(ABGR.SetA(ABGR.Violet, (byte)(64 + 128 * lc.world.karma.NextDouble())), ABGR.Transparent, '%');
                 lc.world.backdrop.nebulae.tiles[p] = tile;
             }
         }
@@ -409,16 +408,16 @@ public record SystemSibling() : SystemElement {
         }
     }
 }
-public record LightGenerator() : IGridGenerator<Color> {
+public record LightGenerator() : IGridGenerator<uint> {
     public LocationContext lc;
     public int radius;
     public LightGenerator(LocationContext lc, int radius) : this() {
         this.lc = lc;
         this.radius = radius;
     }
-    public Color Generate((long, long) p) {
+    public uint Generate ((long, long) p) {
         //var xy = new XY(p);
-        return new Color(255, 255, 204, Math.Min(255, (int)(radius * 255 / ((lc.pos - p).magnitude + 1))));
+        return ABGR.RGBA(255, 255, 204, Math.Min((byte)255, (byte)(radius * 255 / ((lc.pos - p).magnitude + 1))));
     }
 }
 public record SystemStar() : SystemElement {
@@ -444,7 +443,8 @@ public record SystemStar() : SystemElement {
         }
         */
         var rectSize = radius * 16;
-        lc.world.backdrop.starlight.AddLayer(0, new GeneratedGrid<Color>(new LightGenerator(lc, radius)), new(lc.pos, rectSize, rectSize));
+        var p = lc.pos;
+		lc.world.backdrop.starlight.AddLayer(0, new GeneratedGrid<uint>(new LightGenerator(lc, radius)), new(p.xi, p.yi, rectSize, rectSize));
         lc.world.stars.Add(new Star(lc.pos, radius));
     }
 }

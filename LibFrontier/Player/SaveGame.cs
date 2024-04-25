@@ -1,16 +1,12 @@
-﻿using ASECII;
-using Common;
+﻿using Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using SadConsole;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using static SadConsole.ColoredString;
-using SadRogue.Primitives;
 
 namespace RogueFrontier;
 
@@ -49,64 +45,8 @@ public class DictionaryAsArrayResolver : DefaultContractResolver {
         return Activator.CreateInstance(dictionaryType);
     }
 }
-public class ColoredStringConverter : TypeConverter {
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
-    }
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-        ColoredString cs = value as ColoredString;
-        List<uint> elements = new List<uint>();
-        foreach (var c in cs) {
-            elements.Add(c.Foreground.PackedValue);
-            elements.Add(c.Background.PackedValue);
-            elements.Add((uint)c.Glyph);
-        }
-        return string.Join(',', elements);
-    }
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-    }
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-        var elements = Convert.ToString(value).Trim('(', ')').Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-        ColoredString result = new ColoredString(elements.Length / 3);
-        for (int i = 0; i + 2 < elements.Length; i += 3) {
-
-            result[i / 3] = new ColoredGlyphAndEffect() {
-                Foreground = new Color(uint.Parse(elements[i])),
-                Background = new Color(uint.Parse(elements[i + 1])),
-                Glyph = (int)uint.Parse(elements[i + 2])
-            };
-        }
-        return result;
-    }
-}
-
-public class ColoredGlyphConverter : TypeConverter {
-    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-        return destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
-    }
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-        ColoredGlyph c = value as ColoredGlyph;
-        var elements = new List<uint> { c.Foreground.PackedValue , c.Background.PackedValue, (uint)c.Glyph};
-        return string.Join(',', elements);
-    }
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-        return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
-    }
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-        var elements = Convert.ToString(value).Trim('(', ')').Split(',', StringSplitOptions.RemoveEmptyEntries);
-        var result = new ColoredGlyph(
-            new Color(uint.Parse(elements[0])),
-            new Color(uint.Parse(elements[1])),
-            (int)uint.Parse(elements[2]));
-        return result;
-    }
-}
 public static class SaveGame {
     public static void PrepareConvert() {
-        //TypeDescriptor.AddAttributes(typeof(ColoredString), new TypeConverterAttribute(typeof(ColoredStringConverter)));
-        TypeDescriptor.AddAttributes(typeof(ColoredGlyph), new TypeConverterAttribute(typeof(ColoredGlyphConverter)));
     }
 
     public static bool TryDeserializeFile<T>(string file, out T result) {
@@ -123,17 +63,17 @@ public static class SaveGame {
     }
     public static string Serialize(object o) {
         PrepareConvert();
-        STypeConverter.PrepareConvert();
+        //STypeConverter.PrepareConvert();
         return JsonConvert.SerializeObject(o, format, settings);
     }
     public static T Deserialize<T>(string s) {
         PrepareConvert();
-        STypeConverter.PrepareConvert();
+        //STypeConverter.PrepareConvert();
         return JsonConvert.DeserializeObject<T>(s, settings);
     }
     public static object Deserialize(string s) {
         PrepareConvert();
-        STypeConverter.PrepareConvert();
+        //STypeConverter.PrepareConvert();
         return JsonConvert.DeserializeObject(s, settings);
     }
     public static readonly JsonSerializerSettings settings = new JsonSerializerSettings {

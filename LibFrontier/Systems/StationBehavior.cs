@@ -1,14 +1,12 @@
 ﻿using Common;
-using SadRogue.Primitives;
-using SadConsole;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RogueFrontier.StationType;
-using Console = SadConsole.Console;
 using Newtonsoft.Json;
 using static RogueFrontier.Weapon;
 using Kodi.Linq.Extensions;
+using LibGamer;
 namespace RogueFrontier;
 public interface StationBehavior {
     void Update(double delta, Station owner);
@@ -241,7 +239,7 @@ public class AmethystStore : StationBehavior, Ob<Station.Destroyed>, Ob<Station.
 
                 banned.Add(pl);
                 if (pl.cargo.RemoveWhere(i => i.type.codename == "item_amethyst_member_card") > 0) {
-                    pl.AddMessage(new Transmission(station, new ColoredString("You have violated the Terms of Service. Your warranty is now void.", Color.Red, Color.Black)));
+                    pl.AddMessage(new Transmission(station, "You have violated the Terms of Service. Your warranty is now void.", ABGR.Red, ABGR.Black));
                 }
                 if (pl.shipClass.attributes.Contains("Amethyst")) {
                     pl.AddMessage(new Message("Self-Destruct remotely initiated by vendor."));

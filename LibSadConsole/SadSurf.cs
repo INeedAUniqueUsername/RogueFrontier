@@ -19,7 +19,13 @@ public class SadSurf: ISurf {
 		Glyph = (GetGlyph, SetGlyph);
 		Tile = (GetTile, SetTile);
 	}
-	public void Clear () => console.Clear();
+	public void Clear (uint f = 0, uint b = 0, uint glyph = 0) {
+		if((f, b, glyph) is (0, 0, 0)) {
+			console.Clear();
+			return;
+		}
+		console.Fill(new Color(f), new Color(b), (char)glyph);
+	}
 	public uint GetFront (int x, int y) => console.GetForeground(x, y).PackedValue;
 	public void SetFront (int x, int y, uint c) => console.SetForeground(x, y, new Color(c));
 	public uint GetBack (int x, int y) => console.GetBackground(x, y).PackedValue;

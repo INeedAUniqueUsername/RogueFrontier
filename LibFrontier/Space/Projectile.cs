@@ -1,18 +1,17 @@
 ﻿using Common;
-using SadRogue.Primitives;
-using SadConsole;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using System;
-using ASECII;
+using LibGamer;
 
 namespace RogueFrontier;
 public interface ITrail {
     Effect GetParticle(XY Position, XY Velocity = null);
 }
-public record SimpleTrail(StaticTile Tile) : ITrail {
-    public Effect GetParticle(XY Position, XY Velocity = null) => new EffectParticle(Position, Velocity ?? new XY(0, 0), Tile, 3);
+public record SimpleTrail(Tile tile) : ITrail {
+    public Effect GetParticle(XY Position, XY Velocity = null) =>
+        new EffectParticle(Position, Velocity ?? new XY(0, 0), tile, 3);
 }
 public class Projectile : MovingObject {
     public ulong id { get; set; }
@@ -25,7 +24,7 @@ public class Projectile : MovingObject {
     public double fragmentRotation;
     public double lifetime { get; set; }
     public double age;
-    public ColoredGlyph tile { get; private set; }
+    public Tile tile { get; private set; }
     public ITrail trail;
     public FragmentDesc desc;
     public Maneuver maneuver;
@@ -167,7 +166,7 @@ public class Projectile : MovingObject {
                             hit.Damage(this);
                             onHitActive.Observe(new(this, hit));
 
-                            var cg = new ColoredGlyph(hitHull ? Color.Yellow : Color.LimeGreen, Color.Transparent, 'x');
+                            var cg = new Tile(hitHull ? ABGR.Yellow : ABGR.LimeGreen, ABGR.Transparent, 'x');
                             world.AddEffect(new EffectParticle(hit.position + XY.Polar(angle), hit.velocity, cg, 10));
 
 

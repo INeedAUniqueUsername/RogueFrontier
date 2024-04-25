@@ -74,6 +74,8 @@ interface ISurface{
 public record Monitor(System world, PlayerShip playerShip, Camera camera, ISurf Surface){
     public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
 }
+
+//SadConsole-specific code
 public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
@@ -1184,7 +1186,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                 silenceGrid[x, y] = r.NextDouble();
             }
         }
-        silenceViewport = new Viewport(main.monitor with { world = main.silenceSystem });
+        silenceViewport = new Viewport(Surface, main.monitor with { world = main.silenceSystem });
     }
     public void Update(TimeSpan delta) {
         silenceViewport.Update(delta);
@@ -1292,7 +1294,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
                     var (x, y) = point;
 
-                    var inc = r.Next(102);
+                    var inc = (byte)r.Next(102);
                     var c = ABGR.IncRGB(borderColor, inc).Gray().SetAlpha(alpha);
                     Surface.Back[x, y] = c;
                 }
@@ -1486,7 +1488,7 @@ public class Readout {
                 bool truncateX = Math.Abs(offset.x) > Width / 2 - 3;
                 bool truncateY = Math.Abs(offset.y) > Height / 2 - 3;
                 if (truncateX || truncateY) {
-                    var sourcePosEdge = Helper.GetBoundaryPoint(screenSize, offset.angleRad) - screenSize / 2 + player.position;
+                    var sourcePosEdge = Main.GetBoundaryPoint(screenSize, offset.angleRad) - screenSize / 2 + player.position;
                     offset = sourcePosEdge - player.position;
                     if (truncateX) { offset.x -= Math.Sign(offset.x) * (i + 2); }
                     if (truncateY) { offset.y -= Math.Sign(offset.y) * (i + 2); }

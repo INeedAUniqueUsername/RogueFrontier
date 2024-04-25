@@ -1,11 +1,10 @@
 ﻿using Common;
 using Newtonsoft.Json;
-using SadConsole;
 using System;
 using System.Collections.Generic;
-using SadRogue.Primitives;
 using static RogueFrontier.StationType;
 using System.Linq;
+using LibGamer;
 
 namespace RogueFrontier;
 
@@ -15,7 +14,7 @@ public class Stargate : ActiveObject {
     [JsonIgnore]
     public bool active => true;
     [JsonIgnore]
-    public ColoredGlyph tile => new ColoredGlyph(Color.Violet, Color.DarkBlue, '*');
+    public Tile tile => (ABGR.Violet, ABGR.DarkBlue, '*');
 
     [JsonProperty]
     public ulong id { get; private set; }
@@ -44,9 +43,9 @@ public class Stargate : ActiveObject {
         this.velocity = new XY();
     }
     public void CreateSegments() {
-        Segments = new HashSet<Segment>();
+        Segments = new();
 
-        ColoredGlyph tile = new ColoredGlyph(Color.White, Color.Black, '+');
+        var tile = new Tile(ABGR.White, ABGR.Black, '+');
 
         int radius = 8;
         double circumference = 2 * Math.PI * radius;
@@ -71,9 +70,9 @@ public class Stargate : ActiveObject {
         for (int i = 0; i < circumference; i++) {
             Segments.Add(new Segment(this, new SegmentDesc(
                 XY.Polar(2 * Math.PI * i / circumference, radius),
-                new ColoredGlyph(
-                    Color.Violet.SetAlpha((byte)(204 + r.NextInteger(-51, 51))),
-                    Color.Blue.SetAlpha((byte)(204 + r.NextInteger(-51, 51))),
+                new Tile(
+                    ABGR.SetA(ABGR.Violet, (byte)(204 + r.NextInteger(-51, 51))),
+                    ABGR.SetA(ABGR.Blue, (byte)(204 + r.NextInteger(-51, 51))),
                     '#')
                 )));
         }
@@ -82,9 +81,10 @@ public class Stargate : ActiveObject {
                 if (x * x + y * y <= radius * radius) {
                     Segments.Add(new Segment(this, new SegmentDesc(
                         new XY(x, y),
-                        new ColoredGlyph(
-                            Color.BlueViolet.SetAlpha((byte)(204 + r.NextInteger(-51, 51))),
-                            Color.DarkBlue.SetAlpha((byte)(204 + r.NextInteger(-51, 51))), '%')
+                        new Tile(
+                            ABGR.SetA(ABGR.BlueViolet, (byte)(204 + r.NextInteger(-51, 51))),
+                            ABGR.SetA(ABGR.DarkBlue, (byte)(204 + r.NextInteger(-51, 51))),
+                            '%')
                     )));
                 }
             }

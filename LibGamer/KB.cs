@@ -15,30 +15,33 @@ public enum KS : byte {
 }
 public class KB {
 	public KS[] state = new KS[255];
-	public HashSet<byte> Pressed = [], Released = [], Down = [];
-	public KS this[KC k] => this[(byte)k];
+	public HashSet<KC> Pressed = [], Released = [], Down = [];
+	public KS this[KC k] {
+		get => this[(byte)k];
+		set => this[(byte)k] = value;
+	}
 	public bool this[KC k, byte bit] => ((int)this[k] & bit) != 0;
 	public KS this[byte x] {
 		get => state[x];
 		set => state[x] = value;
 	}
-	public void Update (HashSet<byte> nextDown) {
+	public void Update (HashSet<KC> nextDown) {
 		foreach(var code in Released) {
-			state[code] = KS.Up;
+			state[(byte)code] = KS.Up;
 		}
 		Released.Clear();
 		Pressed.Clear();
 		foreach(var code in nextDown) {
-			state[code] = KS.Down;
+			this[code] = KS.Down;
 			var prevDown = Down.Contains(code);
 			if(!prevDown) {
-				state[code] = KS.Pressed;
+				this[code] = KS.Pressed;
 				Pressed.Add(code);
 			}
 			Down.Remove(code);
 		}
 		foreach(var code in Down) {
-			state[code] = KS.Released;
+			this[code] = KS.Released;
 			Released.Add(code);
 		}
 		Down = nextDown;

@@ -1,5 +1,5 @@
 ﻿using Common;
-using SadConsole;
+using LibGamer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,8 +105,8 @@ public class LayeredArmor : HullSystem {
         Destroy();
         onDestroyed.Observe(new(this, p));
     }
-    public List<ColoredString> GetDesc() =>
-        new List<ColoredString>(layers.GroupBy(l => l.source.type).Select(l => new ColoredString(l.First().source.type.name + $" (x{l.Count()})")));
+    public List<Tile[]> GetDesc() =>
+        new List<Tile[]>(layers.GroupBy(l => l.source.type).Select(l => Tile.Arr(l.First().source.type.name + $" (x{l.Count()})")));
 
     public int GetHP() => layers.Sum(l => l.hp);
     public int GetMaxHP() => layers.Sum(l => l.source.armor.maxHP);

@@ -1,4 +1,5 @@
 ﻿using Common;
+using LibGamer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ public class ShipClass : IDesignType {
     [Opt] public double stealth;
     [Opt] public int capacity;
     public EShipBehavior behavior;
-    public StaticTile tile;
+    public Tile tile;
     public HullSystemDesc damageDesc;
     public Group<Item> cargo;
     public Group<Device> devices;
@@ -40,9 +41,9 @@ public class ShipClass : IDesignType {
         e.Initialize(this, parent);
         if (parent != null) {
             tile = e.HasElement("Tile", out XElement xmlTile) ? 
-                new(xmlTile) : parent.tile;
+                Tile.From(xmlTile) : parent.tile;
         } else {
-            tile = new(e);
+            tile = Tile.From(e);
         }
         attributes = e.TryAtt("attributes", out string att) ? att.Split(";").ToHashSet() : parent?.attributes ?? new();
         behavior = e.TryAttEnum(nameof(behavior), parent?.behavior ?? EShipBehavior.none);

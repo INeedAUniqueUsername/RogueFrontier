@@ -1301,7 +1301,7 @@ hurry in and begin checking the walls.",
             ListMenu<Item> screen = null;
             var dict = (new {
                 item_prescience_book = a(() => {
-                    screen.Replace(new Dialog(
+                    screen.Transition(new Dialog(
 @"""Thank you for your donation of-
 
 Oh. This is garbage.
@@ -1319,7 +1319,7 @@ You didn't read it, did you?""",
             }).ToDict<Action>();
             void Regular() {
                 status.funds += stdPrice[screen.list.currentItem.type];
-                screen.Replace(new Dialog(
+                screen.Transition(new Dialog(
 @"""Thank you for your donation of this
 resonant artifact - may The Orator smile
 upon you.""",
@@ -1328,7 +1328,7 @@ upon you.""",
                     ]));
             }
 
-            return screen = new(prev, playerShip, $"{playerShip.name}: Cargo", playerShip.cargo.Where(i => dict.ContainsKey(i.type.codename)), (object i) => i.name, GetDesc, Choose, Escape);
+            return screen = new(playerShip, $"{playerShip.name}: Cargo", playerShip.cargo.Where(i => dict.ContainsKey(i.type.codename)), (Item i) => i.name, GetDesc, Choose, Escape);
             List<Tile[]> GetDesc (Item i) {
                 List<Tile[]> result = [];
                 var desc = i.type.desc.SplitLine(64);
@@ -1344,7 +1344,7 @@ upon you.""",
                 dict[i.type.codename]();
             }
             void Escape() {
-                screen.Replace(prev);
+                screen.Transition(prev);
             }
         }
     }

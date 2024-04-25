@@ -1,52 +1,49 @@
 ﻿using Newtonsoft.Json;
-using SadConsole.Input;
-using System.Collections.Generic;
-using static SadConsole.Input.Keys;
 using static RogueFrontier.Control;
+using LibGamer;
 namespace RogueFrontier;
 
 public class Settings {
     //Remember to update whenever we load game
-    public Dictionary<Control, Keys> controls;
+    public Dictionary<Control, KC> controls = new Dictionary<Control, KC>();
     [JsonIgnore]
     public static Settings standard => new Settings() {
         controls = PlayerControls.standard
     };
     public Settings() {
-        controls = new Dictionary<Control, Keys>();
     }
     public string GetString() {
-        const int indent = -16;
+        const int w = -16;
         return @$"[Controls]
 
 {$"[Escape]",-16}Pause
 
-{$"[{controls[Thrust]}]",indent}Thrust
-{$"[{controls[TurnLeft]}]",indent}Turn left
-{$"[{controls[TurnRight]}]",indent}Turn right
-{$"[{controls[Brake]}]",indent}Brake
+{$"[{controls[Thrust]}]",w}Thrust
+{$"[{controls[TurnLeft]}]",w}Turn left
+{$"[{controls[TurnRight]}]",w}Turn right
+{$"[{controls[Brake]}]",w}Brake
 
-{$"[{controls[InvokePowers]}]",indent}Power menu
+{$"[{controls[InvokePowers]}]",w}Power menu
 
-{$"[{controls[Autopilot]}]",indent}Autopilot
-{$"[{controls[Control.ShipMenu]}]",indent}Ship Screen
-{$"[{controls[Dock]}]",indent}Dock
+{$"[{controls[Autopilot]}]",w}Autopilot
+{$"[{controls[ShipStatus]}]",w}Ship Screen
+{$"[{controls[Dock]}]",w}Dock
 
-{$"[Minus]",indent}Megamap zoom out
-{$"[Plus]",indent}Megamap zoom in
+{$"[Minus]",w}Megamap zoom out
+{$"[Plus]",w}Megamap zoom in
 
-{$"[{controls[ClearTarget]}]",indent}Clear target
-{$"[{controls[TargetEnemy]}]",indent}Target next enemy
-{$"[{controls[TargetFriendly]}]",indent}Target next friendly
+{$"[{controls[ClearTarget]}]",w}Clear target
+{$"[{controls[TargetEnemy]}]",w}Target next enemy
+{$"[{controls[TargetFriendly]}]",w}Target next friendly
 
-{$"[{controls[NextPrimary]}]",indent}Next primary weapon
-{$"[{controls[AutoAim]}]",indent}Turn to aim target
-{$"[{controls[FirePrimary]}]",indent}Fire primary weapon
+{$"[{controls[NextPrimary]}]",w}Next primary weapon
+{$"[{controls[AutoAim]}]",w}Turn to aim target
+{$"[{controls[FirePrimary]}]",w}Fire primary weapon
 
-{$"[Left Click]",indent}Next primary weapon
-{$"[Right Click]",indent}Thrust
-{$"[Middle Click]",indent}Target nearest
-{$"[Mouse Wheel]",indent}Select primary weapon".Replace("\r", null);
+{$"[Left Click]",w}Next primary weapon
+{$"[Right Click]",w}Thrust
+{$"[Middle Click]",w}Target nearest
+{$"[Mouse Wheel]",w}Select primary weapon".Replace("\r", null);
     }
 
 }

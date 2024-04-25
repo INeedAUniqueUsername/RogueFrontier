@@ -1,10 +1,11 @@
 ﻿using SadConsole.Input;
 using System.Collections.Generic;
 using System.Linq;
-using static SadConsole.Input.Keys;
+using static LibGamer.KC;
 using static RogueFrontier.Control;
 using Helper = Common.Main;
 using System;
+using LibGamer;
 
 namespace RogueFrontier;
 
@@ -17,7 +18,7 @@ public enum Control {
     Dock,
     TargetFriendly,
     ClearTarget,
-    ShipMenu,
+    ShipStatus,
     Gate,
     TargetEnemy,
     InvokePowers,
@@ -89,7 +90,7 @@ public class PlayerControls {
     public void ProcessCommon() {
         if (input.ToggleUI) {
             playerMain.audio.button_press.Play();
-            playerMain.uiMain.Surface.IsVisible = !playerMain.uiMain.Surface.IsVisible;
+            playerMain.uiMain.visible = !playerMain.uiMain.visible;
         }
         if (input.Gate) {
             playerShip.DisengageAutopilot();
@@ -167,7 +168,7 @@ public class PlayerControls {
             playerMain.audio.button_press.Play();
             pw.Surface.IsVisible = !pw.Surface.IsVisible;
         }
-        if (keys != null && keys.IsKeyPressed(U)) {
+        if (keys?[U] == KS.Pressed) {
             playerMain.audio.button_press.Play();
             playerMain.sceneContainer.Children.Add(SListWidget.UsefulItems(playerMain, playerShip));
         }
@@ -177,28 +178,28 @@ public class PlayerControls {
         }
 
 
-        if(keys?.IsKeyPressed(B) == true) {
+        if(keys?[B] == KS.Pressed) {
             playerMain.audio.button_press.Play();
             playerMain.sceneContainer.Children.Add(SListWidget.ManageDevices(playerMain, playerShip));
         }
-        if (keys?.IsKeyPressed(C) == true) {
+        if(keys?[C] == KS.Pressed) {
             playerMain.audio.button_press.Play();
             playerMain.sceneContainer.Children.Add(SListWidget.Communications(playerMain, playerShip));
         }
 
 
-        if (keys != null && keys.IsKeyPressed(F1)) {
+        if (keys[F1] == KS.Pressed) {
             playerMain.audio.button_press.Play();
             SadConsole.Game.Instance.Screen = new IdentityScreen(playerMain) { IsFocused = true };
             //playerMain.OnIntermission();
         }
     }
-    Keyboard keys = null;
-    public void UpdateInput(Keyboard info) {
+    KB keys = null;
+    public void UpdateInput(KB info) {
         keys = info;
         input.Read(playerShip.person.Settings.controls, info);
     }
-    public static Dictionary<Control, Keys> standard => new() {
+    public static Dictionary<Control, KC> standard => new() {
         { Thrust, Up },
         { TurnRight, Right },
         { TurnLeft, Left },
@@ -208,7 +209,7 @@ public class PlayerControls {
         { TargetFriendly, F },
         { ClearTarget, R },
         { Gate, G },
-        { Control.ShipMenu, S },
+        { Control.ShipStatus, S },
         { TargetEnemy, T },
         { InvokePowers, I },
         { NextPrimary, W },
@@ -227,10 +228,10 @@ public class PlayerInput {
 
     public bool UsingMouse;
     public PlayerInput() { }
-    public void Read(Dictionary<Control, Keys> controls, Keyboard info) {
-        var p = (Control c) => info.IsKeyPressed(controls[c]);
-        var d = (Control c) => info.IsKeyDown(controls[c]);
-        Shift = info.IsKeyDown(LeftShift) || info.IsKeyDown(RightShift);
+    public void Read(Dictionary<Control, KC> controls, KB kb) {
+        var p = (Control c) => kb[controls[c]] == KS.Pressed;
+        var d = (Control c) => kb[controls[c], 1];
+        Shift = kb[LeftShift, 1] || kb[RightShift, 1];
         Thrust =        d(Control.Thrust);
         TurnLeft =      d(Control.TurnLeft);
         TurnRight =     d(Control.TurnRight);
@@ -245,16 +246,16 @@ public class PlayerInput {
         FirePrimary =   d(Control.FirePrimary);
         FireSecondary = d(Control.FireSecondary);
         AutoAim =       d(Control.AutoAim);
-        ToggleUI =      info.IsKeyPressed(Tab);
+        ToggleUI =      kb[Tab] == KS.Pressed;
         Gate =          p(Control.Gate);
         Autopilot =     p(Control.Autopilot);
         Dock =          p(Control.Dock);
-        ShipMenu =      p(Control.ShipMenu);
-        Escape =        info.IsKeyPressed(Keys.Escape);
+        ShipMenu =      p(Control.ShipStatus);
+        Escape =        kb[KC.Escape] == KS.Pressed;
         InvokePowers =  p(Control.InvokePowers);
-        Communications= info.IsKeyPressed(C);
-        NetworkMap=     info.IsKeyPressed(N);
-        QuickZoom =     info.IsKeyPressed(M);
+        Communications= kb[C] == KS.Pressed;
+        NetworkMap=     kb[N] == KS.Pressed;
+        QuickZoom =     kb[M] == KS.Pressed;
     }
     public void ClientOnly() {
         Autopilot = false;

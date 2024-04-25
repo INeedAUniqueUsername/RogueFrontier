@@ -5,9 +5,8 @@ using System.Linq;
 using Helper = Common.Main;
 using static RogueFrontier.SShipBehavior;
 using Newtonsoft.Json;
-using SadConsole;
-using SadRogue.Primitives;
 using static RogueFrontier.AttackTarget;
+using LibGamer;
 
 namespace RogueFrontier;
 public interface IShipBehavior {
@@ -57,9 +56,9 @@ public class Sulphin : IShipBehavior, Ob<Station.Destroyed> {
 
                 void Announce(string s) {
                     foreach (var p in players) {
-                        p.AddMessage(new Transmission(owner, new ColoredString(
-                            s, Color.Yellow, Color.Black
-                        )));
+                        p.AddMessage(new Transmission(owner,
+                            s, ABGR.Yellow, ABGR.Black
+                        ));
                     }
                 }
 
@@ -355,7 +354,7 @@ public class FollowShip : IShipOrder {
             //var Face = new FaceOrder(Helper.CalcFireAngle(target.Position - owner.Position, target.Velocity - owner.Velocity, owner.ShipClass.thrust * 30, out _));
             face.Update(delta, owner);
             //If we're facing close enough
-            if (Math.Abs(Helper.AngleDiffDeg(owner.rotationDeg, offset.angleRad * 180 / Math.PI)) < 10 && (velProjection.magnitude < offset.magnitude / 2 || velDiff.magnitude == 0)) {
+            if (Math.Abs(Main.AngleDiffDeg(owner.rotationDeg, offset.angleRad * 180 / Math.PI)) < 10 && (velProjection.magnitude < offset.magnitude / 2 || velDiff.magnitude == 0)) {
                 //Go
                 owner.SetThrusting(true);
             }

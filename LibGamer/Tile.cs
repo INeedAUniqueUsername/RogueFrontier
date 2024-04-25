@@ -242,6 +242,10 @@ public record ABGR(uint packed) {
 	YellowGreen = 0xff32cd9a;
 }
 public record Tile (uint Foreground, uint Background, uint Glyph) {
+
+	public static Tile From(XElement e) {
+		throw new Exception();
+	}
 	public static Tile empty { get; } = new(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }

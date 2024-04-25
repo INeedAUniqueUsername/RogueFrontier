@@ -18,11 +18,8 @@ using System.Reflection;
 using SFML.System;
 
 namespace RogueFrontier;
-public static class Tones {
-    public static Sound pressed = new(new SoundBuffer("Assets/sounds/button_press.wav")) {
-        Volume = 33
-    };
 
+public static class Helper {
 	public static Vector3f ToVector3f (XY xy, float z = 0) => new(xy.xf, xy.yf, z);
 }
 partial class Program {

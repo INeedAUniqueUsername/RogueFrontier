@@ -26,9 +26,27 @@ public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFl
 	public NavChoice (string name) : this(name, null, 0) { }
 	public NavChoice (string name, Func<IScene, IScene> next, NavFlags flags = 0, bool enabled = true) : this(name.FirstOrDefault(char.IsLetterOrDigit), name, next, flags, enabled) { }
 }
+public static class SNav {
+
+	public static NavChoice DockArmorRepair (PlayerShip p, int price) =>
+		DockArmorReplacement(p, a => price);
+	public static NavChoice DockArmorRepair (PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(prev, p, GetPrice, null));
+	public static NavChoice DockArmorReplacement (PlayerShip p, int price) =>
+		DockArmorReplacement(p, a => price);
+	public static NavChoice DockArmorReplacement (PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(prev, p, GetPrice, null));
+
+	public static NavChoice DockDeviceInstall (PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Install", prev => SMenu.DockDeviceInstall(prev, p, GetPrice, null));
+
+	public static NavChoice DockDeviceRemoval (PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(prev, p, GetPrice, null));
+}
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
 	public IScene.Set Transition { get; set; }
+	public event Action<SoundDesc> PlaySound;
 	public event Action PrintComplete;
 	public string descStr;
 	public Tile[] desc;
@@ -165,8 +183,6 @@ public class Dialog : IScene {
 		} else {
 			var barLength = 4;
 			var arrow = $"{new string('-', barLength - 1)}>";
-
-
 			x = descX - barLength;
 			y = descY + desc.Count(c => c.Glyph == '\n') + 3;
 			foreach(var (c, i) in charge.Select((c, i) => (c, i))) {
@@ -183,7 +199,7 @@ public class Dialog : IScene {
 		charging = false;
 		if(kb[KC.Escape] == KS.Pressed || prevEscape && kb[KC.Escape, 1]) {
 			if(!prevEscape) {
-				button_press.Play();
+				PlaySound(button_press);
 			}
 			navIndex = escapeIndex;
 			charging = true;
@@ -191,13 +207,10 @@ public class Dialog : IScene {
 			prevEscape = true;
 		} else {
 			prevEscape = false;
-
-
 			enter = kb[KC.Enter, 1];
 			if(enter) {
-
 				if(!prevEnter) {
-					button_press.Play();
+					PlaySound(button_press);
 				}
 
 				if(descIndex < desc.Length - 1) {
@@ -217,7 +230,7 @@ public class Dialog : IScene {
 			foreach(var c in kb.Down.Where(c => char.IsLetterOrDigit((char)c)).Select(c => char.ToUpper((char)c))) {
 				if(keyMap.TryGetValue(c, out int index)) {
 					if(!prevEnter) {
-						button_press.Play();
+						PlaySound(button_press);
 					}
 
 					navIndex = index;
@@ -226,20 +239,17 @@ public class Dialog : IScene {
 				}
 			}
 			if(kb[KC.Up] == KS.Pressed) {
-				button_press.Play();
+				PlaySound(button_press);
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
 			if(kb[KC.Down] == KS.Down) {
-				button_press.Play();
+				PlaySound(button_press);
 				navIndex = (navIndex + 1) % navigation.Count;
 			}
 		}
 	}
-	public void ProcessMouse (MouseScreenObjectState state) {
-		foreach(var c in Children) {
-			c.ProcessMouse(state);
-		}
-		if(state.Mouse.LeftButtonDown) {
+	public void ProcessMouse (Pointer state) {
+		if(state.nowLeft) {
 			if(descIndex < desc.Length - 1) {
 				descIndex = desc.Length - 1;
 				allowEnter = false;

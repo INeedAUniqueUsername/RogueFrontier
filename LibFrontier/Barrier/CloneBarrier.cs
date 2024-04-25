@@ -1,7 +1,6 @@
 ﻿using Common;
+using LibGamer;
 using Newtonsoft.Json;
-using SadConsole;
-using SadRogue.Primitives;
 using System;
 using System.Collections.Generic;
 namespace RogueFrontier;
@@ -10,7 +9,7 @@ class CloneBarrier : ProjectileBarrier {
     [JsonIgnore]
     public bool active => lifetime > 0;
     [JsonIgnore]
-    public ColoredGlyph tile => new ColoredGlyph(Color.OrangeRed, Color.Black, '*');
+    public Tile tile => (ABGR.OrangeRed, ABGR.Black, '*');
     public ulong id { get; private set; }
     public ActiveObject owner;
     public XY offset;

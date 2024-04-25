@@ -12,7 +12,7 @@ public interface ISurf {
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
-	public void Clear ();
+	public void Clear (uint front = 0, uint back = 0, uint glyph = 0);
 	public uint GetFront (int x, int y);
 	public void SetFront (int x, int y, uint color);
 	public uint GetBack (int x, int y);

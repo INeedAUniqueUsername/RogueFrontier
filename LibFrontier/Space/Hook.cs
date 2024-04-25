@@ -1,12 +1,8 @@
 ﻿using Common;
-using SadConsole;
-using SadRogue.Primitives;
+using LibGamer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace RogueFrontier;
 
 public class Cable : Entity {
@@ -14,7 +10,7 @@ public class Cable : Entity {
     public ulong id { get; set; }
     public XY position { get; set; }
     public bool active { get; set; } = true;
-    public ColoredGlyph tile => new(Color.LightGray, Color.Transparent, (char)249);
+    public Tile tile => (ABGR.LightGray, ABGR.Transparent, (char)249);
     public Cable(Hook parent, XY position) {
         this.parent = parent;
         id = parent.attached.world.nextId++;
@@ -46,7 +42,7 @@ public class Hook : Entity {
     public XY position => attached.position - offset.normal;
     public XY offset => attached.position - source.position;
     public bool active { get; set; } = true;
-    public ColoredGlyph tile => new(Color.LightGray, Color.Transparent, '?');
+    public Tile tile => (ABGR.LightGray, ABGR.Transparent, '?');
     public void Update(double delta) {
         active &= attached.active && source.active;
         var offset = attached.position - source.position;
@@ -127,7 +123,7 @@ public class LightningRod : Entity, Ob<Weapon.OnFire>, Ob<Projectile.OnHitActive
     public ulong id { get; set; }
     public XY position => target.position;
     public bool active => target.active && lifetime>0;
-    public ColoredGlyph tile => null;
+    public Tile tile => null;
 
     double timePassed;
     public void Update(double delta) {
@@ -135,7 +131,7 @@ public class LightningRod : Entity, Ob<Weapon.OnFire>, Ob<Projectile.OnHitActive
             var r = () => target.world.karma.NextDouble();
             target.world.AddEffect(new EffectParticle(
                 target.position, target.velocity + XY.Polar(r()*Math.PI*2, 4),
-                new ColoredGlyph(Color.Red, Color.Transparent, '%'), 30));
+                (ABGR.Red, ABGR.Transparent, '%'), 30));
         }
         lifetime--;
     }
@@ -154,7 +150,7 @@ public class StickyBomb : Entity {
     public XY position => attached.position - offset.normal;
     public XY offset => attached.position - source.position;
     public bool active { get; set; } = true;
-    public ColoredGlyph tile => new(Color.SpringGreen, Color.Black, 'b');
+    public Tile tile => new(ABGR.SpringGreen, ABGR.Black, 'b');
     public void Update(double delta) {
     }
 }

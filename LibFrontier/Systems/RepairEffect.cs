@@ -1,5 +1,4 @@
 ﻿using Common;
-using SadConsole;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace RogueFrontier;
 
-public class RepairEffect : Event
-{
+public class RepairEffect : Event {
     public bool active { get; set; } = true;
     public int ticks;
 
@@ -20,48 +18,36 @@ public class RepairEffect : Event
     Action<RepairEffect> done;
     public bool terminated;
 
-    public RepairEffect(PlayerShip player, Armor armor, int interval, int costPerHp, Action<RepairEffect> done)
-    {
+    public RepairEffect(PlayerShip player, Armor armor, int interval, int costPerHp, Action<RepairEffect> done) {
         this.player = player;
         this.armor = armor;
         this.interval = interval;
         this.costPerHp = costPerHp;
         this.done = done;
     }
-    public void Update(double delta)
-    {
+    public void Update(double delta) {
         ticks++;
         if (ticks % interval != 0)
-        {
             return;
-        }
-        if (armor.hp < armor.maxHP)
-        {
+        if (armor.hp < armor.maxHP) {
             var next = player.person.money - costPerHp;
-            if (next < 0)
-            {
+            if (next < 0) {
                 terminated = true;
                 Kill();
-            }
-            else
-            {
+            } else {
                 armor.hp++;
                 player.person.money -= costPerHp;
             }
+            return;
         }
-        else
-        {
-            Kill();
-        }
-        void Kill()
-        {
+        Kill();
+        void Kill() {
             active = false;
             done?.Invoke(this);
         }
     }
 }
-public class RefuelEffect : Event
-{
+public class RefuelEffect : Event {
     public bool active { get; set; } = true;
     public int ticks;
 
@@ -81,23 +67,16 @@ public class RefuelEffect : Event
         this.costPerEnergy = costPerEnergy;
         this.done = done;
     }
-    public void Update(double delta)
-    {
+    public void Update(double delta) {
         ticks++;
         if (ticks % interval != 0)
-        {
             return;
-        }
-        if (reactor.energy < reactor.desc.capacity)
-        {
+        if (reactor.energy < reactor.desc.capacity) {
             var next = player.person.money - costPerEnergy;
-            if (next < 0)
-            {
+            if (next < 0) {
                 terminated = true;
                 Kill();
-            }
-            else
-            {
+            } else {
                 reactor.energy++;
 
                 balance += costPerEnergy;
@@ -105,11 +84,9 @@ public class RefuelEffect : Event
                 balance -= deltaBalance;
                 player.person.money -= deltaBalance;
             }
+            return;
         }
-        else
-        {
-            Kill();
-        }
+        Kill();
         void Kill()
         {
             active = false;
