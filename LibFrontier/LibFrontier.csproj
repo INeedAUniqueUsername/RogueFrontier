@@ -6,33 +6,43 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\Icon.ico" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="app.manifest">
+
+		<None Remove="
+			Preview/*;
+			Assets/sprites/*.png;
+			Assets/sprites/*.asc;
+			Assets/sprites/*.import;
+			Assets/sprites/*.ttf;
+			Assets/sprites/*.zip;
+			Assets/sounds/*.cpt;
+			Assets/sounds/*.wav.import;
+			Assets/unused/*;
+			Assets/slides/*;
+			Assets/music/*.import;
+			Assets/music/*.mscz;
+			Assets/music/*.flac;
+			Assets/music/*.mp3;
+			Assets/manual/*;
+			Assets/meta/*;
+			">
+		</None>
+		<None Update="
+			app.manifest;
+			readme.html;
+			Assets\scripts\*.xml;
+			Assets\sounds\*.wav;
+			Assets\sprites\*.dat;
+			Assets\sprites\*.font;
+			Assets\sprites\IBMCGA*.png
+			">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="readme.html">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\scripts\*.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\sounds\*.wav">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\sprites\*.dat">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
+
 		<PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
 		<PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
 		<PackageReference Include="Namotion.Reflection" Version="3.1.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\GamerLib\LibGamer.csproj" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
 	</ItemGroup>
 </Project>
