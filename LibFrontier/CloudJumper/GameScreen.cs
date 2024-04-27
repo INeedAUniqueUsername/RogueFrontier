@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿
+#if false
+
+using System.Collections.Generic;
 using SadRogue.Primitives;
 using SadConsole;
 using System;
@@ -124,3 +127,4 @@ class GameScreen : Console {
         return base.ProcessKeyboard(info);
     }
 }
+#endif

@@ -1,28 +1,43 @@
 ﻿<Module>
-	<!--For every hero, there is a villain-->
+	<!--Physics-->
 	<Module file="Genomes.xml"/>
+
+	<!--Enemy Combatants-->
+	<Module file="OrionWarlords.xml"/>
+	<Module file="IronPirates.xml"/>
+	<Module file="Errorist.xml"/>
+	<Module file="Perfectron.xml"/>
+	<Module file="DarkStar.xml"/>
+	<Module file="Murmurs.xml"/>
+
+	<!--Three Paths-->
 	<Module file="Amethyst.xml"/>
 	<Module file="Beowulf.xml"/>
 	<Module file="Campers.xml"/>
+	
+	<!---->
+	<Module file="ISETI.xml"/>
+	<Module file="Daughters.xml"/>
+	
+	<!--Law & Order-->
 	<Module file="Constellation.xml"/>
 	<Module file="ConstellationFleet.xml"/>
-	<Module file="Daughters.xml"/>
-	<Module file="DarkStar.xml"/>
+	<Module file="Antioch.xml"/>
 	<Debug>
 		<Module file="Debug.xml"/>
 	</Debug>
-	<Module file="Errorist.xml"/>
-	<Module file="IronPirates.xml"/>
-	<Module file="Perfectron.xml"/>
-	<Module file="OrionWarlords.xml"/>
 	<Module file="Player.xml"/>
-	<Module file="RoyalShade.xml"/>
-	<Module file="Shifters.xml"/>
 	<Module file="Items.xml"/>
 	<Module file="Powers.xml"/>
 	<Module file="Reactors.xml"/>
 	<Module file="Ships.xml"/>
-	<Module file="Systems.xml"/>
-	<Module file="Murmurs.xml"/>
+
+	<!--Topology-->
 	<Module file="Intro.xml"/>
+	<Module file="Systems.xml"/>
+	
+	<!--Doesn't belong here
+	<Module file="RoyalShade.xml"/>
+	<Module file="Shifters.xml"/>
+	-->
 </Module>

@@ -4,8 +4,6 @@
 		>
 		<SystemGroup>
 			<Star	 radius="50"/>
-
-
 			<Orbital radius="350" angle="0">
 				<Station codename="station_constellation_shipyard"/>
 

@@ -1,4 +1,5 @@
-﻿using Common;
+﻿#if false
+using Common;
 using System;
 using SadRogue.Primitives;
 using RogueFrontier;
@@ -64,3 +65,5 @@ class PlayerShip {
     }
     public ColoredGlyph Tile => new ColoredGlyph(Color.Magenta, Color.Transparent, 'A');
 }
+
+#endif

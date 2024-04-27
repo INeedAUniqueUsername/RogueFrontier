@@ -3,40 +3,15 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<RootNamespace>RogueFrontier</RootNamespace>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ApplicationIcon>Assets\meta\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="Assets\Icon.ico" />
+		<EmbeddedResource Include="Assets\meta\Icon.ico" />
 
-		<None Remove="
-			Preview/*;
-			Assets/sprites/*.png;
-			Assets/sprites/*.asc;
-			Assets/sprites/*.import;
-			Assets/sprites/*.ttf;
-			Assets/sprites/*.zip;
-			Assets/sounds/*.cpt;
-			Assets/sounds/*.wav.import;
-			Assets/unused/*;
-			Assets/slides/*;
-			Assets/music/*.import;
-			Assets/music/*.mscz;
-			Assets/music/*.flac;
-			Assets/music/*.mp3;
-			Assets/manual/*;
-			Assets/meta/*;
-			">
+		<None Remove="&#xD;&#xA;			  Preview/*;&#xD;&#xA;			  Assets/sprites/*.png; &#xD;&#xA;			  Assets/sprites/*.asc;&#xD;&#xA;			  Assets/sprites/*.import;&#xD;&#xA;			  Assets/sprites/*.ttf;&#xD;&#xA;			  Assets/sprites/*.zip;&#xD;&#xA;			  Assets/sounds/*.cpt;&#xD;&#xA;			  Assets/sounds/*.wav.import;&#xD;&#xA;			  Assets/unused/*;&#xD;&#xA;			  Assets/slides/*;&#xD;&#xA;			  Assets/music/*.import;&#xD;&#xA;			  Assets/music/*.mscz;&#xD;&#xA;			  Assets/music/*.flac;&#xD;&#xA;			  Assets/music/*.mp3;&#xD;&#xA;			  Assets/manual/*;&#xD;&#xA;			  Assets/meta/*;&#xD;&#xA;			  ">
 		</None>
-		<None Update="
-			app.manifest;
-			readme.html;
-			Assets\scripts\*.xml;
-			Assets\sounds\*.wav;
-			Assets\sprites\*.dat;
-			Assets\sprites\*.font;
-			Assets\sprites\IBMCGA*.png
-			">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+
+		<Content Include="Assets\meta\Icon.ico" />
 
 		<PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
 		<PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />

@@ -88,7 +88,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_laser_i"
-				name=		"Amethyst laser cannon"
+				name=		"Amethyst Cannon I"
 				level=		"1"
 				mass=		"1000"
 				value=		"4800"
@@ -117,7 +117,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_magic_blaster_i"
-			name=		"Magic Blaster"
+			name=		"Magic Blaster I"
 			level=		"1"
 			mass=		"1000"
 			value=		"4800"
@@ -153,7 +153,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_laser_ii"
-			name=		"Amethyst laser cannon"
+			name=		"Amethyst Cannon II"
 			level=		"1"
 			mass=		"1000"
 			value=		"6000"
@@ -182,14 +182,14 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_magic_blaster_ii"
-		name=		"Magic Blaster"
+		name=		"Magic Blaster II"
 		level=		"1"
 		mass=		"1000"
 		value=		"4800"
 				
 		attributes= "Amethyst"
 
-		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is incomprehensibly advanced."
+		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is sufficiently incomprehensible as to be indistinguishable from magic."
 		>
 		<Weapon
 			initialCharges=	"240"
@@ -218,7 +218,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_laser_iii"
-		name=		"Amethyst laser cannon"
+		name=		"Amethyst Cannon III"
 		level=		"1"
 		mass=		"1000"
 		value=		"7200"
@@ -248,7 +248,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_light_launcher_i"
-		name=		"Light launcher"
+		name=		"Light Launcher I"
 		level=		"1"
 		mass=		"1000"
 		value=		"7200"
@@ -288,7 +288,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_shimmer_shield_i"
-		name=		"Shimmer shield"
+		name=		"Shimmer Shield I"
 		level=		"2"
 		mass=		"200"
 		value=		"400"
@@ -308,7 +308,7 @@
 		</Shield>
 	</ItemType>
 	<ItemType	codename=	"item_shimmer_shield_ii"
-		name=		"Shimmer shield II"
+		name=		"Shimmer Shield II"
 		level=		"3"
 		mass=		"200"
 		value=		"800"
@@ -427,4 +427,15 @@
 		<ProjectileBarrier barrierType="shield" lifetime="900" radius="6" shape="diamond" color="FF55FFFF"/>
 		<ProjectileBarrier barrierType="shield" lifetime="900" radius="5" shape="diamond" color="FF55FFFF"/>
 	</PowerType>
+
+
+
+	<ItemType	codename=	"item_spec_amethyst_laser_i"
+			name=		"Specification: Amethyst Cannon I"
+			level=		"8"
+			mass=		"1000"
+			value=		"3000"
+			desc=		"The technical specifications of the Amethyst Cannon I are written in a dead language known as Latin."
+		>
+	</ItemType>
 </Module>
