@@ -1,38 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<RootNamespace>RogueFrontier</RootNamespace>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-	</PropertyGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="Assets\Icon.ico" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="app.manifest">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="readme.html">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\scripts\*.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\sounds\*.wav">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\sprites\*.dat">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
-		<PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
-		<PackageReference Include="Namotion.Reflection" Version="3.1.1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\GamerLib\LibGamer.csproj" />
-		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>RogueFrontier</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="app.manifest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="readme.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\scripts\*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\*.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sprites\*.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
+    <PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
+    <PackageReference Include="Namotion.Reflection" Version="3.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GamerLib\LibGamer.csproj" />
+    <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
 </Project>
