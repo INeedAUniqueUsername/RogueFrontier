@@ -10,15 +10,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopFrontier", "DesktopFrontier\DesktopFrontier.csproj", "{4739711F-F2E6-4749-B499-255373BB1AC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibSadConsole","LibSadConsole\LibSadConsole.csproj", "{50177447-7722-4239-B22D-3DB40BF192B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibSadConsole", "LibSadConsole\LibSadConsole.csproj", "{50177447-7722-4239-B22D-3DB40BF192B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGamer", 	"LibGamer\LibGamer.csproj", "{4DD7D901-6366-455C-9479-2A068BE2FC2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibGamer", "LibGamer\LibGamer.csproj", "{4DD7D901-6366-455C-9479-2A068BE2FC2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibFrontier", 	"LibFrontier\LibFrontier.csproj", "{B38F8AE4-8F2A-4B91-9C9C-3258AE886F4D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibFrontier", "LibFrontier\LibFrontier.csproj", "{B38F8AE4-8F2A-4B91-9C9C-3258AE886F4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SfmlFrontier", "SfmlFrontier\SfmlFrontier.csproj", "{4739711F-F2E6-4749-B499-255373BB1AC3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopASECII", "DesktopASECII\DesktopASECII.csproj", "{98418BC4-9643-4946-B6EC-6192F35425E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SfmlASECII", 	"SfmlASECII\SfmlASECII.csproj", "{98418BC4-9643-4946-B6EC-6192F35425E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

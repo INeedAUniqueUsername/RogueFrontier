@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DesktopASECII\DesktopASECII.csproj" />
+    <ProjectReference Include="..\SfmlASECII\SfmlASECII.csproj" />
     <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
   </ItemGroup>

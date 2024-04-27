@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<RootNamespace>ASECII</RootNamespace>
+		<AssemblyName>ASECII</AssemblyName>
+		<StartupObject>ASECII.Program</StartupObject>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="
+			Content\*.import
+			">
+		</None>
+		<None Include="
+			Content\*.font;
+			Content\*.png;
+			">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<EmbeddedResource Include="Icon.ico" />
+		<PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
+		<PackageReference Include="Namotion.Reflection" Version="3.1.1" />
+
+		<PackageReference Include="SadConsole.Host.SFML" Version="10.4.0" />
+		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
+		<ProjectReference Include="..\LibSadConsole\LibSadConsole.csproj" />
+	</ItemGroup>
+</Project>
