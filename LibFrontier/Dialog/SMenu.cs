@@ -128,7 +128,7 @@ public static partial class SMenu {
             }
         }
     }
-    public static ListMenu<IPlayerMessage> Logs(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<IPlayerMessage> Logs(IScene prev, PlayerShip player) {
         ListMenu<IPlayerMessage> screen = null;
         List<IPlayerMessage> logs = player.logs;
         return screen = new(
@@ -159,10 +159,10 @@ public static partial class SMenu {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<IPlayerInteraction> Missions(SceneCtx ctx, PlayerShip player, Timeline story) {
+    public static ListMenu<IPlayerInteraction> Missions(IScene prev, PlayerShip player, Timeline story) {
         ListMenu<IPlayerInteraction> screen = null;
         List<IPlayerInteraction> missions = new();
         void UpdateList() {
@@ -217,7 +217,7 @@ public static partial class SMenu {
             }
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
     public static List<Tile[]> GenerateDesc(ItemType t) {
@@ -294,7 +294,7 @@ public static partial class SMenu {
         r.Add(Tile.Arr(""));
         return r;
     }
-    public static ListMenu<Item> Usable(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<Item> Usable(IScene prev, PlayerShip player) {
         ListMenu<Item> screen = null;
         IEnumerable<Item> cargoInvokable;
         IEnumerable<Item> installedInvokable;
@@ -335,10 +335,10 @@ public static partial class SMenu {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Device> Installed(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<Device> Installed(IScene prev, PlayerShip player) {
         ListMenu<Device> screen = null;
         var devices = player.devices.Installed;
         return screen = new(
@@ -368,10 +368,10 @@ public static partial class SMenu {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Item> Cargo(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<Item> Cargo(IScene prev, PlayerShip player) {
         ListMenu<Item> screen = null;
         var items = player.cargo;
         return screen = new(
@@ -398,9 +398,11 @@ public static partial class SMenu {
             invoke?.Invoke(screen, player, item);
             screen.list.UpdateIndex();
         }
-        void Escape() => ctx.GoPrev();
+        void Escape() {
+            prev.Show();
+        }
     }
-    public static ListMenu<Device> DeviceManager(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<Device> DeviceManager(IScene prev, PlayerShip player) {
         ListMenu<Device> screen = null;
         var disabled = player.energy.off;
         var powered = player.devices.Powered;
@@ -434,9 +436,11 @@ public static partial class SMenu {
             }
             screen.list.UpdateIndex();
         }
-        void Escape () => ctx.GoPrev();
+        void Escape () {
+            prev.Show();
+        }
     }
-    public static ListMenu<Device> RemoveDevice(SceneCtx ctx, PlayerShip player) {
+    public static ListMenu<Device> RemoveDevice(IScene prev, PlayerShip player) {
         ListMenu<Device> screen = null;
         var devices = player.devices.Installed;
         return screen = new(
@@ -464,9 +468,11 @@ public static partial class SMenu {
             player.cargo.Add(item);
             screen.list.UpdateIndex();
         }
-        void Escape () => ctx.GoPrev();
+        void Escape () {
+            prev.Show();
+        }
     }
-    public static ListMenu<Armor> RepairArmorFromItem(SceneCtx ctx, PlayerShip player, Item source, RepairArmor repair, Action callback) {
+    public static ListMenu<Armor> RepairArmorFromItem(IScene prev, PlayerShip player, Item source, RepairArmor repair, Action callback) {
         ListMenu<Armor> screen = null;
         var devices = (player.hull as LayeredArmor).layers;
 
@@ -512,10 +518,10 @@ public static partial class SMenu {
             }
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Reactor> RefuelFromItem(SceneCtx ctx, PlayerShip player, Item source, Refuel refuel, Action callback) {
+    public static ListMenu<Reactor> RefuelFromItem(IScene prev, PlayerShip player, Item source, Refuel refuel, Action callback) {
         ListMenu<Reactor> screen = null;
         var devices = player.devices.Reactor;
         return screen = new(
@@ -560,10 +566,11 @@ public static partial class SMenu {
                 Escape();
             }
         }
-        void Escape () =>
-            ctx.GoPrev();
+        void Escape () {
+            prev.Show();
+        }
     }
-    public static ListMenu<Device> ReplaceDeviceFromItem(SceneCtx ctx, PlayerShip player, Item source, ReplaceDevice replace, Action callback) {
+    public static ListMenu<Device> ReplaceDeviceFromItem(IScene prev, PlayerShip player, Item source, ReplaceDevice replace, Action callback) {
         ListMenu<Device> screen = null;
         var devices = player.devices.Installed.Where(i => i.source.type == replace.from);
         return screen = new(
@@ -594,10 +601,11 @@ public static partial class SMenu {
             callback?.Invoke();
             Escape();
         }
-        void Escape () =>
-            ctx.GoPrev();
+        void Escape () {
+            prev.Show();
+        }
     }
-    public static ListMenu<Weapon> RechargeWeaponFromItem(SceneCtx ctx, PlayerShip player, Item source, RechargeWeapon recharge, Action callback) {
+    public static ListMenu<Weapon> RechargeWeaponFromItem(IScene prev, PlayerShip player, Item source, RechargeWeapon recharge, Action callback) {
         ListMenu<Weapon> screen = null;
         var devices = player.devices.Weapon.Where(i => i.desc == recharge.weaponType);
         return screen = new(
@@ -625,10 +633,10 @@ public static partial class SMenu {
             Escape();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<ItemType> Workshop(SceneCtx ctx, PlayerShip player, Dictionary<ItemType, Dictionary<ItemType, int>> recipes, Action callback) {
+    public static ListMenu<ItemType> Workshop(IScene prev, PlayerShip player, Dictionary<ItemType, Dictionary<ItemType, int>> recipes, Action callback) {
         ListMenu<ItemType> screen = null;
         var listing = new Dictionary<ItemType, Dictionary<ItemType, HashSet<Item>>>();
         var available = new Dictionary<ItemType, bool>();
@@ -688,9 +696,11 @@ public static partial class SMenu {
                 callback?.Invoke();
             }
         }
-        void Escape () => ctx.GoPrev();
+        void Escape () {
+            prev.Show();
+        }
     }
-    public static ListMenu<Reactor> DockReactorRefuel(SceneCtx ctx, PlayerShip player, Func<Reactor, int> GetPrice, Action callback) {
+    public static ListMenu<Reactor> DockReactorRefuel(IScene prev, PlayerShip player, Func<Reactor, int> GetPrice, Action callback) {
         ListMenu<Reactor> screen = null;
         var reactors = player.devices.Reactor;
         RefuelEffect job = null;
@@ -763,10 +773,10 @@ public static partial class SMenu {
                 player.AddMessage(new Message($"Refuel job canceled"));
                 return;
             }
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Armor> DockArmorRepair(SceneCtx ctx, PlayerShip player, Func<Armor, int> GetPrice, Action callback) {
+    public static ListMenu<Armor> DockArmorRepair(IScene prev, PlayerShip player, Func<Armor, int> GetPrice, Action callback) {
         ListMenu<Armor> screen = null;
         var layers = (player.hull as LayeredArmor)?.layers ?? new();
         RepairEffect job = null;
@@ -882,10 +892,10 @@ public static partial class SMenu {
 				screen.PlaySound?.Invoke(stop);
 				return;
             }
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Device> DockDeviceRemoval(SceneCtx ctx, PlayerShip player, Func<Device, int> GetPrice, Action callback) {
+    public static ListMenu<Device> DockDeviceRemoval(IScene prev, PlayerShip player, Func<Device, int> GetPrice, Action callback) {
         ListMenu<Device> screen = null;
         var installed = player.devices.Installed;
         return screen = new(
@@ -934,10 +944,10 @@ public static partial class SMenu {
             callback?.Invoke();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Device> DockDeviceInstall(SceneCtx ctx, PlayerShip player, Func<Device, int> GetPrice, Action callback) {
+    public static ListMenu<Device> DockDeviceInstall(IScene prev, PlayerShip player, Func<Device, int> GetPrice, Action callback) {
         ListMenu<Device> screen = null;
         var cargo = player.cargo.Select(i =>
             i.engine ?? i.reactor ?? i.service ?? i.shield ?? (Device)i.solar ?? i.weapon)
@@ -953,7 +963,7 @@ public static partial class SMenu {
             );
 
         string GetName(Device d) => $"{d.GetType().Name.PadRight(7)}: {d.source.type.name}";
-        List<ColoredString> GetDesc(Device d) {
+        List<Tile[]> GetDesc(Device d) {
             var item = d.source;
             var result = GenerateDesc(d);
             if (d is Weapon && player.shipClass.restrictWeapon?.Matches(d.source) == false) {
@@ -998,13 +1008,13 @@ public static partial class SMenu {
             callback?.Invoke();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Armor> DockArmorReplacement(SceneCtx ctx, PlayerShip player, Func<Armor, int> GetPrice, Action callback) {
-        ListMenu<Armor> screen = null;
+    public static ListMenu<Armor> DockArmorReplacement(IScene prev, PlayerShip player, Func<Armor, int> GetPrice, Action callback) {
+        ListMenu<Armor> screenA = null;
         var armor = (player.hull as LayeredArmor)?.layers ?? new List<Armor>();
-        return screen = new(
+        return screenA = new(
             player,
             $"Armor Replacement",
             armor,
@@ -1043,12 +1053,12 @@ public static partial class SMenu {
                 return;
             }
 
-            ctx.Go(GetReplacement(ctx));
+            prev.Go(GetReplacement(screenA));
 
-            ListMenu<Armor> GetReplacement(SceneCtx ctx) {
-                ListMenu<Armor> screen = null;
+            ListMenu<Armor> GetReplacement(IScene prev) {
+                ListMenu<Armor> screenB = null;
                 var armor = player.cargo.Select(i => i.armor).Where(i => i != null);
-                return screen = new(
+                return screenB = new(
                     player,
                     $"Armor Replacement (continued)",
                     armor,
@@ -1107,15 +1117,15 @@ public static partial class SMenu {
                     Escape();
                 }
                 void Escape() {
-                    ctx.GoPrev();
+                    ((IScene)screenA).Show();
                 }
             }
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Item> SetMod(SceneCtx ctx, PlayerShip player, Item source, Modifier mod, Action callback) {
+    public static ListMenu<Item> SetMod(IScene prev, PlayerShip player, Item source, Modifier mod, Action callback) {
         ListMenu<Item> screen = null;
         IEnumerable<Item> cargo;
         IEnumerable<Item> installed;
@@ -1153,13 +1163,13 @@ public static partial class SMenu {
             Escape();
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
-    public static ListMenu<Reactor> RefuelReactor(SceneCtx ctx, PlayerShip player) {
-        ListMenu<Reactor> screen = null;
+    public static ListMenu<Reactor> RefuelReactor(IScene prev, PlayerShip player) {
+        ListMenu<Reactor> screenA = null;
         var devices = player.devices.Reactor;
-        return screen = new(
+        return screenA = new(
             player,
             $"{player.name}: Refuel",
             devices,
@@ -1184,9 +1194,9 @@ public static partial class SMenu {
         }
         void Invoke(Reactor r) {
             if (r.energy < r.desc.capacity) {
-                ctx.Go(ChooseFuel(ctx, player));
+                prev.Go(ChooseFuel(screenA, player));
             }
-            ListMenu<Item> ChooseFuel(SceneCtx ctx, PlayerShip player) {
+            ListMenu<Item> ChooseFuel(IScene prev, PlayerShip player) {
                 ListMenu<Item> screen = null;
                 var items = player.cargo.Where(i => i.type.Invoke is Refuel r);
                 return screen = new( player, $"{player.name}: Refuel (continued)", items,
@@ -1213,12 +1223,12 @@ public static partial class SMenu {
                     }
                 }
                 void Escape() {
-                    ctx.GoPrev();
+                    prev.Show();
                 }
             }
         }
         void Escape() {
-            ctx.GoPrev();
+            prev.Show();
         }
     }
 
@@ -1234,7 +1244,9 @@ public class ListMenu<T> : IScene {
 
     public ref string title => ref list.title;
 
-    public Action escape;
+	public Action<IScene> Go { get; set; }
+
+	public Action escape;
     public ListMenu(PlayerShip player, string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape) {
         this.player = player;
 
@@ -1602,7 +1614,7 @@ public class ScrollBar {
 }
 
 public static class SListWidget {
-    public static ListWidget<Item> UsefulItems(SceneCtx ctx, PlayerShip player) {
+    public static ListWidget<Item> UsefulItems(IScene prev, PlayerShip player) {
         ListWidget<Item> screen = null;
         IEnumerable<Item> cargoInvokable;
         IEnumerable<Item> installedInvokable;
@@ -1635,7 +1647,7 @@ public static class SListWidget {
             return result;
         }
         void InvokeItem(Item i) {
-            i.type.Invoke?.Invoke(ctx, player, i, Update);
+            i.type.Invoke?.Invoke(prev, player, i, Update);
             screen.list.UpdateIndex();
         }
         void Update() {
@@ -1643,11 +1655,11 @@ public static class SListWidget {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            ctx.Go(null);
+            prev.Close();
 
         }
     }
-    public static ListWidget<Device> ManageDevices(SceneCtx ctx, PlayerShip player) {
+    public static ListWidget<Device> ManageDevices(IScene prev, PlayerShip player) {
         ListWidget<Device> screen = null;
         var disabled = player.energy.off;
         var powered = player.devices.Powered;
@@ -1681,10 +1693,10 @@ public static class SListWidget {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            screen.Go(null);
+            prev.Show();
         }
     }
-    public static ListWidget<IDockable> DockList(SceneCtx ctx, List<IDockable> d, PlayerShip player) {
+    public static ListWidget<IDockable> DockList(IScene prev, List<IDockable> d, PlayerShip player) {
         ListWidget<IDockable> screen = null;
         return screen = new(
             "Docking",
@@ -1703,10 +1715,10 @@ public static class SListWidget {
             Escape();
         }
         void Escape() {
-            ctx.GoPrev()
+            prev.Show();
         }
     }
-    public static ListWidget<AIShip> Communications(SceneCtx ctx, PlayerShip player) {
+    public static ListWidget<AIShip> Communications(IScene prev, PlayerShip player) {
         ListWidget<AIShip> screen = null;
         screen = new(
             "Communications",
@@ -1803,7 +1815,7 @@ public static class SListWidget {
             
         }
         void Escape() {
-            screen.Go(null);
+            prev.Show();
         }
     }
 }
@@ -1841,7 +1853,7 @@ public class ListWidget<T>:IScene {
     public ref string title => ref list.title;
     public ref bool groupMode => ref list.groupMode;
 
-    public IScene.Set Go { get; set; }
+    public Action<IScene> Go { get; set; }
 
 	public Action escape;
     public ISurf Surface;

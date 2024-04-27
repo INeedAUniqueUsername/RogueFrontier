@@ -4,6 +4,8 @@ public class WreckScene : IScene {
     Player player;
     IScene prev;
 
+    public Action<IScene> Go { set; get; }
+
     ListPane<Item> playerPane, dockedPane;
 
     DescPanel<Item> descPane;
@@ -41,7 +43,7 @@ public class WreckScene : IScene {
         };
     }
     public void Exit() {
-        Exit(prev);
+        prev.Show();
     }
 
     bool playerSide {
@@ -52,8 +54,6 @@ public class WreckScene : IScene {
         get => playerPane.active;
     }
     ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
-
-	public IScene.Set Go { get; set; }
 
 	public void ProcessKeyboard(KB kb) {
         if (kb[KC.Escape] == KS.Pressed) {

@@ -291,9 +291,8 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
             }
         }
         */
-        base.Render(drawTime);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public bool ProcessKeyboard(Keyboard info) {
         if (info.IsKeyPressed(SadConsole.Input.Keys.Enter)) {
             if (speedUp) {
                 sectionNumber = text.Length;
@@ -301,7 +300,5 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                 speedUp = true;
             }
         }
-
-        return base.ProcessKeyboard(info);
     }
 }

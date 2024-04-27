@@ -9,8 +9,8 @@ public class WreckScene : IScene {
 
     DescPanel<Item> descPane;
 
-    public Action Exit;
-
+    IScene prev;
+    public Action<IScene> Go { set; get; }
     private void SetDesc(Item i) {
         if (i == null) {
             descPane.SetInfo("", []);
@@ -21,6 +21,7 @@ public class WreckScene : IScene {
         }
     }
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
+        this.prev = prev;
         this.player = playerShip.person;
 
         descPane = new DescPanel<Item>();
@@ -54,7 +55,7 @@ public class WreckScene : IScene {
 
 	public void ProcessKeyboard(KB kb) {
         if (kb[KC.Escape] == KS.Pressed) {
-            Exit?.Invoke();
+            prev.Show();
         } else {
             if(kb[KC.Left] == KS.Pressed) {
                 playerSide = true;

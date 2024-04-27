@@ -45,6 +45,12 @@ interface ISurface{
 }
 //SadConsole-specific code
 public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
+    public record MainScene(Mainframe main) : IScene {
+        public Action<IScene> Go { set; get; } = s => {
+            return;
+        };
+    }
+
     public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
         OnPlayerDestroyed($"Destroyed by {d?.name ?? "unknown forces"}", w);
@@ -54,6 +60,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public System world => playerShip.world;
 
     MainScene mainScene;
+
     public Camera camera { get; private set; }
     public Profile profile;
     public Timeline story;

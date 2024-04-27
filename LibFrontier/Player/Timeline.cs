@@ -15,6 +15,8 @@ public class TradeMenu: IScene {
 
     public delegate int GetPrice (Item i);
 
+    public Action<IScene> Go { set; get; }
+
     public TradeMenu (IScene prev, PlayerShip playerShip, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
 	}
 }
@@ -70,7 +72,7 @@ The Orator today!"" the guard says.";
 much to the possible chagrin of some mysterious
 entity and several possibly preferred timelines.".Replace("\r", null);
             return new Dialog(t, [
-                new("Undock", _ => ctx.Exit())
+                new("Undock")
             ]) { background = heroImage };
         }
 		IScene Intro3 (IScene prev) {
@@ -771,7 +773,7 @@ purchases and repair services.
             !a.source.IsAmethyst() ? -1 :
             discount ? 1 :
             3;
-		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene prev) => new TradeMenu(prev, playerShip, source,
             (Item i) => (int)(GetStdPrice(i) * buyAdj),
             (Item i) => i.IsAmethyst() ? GetStdPrice(i) / 10 : -1);
         int GetInstallPrice(Device d) =>
@@ -822,7 +824,7 @@ of civilian gunship pilots.",
         int GetDeviceRemovalPrice(Device d) {
             return 100;
         }
-		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene prev) => new TradeMenu(prev, playerShip, source,
             GetStdPrice,
             (Item i) => GetStdPrice(i) / 4);
     }
@@ -862,10 +864,10 @@ craftspersons, and adventurers.",
         int GetDeviceInstallPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
         int GetDeviceRemovalPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
 
-		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene prev) => new TradeMenu(prev, playerShip, source,
             GetStdPrice,
             (Item i) => GetStdPrice(i) / 4);
-		IScene Workshop (IScene prev) => SMenu.Workshop(from, playerShip, recipes, null);
+		IScene Workshop (IScene prev) => SMenu.Workshop(prev, playerShip, recipes, null);
     }
     public TradeMenu TradeStation(IScene prev, PlayerShip playerShip, Station source) =>
         new (prev, playerShip, source, GetStdPrice, i => GetStdPrice(i) / 2);
@@ -971,7 +973,7 @@ There is a modest degree of artificial gravity here.",
             ]) { background = source.type.HeroImage };
         }
 		IScene Trade (IScene prev) =>
-            new TradeMenu(from, playerShip, source, GetStdPrice,
+            new TradeMenu(prev, playerShip, source, GetStdPrice,
                 (Item i) => (!i.HasDevice() || friendlyOnly.Matches(i)) ? GetStdPrice(i) / 5 : -1
                 );
         int GetRepairPrice(Armor a) => !friendlyOnly.Matches(a.source) ? -1 : a.source.IsAmethyst() ? 9 : 3;
@@ -1278,7 +1280,7 @@ then RECITE the words against doom.""");
 
             }
 			IScene Info (IScene prev, string desc) =>
-                new Dialog(desc, [new("Continue", Shambles)]) { Navigate = null };
+                new Dialog(desc, [new("Continue", Shambles)]);
 			IScene Shambles (IScene prev) {
                 return new Dialog(
 @"An unusual energy strikes and shakes

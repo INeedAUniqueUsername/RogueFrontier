@@ -61,14 +61,10 @@ public static class SScene {
 		return result;
 	}
 }
-
-public record SceneCtx(Action<IScene> Go, IScene prev) {
-	public void GoPrev () => Go(prev);
-	public void Exit () => Go(null);
-
-	public IScene next { set => Go(value); }
-}
 public interface IScene {
+	Action<IScene> Go { get; set; }
+	public void Show () => Go(this);
+	public void Close () => Go(null);
 }
 public enum NavFlags : long {
 	ESC = 0b1,
@@ -82,20 +78,20 @@ public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFl
 }
 public static class SNav {
 
-	public static NavChoice DockArmorRepair (SceneCtx ctx, PlayerShip p, int price) =>
-		DockArmorReplacement(ctx, p, a => price);
-	public static NavChoice DockArmorRepair (SceneCtx ctx, PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(ctx, p, GetPrice, null));
-	public static NavChoice DockArmorReplacement (SceneCtx ctx, PlayerShip p, int price) =>
-		DockArmorReplacement(ctx, p, a => price);
-	public static NavChoice DockArmorReplacement (SceneCtx ctx, PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(ctx, p, GetPrice, null));
+	public static NavChoice DockArmorRepair (PlayerShip p, int price) =>
+		DockArmorReplacement(p, a => price);
+	public static NavChoice DockArmorRepair (PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(prev, p, GetPrice, null));
+	public static NavChoice DockArmorReplacement (PlayerShip p, int price) =>
+		DockArmorReplacement(p, a => price);
+	public static NavChoice DockArmorReplacement (PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(prev, p, GetPrice, null));
 
-	public static NavChoice DockDeviceInstall (SceneCtx ctx, PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Install", prev => SMenu.DockDeviceInstall(ctx, p, GetPrice, null));
+	public static NavChoice DockDeviceInstall (PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Install", prev => SMenu.DockDeviceInstall(prev, p, GetPrice, null));
 
-	public static NavChoice DockDeviceRemoval (SceneCtx ctx, PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(ctx, p, GetPrice, null));
+	public static NavChoice DockDeviceRemoval (PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(prev, p, GetPrice, null));
 }
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
@@ -118,8 +114,6 @@ public class Dialog : IScene {
 	int escapeIndex;
 	int lineCount;
 	public static double maxCharge = 0.5;
-
-	public Action<IScene> Navigate;
 
 	public SoundDesc button_press = new() {
 		data = File.ReadAllBytes("Assets/sounds/button_press.wav"),
@@ -160,6 +154,9 @@ public class Dialog : IScene {
 		if(escapeIndex == -1) escapeIndex = navigation.Count - 1;
 	}
 	int deltaIndex = 2;
+
+	public Action<IScene> Go { get; set; } = default;
+
 	public void Update (TimeSpan delta) {
 		ticks++;
 		if(ticks % 2 * deltaIndex == 0) {
