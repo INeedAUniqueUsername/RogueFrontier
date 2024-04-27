@@ -25,6 +25,19 @@ public class KB {
 		get => state[x];
 		set => state[x] = value;
 	}
+
+	public KB () {
+
+	}
+	public KB(HashSet<KC> Pressed, HashSet<KC> Down, HashSet<KC> Released) {
+		this.Pressed = Pressed;
+		this.Released = Released;
+		this.Down = Down;
+		foreach(var k in Pressed) this[k] = KS.Pressed;
+		foreach(var k in Down) this[k] = KS.Down;
+
+		foreach(var k in Released) this[k] = KS.Released;
+	}
 	public void Update (HashSet<KC> nextDown) {
 		foreach(var code in Released) {
 			state[(byte)code] = KS.Up;

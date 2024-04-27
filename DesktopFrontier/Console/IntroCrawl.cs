@@ -10,13 +10,15 @@ using System.IO;
 using Common;
 using CloudJumper;
 using ASECII;
+using LibGamer;
 
+using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
 
-class IntroCrawl : Console {
-    private readonly ColorImage[] images = {
-            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
-            new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
+class IntroCrawl {
+    private readonly TileImage[] images = {
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
         };
     private readonly string[] text = new[] {
 @"In a vision I could see
@@ -60,6 +62,8 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
 
     bool speedUp;
 
+    int Width, Height;
+
     //LoadingSymbol spinner;
 
     ColoredString[] effect;
@@ -67,7 +71,9 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
     List<CloudParticle> clouds;
 
     Random random = new Random();
-    public IntroCrawl(int width, int height, Func<Console> next) : base(width, height) {
+    public IntroCrawl(int Width, int Height, Func<Console> next) {
+        this.Width = Width;
+        this.Height = Height;
         this.next = next;
         backgroundSlideX = Width;
         lines = text.Sum(line => line.Count(c => c == '\n')) + text.Length * 2;
@@ -109,7 +115,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
             return new ColoredGlyphAndEffect() { Foreground = front, Background = back, Glyph = c };
         }
     }
-    public override void Update(TimeSpan time) {
+    public void Update(TimeSpan time) {
         if (backgroundSlideX < Width) {
             tick++;
             if (tick % 2 == 0) {
@@ -152,7 +158,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
             }
         }
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         this.Clear();
 
         int topEdge = Height / 5;

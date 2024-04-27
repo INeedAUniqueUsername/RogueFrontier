@@ -40,7 +40,7 @@ public class Docking {
         }
     }
     public bool UpdateDocking(double delta, IShip ship) {
-        double decel = ship.shipClass.thrust * Program.TICKS_PER_SECOND / 2;
+        double decel = ship.shipClass.thrust * Constants.TICKS_PER_SECOND / 2;
         double stoppingTime = (ship.velocity - Target.velocity).magnitude / decel;
         double stoppingDistance = ship.velocity.magnitude * stoppingTime - (decel * stoppingTime * stoppingTime) / 2;
         var stoppingPoint = ship.position;
@@ -52,7 +52,7 @@ public class Docking {
         var offset = dest + (Target.velocity * stoppingTime) - stoppingPoint;
 
         if (offset.magnitude > 0.25) {
-            ship.velocity += XY.Polar(offset.angleRad, ship.shipClass.thrust * delta * Program.TICKS_PER_SECOND);
+            ship.velocity += XY.Polar(offset.angleRad, ship.shipClass.thrust * delta * Constants.TICKS_PER_SECOND);
         } else if ((ship.position - dest).magnitude2 < 1) {
             ship.velocity = Target.velocity;
             return true;

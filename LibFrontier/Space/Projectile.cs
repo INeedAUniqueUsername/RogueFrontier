@@ -294,7 +294,7 @@ public class Maneuver {
         //var uncertainty = XY.Polar(p.world.karma.NextDouble() * 2 * Math.PI, 0);
         var vel = p.velocity;
         var offset = target.position - p.position;
-        var turn = maneuver * delta * Program.TICKS_PER_SECOND;
+        var turn = maneuver * delta * Constants.TICKS_PER_SECOND;
         var velLeft = vel.Rotate(turn);
         var velRight = vel.Rotate(-turn);
         var distLeft = (offset - velLeft.normal).magnitude;
@@ -317,7 +317,7 @@ public class Maneuver {
 
 
                     var timeToHit = offset.magnitude / deltaVel.magnitude;
-                    var timeToTurn = Math.Min(Math.PI/2, deltaAngle) / (maneuver * Program.TICKS_PER_SECOND);
+                    var timeToTurn = Math.Min(Math.PI/2, deltaAngle) / (maneuver * Constants.TICKS_PER_SECOND);
 
                     if (timeToTurn < timeToHit) {
                         startApproach = true;

@@ -11,9 +11,14 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using JsonIgnoreAttribute = Newtonsoft.Json.JsonIgnoreAttribute;
+using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace LibGamer;
 
 public record ABGR(uint packed) {
+
+	public static uint TryAttColor (XElement e, string key, uint fallback) => e.TryAtt(key, out var c) ? Parse(c) : fallback;
+	public static uint? TryAttColor (XElement e, string key, uint? fallback) => e.TryAtt(key, out var c) ? Parse(c) : fallback;
+
 
 	public static uint Parse (string name) => (uint)typeof(ABGR).GetField(name).GetValue(null);
 	public uint SetR (byte a) => SetR(this, a);
@@ -83,6 +88,63 @@ public record ABGR(uint packed) {
 	g >> 16 +
 	r >> 24
 	);
+
+
+	public static float GetLightness (uint c) {
+		int r = R(c);
+		int g = G(c);
+		int b = B(c);
+
+		var min = Math.Min(Math.Min(r, g), b);
+		var max = Math.Max(Math.Max(r, g), b);
+		return (max + min) / 510f;
+	}
+	public static uint ToGray (uint c) => FromHSL(0, 0, GetLightness(c));
+	public static uint FromHSL (float h, float s, float l) {
+		if(h < 0f || h > 360f) {
+			throw new ArgumentOutOfRangeException("h");
+		}
+
+		double grey = (1f - Math.Abs(2f * l - 1f)) * s;
+		double sector = h / 60f;
+		double intensity = grey * (1.0 - Math.Abs(sector % 2.0 - 1.0));
+		double light = (double)l - 0.5 * grey;
+		double red;
+		double green;
+		double blue;
+		if(sector < 1.0) {
+			red = grey;
+			green = intensity;
+			blue = 0.0;
+		} else if(sector < 2.0) {
+			red = intensity;
+			green = grey;
+			blue = 0.0;
+		} else if(sector < 3.0) {
+			red = 0.0;
+			green = grey;
+			blue = intensity;
+		} else if(sector < 4.0) {
+			red = 0.0;
+			green = intensity;
+			blue = grey;
+		} else if(sector < 5.0) {
+			red = intensity;
+			green = 0.0;
+			blue = grey;
+		} else {
+			red = grey;
+			green = 0.0;
+			blue = intensity;
+		}
+
+		byte r = (byte)(255.0 * (red + light));
+		byte g = (byte)(255.0 * (green + light));
+		byte b = (byte)(255.0 * (blue + light));
+		byte alpha = 255;
+		return ABGR.RGBA(r, g, b, alpha);
+	}
+
 	public static uint IncR (uint abgr, byte inc) => (abgr & 0xFFFFFF00) + (abgr + inc) & ~0xFFFFFF00;
 	public static uint IncG (uint abgr, byte inc) => (abgr & 0xFFFF00FF) + (abgr + inc) & ~0xFFFF00FF;
 	public static uint IncB (uint abgr, byte inc) => (abgr & 0xFF00FFFF) + (abgr + inc) & ~0xFF00FFFF;
@@ -242,10 +304,34 @@ public record ABGR(uint packed) {
 	YellowGreen = 0xff32cd9a;
 }
 public record Tile (uint Foreground, uint Background, uint Glyph) {
-
+	public static implicit operator Tile (TileTuple t) => new(t.Foreground, t.Background, t.Glyph);
 	public static Tile From(XElement e) {
-		throw new Exception();
+		var f = ABGR.Parse(e.Att("f"));
+		var b = ABGR.Parse(e.Att("b"));
+		var g = e.ExpectAttChar("g");
+		return new Tile(f, b, g);
 	}
+
+	public static Tile[] ArrFrom(XElement element, uint df = ABGR.White, uint db = ABGR.Black) {
+		var f = ABGR.TryAttColor(element, "f", df);
+		var b = ABGR.TryAttColor(element, "b", db);
+		return [.. GetParts().SelectMany(a => a)];
+		IEnumerable<IEnumerable<Tile>> GetParts () {
+			foreach(var node in element.Nodes()) {
+				switch(node) {
+					case XText t:
+						yield return t.Value.Select(c => new Tile(f, b, c));
+						break;
+					case XElement e:
+						yield return ArrFrom(e, f, b);
+						break;
+
+				}
+			}
+		}
+	}
+
+
 	public static Tile empty { get; } = new(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
@@ -259,7 +345,6 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 		return new(ABGR.PremultiplySet(Foreground, alpha), ABGR.PremultiplySet(Background, alpha), Glyph);
 	}
 	public bool IsVisible => Glyph != ' ' || Background != ABGR.Transparent;
-	public static implicit operator Tile ((uint Foreground, uint Background, uint Glyph) t) => new(t.Foreground, t.Background, t.Glyph);
 }
 public record TileArr (Tile[] arr) {
 	public static implicit operator TileArr ((string str, uint Foreground, uint Background) t) => new(Tile.Arr(t.str, t.Foreground, t.Background));

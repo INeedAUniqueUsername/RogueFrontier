@@ -17,11 +17,8 @@ using System.Xml.Linq;
 using System.Reflection;
 using SFML.System;
 
+using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
-
-public static class Helper {
-	public static Vector3f ToVector3f (XY xy, float z = 0) => new(xy.xf, xy.yf, z);
-}
 partial class Program {
     static Program() {
         Height = 60;
@@ -105,12 +102,12 @@ partial class Program {
         var splashMusic = new Sound(new SoundBuffer("Assets/music/Splash.wav")) {
             Volume = 33
         };
-        var poster = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(cover)));
+        var poster = new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(cover)));
 
         var title = new TitleScreen(Width, Height, GenerateIntroSystem());
         var titleSlide = new TitleSlideOpening(title) { IsFocused = true };
 
-        var splashBack = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(splash)));
+        var splashBack = new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(splash)));
         var splashBackground = new ImageDisplay(Width / 2, Height / 2, splashBack, new Point()) { FontSize = title.FontSize * 2 };
 
         int index = 0;

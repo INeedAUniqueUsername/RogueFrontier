@@ -95,16 +95,17 @@ public class Heading : Effect {
         //Color foreground = new Color(153, 153, 153);
         var background = ABGR.Transparent;
         var p = st.segments.Select(s => s.position).Concat([st.position]);
-        var leftX = p.Min(p => p.x);
-        var rightX = p.Max(p => p.x);
-        var topX = p.Min(p => p.y);
-        var bottomX = p.Max(p => p.y);
+        var xMin = p.Min(p => p.x);
+        var xMax = p.Max(p => p.x);
+        var yMin = p.Min(p => p.y);
+        var yMax = p.Max(p => p.y);
         var f = st.world.AddEffect;
-        var l = ICellSurface.ConnectedLineThin;
-        var cg = (uint c) => new Tile(foreground, background, c);
-        f(new EffectParticle(new(leftX - 1, topX - 1), cg(l[(int)LineIndex.BottomLeft]), 1));
-        f(new EffectParticle(new(leftX - 1, bottomX + 1), cg(l[(int)LineIndex.TopLeft]), 1));
-        f(new EffectParticle(new(rightX + 1, topX - 1), cg(l[(int)LineIndex.BottomRight]), 1));
-        f(new EffectParticle(new(rightX + 1, bottomX + 1), cg(l[(int)LineIndex.TopRight]), 1));
+        var t = (int c) => new Tile(foreground, background, c);
+
+        
+        f(new EffectParticle(new(xMin - 1, yMin - 1), t(BoxInfo.IBMCGA.glyphFromInfo[new(n: Line.Single, e: Line.Single)]), 1));
+        f(new EffectParticle(new(xMin - 1, yMax + 1), t(BoxInfo.IBMCGA.glyphFromInfo[new(s: Line.Single, e: Line.Single)]), 1));
+        f(new EffectParticle(new(xMax + 1, yMin - 1), t(BoxInfo.IBMCGA.glyphFromInfo[new(n: Line.Single, w: Line.Single)]), 1));
+        f(new EffectParticle(new(xMax + 1, yMax + 1), t(BoxInfo.IBMCGA.glyphFromInfo[new(s: Line.Single, w: Line.Single)]), 1));
     }
 }

@@ -34,7 +34,7 @@ public class EffectParticle : Effect {
     public bool active => lifetime > 0;
     public Tile tile { get; set; }
     public void Update(double delta) {
-        position += Velocity / Program.TICKS_PER_SECOND;
+        position += Velocity / Constants.TICKS_PER_SECOND;
         lifetime -= delta * 60;
     }
 }
@@ -68,7 +68,7 @@ public class FadingTile : Effect {
         _Tile.Glyph);
 
     public void Update(double delta) {
-        position += Velocity / Program.TICKS_PER_SECOND;
+        position += Velocity / Constants.TICKS_PER_SECOND;
         Lifetime--;
     }
 }

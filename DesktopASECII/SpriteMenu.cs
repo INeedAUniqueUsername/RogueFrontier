@@ -1192,7 +1192,7 @@ namespace ASECII {
 
         }
         public void Save(Console renderer) {
-            File.WriteAllText($"{filepath}", ASECIILoader.SerializeObject(this));
+            File.WriteAllText($"{filepath}", ImageLoader.SerializeObject(this));
 
             var preview = sprite.preview;
 

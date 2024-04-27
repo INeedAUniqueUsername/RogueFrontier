@@ -11,63 +11,9 @@ using ASECII;
 using System.IO;
 using SFML.Audio;
 using LibGamer;
+using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
-
-
 public static partial class SScene {
-    public static Dictionary<(int, int), U> Normalize<U>(this Dictionary<(int, int), U> d) {
-        int left = int.MaxValue;
-        int top = int.MaxValue;
-        foreach ((int x, int y) p in d.Keys) {
-            left = Math.Min(left, p.x);
-            top = Math.Min(top, p.y);
-        }
-        return d.Translate(new Point(-left, -top));
-    }
-    public static Dictionary<(int, int), ColoredGlyph> LoadImage(string file) {
-        var img = ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(file));
-
-        var result = new Dictionary<(int, int), ColoredGlyph>();
-        foreach ((var p, var t) in img) {
-            result[p] = t.cg;
-        }
-        return result;
-    }
-    public static Dictionary<(int, int), ColoredGlyph> ToImage(this string[] image, Color tint) {
-        var result = new Dictionary<(int, int), ColoredGlyph>();
-        for (int y = 0; y < image.Length; y++) {
-            var line = image[y];
-            for (int x = 0; x < line.Length; x++) {
-                result[(x, y * 2)] = new ColoredGlyph(tint, Color.Black, line[x]);
-                result[(x, y * 2 + 1)] = new ColoredGlyph(tint, Color.Black, line[x]);
-            }
-        }
-        return result;
-    }
-    public static Dictionary<(int, int), U> Translate<U>(this Dictionary<(int, int), U> image, Point translate) {
-        var result = new Dictionary<(int, int), U>();
-        foreach (((var x, var y), var u) in image) {
-            result[(x + translate.X, y + translate.Y)] = u;
-        }
-        return result;
-    }
-    public static Dictionary<(int, int), U> CenterVertical<U>(this Dictionary<(int, int), U> image, Console c, int deltaX = 0) {
-        var result = new Dictionary<(int, int), U>();
-        int deltaY = (c.Height - (image.Max(pair => pair.Key.Item2) - image.Min(pair => pair.Key.Item2))) / 2;
-        foreach (((var x, var y), var u) in image) {
-            result[(x + deltaX, y + deltaY)] = u;
-        }
-        return result;
-    }
-    public static Dictionary<(int, int), U> Flatten<U>(params Dictionary<(int, int), U>[] images) {
-        var result = new Dictionary<(int x, int y), U>();
-        foreach (var image in images) {
-            foreach (((var x, var y), var u) in image) {
-                result[(x, y)] = u;
-            }
-        }
-        return result;
-    }
     public static void ProcessMouseTree(this IScreenObject root, Mouse m) {
         List<IScreenObject> s = new List<IScreenObject>();
         AddChildren(root);

@@ -96,11 +96,11 @@ public class StationType : IDesignType {
                     (FragmentDesc) o,
             [nameof(HeroImage)] = (XElement x) => {
                 if (x.TryAtt("path", out string path)) {
-                    return ColorImage.FromFile(path).Sprite;
+                    return TileImage.FromFile(path).Sprite;
                 } else {
                     var heroImageText = x.Value.Trim('\n').Replace("\r\n", "\n").Split('\n');
-                    var heroImageTint = x.TryAttColor("tint", Color.White);
-                    return heroImageText.ToImage(heroImageTint);
+                    var heroImageTint = ABGR.TryAttColor(x, "tint", ABGR.White);
+                    return SScene.ToImage(heroImageText, heroImageTint);
                 }
             },
             [nameof(discoverySound)] = (string s) => File.ReadAllBytes(s)
@@ -109,12 +109,12 @@ public class StationType : IDesignType {
 
         segments = new();
         if (e.TryAtt("structure", out var structure)) {
-            var sprite = ASECIILoader.LoadCG(structure).ToDictionary(
-                pair => (pair.Key.Item1, -pair.Key.Item2),
-                pair => pair.Value.cg);
+            var sprite = ImageLoader.LoadTile(structure).ToDictionary(
+                pair => (X:pair.Key.X, Y:-pair.Key.Y),
+                pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));
             tile = sprite.TryGetValue((0, 0), out var cg) ? new(cg) : null;
             sprite.Remove((0, 0));
-            segments.AddRange(sprite.Select((pair) => new SegmentDesc(new(pair.Key.Item1, pair.Key.Item2), pair.Value)));
+            segments.AddRange(sprite.Select((pair) => new SegmentDesc(new(pair.Key.X, pair.Key.Y), pair.Value)));
         } else {
             tile = new(e);
             if (e.HasElement("Segments", out var xmlSegments)) {

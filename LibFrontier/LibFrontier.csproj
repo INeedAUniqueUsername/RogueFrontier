@@ -6,11 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Behavior\**" />
-    <Compile Remove="CloudJumper\**" />
     <EmbeddedResource Remove="Behavior\**" />
-    <EmbeddedResource Remove="CloudJumper\**" />
     <None Remove="Behavior\**" />
-    <None Remove="CloudJumper\**" />
   </ItemGroup>
 	
     <ItemGroup>

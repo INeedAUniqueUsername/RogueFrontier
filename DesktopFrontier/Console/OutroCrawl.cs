@@ -31,7 +31,7 @@ class OutroCrawl : Console {
 
     Console cloudLayer;
     public OutroCrawl(int width, int height, Action next) : base(width, height) {
-        var frame1 = new ImageDisplay(width, height, ColorImage.FromFile("Assets/epilogue_1.asc.cg"), new());
+        var frame1 = new ImageDisplay(width, height, TileImage.FromFile("Assets/epilogue_1.asc.cg"), new());
 
         Children.Add(cloudLayer = new(width, height));
 

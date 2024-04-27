@@ -37,7 +37,7 @@ public record FlashDesc(){
             this.lifetime = lifetime;
         }
         public void Update(double delta) {
-            lifetime -= delta * Program.TICKS_PER_SECOND;
+            lifetime -= delta * Constants.TICKS_PER_SECOND;
         }
     }
     public class Particle : Effect {

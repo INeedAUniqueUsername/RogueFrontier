@@ -7,9 +7,9 @@ using SadRogue.Primitives;
 namespace RogueFrontier;
 
 public class ImageDisplay : Console {
-    public ColorImage image;
+    public TileImage image;
     public Point adjust;
-    public ImageDisplay(int width, int height, ColorImage image, Point adjust) : base(width, height) {
+    public ImageDisplay(int width, int height, TileImage image, Point adjust) : base(width, height) {
         this.image = image;
         this.adjust = adjust;
         Draw();

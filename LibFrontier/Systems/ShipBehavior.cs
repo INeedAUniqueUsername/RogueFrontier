@@ -329,7 +329,7 @@ public class FollowShip : IShipOrder {
         //Remove dock
         owner.dock.Clear();
         var velDiff = owner.velocity - target.velocity;
-        double decel = owner.shipClass.thrust * Program.TICKS_PER_SECOND / 2;
+        double decel = owner.shipClass.thrust * Constants.TICKS_PER_SECOND / 2;
         double stoppingTime = velDiff.magnitude / decel;
         double stoppingDistance = owner.velocity.magnitude * stoppingTime - (decel * stoppingTime * stoppingTime) / 2;
         var stoppingPoint = owner.position;

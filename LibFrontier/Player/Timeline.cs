@@ -10,6 +10,14 @@ namespace RogueFrontier;
 public interface IPlayerInteraction {
 	IScene GetScene (IScene prev, PlayerShip playerShip, IDockable d);
 }
+
+public class TradeMenu: IScene {
+
+    public delegate int GetPrice (Item i);
+
+    public TradeMenu (IScene prev, PlayerShip playerShip, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
+	}
+}
 public class IntroMeeting : IPlayerInteraction {
     Timeline story;
     public IntroMeeting(Timeline story) {
@@ -21,7 +29,7 @@ public class IntroMeeting : IPlayerInteraction {
             return null;
         var heroImage = t.HeroImage;
         return Intro();
-        Dialog Intro() {
+        IScene Intro() {
             var t =
 @"Docking at the front entrance of the abbey, the great
 magenta tower seems to reach into the oblivion above
@@ -37,7 +45,7 @@ You are a complete stranger here.";
             ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro2 (IScene from) {
+		IScene Intro2 (IScene prev) {
             var t =
 @"Walking into the main hall, You see a great monolith of
 sparkling crystals and glowing symbols. A low hum reflectes
@@ -56,16 +64,16 @@ The Orator today!"" the guard says.";
             ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro2b (IScene from) {
+		IScene Intro2b (IScene prev) {
             var t =
 @"You decide to step away from the station,
 much to the possible chagrin of some mysterious
 entity and several possibly preferred timelines.".Replace("\r", null);
-            return new (t, [
-                new("Undock")
+            return new Dialog(t, [
+                new("Undock", _ => ctx.Exit())
             ]) { background = heroImage };
         }
-		Dialog Intro3 (IScene from) {
+		IScene Intro3 (IScene prev) {
             var t =
 @"""Ummm, yeah, The Orator?""
 
@@ -81,7 +89,7 @@ good Listener means knowing the right time to speak!""";
             ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro4 (IScene from) {
+		IScene Intro4 (IScene prev) {
             string t =
 @"""Well, The Orator told me...
 that there is something terribly wrong
@@ -112,7 +120,7 @@ Wait, how are you saying all of this- Your mind blanks out.
             ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro5 (IScene from) {
+		IScene Intro5 (IScene prev) {
             string t =
 @"The guard replies:
 
@@ -146,7 +154,7 @@ shining through the window, ""...far out there.""
             ]) { background = heroImage };
             return sc;
         }
-		Dialog Intro6 (IScene from) {
+		IScene Intro6 (IScene prev) {
             string t =
 @"
 After a long pause, you respond.
@@ -161,11 +169,11 @@ We don't really see modern builds like yours
 around here... Not since the last war ended.
 
 You really intend to see what's out there.""";
-            return new(t, [
+            return new Dialog(t, [
                 new(@"""That is correct.""", Intro7, NavFlags.ESC)
             ]) { background = heroImage }; ;
         }
-		Dialog Intro7 (IScene from) {
+		IScene Intro7 (IScene prev) {
             string t =
 @"He looks at you with doubt.
 
@@ -178,11 +186,11 @@ I don't care how ready you think you are
 to go wherever you think you're going.
 
 Are you prepared to die?""";
-            return new(t, [
+            return new Dialog(t, [
                 new(@"""Huh?!?!?!""", Intro8)
             ]) { background = heroImage };
         }
-		Dialog Intro8 (IScene from) {
+		IScene Intro8 (IScene prev) {
             string t =
 @"He looks somewhat tense.
 
@@ -212,37 +220,37 @@ So, tell me, what is it that you intend to do?""";
                 new("...", Intro9b)
             ]) { background = heroImage };
         }
-		Dialog Intro9a (IScene from) {
+		IScene Intro9a (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"The man sighs and stares at the ground for a second.
 
 ""So you do. Okay. I won't try to change your mind.
 Just remember...""";
-            return new(t, [
+            return new Dialog(t, [
                 new("Continue", Intro11)
             ]) { background = heroImage };
         }
-		Dialog Intro9b (IScene from) {
+		IScene Intro9b (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"You pause for a moment.";
             t = t.Replace("\r", null);
-            return new(t, [
+            return new Dialog(t, [
                 new('I', @"""I intend to reach the Celestial Center.""", Intro10a),
             ]) { background = heroImage }; ;
         }
 
-		Dialog Intro10a (IScene prev) {
+		IScene Intro10a (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"""You sound uncertain there.
 Do you truly intend to do that?""";
-            return new(t, [
+            return new Dialog(t, [
                 new('I', @"I intend to reach the Celestial Center.", Intro9a),
             ]) { background = heroImage };
         }
-		Dialog Intro11 (IScene prev) {
+		IScene Intro11 (IScene prev) {
 			story.mainInteractions.Remove(this);
             string t =
 @"""You will meet many different friends and foes
@@ -263,7 +271,7 @@ Orator, have seen enough of that happen.
 
 That is all.""";
             t = t.Replace("\r", null);
-            return new(t, [
+            return new Dialog(t, [
                 new('C', @"Undock", Done),
             ]) { background = heroImage };
         }
@@ -314,11 +322,11 @@ class IntroTraining : IPlayerInteraction {
 
 ""There's still {count} drones left.""
 ".Replace("\r", null);
-                return new(t, [
+                return new Dialog(t, [
                     new("Continue")
                 ]) { background = heroImage };
             }
-			IScene Complete () {
+			Dialog Complete () {
                 var sec = (station.world.tick - startTick) / 60;
                 var t =
 @$"Benjamin meets you at the docking bay.
@@ -334,7 +342,7 @@ class IntroTraining : IPlayerInteraction {
                 return sc;
             }
 
-			IScene Explore (IScene prev) {
+			Dialog Explore (IScene prev) {
 
                 var t =
 @$"""There are lots of people - friendly or unfriendly - out there.
@@ -735,8 +743,8 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         return
             CheckConstellationArrest(prev, playerShip, source) ??
             Intro();
-        Dialog Intro() {
-            return new(
+        IScene Intro() {
+            return new Dialog(
 @$"You are docked at The Amethyst Store,
 one of several commercial stations
 established by Amethyst, Inc to serve
@@ -763,9 +771,9 @@ purchases and repair services.
             !a.source.IsAmethyst() ? -1 :
             discount ? 1 :
             3;
-		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
-            (object i) => (int)(GetStdPrice(i) * buyAdj),
-            (object i) => i.IsAmethyst() ? GetStdPrice(i) / 10 : -1);
+		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
+            (Item i) => (int)(GetStdPrice(i) * buyAdj),
+            (Item i) => i.IsAmethyst() ? GetStdPrice(i) / 10 : -1);
         int GetInstallPrice(Device d) =>
             !d.source.IsAmethyst() ? -1 : discount ? 80 : 100;
         int GetRemovePrice(Device i) =>
@@ -785,8 +793,8 @@ A heavily armored guard calls out to you.
 piece of junk off of this station!""", [new("Undock immediately")]);
         }
         return Intro();
-        Dialog Intro() {
-            return new(
+        IScene Intro() {
+            return new Dialog(
 @"You are docked at an independent branch
 of the Beowulf Club, a galaxy-wide alliance
 of civilian gunship pilots.",
@@ -814,9 +822,9 @@ of civilian gunship pilots.",
         int GetDeviceRemovalPrice(Device d) {
             return 100;
         }
-		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
             GetStdPrice,
-            (object i) => GetStdPrice(i) / 4);
+            (Item i) => GetStdPrice(i) / 4);
     }
     public IScene CamperOutpost (IScene prev, PlayerShip playerShip, Station source) {
         var lookup = playerShip.world.types.Lookup<ItemType>;
@@ -834,8 +842,8 @@ of civilian gunship pilots.",
                 pair => lookup(pair.Key),
                 pair => pair.Value));
         return Intro();
-        Dialog Intro() {
-            return new(
+        IScene Intro() {
+            return new Dialog(
 @"You are docked at a Campers Outpost,
 an independent enclave of tinkers,
 craftspersons, and adventurers.",
@@ -854,10 +862,10 @@ craftspersons, and adventurers.",
         int GetDeviceInstallPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
         int GetDeviceRemovalPrice(Device a) => a.source.IsAmethyst() ? -1 : 100;
 
-		IScene Trade (IScene from) => new TradeMenu(from, playerShip, source,
+		IScene Trade (IScene prev) => new TradeMenu(from, playerShip, source,
             GetStdPrice,
-            (object i) => GetStdPrice(i) / 4);
-		IScene Workshop (IScene from) => SMenu.Workshop(from, playerShip, recipes, null);
+            (Item i) => GetStdPrice(i) / 4);
+		IScene Workshop (IScene prev) => SMenu.Workshop(from, playerShip, recipes, null);
     }
     public TradeMenu TradeStation(IScene prev, PlayerShip playerShip, Station source) =>
         new (prev, playerShip, source, GetStdPrice, i => GetStdPrice(i) / 2);
@@ -915,7 +923,7 @@ you on the ground before you can invoke SILENCE.
             new("Undock")
         }) { background = source.type.HeroImage };
         TradeMenu Trade(IScene c) =>
-            new(c, playerShip, source, GetStdPrice, (object i) => i.armor is Armor a ?
+            new(c, playerShip, source, GetStdPrice, (Item i) => i.armor is Armor a ?
                     (int)(a.valueFactor * 0.5 * GetStdPrice(i)) :
                     -1);
     }
@@ -927,7 +935,7 @@ you on the ground before you can invoke SILENCE.
             new("Undock")
         }) { background = source.type.HeroImage };
         TradeMenu Trade(IScene c) =>
-            new(c, playerShip, source, GetStdPrice, (object i) => i.weapon is Weapon w ?
+            new(c, playerShip, source, GetStdPrice, (Item i) => i.weapon is Weapon w ?
                 (int)(w.valueFactor * 0.5 * GetStdPrice(i)) :
                 -1);
     }
@@ -937,8 +945,8 @@ you on the ground before you can invoke SILENCE.
         var friendlyOnly = ItemFilter.Parse("-OrionWarlords -IronPirates -Errorists -Perfectrons -DarkStar");
         return CheckConstellationArrest(prev, playerShip, source) ??
             Intro(prev);
-		Dialog Intro (IScene prev) {
-            return new(
+		IScene Intro (IScene prev) {
+            return new Dialog(
 @"You are docked at a Constellation Astra,
 a major residential and commercial station
 of the United Constellation.
@@ -962,15 +970,15 @@ There is a modest degree of artificial gravity here.",
                 new("Undock")
             ]) { background = source.type.HeroImage };
         }
-		IScene Trade (IScene from) =>
+		IScene Trade (IScene prev) =>
             new TradeMenu(from, playerShip, source, GetStdPrice,
-                (object i) => (!i.HasDevice() || friendlyOnly.Matches(i)) ? GetStdPrice(i) / 5 : -1
+                (Item i) => (!i.HasDevice() || friendlyOnly.Matches(i)) ? GetStdPrice(i) / 5 : -1
                 );
         int GetRepairPrice(Armor a) => !friendlyOnly.Matches(a.source) ? -1 : a.source.IsAmethyst() ? 9 : 3;
         int GetInstallPrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
         int GetRemovePrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
         int GetReplacePrice(Device d) => !friendlyOnly.Matches(d.source) ? -1 : d.source.IsAmethyst() ? 300 : 100;
-		IScene MilitiaHeadquarters (IScene from) {
+		IScene MilitiaHeadquarters (IScene prev) {
             if (!constellationMilitiaMember) {
                 return new Dialog(
 @"You enter the lobby area before the
@@ -998,7 +1006,7 @@ To join, please sign your name below.""",
                         new("Sign", Sign),
                         new("Decline", Intro)
                     ]);
-				IScene Sign (IScene from) {
+				IScene Sign (IScene prev) {
 					constellationMilitiaMember = true;
 					militiaRecordedKills.UnionWith(playerShip.shipsDestroyed);
                     return new Dialog(
@@ -1010,7 +1018,7 @@ our collective security.",
                             new("Continue", Rookie)
                         ]);
                 }
-				IScene Rookie (IScene from) {
+				IScene Rookie (IScene prev) {
                     return new Dialog(
 @"""Now *before* you run off...""
 
@@ -1162,14 +1170,14 @@ then I'll see you back here.""",
 				mainInteractions.Add(mission);
                 return null;
 				Dialog InProgress (IScene prev) {
-                    return new(
+                    return new Dialog(
 @"""Hey, you're going to destroy that station, right?""",
                         [
                             new("Undock")
                         ]);
                 }
 				Dialog Debrief (IScene prev) {
-                    return new(
+                    return new Dialog(
 @"""Thank you very much for destroying those warlords for us!
 As promised, here's your 400""",
                         [
@@ -1184,7 +1192,7 @@ As promised, here's your 400""",
                 }
             }
 			Dialog Reject (IScene prev) {
-                return new(
+                return new Dialog(
 @"""Oh man, what the hell is it with you people?
 Okay, fine, I'll just find someone else to do it.""",
                     [
@@ -1270,7 +1278,7 @@ then RECITE the words against doom.""");
 
             }
 			IScene Info (IScene prev, string desc) =>
-                new Dialog(desc, [new("Continue", Shambles)]);
+                new Dialog(desc, [new("Continue", Shambles)]) { Navigate = null };
 			IScene Shambles (IScene prev) {
                 return new Dialog(
 @"An unusual energy strikes and shakes
@@ -1301,7 +1309,7 @@ hurry in and begin checking the walls.",
             ListMenu<Item> screen = null;
             var dict = (new {
                 item_prescience_book = a(() => {
-                    screen.Transition(new Dialog(
+                    screen.Go(new Dialog(
 @"""Thank you for your donation of-
 
 Oh. This is garbage.
@@ -1319,7 +1327,7 @@ You didn't read it, did you?""",
             }).ToDict<Action>();
             void Regular() {
                 status.funds += stdPrice[screen.list.currentItem.type];
-                screen.Transition(new Dialog(
+                screen.Go(new Dialog(
 @"""Thank you for your donation of this
 resonant artifact - may The Orator smile
 upon you.""",
@@ -1344,13 +1352,13 @@ upon you.""",
                 dict[i.type.codename]();
             }
             void Escape() {
-                screen.Transition(prev);
+                screen.Go(prev);
             }
         }
     }
-    public IScene OrionWarlordsCamp (IScene home, PlayerShip playerShip, Station source) {
-		Dialog Intro (IScene prev) {
-            return new(
+    public IScene OrionWarlordsCamp (IScene prev, PlayerShip playerShip, Station source) {
+		IScene Intro (IScene prev) {
+            return new Dialog(
 source.damageSystem.GetHP() >= 50 ?
 @"You are docked at an Orion Warlords Camp.
 Enemy soldiers glare at you from the windows
@@ -1369,7 +1377,7 @@ originating from this station.",
                     source.onDestroyed -= d;
                 source.Destroy(playerShip);
                 var wreck = source.destroyed.wreck;
-                return new(
+                return new Dialog(
 @"You break down the entry gate with your primary weapon.
 You make your way to the bridge and destroy the
 black box, shutting off the distress signal.
@@ -1379,15 +1387,15 @@ You leave the station in ruins.",
                         new("Scavenge", Scavenge),
                         new("Undock")
                     ]);
-				IScene Scavenge (IScene prev) => wreck.GetDockScene(home, playerShip);
+				IScene Scavenge (IScene prev) => wreck.GetDockScene(prev, playerShip);
             }
-            return new(
+            return new Dialog(
 @"The entry gate refuses to budge...",
                 [
                     new("Continue", Intro)
                 ]);
         }
-        return Intro(home);
+        return Intro(prev);
     }
 }
 public class DestroyTarget : IPlayerInteraction, Ob<AIShip.Destroyed>, Ob<Station.Destroyed> {

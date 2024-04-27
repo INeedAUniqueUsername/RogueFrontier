@@ -40,18 +40,25 @@ public class Transmission : IPlayerMessage {
 }
 public class Message : IPlayerMessage {
     [JsonProperty]
-    public Tile[] message { get; }
-    public string text { get; }
+    public Tile[] message { get; private set; }
+    public string text { get; private set; }
     public double index;
     public double timeRemaining;
     public double flash;
+
+    private uint Foreground, Background;
     public Message() { }
     public Message(string text, uint Foreground = ABGR.White, uint Background = ABGR.Black) {
-        message = [.. text.Select(c => new Tile(Foreground, Background, c))];
-        this.text = text;
+        this.Foreground = Foreground;
+        this.Background = Background;
+        SetMessage(text);
         index = 0;
         timeRemaining = 5;
     }
+    public void SetMessage(string text) {
+        this.text = text;
+		message = [.. text.Select(c => new Tile(Foreground, Background, c))];
+	}
     public void Flash() {
         timeRemaining = 2.5;
         flash = 0.25;

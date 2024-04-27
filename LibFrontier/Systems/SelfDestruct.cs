@@ -1,4 +1,5 @@
 ﻿using Common;
+using LibGamer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,11 @@ public class SelfDestruct : Event, Ob<PlayerShip.Destroyed> {
     public void Update(double delta) {
         if (time > delta) {
             time -= delta;
-            message.message.String = $"Self destructing in {(int)time} seconds.";
+            message.SetMessage($"Self destructing in {(int)time} seconds.");
             target.AddMessage(message);
         } else {
             active = false;
-            message.message.String = $"Self destructed completed.";
+            message.SetMessage($"Self destructed completed.");
             target.AddMessage(message);
 
             target.Destroy(null);
@@ -35,7 +36,7 @@ public class SelfDestruct : Event, Ob<PlayerShip.Destroyed> {
     }
     public void Observe(PlayerShip.Destroyed d) {
         if(d.playerShip == target) {
-            message.message.String = $"Self destruction complete.";
+            message.SetMessage($"Self destruction completed.");
             target.AddMessage(message);
             active = false;
         }

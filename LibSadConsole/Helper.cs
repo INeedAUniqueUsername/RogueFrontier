@@ -225,21 +225,6 @@ public static class SConsole {
 	}
 
 
-	//https://stackoverflow.com/a/28037434
-	public static double AngleDiffDeg (double from, double to) {
-		void mod (ref double a) {
-			while(a < 0)
-				a += 360;
-			while(a >= 360)
-				a -= 360;
-		}
-
-		mod(ref from);
-		mod(ref to);
-
-		double diff = (to - from + 180) % 360 - 180;
-		return diff < -180 ? diff + 360 : diff;
-	}
 }
 
 /// <summary>

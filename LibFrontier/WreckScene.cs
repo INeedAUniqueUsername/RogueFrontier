@@ -1,12 +1,15 @@
-﻿using LibGamer;
+﻿using System.Linq;
+using System;
+using LibGamer;
 namespace RogueFrontier;
 public class WreckScene : IScene {
     Player player;
-    IScene prev;
 
     ListPane<Item> playerPane, dockedPane;
 
     DescPanel<Item> descPane;
+
+    public Action Exit;
 
     private void SetDesc(Item i) {
         if (i == null) {
@@ -19,7 +22,6 @@ public class WreckScene : IScene {
     }
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
         this.player = playerShip.person;
-        this.prev = prev;
 
         descPane = new DescPanel<Item>();
         
@@ -40,9 +42,6 @@ public class WreckScene : IScene {
             },
         };
     }
-    public void Exit() {
-        Exit(prev);
-    }
 
     bool playerSide {
         set {
@@ -53,11 +52,9 @@ public class WreckScene : IScene {
     }
     ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
 
-	public IScene.Set Go { get; set; }
-
 	public void ProcessKeyboard(KB kb) {
         if (kb[KC.Escape] == KS.Pressed) {
-            Exit();
+            Exit?.Invoke();
         } else {
             if(kb[KC.Left] == KS.Pressed) {
                 playerSide = true;

@@ -223,7 +223,7 @@ public class Armor : Device {
             _ => true
         };
         if (damageDelay > 0) {
-            damageDelay -= delta * Program.TICKS_PER_SECOND;
+            damageDelay -= delta * Constants.TICKS_PER_SECOND;
             return;
         }
         powerUse = desc.powerUse == -1 ? -1 : 0;
@@ -233,7 +233,7 @@ public class Armor : Device {
         if (hpToRecover >= 1) {
             lastRegenTick = owner.world.tick;
             powerUse = desc.powerUse;
-            recoveryHP += desc.recoveryRate * delta * Program.TICKS_PER_SECOND;
+            recoveryHP += desc.recoveryRate * delta * Constants.TICKS_PER_SECOND;
             while (recoveryHP >= 1) {
                 if (hp < maxHP) {
                     hp++;
@@ -248,7 +248,7 @@ public class Armor : Device {
         if (desc.regenRate > 0) {
             lastRegenTick = owner.world.tick;
             powerUse = desc.powerUse;
-            regenHP += desc.regenRate * delta * Program.TICKS_PER_SECOND;
+            regenHP += desc.regenRate * delta * Constants.TICKS_PER_SECOND;
             while (regenHP >= 1) {
                 if (hp < maxHP) {
                     hp++;
@@ -422,7 +422,7 @@ public class Engine : Device {
                     4);
                 ship.world.AddEffect(exhaust);
 
-                ship.velocity += XY.Polar(rotationRads, sc.thrust * delta * Program.TICKS_PER_SECOND);
+                ship.velocity += XY.Polar(rotationRads, sc.thrust * delta * Constants.TICKS_PER_SECOND);
                 if (ship.velocity.magnitude > ship.shipClass.maxSpeed) {
                     ship.velocity = ship.velocity.normal * sc.maxSpeed;
                 }
@@ -467,7 +467,7 @@ public class Engine : Device {
         void UpdateBrake() {
             if (ship.decelerating) {
                 if (ship.velocity.magnitude > 0.05) {
-                    ship.velocity -= ship.velocity.normal * Math.Min(ship.velocity.magnitude, sc.thrust * delta * Program.TICKS_PER_SECOND / 2);
+                    ship.velocity -= ship.velocity.normal * Math.Min(ship.velocity.magnitude, sc.thrust * delta * Constants.TICKS_PER_SECOND / 2);
                 } else {
                     ship.velocity = new XY();
                 }
@@ -663,9 +663,9 @@ public class Shield : Device {
     }
     public void Update(double delta, IShip owner) {
         if (delay > 0) {
-            delay -= delta * Program.TICKS_PER_SECOND;
+            delay -= delta * Constants.TICKS_PER_SECOND;
         } else {
-            regenHP += desc.regen * delta * Program.TICKS_PER_SECOND;
+            regenHP += desc.regen * delta * Constants.TICKS_PER_SECOND;
             while (regenHP >= 1) {
                 if (hp < desc.maxHP) {
                     hp++;
@@ -723,7 +723,7 @@ public class Solar : Device, PowerSource {
     public void Update(double delta, IShip owner) {
         void Update() {
             var t = owner.world.backdrop.starlight.GetBackgroundFixed(owner.position);
-            var b = t.GetBrightness();
+            var b = ABGR.GetLightness(t);
             maxOutput = (int)(b * desc.maxOutput);
         }
         switch (durability) {
@@ -865,7 +865,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         capacitor?.Update();
         timeSinceLastFire += delta;
         if (delay > 0) {
-            delay -= delta * Program.TICKS_PER_SECOND;
+            delay -= delta * Constants.TICKS_PER_SECOND;
             PeriodicUpdateProjectileDesc(owner, 30);
 
             goto Done;
@@ -967,7 +967,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         capacitor?.Update();
         timeSinceLastFire += delta;
         if (delay > 0) {
-            delay -= delta * Program.TICKS_PER_SECOND;
+            delay -= delta * Constants.TICKS_PER_SECOND;
             PeriodicUpdateProjectileDesc(owner, 30);
             goto Done;
         }

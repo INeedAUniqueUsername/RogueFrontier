@@ -15,7 +15,7 @@ public class Viewport {
     public System world;
     public Dictionary<(int, int), Tile> tiles=new();
     public ISurf Surface;
-    public Viewport(ISurf Surface, Monitor m) {
+    public Viewport(Monitor m) {
         this.Surface = Surface;
         camera = m.camera;
         world = m.world;

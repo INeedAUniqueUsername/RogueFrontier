@@ -41,7 +41,7 @@ public class Trailer {
         System w = new System();
         w.types.LoadFile("Assets/scripts/Main.xml");
 
-        var poster = new ColorImage(ASECIILoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/RogueFrontierPoster.cg")));
+        var poster = new ColorImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText("Assets/sprites/RogueFrontierPoster.cg")));
 
         Console container = new Console(Width, Height);
         GameHost.Instance.Screen = container;

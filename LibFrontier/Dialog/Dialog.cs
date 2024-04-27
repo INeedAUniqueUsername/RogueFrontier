@@ -9,43 +9,96 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TileTuple = (uint Foreground, uint Background, int Glyph);
 
+using XYI = (int X, int Y);
 namespace RogueFrontier;
+public static class SScene {
+	public static Dictionary<XYI, U> Normalize<U> (this Dictionary<XYI, U> d) {
+		int left = int.MaxValue;
+		int top = int.MaxValue;
+		foreach(XYI p in d.Keys) {
+			left = Math.Min(left, p.X);
+			top = Math.Min(top, p.Y);
+		}
+		return d.Translate(new Point(-left, -top));
+	}
+	public static Dictionary<XYI, TileTuple> LoadImage (string file) =>
+		ImageLoader.DeserializeObject<Dictionary<XYI, TileTuple>>(File.ReadAllText(file));
+	public static Dictionary<XYI, TileTuple> ToImage (this string[] image, uint tint) {
+		var result = new Dictionary<XYI, TileTuple>();
+		for(int y = 0; y < image.Length; y++) {
+			var line = image[y];
+			for(int x = 0; x < line.Length; x++) {
+				result[(x, y * 2)] = (tint, ABGR.Black, line[x]);
+				result[(x, y * 2 + 1)] = (tint, ABGR.Black, line[x]);
+			}
+		}
+		return result;
+	}
+	public static Dictionary<XYI, U> Translate<U> (this Dictionary<XYI, U> image, Point translate) {
+		var result = new Dictionary<XYI, U>();
+		foreach(((var x, var y), var u) in image) {
+			result[(x + translate.X, y + translate.Y)] = u;
+		}
+		return result;
+	}
+	public static Dictionary<XYI, U> CenterVertical<U> (this Dictionary<XYI, U> image, ISurf c, int deltaX = 0) {
+		var result = new Dictionary<XYI, U>();
+		int deltaY = (c.Height - (image.Max(pair => pair.Key.Y) - image.Min(pair => pair.Key.Y))) / 2;
+		foreach(((var x, var y), var u) in image) {
+			result[(x + deltaX, y + deltaY)] = u;
+		}
+		return result;
+	}
+	public static Dictionary<XYI, U> Flatten<U> (params Dictionary<XYI, U>[] images) {
+		var result = new Dictionary<XYI, U>();
+		foreach(var image in images) {
+			foreach(((var x, var y), var u) in image) {
+				result[(x, y)] = u;
+			}
+		}
+		return result;
+	}
+}
 
+public record SceneCtx(Action<IScene> Go, IScene prev) {
+	public void GoPrev () => Go(prev);
+	public void Exit () => Go(null);
 
+	public IScene next { set => Go(value); }
+}
 public interface IScene {
-	public delegate void Set (IScene next);
-	public Set Transition { set; get; }
 }
 public enum NavFlags : long {
 	ESC = 0b1,
 	ENTER = 0b10
 }
 public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFlags flags = 0, bool enabled = true) {
+	public delegate void Next (IScene prev);
 	public NavChoice () : this('\0', "", null, 0) { }
 	public NavChoice (string name) : this(name, null, 0) { }
 	public NavChoice (string name, Func<IScene, IScene> next, NavFlags flags = 0, bool enabled = true) : this(name.FirstOrDefault(char.IsLetterOrDigit), name, next, flags, enabled) { }
 }
 public static class SNav {
 
-	public static NavChoice DockArmorRepair (PlayerShip p, int price) =>
-		DockArmorReplacement(p, a => price);
-	public static NavChoice DockArmorRepair (PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(prev, p, GetPrice, null));
-	public static NavChoice DockArmorReplacement (PlayerShip p, int price) =>
-		DockArmorReplacement(p, a => price);
-	public static NavChoice DockArmorReplacement (PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(prev, p, GetPrice, null));
+	public static NavChoice DockArmorRepair (SceneCtx ctx, PlayerShip p, int price) =>
+		DockArmorReplacement(ctx, p, a => price);
+	public static NavChoice DockArmorRepair (SceneCtx ctx, PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(ctx, p, GetPrice, null));
+	public static NavChoice DockArmorReplacement (SceneCtx ctx, PlayerShip p, int price) =>
+		DockArmorReplacement(ctx, p, a => price);
+	public static NavChoice DockArmorReplacement (SceneCtx ctx, PlayerShip p, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(ctx, p, GetPrice, null));
 
-	public static NavChoice DockDeviceInstall (PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Install", prev => SMenu.DockDeviceInstall(prev, p, GetPrice, null));
+	public static NavChoice DockDeviceInstall (SceneCtx ctx, PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Install", prev => SMenu.DockDeviceInstall(ctx, p, GetPrice, null));
 
-	public static NavChoice DockDeviceRemoval (PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(prev, p, GetPrice, null));
+	public static NavChoice DockDeviceRemoval (SceneCtx ctx, PlayerShip p, Func<Device, int> GetPrice) =>
+		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(ctx, p, GetPrice, null));
 }
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
-	public IScene.Set Transition { get; set; }
 	public event Action<SoundDesc> PlaySound;
 	public event Action PrintComplete;
 	public string descStr;
@@ -65,6 +118,9 @@ public class Dialog : IScene {
 	int escapeIndex;
 	int lineCount;
 	public static double maxCharge = 0.5;
+
+	public Action<IScene> Navigate;
+
 	public SoundDesc button_press = new() {
 		data = File.ReadAllBytes("Assets/sounds/button_press.wav"),
 		volume = 33
@@ -137,7 +193,7 @@ public class Dialog : IScene {
 			if(c >= maxCharge) {
 				//Make sure we aren't sent back to the screen again
 				prevEnter = false;
-				Transition(navigation[navIndex].next?.Invoke(this));
+				navigation[navIndex].next.Invoke(this);
 				c = maxCharge - 0.01;
 			}
 		} else {

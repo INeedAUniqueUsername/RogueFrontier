@@ -8,7 +8,7 @@ using System.IO;
 namespace RogueFrontier;
 public interface ItemUse {
     string GetDesc(PlayerShip player, Item item);
-    void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) { }
+    void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) { }
 }
 public record DeployShip : ItemUse {
     [Req(parse = false)] public ShipClass shipClass;
@@ -19,7 +19,7 @@ public record DeployShip : ItemUse {
         });
     }
     public string GetDesc(PlayerShip player, Item item) => $"Deploy {shipClass.name}";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
         var w = new Wingmate(player);
         var a = new AIShip(
             new(player.world, shipClass, player.position),
@@ -44,7 +44,7 @@ public record DeployStation : ItemUse {
         });
     }
     public string GetDesc(PlayerShip player, Item item) => $"Deploy {stationType.name}";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
         var a = new Station(player.world, stationType, player.position) { sovereign = player.sovereign };
         player.world.AddEntity(a);
         a.CreateSegments();
@@ -58,7 +58,7 @@ public record DeployStation : ItemUse {
 public record InstallWeapon : ItemUse {
     public string GetDesc(PlayerShip player, Item item) =>
         player.cargo.Contains(item) ? "Install this weapon" : "Remove this weapon";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
         if (player.cargo.Contains(item)) {
 
             if(player.shipClass.restrictWeapon?.Matches(item) == false) {
@@ -86,8 +86,8 @@ public record RepairArmor : ItemUse {
     public RepairArmor(XElement e) {
         e.Initialize(this);
     }
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback) {
-        prev.Transition(SMenu.RepairArmorFromItem(prev, player, item, this, callback));
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback) {
+        ctx.Go(SMenu.RepairArmorFromItem(ctx, player, item, this, callback));
     }
 }
 public record InvokePower : ItemUse {
@@ -101,7 +101,7 @@ public record InvokePower : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Invoke {powerType.name} ({charges} charges remaining)";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
         player.AddMessage(new Message($"Invoked the power of {item.type.name}"));
 
         charges--;
@@ -119,8 +119,8 @@ public record Refuel : ItemUse {
         e.Initialize(this);
     }
     public string GetDesc(PlayerShip player, Item item) => "Refuel reactor";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-        prev.Transition(SMenu.RefuelFromItem(prev, player, item, this, callback));
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
+        ctx.Go(SMenu.RefuelFromItem(ctx, player, item, this, callback));
     }
 }
 public record DepleteTargetShields() : ItemUse {
@@ -129,7 +129,7 @@ public record DepleteTargetShields() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         player.GetTarget(out var t) ? $"Deplete shields on {t.name}" : "Deplete shields on target";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
 
         //var am = Common.Main.PreBind(player.AddMessage, (string s) => new Message(s));
         var am = Main.PreBind((string s) => player.AddMessage(new Message(s)));
@@ -161,8 +161,8 @@ public record ReplaceDevice() : ItemUse {
         
     public string GetDesc(PlayerShip player, Item item) =>
         $"Replace installed {from.name}";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-        prev.Transition(SMenu.ReplaceDeviceFromItem(prev, player, item, this, callback));
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
+        ctx.Go(SMenu.ReplaceDeviceFromItem(ctx, player, item, this, callback));
 
         player.cargo.Remove(item);
         callback?.Invoke();
@@ -178,8 +178,8 @@ public record RechargeWeapon() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Recharged {item.name}";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-        prev.Transition(SMenu.RechargeWeaponFromItem(prev, player, item, this, callback));
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
+        ctx.Go(SMenu.RechargeWeaponFromItem(ctx, player, item, this, callback));
         player.cargo.Remove(item);
         callback?.Invoke();
     }
@@ -195,7 +195,7 @@ public record UnlockPrescience() : ItemUse {
     });
     public string GetDesc(PlayerShip player, Item item) =>
         $"Read book";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
         if (player.powers.Contains(prescience)) {
             player.AddMessage(new Message("You already have PRESCIENCE!"));
         } else {
@@ -212,8 +212,8 @@ public record ApplyMod() : ItemUse {
     }
     public string GetDesc(PlayerShip player, Item item) =>
         $"Apply modifier to item (shows menu)";
-    public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-        prev.Transition(SMenu.SetMod(prev, player, item, mod, callback));
+    public void Invoke(SceneCtx ctx, PlayerShip player, Item item, Action callback = null) {
+        ctx.Go(SMenu.SetMod(ctx, player, item, mod, callback));
     }
 }
 public record ItemType : IDesignType {
@@ -420,7 +420,7 @@ public record WeaponDesc {
     public int damageType => Projectile.damageType;
     public IDice damageHP => Projectile.damageHP;
     public int lifetime => Projectile.lifetime;
-    public int minRange => Projectile.missileSpeed * Projectile.lifetime / (Program.TICKS_PER_SECOND * Program.TICKS_PER_SECOND); //DOES NOT INCLUDE CAPACITOR EFFECTS
+    public int minRange => Projectile.missileSpeed * Projectile.lifetime / (Constants.TICKS_PER_SECOND * Constants.TICKS_PER_SECOND); //DOES NOT INCLUDE CAPACITOR EFFECTS
     public Weapon GetWeapon(Item i) => new(i, this);
     public WeaponDesc() { }
     public WeaponDesc(TypeCollection types, XElement e) {
@@ -533,7 +533,7 @@ public record FragmentDesc {
         //.44
     }
 
-    public int range => missileSpeed * lifetime / Program.TICKS_PER_SECOND;
+    public int range => missileSpeed * lifetime / Constants.TICKS_PER_SECOND;
     public double angleInterval => spreadAngle / count;
     public int range2 => range * range;
     [Sub(required = false, multiple = true)] public HashSet<FragmentDesc> Fragment = new();

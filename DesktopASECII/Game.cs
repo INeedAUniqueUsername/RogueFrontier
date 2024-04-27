@@ -4,6 +4,7 @@ using System.IO;
 using Color = SadRogue.Primitives.Color;
 using SadConsole;
 using SadConsole.UI;
+using LibGamer;
 
 namespace ASECII {
     public class Program {
@@ -37,7 +38,7 @@ namespace ASECII {
         }
         public static void SaveState(ProgramState state) {
             if (state != null) {
-                File.WriteAllText(STATE_FILE, ASECIILoader.SerializeObject(state));
+                File.WriteAllText(STATE_FILE, ImageLoader.SerializeObject(state));
             } else {
                 File.Delete(STATE_FILE);
             }
@@ -45,9 +46,9 @@ namespace ASECII {
         public static bool LoadState() {
             if (File.Exists(STATE_FILE)) {
                 try {
-                    var state = ASECIILoader.DeserializeObject<ProgramState>(File.ReadAllText(STATE_FILE));
+                    var state = ImageLoader.DeserializeObject<ProgramState>(File.ReadAllText(STATE_FILE));
                     if(state is EditorState e && File.Exists(e.loaded)) {
-                        var sprite = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(e.loaded));
+                        var sprite = ImageLoader.DeserializeObject<SpriteModel>(File.ReadAllText(e.loaded));
 
                         sprite.OnLoad();
                         Settings.WindowTitle = $"ASECII: {sprite.filepath}";

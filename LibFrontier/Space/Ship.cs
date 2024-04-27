@@ -86,16 +86,16 @@ public class BaseShip {
     [JsonIgnore]
     public double stoppingRotation {
         get {
-            var stoppingTime = Program.TICKS_PER_SECOND * Math.Abs(rotatingVel) / (shipClass.rotationDecel);
-            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((shipClass.rotationDecel / Program.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
+            var stoppingTime = Constants.TICKS_PER_SECOND * Math.Abs(rotatingVel) / (shipClass.rotationDecel);
+            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((shipClass.rotationDecel / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
         }
     }
     [JsonIgnore]
     public double stoppingRotationWithCounterTurn {
         get {
             var stoppingRate = shipClass.rotationDecel + shipClass.rotationAccel;
-            var stoppingTime = Math.Abs(Program.TICKS_PER_SECOND * rotatingVel / stoppingRate);
-            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((stoppingRate / Program.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
+            var stoppingTime = Math.Abs(Constants.TICKS_PER_SECOND * rotatingVel / stoppingRate);
+            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((stoppingRate / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
         }
     }
     public System world;
@@ -253,7 +253,7 @@ public class BaseShip {
                     4);
                 world.AddEffect(exhaust);
 
-                velocity += XY.Polar(rotationRads, shipClass.thrust * delta * Program.TICKS_PER_SECOND);
+                velocity += XY.Polar(rotationRads, shipClass.thrust * delta * Constants.TICKS_PER_SECOND);
                 if (velocity.magnitude > shipClass.maxSpeed) {
                     velocity = velocity.normal * shipClass.maxSpeed;
                 }
@@ -290,11 +290,11 @@ public class BaseShip {
             }
             void Decel() => rotatingVel -= Math.Min(Math.Abs(rotatingVel), shipClass.rotationDecel * delta) * Math.Sign(rotatingVel); ;
         }
-        void UpdateRotation() => rotationDeg += rotatingVel * delta * Program.TICKS_PER_SECOND;
+        void UpdateRotation() => rotationDeg += rotatingVel * delta * Constants.TICKS_PER_SECOND;
         void UpdateBrake() {
             if (decelerating) {
                 if (velocity.magnitude > 0.05) {
-                    velocity -= velocity.normal * Math.Min(velocity.magnitude, shipClass.thrust * (delta * Program.TICKS_PER_SECOND) / 2);
+                    velocity -= velocity.normal * Math.Min(velocity.magnitude, shipClass.thrust * (delta * Constants.TICKS_PER_SECOND) / 2);
                 } else {
                     velocity = new XY();
                 }
