@@ -1,5 +1,5 @@
 # Rogue Frontier
-![Cover](RogueFrontier/Assets/sprites/PosterNoText.asc.png)
+![Cover](RogueFrontier/Assets/sprites/Poster.png)
 
 _Rogue Frontier_ is an ambitious ASCII-style space adventure set in an alternate timeline of *Transcendence* (and its predecessor, *Frontier*) - a space-opera roguelike by George Moromisato. The player receives an invitation from a deity known as The Orator to travel towards the Galactic Core. 
 
