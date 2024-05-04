@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cup54vmi15a75"]
+
+[ext_resource type="Script" path="res://addons/glyphdot/Surface.cs" id="1_qgcxx"]
+
+[node name="Node" type="Node"]
+
+[node name="Surface" type="Node2D" parent="."]
+script = ExtResource("1_qgcxx")
