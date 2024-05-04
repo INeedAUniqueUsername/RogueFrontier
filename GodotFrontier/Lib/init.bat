@@ -1,3 +1,2 @@
-mklink /D Frontier ..\..\Frontier
-mklink /D ASECII ..\..\ASECII
-mklink /D Common ..\..\Common
+mklink /D LibFrontier ..\..\LibFrontier
+mklink /D LibGamer ..\..\LibGamer
