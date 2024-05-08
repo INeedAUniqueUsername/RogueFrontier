@@ -24,7 +24,7 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
     Settings settings;
     System World;
     public XY camera;
-    public Dictionary<(int, int), ColoredGlyph> tiles;
+    public Dictionary<(int, int), Tile> tiles;
     XY screenCenter;
     MouseWatch mouse;
     public ActiveObject pov;
@@ -36,10 +36,10 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
         this.prev = prev;
         this.settings = settings;
         this.World = World;
-        this.camera = new XY(0.1, 0.1);
-        this.tiles = new Dictionary<(int, int), ColoredGlyph>();
-        this.screenCenter = new XY(Width / 2, Height / 2);
-        this.mouse = new MouseWatch();
+        this.camera = (0.1, 0.1);
+        this.tiles = new();
+        this.screenCenter = (Width / 2, Height / 2);
+        this.mouse = new();
 
         UseKeyboard = true;
         FocusOnMouseClick = true;
@@ -382,7 +382,7 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
 
 
         if (nearest != null) {
-            Heading.Crosshair(World, nearest.position, Color.Yellow);
+            Heading.Crosshair(World, nearest.position, ABGR.Yellow);
         }
     }
     public override void Render(TimeSpan drawTime) {
@@ -398,19 +398,18 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
 
                 var offset = new XY(x, Height - y) - screenCenter;
                 var location = camera + offset;
+                Tile t;
                 if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
-
-
-                    if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                        if (tile.Background == Color.Transparent) {
-                            tile.Background = World.backdrop.GetBackground(location, camera);
+                    if (tiles.TryGetValue(location.roundDown, out t)) {
+                        if (t.Background == ABGR.Transparent) {
+                            t = t with { Background = World.backdrop.GetBackground(location, camera) };
                         }
-                        this.SetCellAppearance(x, y, tile);
                     } else {
-                        this.SetCellAppearance(x, y, World.backdrop.GetTile(location, camera));
+                        t = World.backdrop.GetTile(location, camera);
                     }
-                } else {
-                    this.SetBackground(x, y, World.backdrop.GetBackground(location, camera));
+					this.SetCellAppearance(x, y, new ColoredGlyph(new(t.Foreground), new(t.Background), (int)t.Glyph));
+				} else {
+                    this.SetBackground(x, y, new Color(World.backdrop.GetBackground(location, camera)));
                 }
             }
         }
@@ -455,7 +454,7 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
                 a.ship.active = false;
                 World.RemoveEntity(a);
 
-                var p = new Player() { Settings = settings, Genome = new GenomeType() { name = "Human" } };
+                var p = new Player() { Genome = new GenomeType() { name = "Human" } };
                 var playerShip = new PlayerShip(p, new BaseShip(a.ship), a.sovereign);
 
                 mainframe = new Mainframe(Width, Height, null, playerShip) { IsFocused = true };

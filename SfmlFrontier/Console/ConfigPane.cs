@@ -1,4 +1,5 @@
 ﻿using ArchConsole;
+using LibGamer;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ class ConfigPane : Console {
             }
         } else if (info.KeysPressed.Any()) {
             if (currentSet.HasValue) {
-                settings.controls[currentSet.Value] = info.KeysPressed.First().Key;
+                settings.controls[currentSet.Value] = (KC)info.KeysPressed.First().Key;
                 ResetLabel(currentSet.Value);
                 currentSet = null;
             }
