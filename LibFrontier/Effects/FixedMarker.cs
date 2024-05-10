@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace RogueFrontier;
 
-class Marker : Entity {
+public class FixedMarker : Entity {
     public ulong id => 0xFFFFFFFFFFFFFFFF;
     public string Name { get; private set; }
     public XY position { get; set; }
@@ -12,7 +12,7 @@ class Marker : Entity {
     public Tile tile => null;
     public XY Velocity { get; set; }
     public System world;
-    public Marker(System world, string Name, XY Position) {
+    public FixedMarker(System world, string Name, XY Position) {
         this.world = world;
         this.Name = Name;
         this.position = Position;

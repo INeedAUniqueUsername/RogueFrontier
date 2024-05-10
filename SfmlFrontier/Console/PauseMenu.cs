@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace RogueFrontier;
 
-public class PauseScreen : ISurface {
+public class PauseScreen : ISadSurface {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
 

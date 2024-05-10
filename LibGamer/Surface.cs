@@ -21,8 +21,8 @@ public interface ISurf {
 	public void SetGlyph (int x, int y, uint g);
 	public Tile GetTile (int x, int y);
 	public void SetTile (int x, int y, Tile g);
-
 	public void Print (int x, int y, params Tile[] t);
+	public void Print (int x, int y, string str) => Print(x, y, LibGamer.Tile.Arr(str));
 	public record Grid<T>(Grid<T>.Get get, Grid<T>.Set set) {
 		public delegate T Get(int x, int y);
 		public delegate void Set (int x, int y, T t);
@@ -32,6 +32,4 @@ public interface ISurf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
-
-
 }

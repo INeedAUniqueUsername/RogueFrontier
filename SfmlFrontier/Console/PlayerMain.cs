@@ -38,7 +38,7 @@ public static class SFMLHelper {
 public record Monitor (System world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
 }
-interface ISurface{
+interface ISadSurface{
     public ScreenSurface Surface { get; }
     public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
     public Point Position { get => Surface.Position; set => Surface.Position = value; }

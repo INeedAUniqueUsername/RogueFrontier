@@ -262,7 +262,7 @@ public record SystemMarker() : SystemElement {
         e.Initialize(this);
     }
     public void Generate(LocationContext lc, TypeCollection tc, List<Entity> result = null) {
-        var m = new Marker(lc.world, name, lc.pos);
+        var m = new FixedMarker(lc.world, name, lc.pos);
         lc.world.AddEntity(m);
         result?.Add(m);
     }

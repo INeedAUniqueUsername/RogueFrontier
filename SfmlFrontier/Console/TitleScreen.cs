@@ -13,8 +13,9 @@ using ArchConsole;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using SFML.Audio;
+using LibGamer;
 namespace RogueFrontier;
-public class TitleScreen : Console {
+public class TitleScreen : IScene {
     ConfigPane config;
     LoadPane load;
     Console credits;
@@ -28,25 +29,17 @@ public class TitleScreen : Console {
     //XY screenCenter;
     public XY camera;
     public Dictionary<(int, int), ColoredGlyph> tiles;
-    public Sound titleMusic = new(new SoundBuffer("Assets/music/Title.wav")) {
-        Volume = 33
-    };
-    public TitleScreen(int width, int height, System World) : base(width, height) {
-        Focused += (o, a) => {
-            if (titleMusic.Status == SoundStatus.Playing) {
-                return;
-            }
-            titleMusic.Play();
-        };
-        FocusLost += (o, a) => titleMusic.Stop();
+    public byte[] titleMusic = File.ReadAllBytes("Assets/music/Title.wav");
 
+	public Action<IScene> Go { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+    ISurf Surface;
+	public TitleScreen(ISurf Surface, System World) {
+        this.Surface = Surface;
         this.World = World;
 
         profile = Profile.Load(out var p) ? p : new Profile();
         profile.Save();
-
-        UseKeyboard = true;
 
         //screenCenter = new XY(Width / 2, Height / 2);
 
@@ -88,7 +81,7 @@ public class TitleScreen : Console {
         credits.Children.Add(new Label("Transcendence is a trademark of Kronosaur Productions") { Position = new(0, y++) });
     }
     private void StartGame() {
-        Tones.pressed.Play();
+        //Tones.pressed.Play();
         SadConsole.Game.Instance.Screen = new TitleSlideIn(this, new PlayerCreator(this, World, settings, StartCrawl)) { IsFocused = true };
 
         void StartCrawl(ShipSelectorModel context) {
@@ -97,7 +90,6 @@ public class TitleScreen : Console {
             do { file = $"{loc}-{new Rand().NextInteger(9999)}.sav"; }
             while (File.Exists(file));
             var player = new Player() {
-                Settings = settings,
                 file = file,
                 name = context.playerName,
                 Genome = context.playerGenome,
@@ -108,7 +100,7 @@ public class TitleScreen : Console {
             var playerClass = playable[index];
 
             IntroCrawl crawl = null;
-            crawl = new(Width, Height, () => null) { IsFocused = true };
+            crawl = new(Surface, () => null) { IsFocused = true };
             SadConsole.Game.Instance.Screen = crawl;
 
             var crawlMusic = new Sound(new SoundBuffer("Assets/music/Crawl.wav")) {
@@ -128,7 +120,7 @@ public class TitleScreen : Console {
                 var seed = player.name.GetHashCode();
                 var u = new Universe(universeDesc, World.types, new(seed));
 
-                var start = u.GetAllEntities().OfType<Marker>().First(m => m.Name == "Start");
+                var start = u.GetAllEntities().OfType<FixedMarker>().First(m => m.Name == "Start");
                 var w = start.world;
                 start.active = false;
                 var playerStart = start.position;
@@ -567,7 +559,7 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
         Universe u = new Universe(universeDesc, World.types, new Rand(seed));
 
         var quickStartClass = "ship_quietus";
-        var ent = u.GetAllEntities().OfType<Marker>().ToList();
+        var ent = u.GetAllEntities().OfType<FixedMarker>().ToList();
         var marker = ent.First(e => e.Name == "Start");
         var w = marker.world;
         var playerClass = w.types.Lookup<ShipClass>(quickStartClass);
