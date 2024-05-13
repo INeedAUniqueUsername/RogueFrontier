@@ -4,26 +4,36 @@ using System;
 using System.Collections.Generic;
 using Console = SadConsole.Console;
 using SadConsole.Input;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class ExitTransition : Console {
-    ScreenSurface prev, next;
+public class ExitTransition : IScene {
+    IScene prev;
+    Action next;
+    Sf sf_prev;
+    Sf sf;
     public class Particle {
         public int x, destY;
         public double y, delay;
     }
     HashSet<Particle> particles;
     double time;
-    public ExitTransition(ScreenSurface prev, ScreenSurface next) : base(prev.Surface.Width, prev.Surface.Height) {
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public ExitTransition(IScene prev, Sf sf_prev, Action next) {
         this.prev = prev;
+        this.sf_prev = sf_prev;
         this.next = next;
+        this.sf = new Sf(sf_prev.Width, sf_prev.Height);
         InitParticles();
     }
     public void InitParticles() {
         particles = new HashSet<Particle>();
-        for (int y = 0; y < Height / 2; y++) {
-            for (int x = 0; x < Width; x++) {
+        for (int y = 0; y < sf.Height / 2; y++) {
+            for (int x = 0; x < sf.Width; x++) {
                 particles.Add(new Particle() {
                     x = x,
                     y = -1,
@@ -32,28 +42,26 @@ public class ExitTransition : Console {
                 });
             }
         }
-        for (int y = Height / 2; y < Height; y++) {
-            for (int x = 0; x < Width; x++) {
+        for (int y = sf.Height / 2; y < sf.Height; y++) {
+            for (int x = 0; x < sf.Width; x++) {
                 particles.Add(new Particle() {
                     x = x,
-                    y = Height,
+                    y = sf.Height,
                     destY = y,
                     delay = (1 + Math.Sin(Math.Sin(x) + Math.Sin(y))) * 3 / 2
                 });
             }
         }
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void HandleKey(KB kb) {
+        if (kb[KC.Enter] == KS.Pressed) {
             Transition();
         }
-        return base.ProcessKeyboard(keyboard);
     }
     public void Transition() {
-        SadConsole.Game.Instance.Screen = next;
-        next.IsFocused = true;
+        next();
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         prev.Update(delta);
         time += delta.TotalSeconds / 2;
         if (time < 2) {
@@ -70,14 +78,13 @@ public class ExitTransition : Console {
         } else {
             Transition();
         }
-        base.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
-        prev.Render(delta);
-        base.Render(delta);
-        this.Clear();
+    public void Render(TimeSpan delta) {
+        Draw(sf_prev);
+        sf.Clear();
         foreach (var p in particles) {
-            this.SetCellAppearance(p.x, (int)p.y, new ColoredGlyph(Color.Black, Color.Black, ' '));
+            sf.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.Black, ' '));
         }
+        Draw(sf);
     }
 }

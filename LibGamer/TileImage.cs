@@ -22,7 +22,7 @@ public class TileImage {
             this.Sprite[(p.X - origin.X, p.Y - origin.Y)] = t;
         }
     }
-    public void Render(ISurf onto, XYI pos) {
+    public void Render(Sf onto, XYI pos) {
         foreach ((var p, var t) in Sprite) {
             (var x, var y) = (pos.X + p.x, pos.Y + p.y);
             onto.Tile[x, y] = t;

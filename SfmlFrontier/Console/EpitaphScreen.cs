@@ -13,19 +13,21 @@ public class EpitaphScreen : IScene {
     Mainframe playerMain;
     Epitaph epitaph;
 
-    ISurf Surface;
-	public Action<IScene> Go { set; get; }
+    Sf Surface;
+    public Action<IScene> Go { set; get; } = _ => { };
+    public Action<Sf> Draw { set; get; } = _ => { };
 
-	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph, ISurf Surface) {
+	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
         this.epitaph = epitaph;
-        this.Surface = Surface;
-
+        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height);
+#if false
         this.Children.Add(new LabelButton("Resurrect", Resurrect) {
             Position = new Point(1, Height / 2 - 4), FontSize = playerMain.FontSize * 2
         });
 
         this.Children.Add(new LabelButton("Title Screen", Exit) { Position = new Point(1, Height / 2 - 2), FontSize = playerMain.FontSize * 2 });
+#endif
     }
     public void Resurrect() {
         var playerShip = playerMain.playerShip;
@@ -55,10 +57,9 @@ public class EpitaphScreen : IScene {
 
         playerMain.silenceSystem.AddEntity(playerShip);
 
-        GameHost.Instance.Screen = new FadeIn(new Pause(playerMain, Resume, 2)) { IsFocused = true };
+        Go(new FadeIn(new Pause(playerMain.sf, Resume, 2), playerMain.sf));
         void Resume() {
-            GameHost.Instance.Screen = playerMain;
-            playerMain.IsFocused = true;
+            Go(playerMain);
             playerMain.ShowUI();
         }
     }
@@ -101,7 +102,8 @@ public class EpitaphScreen : IScene {
         */
         TitleScreen();
         void TitleScreen() {
-            SadConsole.Game.Instance.Screen = new TitleSlideOpening(new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe))) { IsFocused = true };
+            var ts = new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe));
+            Go(new TitleSlideOpening(ts, ts.sf));
         }
     }
     public void Render(TimeSpan delta) {
@@ -121,40 +123,43 @@ public class EpitaphScreen : IScene {
         }
     }
 }
-
 public class IntermissionScreen : IScene {
     Mainframe playerMain;
     LiveGame game;
     string desc;
 
-	public Action<IScene> Go { set; get; }
-    ISurf Surface;
+    public Action<IScene> Go { set; get; } = _ => { };
+    public Action<Sf> Draw { get; set; } = _ => { };
+    Sf Surface;
 
-	public IntermissionScreen(ISurf Surface, Mainframe playerMain, LiveGame game, string desc) {
-        this.Surface = Surface;
+	public IntermissionScreen(Mainframe playerMain, LiveGame game, string desc) {
+        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height);
         this.playerMain = playerMain;
         this.game = game;
         this.desc = desc;
+#if false
         Children.Add(new LabelButton("Save & Continue", Continue) {
             Position = new Point(1, Surface.Height / 2 - 4), FontSize = playerMain.FontSize * 2
         });
         Children.Add(new LabelButton("Save & Quit", Exit) {
             Position = new Point(1, Surface.Height / 2 - 2), FontSize = playerMain.FontSize * 2
         });
+#endif
     }
     public void Continue() {
         game.Save();
         game.OnLoad(playerMain);
-        GameHost.Instance.Screen = new TitleSlideOpening(new Pause(playerMain, Resume, 4), false) { IsFocused = true };
+
+        Go(new TitleSlideOpening(new Pause(playerMain.sf, Resume, 4), playerMain.sf));
         void Resume() {
-            GameHost.Instance.Screen = playerMain;
-            playerMain.IsFocused = true;
+            Go(playerMain);
             playerMain.ShowUI();
         }
     }
     public void Exit() {
         game.Save();
-        Game.Instance.Screen = new TitleSlideOpening(new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe))) { IsFocused = true };
+        var ts = new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe));
+		Go(new TitleSlideOpening(ts, ts.sf));
     }
     public void Render(TimeSpan delta) {
         Surface.Clear();
@@ -167,14 +172,20 @@ public class IntermissionScreen : IScene {
 }
 
 public class IdentityScreen : IScene {
-    ISurf Surface;
+    Sf Surface;
     Mainframe playerMain;
-    public IdentityScreen(ISurf Surface, Mainframe playerMain) {
-        this.Surface = Surface;
+
+    public Action<IScene> Go { set; get; } = _ => { };
+    public Action<Sf> Draw { set; get; } = _ => { };
+
+	public IdentityScreen(Mainframe playerMain) {
+        this.Surface = new Sf(Program.WIDTH, Program.HEIGHT);
         this.playerMain = playerMain;
+#if false
         Children.Add(new LabelButton("Continue", Continue) {
             Position = new Point(1, Surface.Height / 2 - 4), FontSize = playerMain.FontSize * 2
         });
+#endif
         /*
         Children.Add(new LabelButton("Save & Quit", Exit) {
             Position = new Point(1, Height / 2 - 2), FontSize = playerMain.FontSize * 2
@@ -182,19 +193,16 @@ public class IdentityScreen : IScene {
         */
     }
     public void Continue() {
-        GameHost.Instance.Screen = playerMain;
-        playerMain.IsFocused = true;
+        Go(playerMain);
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         Surface.Clear();
         var str = playerMain.playerShip.GetMemorial("Alive");
         int y = 2;
         foreach (var line in str.Replace("\r", "").Split('\n')) {
             Surface.Print(2, y++, line);
         }
-        base.Render(delta);
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        return base.ProcessKeyboard(keyboard);
+    public void ProcessKey(KB kb) {
     }
 }

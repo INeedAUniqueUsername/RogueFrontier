@@ -4,21 +4,25 @@ using System;
 using System.Linq;
 using SadRogue.Primitives;
 using Console = SadConsole.Console;
+using LibGamer;
 
 namespace RogueFrontier;
 
-class MinimalCrawlScreen : Console {
+class MinimalCrawlScreen : IScene {
+    public Sf sf;
     private Action next;
     private readonly string text;
     bool speedUp;
     int index;
     int tick;
-
-    public MinimalCrawlScreen(string text, Action next) : base(text.Split('\n').Max(l => l.Length), text.Split('\n').Length) {
+    public Action<IScene> Go { get; set; } = _ => { };
+    public Action<Sf> Draw { get; set; } = _ => { };
+	public MinimalCrawlScreen(Sf prev, string text, Action next) {
+        this.sf = new Sf(text.Split('\n').Max(l => l.Length), text.Split('\n').Length);
         this.next = next;
         this.text = text;
     }
-    public override void Update(TimeSpan time) {
+    public void Update(TimeSpan time) {
         if (index < text.Length) {
             tick++;
             if (speedUp) {
@@ -32,10 +36,8 @@ class MinimalCrawlScreen : Console {
             next();
         }
     }
-    public override void Render(TimeSpan drawTime) {
-        base.Render(drawTime);
-        this.Clear();
-
+    public void Render(TimeSpan drawTime) {
+        sf.Clear();
         int x = 0;
         int y = 0;
         for (int i = 0; i < index; i++) {
@@ -43,12 +45,13 @@ class MinimalCrawlScreen : Console {
                 x = 0;
                 y++;
             } else {
-                this.SetCellAppearance(x, y, new ColoredGlyph(Color.White, Color.Black, text[i]));
+                sf.SetTile(x, y, new Tile(ABGR.White, ABGR.Black, text[i]));
                 x++;
             }
         }
+        Draw(sf);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public void HandleKey(Keyboard info) {
         if (info.IsKeyPressed(SadConsole.Input.Keys.Enter)) {
             if (speedUp) {
                 index = text.Length;
@@ -56,7 +59,5 @@ class MinimalCrawlScreen : Console {
                 speedUp = true;
             }
         }
-
-        return base.ProcessKeyboard(info);
     }
 }

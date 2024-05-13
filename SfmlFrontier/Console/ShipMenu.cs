@@ -9,37 +9,47 @@ using Common;
 using ArchConsole;
 using SFML.Audio;
 using CloudJumper;
+using LibGamer;
 namespace RogueFrontier;
-class ShipMenu : ScreenSurface {
-    public ScreenSurface prev;
+class ShipMenu : IScene {
+    public IScene prev;
     public PlayerShip playerShip;
     public Timeline story;
-    //Idea: Show an ASCII-art map of the ship where the player can walk around
-    public ShipMenu(ScreenSurface prev, PlayerShip playerShip, Timeline story) : base(prev.Surface.Width, prev.Surface.Height) {
+
+    public Sf sf;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	//Idea: Show an ASCII-art map of the ship where the player can walk around
+	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {
+        this.sf = new Sf(sf_prev.Width, sf_prev.Height, 1);
         this.prev = prev;
         this.playerShip = playerShip;
         this.story = story;
-        int x = 1, y = Surface.Height - 9;
+        int x = 1, y = sf.Height - 9;
+#if false
         Children.Add(new LabelButton("[A] Active Devices", ShowPower) { Position = (x, y++) });
         Children.Add(new LabelButton("[C] Cargo", ShowCargo) { Position = (x, y++) });
         Children.Add(new LabelButton("[D] Devices", ShowCargo) { Position = (x, y++) });
         Children.Add(new LabelButton("[I] Invoke Items", ShowInvokable) { Position = (x, y++) });
         Children.Add(new LabelButton("[M] Missions", ShowMissions) { Position = (x, y++) });
         Children.Add(new LabelButton("[R] Refuel", ShowRefuel) { Position = (x, y++) });
+#endif
     }
-    public override void Render(TimeSpan delta) {
-        Surface.Clear();
-        this.RenderBackground();
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        sf.RenderBackground();
         var name = playerShip.shipClass.name;
-        var x = Surface.Width / 4 - name.Length / 2;
+        var x = sf.Width / 4 - name.Length / 2;
         var y = 4;
         void Print(int x, int y, string s) =>
-            Surface.Print(x, y, s, Color.White, Color.Black);
+            sf.Print(x, y, s, ABGR.White, ABGR.Black);
         void Print2(int x, int y, string s) =>
-            Surface.Print(x, y, s, Color.White, Color.Black.SetAlpha(102));
+            sf.Print(x, y, s, ABGR.White, ABGR.SetA(ABGR.Black, 102));
         Print(x, y, name);
         var map = playerShip.shipClass.playerSettings?.map ?? new string[] { "" };
-        x = Math.Max(0, Surface.Width / 4 - map.Select(line => line.Length).Max() / 2);
+        x = Math.Max(0, sf.Width / 4 - map.Select(line => line.Length).Max() / 2);
         y = 2;
         int width = map.Max(l => l.Length);
         foreach (var line in map) {
@@ -54,7 +64,7 @@ class ShipMenu : ScreenSurface {
         Print(x, y, $"{$"Max Speed: {playerShip.shipClass.maxSpeed}",-16}{$"Rotate deceleration: {playerShip.shipClass.rotationDecel,3} deg/s^2"}");
         y++;
         Print(x, y, $"{"",-16}{$"Rotate max speed:    {playerShip.shipClass.rotationMaxSpeed * 30,3} deg/s^2"}");
-        x = Surface.Width / 2;
+        x = sf.Width / 2;
         y = 2;
         var pl = playerShip.person;
         Print(x, y++, "[Player]");
@@ -112,18 +122,19 @@ class ShipMenu : ScreenSurface {
         if (playerShip.messages.Any()) {
             Print(x, y++, "[Messages]");
             foreach (var m in playerShip.messages) {
-                Surface.Print(x, y++, m.Draw());
+                sf.Print(x, y++, m.Draw());
             }
             y++;
         }
-        base.Render(delta);
+        
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public void HandleKey(Keyboard info) {
         Predicate<Keys> pr = info.IsKeyPressed;
         if (pr(Keys.S) || pr(Keys.Escape)) {
+#if false
             Tones.pressed.Play();
-            prev.IsFocused = true;
-            Parent.Children.Remove(this);
+#endif
+            Go(prev);
         } else if (pr(Keys.A)) {
             ShowPower();
         } else if (pr(Keys.C)) {
@@ -139,19 +150,12 @@ class ShipMenu : ScreenSurface {
         } else if (pr(Keys.R)) {
             ShowRefuel();
         }
-        return base.ProcessKeyboard(info);
     }
-    public void ShowInvokable() => Transition(SScene.Usable(this, playerShip));
-    public void ShowPower() => Transition(SScene.DeviceManager(this, playerShip));
-    public void ShowCargo() => Transition(SScene.Cargo(this, playerShip));
-    public void ShowLoadout() => Transition(SScene.Installed(this, playerShip));
-    public void ShowLogs() => Transition(SScene.Logs(this, playerShip));
-    public void ShowMissions() => Transition(SScene.Missions(this, playerShip, story));
-    public void ShowRefuel() => Transition(SScene.RefuelReactor(this, playerShip));
-    public void Transition(ScreenSurface s) {
-        Tones.pressed.Play();
-        Parent.Children.Add(s);
-        Parent.Children.Remove(this);
-        s.IsFocused = true;
-    }
+    public void ShowInvokable() => Go(SMenu.Usable(this, playerShip));
+    public void ShowPower() => Go(SMenu.DeviceManager(this, playerShip));
+    public void ShowCargo() => Go(SMenu.Cargo(this, playerShip));
+    public void ShowLoadout() => Go(SMenu.Installed(this, playerShip));
+    public void ShowLogs() => Go(SMenu.Logs(this, playerShip));
+    public void ShowMissions() => Go(SMenu.Missions(this, playerShip, story));
+    public void ShowRefuel() => Go(SMenu.RefuelReactor(this, playerShip));
 }

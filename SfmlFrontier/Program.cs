@@ -21,11 +21,11 @@ using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
 partial class Program {
     static Program() {
-        Height = 60;
-        Width = Height * 5 / 3;
+        HEIGHT = 60;
+        WIDTH = HEIGHT * 5 / 3; //100
     }
-    public static int Width, Height;
-    public static string font = ExpectFile("Assets/sprites/IBMCGA+.font");
+    public static int WIDTH, HEIGHT;
+    public static string FONT_8X8 = ExpectFile("Assets/sprites/IBMCGA+.font");
     public static string main = ExpectFile("Assets/scripts/Main.xml");
     public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.asc.cg");
     public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.asc.cg");
@@ -74,12 +74,12 @@ partial class Program {
         StartGame(StartRegular);
     }
 
-	public static void StartGame(Action OnStart) {
+	public static void StartGame(Action<GameHost> OnStart) {
         if (!Directory.Exists("save"))
             Directory.CreateDirectory("save");
         //SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;
-        Game.Create(Width, Height, font, (o, gh) => { });
-        Game.Instance.Started += (o, gh)=>OnStart();
+        Game.Create(WIDTH, HEIGHT, FONT_8X8, (o, gh) => { });
+        Game.Instance.Started += (o, gh)=>OnStart(gh);
         Game.Instance.Run();
         Game.Instance.Dispose();
     }
@@ -91,11 +91,32 @@ partial class Program {
         }
         return w;
     }
-    public static void StartRegular() {
+    public static void StartRegular(GameHost host) {
 #if false
             GameHost.Instance.Screen = new BackdropConsole(Width, Height, new Backdrop(), () => new Common.XY(0.5, 0.5));
 			return;
 #endif
+        IScene current = null;
+        void Go(IScene next) {
+            if(current is { } prev) {
+                prev.Go -= Go;
+                prev.Draw -= Draw;
+            }
+            current = next;
+            current.Go += Go;
+            current.Draw += Draw;
+        };
+        void Draw(Sf sf) {
+        }
+        Go(null);
+        host.FrameUpdate += (o, gh) => {
+            current.Update(gh.UpdateFrameDelta);
+        };
+        host.FrameRender += (o, gh) => {
+            current.Render(gh.DrawFrameDelta);
+        };
+
+#if false
         //var files = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}save", "*.trl");
         //SaveGame.Deserialize(File.ReadAllText(files.First()));
 
@@ -104,27 +125,27 @@ partial class Program {
         };
         var poster = new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(cover)));
 
-        var title = new TitleScreen(Width, Height, GenerateIntroSystem());
+        var title = new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem());
         var titleSlide = new TitleSlideOpening(title) { IsFocused = true };
 
         var splashBack = new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(splash)));
-        var splashBackground = new ImageDisplay(Width / 2, Height / 2, splashBack, new Point()) { FontSize = title.FontSize * 2 };
+        var splashBackground = new ImageDisplay(WIDTH / 2, HEIGHT / 2, splashBack, new Point()) { FontSize = title.FontSize * 2 };
 
         int index = 0;
         KeyWatcher container = null;
-        container = new KeyWatcher(Width, Height, (k) => {
+        container = new KeyWatcher(WIDTH, HEIGHT, (k) => {
             if (k.IsKeyPressed(Keys.Enter)) {
                 switch (index) {
                     case 1: {
                             container.Children.Clear();
-                            Con c = new(Width, Height);
+                            Con c = new(WIDTH, HEIGHT);
                             container.Children.Add(c);
                             ShowOpening(c);
                             break;
                         }
                     case 2: {
                             container.Children.Clear();
-                            Con c = new(Width, Height);
+                            Con c = new(WIDTH, HEIGHT);
                             container.Children.Add(c);
                             ShowPoster(c);
                             break;
@@ -173,7 +194,7 @@ partial class Program {
         }
         void ShowPause(Con prev) {
             Con c = null;
-            c = new PauseTransition(Width, Height, 1, prev, () => ShowFade(c));
+            c = new PauseTransition(WIDTH, HEIGHT, 1, prev, () => ShowFade(c));
 
             prev.Parent.Children.Add(c);
             prev.Parent.Children.Remove(prev);
@@ -227,7 +248,7 @@ more than just a dream...
         }
         void ShowPause2(Con prev) {
             Con c = null;
-            c = new PauseTransition(Width, Height, 1, prev, () => ShowPoster(c));
+            c = new PauseTransition(WIDTH, HEIGHT, 1, prev, () => ShowPoster(c));
 
             prev.Parent.Children.Add(c);
             prev.Parent.Children.Remove(prev);
@@ -235,7 +256,7 @@ more than just a dream...
         void ShowPoster(Con prev) {
             index = 3;
             var display = new ImageDisplay(poster.Size.X, poster.Size.Y, poster,
-                new Point(Width / 2 - poster.Size.X / 2 + 4, -5)) {
+                new Point(WIDTH / 2 - poster.Size.X / 2 + 4, -5)) {
                 FontSize = title.FontSize * 3 / 4
             };
 
@@ -266,5 +287,6 @@ more than just a dream...
             GameHost.Instance.Screen = titleSlide;
         }
         //GameHost.Instance.Screen = new TitleDraw();
-    }
+#endif
+	}
 }

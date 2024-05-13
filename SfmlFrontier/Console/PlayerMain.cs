@@ -23,18 +23,9 @@ using System.Numerics;
 using LibGamer;
 using SFML.System;
 using System.Xml.Linq;
+using SfmlFrontier;
+using System.Data;
 namespace RogueFrontier;
-
-public static class SFMLHelper {
-	public static Vector3f ToVector3f (XY xy, float z = 0) => new(xy.xf, xy.yf, z);
-
-    public static KB FromKeyboard(Keyboard info) => new(
-		[.. info.KeysPressed.Select(k => (KC)k.Key)],
-		[.. info.KeysDown.Select(k => (KC)k.Key)],
-		[.. info.KeysReleased.Select(k => (KC)k.Key)]
-		);
-}
-
 public record Monitor (System world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
 }
@@ -44,25 +35,20 @@ interface ISadSurface{
     public Point Position { get => Surface.Position; set => Surface.Position = value; }
 }
 //SadConsole-specific code
-public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
-    public record MainScene(Mainframe main) : IScene {
-        public Action<IScene> Go { set; get; } = s => {
-            return;
-        };
-    }
-
-    public void Observe(PlayerShip.Destroyed ev) {
+public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
+    public Action<IScene> Go { set; get; } = s => { };
+    public Action<Sf> Draw { set; get; } = _ => { };
+    public Action SetFocus = () => { };
+	public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
         OnPlayerDestroyed($"Destroyed by {d?.name ?? "unknown forces"}", w);
     }
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+    public Sf sf;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     public System world => playerShip.world;
-
-    MainScene mainScene;
-
     public Camera camera { get; private set; }
-    public Profile profile;
+	public Profile profile;
     public Timeline story;
     public PlayerShip playerShip;
     public PlayerControls playerControls;
@@ -94,9 +80,17 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public Sound music;
     public System silenceSystem;
     public Monitor monitor;
-    public Mainframe(int Width, int Height, Profile profile, PlayerShip playerShip) : base(Width, Height) {
-        UseMouse = true;
-        UseKeyboard = true;
+
+    public IScene dialog;
+    private void SetDialog(IScene dialog) {
+        if(this.dialog is { } prev) prev.Go -= SetDialog;
+        this.dialog = dialog;
+        dialog.Go += SetDialog;
+    }
+
+
+    public Mainframe(int Width, int Height, Profile profile, PlayerShip playerShip) {
+        sf = new(Width, Height);
         camera = new();
         this.profile = profile;
         this.story = new(playerShip);
@@ -119,18 +113,17 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         }
         silenceListener.Register(playerShip);
 
-        mainScene = new(this);
 		monitor = new(world, playerShip, camera);
 
 		audio = new(playerShip);
         audio.Register(playerShip.world.universe);
 
         back = new(monitor);
-        viewport = new(monitor);
+        viewport = new(Width, Height, monitor);
         uiMegamap = new(monitor, world.backdrop.layers.Last());
         vignette = new(this);
         sceneContainer = new(Width, Height);
-        sceneContainer.Focused += (e, o) => this.IsFocused = true;
+        sceneContainer.Focused += (e, o) => SetFocus();
         uiMain = new(monitor);
         uiEdge = new(monitor);
         uiMinimap = new(monitor);
@@ -142,8 +135,6 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         networkMap = new(this) { IsVisible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
         systems = new(new List<System>(playerShip.world.universe.systems.Values));
-        //Don't allow anyone to get focus via mouse click
-        FocusOnMouseClick = false;
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {
@@ -163,8 +154,8 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         pauseScreen.IsVisible = false;
     }
     public void Jump() {
-        var prevViewport = new Viewport(monitor with { camera = new(playerShip.position)});
-        var nextViewport = new Viewport(monitor);
+        var prevViewport = new Viewport(Width, Height, monitor with { camera = new(playerShip.position)});
+        var nextViewport = new Viewport(Width, Height, monitor);
 
         back = new(nextViewport);
         viewport = nextViewport;
@@ -182,13 +173,13 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         var destGate = gate.destGate;
         if (destGate == null) {
             world.entities.Remove(playerShip);
-            transition = new GateTransition(new Viewport(monitor.FreezeCamera), null, () => {
+            transition = new GateTransition(new Viewport(Width, Height, monitor.FreezeCamera), null, () => {
                 transition = null;
                 OnPlayerLeft();
             });
             return;
         }
-        var prevViewport = new Viewport(monitor.FreezeCamera);
+        var prevViewport = new Viewport(Width, Height, monitor.FreezeCamera);
         world.entities.Remove(playerShip);
 
         var nextWorld = destGate.world;
@@ -196,7 +187,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         playerShip.ship.position = destGate.position + (playerShip.ship.position - gate.position);
         nextWorld.entities.Add(playerShip);
         nextWorld.effects.Add(new Heading(playerShip));
-        var nextViewport = new Viewport(monitor with { world = nextWorld });
+        var nextViewport = new Viewport(Width, Height, monitor with { world = nextWorld });
 
         back = new(nextViewport);
         viewport = nextViewport;
@@ -206,35 +197,27 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     }
     public void OnIntermission(Lis<LiveGame.LoadHook> hook = null) {
         HideAll();
-        Game.Instance.Screen = new ExitTransition(this, EndCrawl()) { IsFocused = true };
-        ScreenSurface EndCrawl() {
-            MinimalCrawlScreen ds = null;
-            ds = new("Intermission\n\n", EndPause) {
-                Position = new(Surface.Width / 4, 8), IsFocused = true
-            };
-            void EndPause() {
-                Game.Instance.Screen = new Pause(ds, EndGame, 3) { IsFocused = true };
-                void EndGame() {
-                    Game.Instance.Screen = new IntermissionScreen(
-                        this,
-                        new(world, playerShip, hook),
-                        $"Fate unknown") { IsFocused = true };
-                }
-            }
-            return ds;
-        }
+        Go(new ExitTransition(this, this.sf, () => {
+			MinimalCrawlScreen ds = null;
+			ds = new(sf, "Intermission\n\n", EndPause);
+			void EndPause () {
+				Go(new Pause(ds.sf, EndGame, 3));
+				void EndGame () {
+					Go(new IntermissionScreen(
+						this,
+						new(world, playerShip, hook),
+						$"Fate unknown"));
+				}
+			}
+            Go(ds);
+		}));
     }
     public void OnPlayerLeft() {
         HideAll();
         world.entities.Remove(playerShip);
-        Game.Instance.Screen = new OutroCrawl(Width, Height, EndGame);
+        Go(new OutroCrawl(Width, Height, EndGame));
         void EndGame() {
-            Game.Instance.Screen = new EpitaphScreen(this,
-                new() {
-                    desc = $"Left Human Space",
-                    deathFrame = null,
-                    wreck = null
-                }) { IsFocused = true };
+            Go(new EpitaphScreen(this, new() { desc = $"Left Human Space", deathFrame = null, wreck = null }));
         }
     }
     public void OnPlayerDestroyed(string message, Wreck wreck) {
@@ -245,7 +228,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         playerShip.ship.silence = 0;
         HideAll();
         //Get a snapshot of the player
-        var size = Surface.Height;
+        var size = sf.Height;
         var deathFrame = new Tile[size, size];
         var center = new XY(size / 2, size / 2);
         for (int y = 0; y < size; y++) {
@@ -275,9 +258,9 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         playerShip.autopilot = false;
         //Bug: Background is not included because it is a separate console
         var ds = new EpitaphScreen(this, ep);
-        var dt = new DeathTransition(this, ds);
-        var dp = new DeathPause(this, dt) { IsFocused = true };
-        SadConsole.Game.Instance.Screen = dp;
+        var dt = new DeathTransition(this, sf, ds);
+        var dp = new DeathPause(this, dt);
+        Go(dp);
         Task.Run(() => {
             lock (world) {
                 StreamWriter w = null;
@@ -324,12 +307,12 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             if (playerShip.dock is { justDocked: true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
                 var scene =
-                    story.GetScene(mainScene, playerShip, d) ??
-                    d.GetDockScene(mainScene, playerShip);
+                    story.GetScene(this, playerShip, d) ??
+                    d.GetDockScene(this, playerShip);
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    sceneContainer.Children.Add(new ScanTransition(this) { IsFocused = true });
+                    SetDialog(new ScanTransition(scene));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -338,9 +321,8 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         camera.position = playerShip.position;
         //frameRendered = false;
         //Required to update children
-        base.Update(delta);
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         //if(!frameRendered) return;
         if (updatesSinceRender > 2) return;
         updatesSinceRender++;
@@ -404,11 +386,11 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
 
             if (playerShip.dock is {  justDocked:true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
-                var scene = story.GetScene(mainScene, playerShip, d) ?? d.GetDockScene(mainScene, playerShip);
+                var scene = story.GetScene(this, playerShip, d) ?? d.GetDockScene(this, playerShip);
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    sceneContainer.Children.Add(new ScanTransition(this) { IsFocused = true });
+                    SetDialog(new ScanTransition(scene));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -422,7 +404,6 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
 
         //frameRendered = false;
         //Required to update children
-        base.Update(delta);
     }
     public void UpdateUI(TimeSpan delta) {
         var d = Main.AngleDiffRad(camera.rotation, targetCameraRotation);
@@ -471,7 +452,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
     public void RenderWorld(TimeSpan delta) {
         viewport.Render(delta);
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         if (pauseScreen.IsVisible) {
             back.Render(drawTime);
             viewport.Render(drawTime);
@@ -546,14 +527,14 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
         //frameRendered = true;
         updatesSinceRender = 0;
     }
-    public override bool ProcessKeyboard(Keyboard info) {
-        var kb = SFMLHelper.FromKeyboard(info);
+    public void ProcessKeyboard(Keyboard info) {
+        var kb = SadGamer.ToKB(info);
 		if (sceneContainer.Children.Any()) {
             var children = new List<IScreenObject>(sceneContainer.Children);
             foreach (var c in children) {
                 c.ProcessKeyboard(info);
             }
-            return base.ProcessKeyboard(info);
+            return;
         }
         uiMegamap.ProcessKeyboard(info);
         /*
@@ -597,7 +578,6 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
                 }
             }
         }
-        return base.ProcessKeyboard(info);
     }
     public void TargetMouse() {
         var targetList = new List<ActiveObject>(
@@ -624,7 +604,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             playerShip.UpdateWeaponTargets();
         }
     }
-    public override bool ProcessMouse(MouseScreenObjectState state) {
+    public void HandleMouse(MouseScreenObjectState state) {
         if (pauseScreen.IsVisible) {
             pauseScreen.Surface.ProcessMouseTree(state.Mouse);
         } else if (networkMap.IsVisible) {
@@ -641,7 +621,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             }
             //bool moved = mouseScreenPos != state.SurfaceCellPosition;
             //var mouseScreenPos = state.SurfaceCellPosition;
-            var mouseScreenPos = new XY(state.SurfacePixelPosition / FontSize) - new XY(0.5, 0.75);
+            var mouseScreenPos = new XY(state.SurfacePixelPosition / new ScreenSurface(1, 1).FontSize) - new XY(0.5, 0.75);
             
             //(var a, var b) = (state.SurfaceCellPosition, state.SurfacePixelPosition);
             //Placeholder for mouse wheel-based weapon selection
@@ -662,7 +642,7 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
                 playerControls.input.UsingMouse = true;
             }
 
-            var centerOffset = new XY(mouseScreenPos.x, Surface.Height - mouseScreenPos.y) - new XY(Surface.Width / 2, Surface.Height / 2);
+            var centerOffset = new XY(mouseScreenPos.x, sf.Height - mouseScreenPos.y) - new XY(sf.Width / 2, sf.Height / 2);
             centerOffset *= uiMegamap.viewScale;
             mouseWorldPos = (centerOffset.Rotate(camera.rotation) + camera.position);
             ActiveObject t;
@@ -721,7 +701,6 @@ public class Mainframe : ScreenSurface, Ob<PlayerShip.Destroyed> {
             }
         }
         prevMouse = state;
-        return base.ProcessMouse(state);
     }
 }
 public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener, IWeaponListener, Ob<Projectile.Detonated> {
@@ -832,7 +811,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             }
         } else {
             foreach((var ship, var sound) in exhaustList.Zip(exhaust.list)) {
-                sound.Position = SFMLHelper.ToVector3f(player.position.To(ship.position).Scale(distScale));
+                sound.Position = SadGamer.ToV3f(player.position.To(ship.position).Scale(distScale));
             }
         }
     }
@@ -893,7 +872,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     private void PlayWorldSound(ListTracker<Sound> s, Entity e, SoundBuffer sb) =>
         PlayWorldSound(GetNextChannel(s), e, sb);
     private void PlayWorldSound(Sound s, Entity e, SoundBuffer sb) {
-        s.Position = SFMLHelper.ToVector3f(player.position.To(e.position).Scale(distScale));
+        s.Position = SadGamer.ToV3f(player.position.To(e.position).Scale(distScale));
         PlayWorldSound(s, sb);
     }
     private void PlayWorldSound(Sound s, SoundBuffer sb) {
@@ -908,7 +887,7 @@ public class BackdropConsole {
     public Camera camera;
     private readonly XY screenCenter;
     private Backdrop backdrop;
-    public ISurf Surface;
+    public Sf Surface;
 	public BackdropConsole(Viewport view) {
 		this.camera = view.camera;
         this.backdrop = view.world.backdrop;
@@ -950,7 +929,7 @@ public class Megamap {
     Dictionary<(int, int), List<(Entity entity, double distance)?>> scaledEntities;
     XY screenSize, screenCenter;
     public byte alpha;
-    public ISurf Surface;
+    public Sf Surface;
     public Megamap(Monitor m, GeneratedLayer back) {
         this.Surface = Surface;
         this.camera = m.camera;
@@ -1110,7 +1089,7 @@ public class Megamap {
     }
 }
 public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
-    public ISurf Surface;
+    public Sf Surface;
     public int Width => Surface.Width;
     public int Height => Surface.Height;
     PlayerShip player;
@@ -1165,7 +1144,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                 silenceGrid[x, y] = r.NextDouble();
             }
         }
-        silenceViewport = new Viewport(main.monitor with { world = main.silenceSystem });
+        silenceViewport = new Viewport(Width, Height, main.monitor with { world = main.silenceSystem });
     }
     public void Update(TimeSpan delta) {
         silenceViewport.Update(delta);
@@ -1348,7 +1327,7 @@ public class Readout {
     public int Height => Surface.Height;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
-    public ISurf Surface;
+    public Sf Surface;
     public Readout(Monitor m) {
         camera = m.camera;
         player = m.playerShip;
@@ -1957,7 +1936,7 @@ public class Edgemap {
     Camera camera;
     PlayerShip player;
     public double viewScale;
-    public ISurf Surface;
+    public Sf Surface;
     public Edgemap(Monitor m){
         this.Surface = Surface;
         this.camera = m.camera;
@@ -2019,7 +1998,7 @@ public class Minimap {
     public double time;
     public byte alpha;
     List<(int x, int y)> area = new();
-    ISurf Surface;
+    Sf Surface;
 	int Width,Height;
 	XY screenSize, screenCenter;
     public Minimap(Monitor m) {
@@ -2081,8 +2060,8 @@ public class CommunicationsWidget {
 	PlayerShip playerShip;
     int ticks;
     CommandMenu? menu;
-    public ISurf Surface;
-    public CommunicationsWidget(ISurf Surface, PlayerShip playerShip) {
+    public Sf Surface;
+    public CommunicationsWidget(Sf Surface, PlayerShip playerShip) {
 		this.playerShip = playerShip;
         menu = null;
     }
@@ -2148,9 +2127,9 @@ public class CommunicationsWidget {
         AIShip subject;
         public int ticks = 0;
         private Dictionary<string, Action> commands;
-        public ISurf Surface;
+        public Sf Surface;
         public bool visible = true;
-        public CommandMenu(ISurf Surface, PlayerShip player, AIShip subject) {
+        public CommandMenu(Sf Surface, PlayerShip player, AIShip subject) {
             this.Surface = Surface;
 			//this.player = player;
 			this.subject = subject;

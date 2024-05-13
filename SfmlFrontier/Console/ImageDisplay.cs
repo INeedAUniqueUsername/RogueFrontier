@@ -3,22 +3,24 @@ using SadConsole;
 using Console = SadConsole.Console;
 using Common;
 using SadRogue.Primitives;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class ImageDisplay : Console {
+public class ImageDisplay {
     public TileImage image;
     public Point adjust;
-    public ImageDisplay(int width, int height, TileImage image, Point adjust) : base(width, height) {
+    Sf sf;
+    public ImageDisplay(int width, int height, TileImage image, Point adjust) {
         this.image = image;
         this.adjust = adjust;
+        sf = new Sf(width, height);
         Draw();
     }
     public void Draw() {
-        foreach (((int x, int y) p, ColoredGlyph t) in image.Sprite) {
-            var pos = (Point)p + adjust;
-
-            this.SetCellAppearance(pos.X, pos.Y, t);
+        foreach (((int x, int y) p, Tile t) in image.Sprite) {
+            var pos = (x:p.x + adjust.X, y:p.y + adjust.Y);
+            sf.SetTile(pos.x, pos.y, t);
         }
     }
 }

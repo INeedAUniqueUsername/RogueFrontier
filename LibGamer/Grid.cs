@@ -7,6 +7,8 @@ using System.Xml.Linq;
 
 namespace Common;
 
+public record WH(int w, int h);
+
 [JsonObject(MemberSerialization.OptIn)]
 public class XY {
     [JsonProperty]

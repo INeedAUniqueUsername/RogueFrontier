@@ -1,4 +1,5 @@
-﻿using SadConsole;
+﻿using LibGamer;
+using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using System;
@@ -61,7 +62,7 @@ public class GateTransition : Console {
         });
 
 
-        Console back = new Console(Width, Height);
+        Sf back = new (Width, Height);
 
         if (next != null) {
             BackdropConsole prevBack = new(prev);
@@ -71,8 +72,8 @@ public class GateTransition : Console {
                 foreach (var x in Enumerable.Range(0, Width)) {
                     Point p = new(x, y);
                     (var v, var b) = rect.Contains(p) ? (next, nextBack) : (prev, prevBack);
-                    back.SetCellAppearance(x, y, b.GetTile(x, y));
-                    ColoredGlyph g = v.GetTile(x, y);
+                    back.SetTile(x, y, b.GetTile(x, y));
+                    var g = v.GetTile(x, y);
                     //var g = (rect.Contains(p) ? next : prev).GetCellAppearance(x, y);
                     this.SetCellAppearance(x, Height - y, g);
                 }

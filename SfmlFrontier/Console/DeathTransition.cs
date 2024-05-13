@@ -6,51 +6,61 @@ using Con = SadConsole.ScreenSurface;
 using SadConsole.Input;
 using ASECII;
 using Common;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class DeathPause : Con {
+public class DeathPause : IScene {
     Mainframe prev;
     DeathTransition next;
-
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
     public double time;
     public bool done;
     Viewport view;
-    public DeathPause(Mainframe prev, DeathTransition next) : base(prev.Surface.Width, prev.Surface.Height) {
+
+	public Action<IScene> Go { get; set; }
+    public Action<Sf> Draw { get; set; }
+
+	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
         this.next = next;
-        view = new Viewport(prev.monitor);
+        this.sf = new Sf(prev.sf.Width, prev.sf.Height);
+        view = new Viewport(Width, Height, prev.monitor);
         view.Update(new());
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         time += delta.TotalSeconds / 4;
         if (time < 2 && !done) {
             return;
         }
-        SadConsole.Game.Instance.Screen = next;
-        next.IsFocused = true;
-
-        base.Update(delta);
+        Go(next);
     }
-    public override void Render(TimeSpan delta) {
-        view.Render(delta);
-        base.Render(delta);
+    public void Render(TimeSpan delta) {
+        Draw(view.sf);
     }
 }
-public class DeathTransition : Con
-{
+public class DeathTransition : IScene {
+    Sf sf;
+    Sf sf_prev;
+	IScene prev, next;
+    int Width => sf.Width;
+    int Height => sf.Height;
 
-	Con Surface, prev, next;
-    int Width => Surface.Width;
-    int Height => Surface.Height;
-    public class Particle {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public class Particle {
         public int x, destY;
         public double y, delay;
     }
     HashSet<Particle> particles;
     double time;
-    public DeathTransition(Con prev, Con next) : base(prev.Surface.Width, prev.Surface.Height) {
+    public DeathTransition(IScene prev, Sf sf_prev, IScene next) {
+
         this.prev = prev;
+        this.sf_prev = sf_prev;
         this.next = next;
         particles = new HashSet<Particle>();
         for (int y = 0; y < Height / 2; y++) {
@@ -74,17 +84,15 @@ public class DeathTransition : Con
             }
         }
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public void HandleKey(Keyboard keyboard) {
         if (keyboard.IsKeyPressed(Keys.Enter)) {
             Transition();
         }
-        return base.ProcessKeyboard(keyboard);
     }
     public void Transition() {
-        SadConsole.Game.Instance.Screen = next;
-        next.IsFocused = true;
+        Go(next);
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         time += delta.TotalSeconds / 2;
         prev.Update(delta);
         if (time < 4) {
@@ -101,33 +109,32 @@ public class DeathTransition : Con
         } else {
             Transition();
         }
-        base.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
-        prev.Render(delta);
-        base.Render(delta);
-        Surface.Clear();
+    public void Render(TimeSpan delta) {
+        Draw(sf_prev);
+        sf.Clear();
 
         var borderSize = Math.Max((time - 1) * 4, 0);
 
-        var br = (int)Math.Clamp((time - 1) * 255f, 0, 255);
-        var borderColor = new Color(br, br, br);
+        var br = (byte)Math.Clamp((time - 1) * 255f, 0, 255);
+        var borderColor = ABGR.RGB(br, br, br);
         for (int i = 0; i < borderSize; i++) {
             var d = 1d * i / borderSize;
             d = Math.Pow(d, 1.4);
             byte alpha = (byte)(255 - 255 * d);
-            var c = borderColor.SetAlpha(alpha);
+            var c = ABGR.SetA(borderColor, alpha);
             var screenPerimeter = new Rectangle(i, i, Width - i * 2, Height - i * 2);
             foreach (var point in screenPerimeter.PerimeterPositions()) {
                 //var back = this.GetBackground(point.X, point.Y).Premultiply();
                 var (x, y) = point;
-                Surface.SetBackground(x, y, c);
+                sf.SetBack(x, y, c);
             }
         }
-        int brightness = 0;
+        byte l = 0;
         //int brightness = (int)Math.Min(255, 255 * Math.Max(0, time - 6) / 2);
         foreach (var p in particles) {
-            Surface.SetCellAppearance(p.x, (int)p.y, new ColoredGlyph(Color.Black, new(brightness, brightness, brightness, 255), ' '));
+            sf.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.RGBA(l, l, l, 255), ' '));
         }
+        Draw(sf);
     }
 }

@@ -10,8 +10,10 @@ public class WreckScene : IScene {
     DescPanel<Item> descPane;
 
     IScene prev;
-    public Action<IScene> Go { set; get; }
-    private void SetDesc(Item i) {
+    Sf sf;
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+	private void SetDesc(Item i) {
         if (i == null) {
             descPane.SetInfo("", []);
         } else {
@@ -22,6 +24,7 @@ public class WreckScene : IScene {
     }
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
         this.prev = prev;
+        this.sf = new Sf(64, 96, 1);
         this.player = playerShip.person;
 
         descPane = new DescPanel<Item>();
@@ -53,7 +56,7 @@ public class WreckScene : IScene {
     }
     ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
 
-	public void ProcessKeyboard(KB kb) {
+	public void HandleKey(KB kb) {
         if (kb[KC.Escape] == KS.Pressed) {
             prev.Show();
         } else {
@@ -66,12 +69,12 @@ public class WreckScene : IScene {
             currentPane.ProcessKeyboard(kb);
         }
     }
-    public void Render(ISurf Surface, TimeSpan delta) {
-        Surface.Clear();
-        Surface.RenderBackground();
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        sf.RenderBackground();
         int y = 4;
         var f = ABGR.White;
         var b = ABGR.Black;
-        Surface.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
+        sf.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
     }
 }

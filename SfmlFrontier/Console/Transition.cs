@@ -5,18 +5,31 @@ using Console = SadConsole.Console;
 using SadRogue.Primitives;
 using Common;
 using SadConsole.Input;
+using LibGamer;
+using SfmlFrontier;
 
 namespace RogueFrontier;
-public class TitleSlideOpening : Console {
-    public ScreenSurface next;
+public class TitleSlideOpening : IScene {
+    public Sf sf { get; }
+    public int Width => sf.Width;
+    public int Height => sf.Height;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public IScene next;
+    public Sf nextSf;
     int x = 0;
     double time = 0;
     double interval;
     bool fast;
     bool updateNext;
-    public TitleSlideOpening(ScreenSurface next, bool updateNext = true) : base(next.Surface.Width, next.Surface.Height) {
-        x = next.Surface.Width;
+
+
+    public TitleSlideOpening(IScene next, Sf nextSf, bool updateNext = true) {
+        this.sf = new Sf(nextSf.Width, nextSf.Height);
+        x = nextSf.Width;
         this.next = next;
+        this.nextSf = nextSf;
         this.updateNext = updateNext;
         interval = 4f / Width;
 
@@ -24,11 +37,10 @@ public class TitleSlideOpening : Console {
         next.Update(new TimeSpan());
         Render(new TimeSpan());
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         if (updateNext) {
             next.Update(delta);
         }
-        base.Update(delta);
         if (fast) {
             x -= (int)(Width * delta.TotalSeconds);
         }
@@ -38,62 +50,69 @@ public class TitleSlideOpening : Console {
             if (x > -16) {
                 x--;
             } else {
-                SadConsole.Game.Instance.Screen = next;
-                next.IsFocused = true;
+                Go(next);
                 return;
             }
         }
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         next.Render(delta);
-        base.Render(delta);
-        this.Clear();
+        sf.Clear();
         var blank = new ColoredGlyph(Color.Black, Color.Black);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < this.x; x++) {
-                this.SetCellAppearance(x, y, blank);
+                sf.SetTile(x, y, new Tile(0, 0, 0));
             }
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
 
-                var glyph = next.Surface.GetGlyph(x, y);
-                var value = 255 - 255 / 16 * (x - this.x);
+                var glyph = nextSf.GetGlyph(x, y);
+                var value = (byte)(255 - 255 / 16 * (x - this.x));
 
-                var fore = next.Surface.GetForeground(x, y);
-                fore = fore.Premultiply().Blend(Color.Black.WithValues(alpha: value));
+                var fore = nextSf.GetFront(x, y);
+                fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Black, value));
 
-                var back = next.Surface.GetBackground(x, y);
-                back = back.Premultiply().Blend(Color.Black.WithValues(alpha: value));
+                var back = nextSf.GetBack(x, y);
+                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Black, value));
 
-                this.SetCellAppearance(x, y, new ColoredGlyph(fore, back, glyph));
+                sf.SetTile(x, y, new Tile(fore, back, glyph));
             }
         }
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter) || keyboard.IsKeyPressed(Keys.Escape)) {
+    public void HandleKey(KB kb) {
+        if (kb[[KC.Enter, KC.Escape]].Contains(KS.Pressed)) {
             fast = true;
         }
-        return base.ProcessKeyboard(keyboard);
+        return;
     }
 }
-public class TitleSlideOut : Console {
-    public Console prev, next;
-    int x = 0;
+public class TitleSlideOut : IScene {
+    public IScene prev, next;
+    public Sf sf_prev, sf_next;
+    public Sf sf;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
+
+	public Action<IScene> Go { set; get; } = _ => { };
+	public Action<Sf> Draw { set; get; } = _ => { };
+
+	int x = 0;
     double time = 0;
     double interval;
     bool fast;
-    public TitleSlideOut(Console prev, Console next) : base(next.Width, next.Height) {
-        x = next.Width;
+    public TitleSlideOut(IScene prev, Sf sf_prev, IScene next, Sf sf_next) {
+        
         this.prev = prev;
         this.next = next;
-        interval = 4f / Width;
+        this.sf = new Sf(sf_next.Width, sf_next.Height);
+		x = Width;
+		interval = 4f / Width;
 
         //Draw one frame now so that we don't cut out for one frame
         next.Update(new TimeSpan());
         Render(new TimeSpan());
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         next.Update(delta);
-        base.Update(delta);
 
         if (fast) {
             x = -16;
@@ -102,61 +121,62 @@ public class TitleSlideOut : Console {
         if (x > -16) {
             x -= (int)(Width * delta.TotalSeconds);
         } else {
-            SadConsole.Game.Instance.Screen = next;
-            next.IsFocused = true;
+            Go(next);
+            
             return;
         }
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         next.Render(delta);
-        base.Render(delta);
-        this.Clear();
+        sf.Clear();
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < this.x; x++) {
-                this.SetCellAppearance(x, y, prev.GetCellAppearance(x, y));
+                sf.SetTile(x, y, sf_prev.GetTile(x, y));
             }
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
-
-                var glyph = next.GetGlyph(x, y);
-                var value = 255 - 255 / 16 * (x - this.x);
-
-                var fore = next.GetForeground(x, y);
-                fore = fore.Premultiply().Blend(prev.GetForeground(x, y).Premultiply().WithValues(alpha: value));
-
-                var back = next.GetBackground(x, y);
-                back = back.Premultiply().Blend(prev.GetBackground(x, y).Premultiply().WithValues(alpha: value));
-
-                this.SetCellAppearance(x, y, new ColoredGlyph(fore, back, glyph));
+                var glyph = sf_next.GetGlyph(x, y);
+                var value = (byte)(255 - 255 / 16 * (x - this.x));
+                var fore = sf_next.GetFront(x, y);
+                fore = ABGR.SetA(ABGR.Premultiply(ABGR.Blend(ABGR.Premultiply(fore), sf_prev.GetFront(x, y))), value);
+                var back = sf_next.GetBack(x, y);
+                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(sf_prev.GetBack(x, y)), value));
+                sf.SetTile(x, y, new Tile(fore, back, glyph));
             }
         }
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter) || keyboard.IsKeyPressed(Keys.Escape)) {
+    public void HandleKey(KB keyboard) {
+        if (keyboard.Pressed.Intersect([KC.Enter, KC.Escape]).Any()) {
             fast = true;
         }
-        return base.ProcessKeyboard(keyboard);
     }
 }
-public class TitleSlideIn : Console {
+public class TitleSlideIn : IScene {
     public Console prev;
     public Console next;
     int x = -16;
-    public TitleSlideIn(Console prev, Console next) : base(prev.Width, prev.Height) {
+
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public TitleSlideIn(Console prev, Console next) {
+        sf = new Sf(prev.Width, prev.Height);
         this.prev = prev;
         this.next = next;
         //Draw one frame now so that we don't cut out for one frame
         Render(new TimeSpan());
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public void ProcessKey(Keyboard keyboard) {
         if (keyboard.IsKeyPressed(Keys.Enter)) {
-            Tones.pressed.Play();
+            //Tones.pressed.Play();
             Next();
         }
-        return base.ProcessKeyboard(keyboard);
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         prev.Update(delta);
-        base.Update(delta);
         if (x < Width + 16) {
             x += (int)(Width * delta.TotalSeconds);
         } else {
@@ -167,15 +187,14 @@ public class TitleSlideIn : Console {
         SadConsole.Game.Instance.Screen = next;
         next.IsFocused = true;
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
         next.Render(delta);
         prev.Render(delta);
-        base.Render(delta);
         var blank = new ColoredGlyph(Color.Black, Color.Black);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Math.Min(Width, this.x); x++) {
                 //this.SetCellAppearance(x, y, blank);
-                this.SetCellAppearance(x, y, next.GetCellAppearance(x, y));
+                sf.SetTile(x, y, next.GetCellAppearance(x, y).ToTile());
             }
             //Fading opacity edge
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
@@ -189,42 +208,43 @@ public class TitleSlideIn : Console {
                 var back = prev.GetBackground(x, y);
                 back = back.Premultiply().Blend(next.GetBackground(x, y).Premultiply().WithValues(alpha: value));
 
-                this.SetCellAppearance(x, y, new ColoredGlyph(fore, back, glyph));
+                sf.SetTile(x, y, new Tile(fore.PackedValue, back.PackedValue, glyph));
             }
         }
     }
 }
-public class FadeIn : ScreenSurface {
-    ScreenSurface next;
+public class FadeIn : IScene {
+    IScene next;
+    Sf sf_next;
+    Sf sf;
     float alpha;
-    public FadeIn(ScreenSurface next) : base(next.Surface.Width, next.Surface.Height) {
+
+	public Action<IScene> Go { get; set; }
+    public Action<Sf> Draw { get; set; }
+
+	public FadeIn(IScene next, Sf sf_next) {
         this.next = next;
+        this.sf_next = sf_next;
+        this.sf = new Sf(sf_next.Width, sf_next.Height);
         Render(new TimeSpan());
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
         if (alpha < 1) {
             alpha += (float)(delta.TotalSeconds / 4);
         } else {
-            if (Parent == null) {
-                SadConsole.Game.Instance.Screen = next;
-                next.IsFocused = true;
-            } else {
-                Parent.Children.Add(next);
-                Parent.Children.Remove(this);
-            }
+            Go(next);
         }
     }
-    public override void Render(TimeSpan delta) {
-        Surface.Clear();
-        var g = new ColoredGlyph(Color.Black, new Color(0, 0, 0, 1 - alpha));
-        for (int y = 0; y < Surface.Height; y++) {
-            for (int x = 0; x < Surface.Width; x++) {
-                Surface.SetCellAppearance(x, y, g);
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        var g = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)(255 * (1 - alpha))), 0);
+        for (int y = 0; y < sf.Height; y++) {
+            for (int x = 0; x < sf.Width; x++) {
+                sf.SetTile(x, y, g);
             }
         }
-        next.Render(delta);
-        base.Render(delta);
+        Draw(sf_next);
+        Draw(sf);
     }
 }
 
@@ -261,33 +281,34 @@ public class FadeOut : Console {
     }
 }
 
-public class Pause : ScreenSurface {
+public class Pause : IScene {
     Action next;
-    ScreenSurface background;
+    Sf background;
     double time;
-    public Pause(ScreenSurface background, Action next, double time = 5) : base(background.Surface.Width, background.Surface.Height) {
+
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+
+	public Pause(Sf background, Action next, double time = 5) {
         this.background = background;
         this.time = time;
         this.next = next;
         Render(new TimeSpan());
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public void ProcessKeyboard(Keyboard keyboard) {
         if (keyboard.IsKeyPressed(Keys.Enter)) {
-            Tones.pressed.Play();
+            //Tones.pressed.Play();
             time = 0;
         }
-        return base.ProcessKeyboard(keyboard);
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
         if (time > 0) {
             time -= delta.TotalSeconds;
         } else {
             next();
         }
     }
-    public override void Render(TimeSpan delta) {
-        background.Render(delta);
+    public void Render(TimeSpan delta) {
     }
 }
 public class PauseTransition : Console {

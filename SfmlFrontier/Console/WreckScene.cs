@@ -68,7 +68,7 @@ public class WreckScene : IScene {
             currentPane.ProcessKeyboard(kb);
         }
     }
-    public void Render(ISurf Surface, TimeSpan delta) {
+    public void Render(Sf Surface, TimeSpan delta) {
         Surface.Clear();
         Surface.RenderBackground();
         int y = 4;

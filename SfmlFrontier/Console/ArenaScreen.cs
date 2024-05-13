@@ -17,7 +17,7 @@ namespace RogueFrontier;
 public interface IConsoleHook {
 
 }
-public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
+public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
     public void Observe(PlayerShip.Destroyed ev) => Reset();
 
     TitleScreen prev;
@@ -32,17 +32,22 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
     public Mainframe mainframe;
 
     bool passTime = true;
-    public ArenaScreen(TitleScreen prev, Settings settings, System World) : base(prev.Width, prev.Height) {
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+    public Action<IScene> Go { get; set; }
+    public Action<Sf> Draw { get; set; }
+
+    public ArenaScreen(TitleScreen prev, Settings settings, System World) {
         this.prev = prev;
-        this.settings = settings;
+        this.sf = new Sf(prev.Width, prev.Height);
+		this.settings = settings;
         this.World = World;
         this.camera = (0.1, 0.1);
         this.tiles = new();
         this.screenCenter = (Width / 2, Height / 2);
         this.mouse = new();
-
-        UseKeyboard = true;
-        FocusOnMouseClick = true;
+#if false
         {
             int x = 1, y = 1;
             Children.Add(new Label("[A] Assume control of nearest ship") { Position = new Point(x, y++) });
@@ -298,27 +303,33 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
                 }
             }
         }
+#endif
     }
 
     public void HideArena() {
+#if false
         foreach (var c in Children) {
             c.IsVisible = false;
         }
+#endif
     }
     public void ToggleArena() {
+#if false
         foreach (var c in Children) {
             c.IsVisible = !c.IsVisible;
         }
+#endif
     }
     public void Reset() => Reset(mainframe.camera.position);
     public void Reset(XY camera) {
 
         this.camera = camera;
         mainframe = null;
-        IsFocused = true;
+#if false
         foreach (var c in Children) {
             c.IsVisible = true;
         }
+#endif
     }
     private void UpdatePresent() {
         World.UpdateAdded();
@@ -326,16 +337,12 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
         tiles.Clear();
         World.PlaceTiles(tiles);
     }
-    public override void Update(TimeSpan timeSpan) {
+    public void Update(TimeSpan timeSpan) {
         if (mainframe != null) {
-            mainframe.IsFocused = true;
             mainframe.Update(timeSpan);
-            IsFocused = true;
-            base.Update(timeSpan);
+            //IsFocused = true;
             return;
         }
-
-        base.Update(timeSpan);
 
         if (passTime) {
 
@@ -385,21 +392,21 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
             Heading.Crosshair(World, nearest.position, ABGR.Yellow);
         }
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         if (mainframe != null) {
             mainframe.Render(drawTime);
             return;
         }
 
-        this.Clear();
+        sf.Clear();
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                var g = this.GetGlyph(x, y);
+                var g = sf.GetGlyph(x, y);
 
                 var offset = new XY(x, Height - y) - screenCenter;
                 var location = camera + offset;
                 Tile t;
-                if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
+                if (g == 0 || g == ' ' || ABGR.A(sf.GetFront(x, y)) == 0) {
                     if (tiles.TryGetValue(location.roundDown, out t)) {
                         if (t.Background == ABGR.Transparent) {
                             t = t with { Background = World.backdrop.GetBackground(location, camera) };
@@ -407,22 +414,23 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
                     } else {
                         t = World.backdrop.GetTile(location, camera);
                     }
-					this.SetCellAppearance(x, y, new ColoredGlyph(new(t.Foreground), new(t.Background), (int)t.Glyph));
+					sf.SetTile(x, y, t);
 				} else {
-                    this.SetBackground(x, y, new Color(World.backdrop.GetBackground(location, camera)));
+                    sf.SetBack(x, y, World.backdrop.GetBackground(location, camera));
                 }
             }
         }
-        base.Render(drawTime);
+        Draw(sf);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public void ProcessKeyboard(Keyboard info) {
 
         if (info.IsKeyPressed(Escape)) {
             if (mainframe != null) {
 
                 if (mainframe.sceneContainer.Children.Any()) {
-                    return mainframe.ProcessKeyboard(info);
-                }
+					mainframe.ProcessKeyboard(info);
+					return;
+				}
 
                 World.RemoveEntity(mainframe.playerShip);
                 var aiShip = new AIShip(mainframe.playerShip.ship, mainframe.playerShip.sovereign, new AttackNearby());
@@ -436,11 +444,11 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
             } else {
                 prev.pov = null;
                 prev.camera = camera;
-                SadConsole.Game.Instance.Screen = prev;
-                prev.IsFocused = true;
+                Go(prev);
             }
         } else if (mainframe != null) {
-            return mainframe.ProcessKeyboard(info);
+            mainframe.ProcessKeyboard(info);
+            return;
         }
 
         if (info.IsKeyPressed(Tab)) {
@@ -457,7 +465,7 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
                 var p = new Player() { Genome = new GenomeType() { name = "Human" } };
                 var playerShip = new PlayerShip(p, new BaseShip(a.ship), a.sovereign);
 
-                mainframe = new Mainframe(Width, Height, null, playerShip) { IsFocused = true };
+                mainframe = new Mainframe(Width, Height, null, playerShip);
                 mainframe.camera.position = camera;
                 playerShip.onDestroyed += this;
                 World.AddEntity(playerShip);
@@ -501,12 +509,11 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
                     break;
             }
         }
-
-        return base.ProcessKeyboard(info);
     }
-    public override bool ProcessMouse(MouseScreenObjectState state) {
+    public void HandleMouse (MouseScreenObjectState state) {
         if (mainframe != null) {
-            return mainframe.ProcessMouse(state);
+            mainframe.HandleMouse(state);
+            return;
         }
 
         mouse.Update(state, IsMouseOver);
@@ -514,7 +521,5 @@ public class ArenaScreen : Console, Ob<PlayerShip.Destroyed> {
         if (mouse.left == ClickState.Held) {
             camera += new XY(mouse.prevPos - mouse.nowPos);
         }
-
-        return base.ProcessMouse(state);
     }
 }

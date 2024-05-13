@@ -13,7 +13,7 @@ class LoadingSymbol {
         public double arc;
         public double speed;
         public void Update() {
-            rotation += (speed) / Program.TICKS_PER_SECOND;
+            rotation += (speed) / Constants.TICKS_PER_SECOND;
             rotation = Math.IEEERemainder(rotation, 2 * Math.PI);
         }
     }

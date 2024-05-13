@@ -11,10 +11,11 @@ using System.IO;
 using Common;
 using CloudJumper;
 using SFML.Audio;
+using LibGamer;
 
 namespace RogueFrontier;
 
-class OutroCrawl : Console {
+class OutroCrawl : IScene {
 
     public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
     public Sound bgm = new Sound() { Volume = 50, SoundBuffer = music };
@@ -29,13 +30,24 @@ class OutroCrawl : Console {
 
     Random random = new Random();
 
-    Console cloudLayer;
-    public OutroCrawl(int width, int height, Action next) : base(width, height) {
+    Sf cloudLayer;
+
+    Sf sf;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
+
+    public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+
+    private IScene sub;
+	public OutroCrawl(int width, int height, Action next) {
+#if false
+        sf = new Sf(width, height);
         var frame1 = new ImageDisplay(width, height, TileImage.FromFile("Assets/epilogue_1.asc.cg"), new());
 
-        Children.Add(cloudLayer = new(width, height));
+        //Children.Add(cloudLayer = new(width, height));
 
-        Console Scale(int s) => new Console(Width / s, Height / s) { FontSize = FontSize * s };
+        Console Scale (int s) => new Console(Width / s, Height / s);// { FontSize = FontSize * s };
         ScreenSurface Pane(string headingStr, string subheadingStr) {
             var pane = new Console(Width, Height);
 
@@ -53,23 +65,22 @@ class OutroCrawl : Console {
             pane.Children.Add(subheading);
             return pane;
         }
-        Console Empty() => new Console(Width, Height);
+        Sf Empty() => new Sf(Width, Height);
         EndCrawl();
         void EndCrawl() {
-            MinimalCrawlScreen ds = null;
-            ds = new("You have left Human Space.\n\n", () => {
-                Children.Remove(ds);
-                Pause(ds, () => Pause(Empty(), BeginCredits, 2), 3);
-            }) { Position = new(Surface.Width / 4, 8), IsFocused = true };
-            Children.Add(ds);
+            MinimalCrawlScreen mc = null;
+            sub = mc = new MinimalCrawlScreen(sf, "You have left Human Space.\n\n", () => {
+                Pause(mc.sf, () => Pause(Empty(), BeginCredits, 2), 3);
+            });
+            
+            //{ Position = new(Surface.Width / 4, 8), IsFocused = true };
+            //Children.Add(ds);
         }
-        void Pause(ScreenSurface background, Action next, double time) {
+        void Pause(Sf background, Action next, double time) {
             Pause p = null;
-            p = new Pause(background, () => {
-                Children.Remove(p);
+            sub = p = new Pause(background, () => {
                 next();
             }, time);
-            Children.Add(p);
         }
         void BeginCredits() {
             bgm.Play();
@@ -90,13 +101,13 @@ class OutroCrawl : Console {
             void Show(int i = 0) {
 
                 if (prevFrame != null) {
-                    Children.Remove(prevFrame);
+                    //Children.Remove(prevFrame);
                 }
                 ImageDisplay frame = i == 0 ? frame1 : null;
                 Slide slide = null;
                 if(frame != prevFrame) {
                     slide = new Slide(prevFrame, frame, () => { });
-                    Children.Insert(0, slide);
+                    //Children.Insert(0, slide);
 
                     prevFrame = frame;
                 }
@@ -107,10 +118,10 @@ class OutroCrawl : Console {
                 Pause(Pane(h, h2), () => Pause(Empty(), () => {
 
                     if (slide != null) {
-                        Children.Remove(slide);
+                        //Children.Remove(slide);
                     }
                     if (frame != null) {
-                        Children.Insert(0, frame);
+                        //Children.Insert(0, frame);
                     }
                     if(i < parts.Length - 1) {
                         Show(i + 1);
@@ -152,10 +163,9 @@ class OutroCrawl : Console {
 
             return new ColoredGlyphAndEffect() { Foreground = front, Background = back, Glyph = c };
         }
+#endif
     }
-    public override void Update(TimeSpan delta) {
-
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
         this.time += delta.TotalSeconds;
         tick++;
         //Update clouds
@@ -175,21 +185,16 @@ class OutroCrawl : Console {
             CloudParticle.CreateClouds(effectMinY, effectMaxY, clouds, random);
         }
     }
-    public override void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan drawTime) {
         cloudLayer.Clear();
-
         var top = Height - 1;
         foreach (var cloud in clouds) {
             var (x, y) = cloud.pos;
-            cloudLayer.SetForeground(x, top - y, cloud.symbol.Foreground);
+            cloudLayer.SetFront(x, top - y, cloud.symbol.Foreground);
             cloudLayer.SetGlyph(x, top - y, cloud.symbol.Glyph);
         }
-        base.Render(drawTime);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
-        
-
-        return base.ProcessKeyboard(info);
+    public void HandleKey(Keyboard info) {
     }
 }
 

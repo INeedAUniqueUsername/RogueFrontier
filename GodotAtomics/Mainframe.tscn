@@ -14,7 +14,6 @@ GridHeight = 64
 
 [node name="Viewport" type="Node2D" parent="."]
 texture_filter = 1
-scale = Vector2(2, 2)
 script = ExtResource("1_qgcxx")
 GridWidth = 96
 GridHeight = 64

@@ -41,11 +41,13 @@ class LoadPane : Console {
 
                     switch (loaded) {
                         case LiveGame live: {
-                                var playerMain = new Mainframe(Width, Height, profile, live.playerShip) { IsFocused = true };
+                                var playerMain = new Mainframe(Width, Height, profile, live.playerShip);
                                 //live.playerShip.player.Settings;
 
                                 live.playerShip.onDestroyed += playerMain;
                                 GameHost.Instance.Screen = playerMain;
+
+
                                 //If we have any load hooks, trigger them now
                                 live.hook?.Value(playerMain);
                                 break;

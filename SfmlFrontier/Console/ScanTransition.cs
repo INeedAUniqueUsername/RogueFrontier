@@ -1,62 +1,68 @@
-﻿using SadConsole;
+﻿using LibGamer;
+using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using System;
-using Console = SadConsole.Console;
-
 namespace RogueFrontier;
 
-public class ScanTransition : Console {
-    ScreenSurface next;
+public class ScanTransition : IScene {
+    public Action<Sf> Draw { set; get; }
+	public Action<IScene> Go { get; set; }
+
+	IScene next;
+    Sf sf;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     double y;
-    public ScanTransition(ScreenSurface next) : base(next.Surface.Width, next.Surface.Height) {
+    public ScanTransition(IScene next) {
         y = 0;
         this.next = next;
         next.Render(new TimeSpan());
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public void HandleKey(Keyboard keyboard) {
         if (keyboard.KeysPressed.Count > 0) {
             Transition();
             //next.ProcessKeyboard(keyboard);
         }
-        return base.ProcessKeyboard(keyboard);
     }
-    public override void Update(TimeSpan delta) {
-        if (y < next.Surface.Height) {
-            y += delta.TotalSeconds * Height * 3;
+    public void Update(TimeSpan delta) {
+        if (y < sf.Height) {
+            y += delta.TotalSeconds * sf.Height * 3;
         } else {
             Transition();
         }
-        base.Update(delta);
     }
     public void Transition() {
-
-        var p = Parent;
-        p.Children.Remove(this);
-        p.Children.Add(next);
-        next.IsFocused = true;
+        Go(next);
     }
-    public override void Render(TimeSpan delta) {
-        this.Clear();
+    public void Render(TimeSpan delta) {
+		Sf sf_next = null;
 
+        void SetSf(Sf sf) {
+            sf_next = sf;
+        }
+        next.Draw += SetSf;
+        next.Render(delta);
+        next.Draw -= SetSf;
+
+		sf.Clear();
         var last = (int)Math.Min(this.y - 1, Height - 1);
 
         int y;
         for (y = 0; y < last; y++) {
             for (int x = 0; x < Width; x++) {
-                this.SetCellAppearance(x, y, next.Surface.GetCellAppearance(x, y));
+                sf.SetTile(x, y, sf_next.GetTile(x, y));
             }
         }
         y = last;
         for (int x = 0; x < Width; x++) {
-            this.SetCellAppearance(x, y, new ColoredGlyph(Color.Transparent, Color.White.SetAlpha(128)));
+            sf.SetTile(x, y, new Tile(ABGR.Transparent, ABGR.SetA(ABGR.White,128), 0));
         }
-        ColoredString empty = new ColoredString(new string(' ', Width), Color.Transparent, Color.Transparent);
+        Tile[] empty = Tile.Arr(new string(' ', Width), ABGR.Transparent, ABGR.Transparent);
         for (y = last + 1; y < Height; y++) {
-            this.Print(0, y, empty);
+            sf.Print(0, y, empty);
         }
-        base.Render(delta);
-
+        Draw(sf);
         //            next.Render(delta);
     }
 }

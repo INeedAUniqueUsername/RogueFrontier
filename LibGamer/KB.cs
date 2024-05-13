@@ -20,6 +20,7 @@ public class KB {
 		get => this[(byte)k];
 		set => this[(byte)k] = value;
 	}
+	public List<KS> this[List<KC> keys] => [.. keys.Select(k => this[(byte)k])];
 	public bool this[KC k, byte bit] => ((int)this[k] & bit) != 0;
 	public KS this[byte x] {
 		get => state[x];

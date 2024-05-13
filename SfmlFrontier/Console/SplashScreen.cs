@@ -4,18 +4,27 @@ using Console = SadConsole.Console;
 using System.Collections.Generic;
 using Common;
 using SadRogue.Primitives;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class SplashScreen : Console {
+public class SplashScreen : IScene {
     Action next;
     System World;
-    public Dictionary<(int, int), ColoredGlyph> tiles;
+    public Dictionary<(int, int), Tile> tiles;
     XY screenCenter;
     double time = 8;
-    public SplashScreen(Action next) : base(Program.Width / 2, Program.Height / 2) {
+
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public SplashScreen(Action next) {
         this.next = next;
-        FontSize = FontSize * 2;
+        sf = new Sf(Program.WIDTH/2, Program.HEIGHT/2, 2);
         var r = new Random(3);
         this.World = new();
         tiles = new();
@@ -49,7 +58,7 @@ public class SplashScreen : Console {
                     rotationAccel = 8,
                     rotationDecel = 12,
                     rotationMaxSpeed = 10,
-                    tile = new ColoredGlyph(Color.LightCyan, Color.Transparent, c),
+                    tile = new Tile(ABGR.LightCyan, ABGR.Transparent, c),
                     devices = new(),
                     damageDesc = ShipClass.empty.damageDesc
                 };
@@ -76,7 +85,7 @@ public class SplashScreen : Console {
             }
         }
     }
-    public override void Update(TimeSpan timeSpan) {
+    public void Update(TimeSpan timeSpan) {
         World.UpdateAdded();
         World.UpdateActive(timeSpan.TotalSeconds);
         World.UpdateRemoved();
@@ -88,23 +97,22 @@ public class SplashScreen : Console {
         if (time < 0) {
             next();
         }
-        base.Update(timeSpan);
 
     }
-    public override void Render(TimeSpan drawTime) {
-        this.Clear();
+    public void Render(TimeSpan drawTime) {
+        sf.Clear();
 
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                var g = this.GetGlyph(x, y);
+                var g = sf.GetGlyph(x, y);
 
                 var location = new XY(x + 0.1, y + 0.1) - screenCenter;
 
                 if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                    this.SetCellAppearance(x, y, tile);
+                    sf.SetTile(x, y, tile);
                 }
             }
         }
-        base.Render(drawTime);
+        Draw(sf);
     }
 }

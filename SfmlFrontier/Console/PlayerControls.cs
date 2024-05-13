@@ -104,7 +104,7 @@ public class PlayerControls {
         if (input.Dock) {
             if (input.Shift) {
                 var dockable = playerShip.world.entities.all.OfType<IDockable>().OrderBy(d => (d.position - playerShip.position).magnitude2).ToList();
-                playerMain.sceneContainer.Children.Add(SListWidget.DockList(playerMain, dockable, playerShip));
+                playerMain.dialog = SListWidget.DockList(playerMain, dockable, playerShip);
             } else if (playerShip.dock.Target != null) {
                 if (playerShip.dock.docked) {
                     playerShip.AddMessage(new Message("Undocked"));
@@ -143,7 +143,7 @@ public class PlayerControls {
         if (input.ShipMenu) {
             playerMain.audio.button_press.Play();
             playerShip.DisengageAutopilot();
-            playerMain.sceneContainer?.Children.Add(new ShipMenu(playerMain, playerShip, playerMain.story) { IsFocused = true });
+            playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
         }
     }
     public void ProcessWithMenu() {
@@ -170,7 +170,9 @@ public class PlayerControls {
         }
         if (keys?[U] == KS.Pressed) {
             playerMain.audio.button_press.Play();
+#if false
             playerMain.sceneContainer.Children.Add(SListWidget.UsefulItems(playerMain, playerShip));
+#endif
         }
         if (input.NetworkMap && playerMain.networkMap is var nm) {
             playerMain.audio.button_press.Play();
@@ -180,24 +182,28 @@ public class PlayerControls {
 
         if(keys?[B] == KS.Pressed) {
             playerMain.audio.button_press.Play();
+#if false
             playerMain.sceneContainer.Children.Add(SListWidget.ManageDevices(playerMain, playerShip));
+#endif
         }
         if(keys?[C] == KS.Pressed) {
             playerMain.audio.button_press.Play();
+#if false
             playerMain.sceneContainer.Children.Add(SListWidget.Communications(playerMain, playerShip));
+#endif
         }
 
 
         if (keys[F1] == KS.Pressed) {
             playerMain.audio.button_press.Play();
-            SadConsole.Game.Instance.Screen = new IdentityScreen(playerMain) { IsFocused = true };
+            playerMain.dialog = new IdentityScreen(playerMain);
             //playerMain.OnIntermission();
         }
     }
     KB keys = null;
     public void UpdateInput(KB info) {
         keys = info;
-        input.Read(playerShip.person.Settings.controls, info);
+        input.Read(playerMain.Settings.controls, info);
     }
     public static Dictionary<Control, KC> standard => new() {
         { Thrust, Up },

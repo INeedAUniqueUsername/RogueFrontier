@@ -43,7 +43,7 @@ public static class SScene {
 		}
 		return result;
 	}
-	public static Dictionary<XYI, U> CenterVertical<U> (this Dictionary<XYI, U> image, ISurf c, int deltaX = 0) {
+	public static Dictionary<XYI, U> CenterVertical<U> (this Dictionary<XYI, U> image, Sf c, int deltaX = 0) {
 		var result = new Dictionary<XYI, U>();
 		int deltaY = (c.Height - (image.Max(pair => pair.Key.Y) - image.Min(pair => pair.Key.Y))) / 2;
 		foreach(((var x, var y), var u) in image) {
@@ -63,9 +63,20 @@ public static class SScene {
 }
 public interface IScene {
 	Action<IScene> Go { get; set; }
+	Action<Sf> Draw { get; set; }
 	public void Show () => Go(this);
 	public void Close () => Go(null);
+	public void Update (TimeSpan delta) { }
+	public void Render (TimeSpan delta) { }
+	public void HandleKey (KB kb) { }
+	public void HandleMouse (object mouse) { }
 }
+public interface IRender {
+	Sf sf { get; }
+	public int Width => sf.Width;
+	public int Height => sf.Height;
+}
+
 public enum NavFlags : long {
 	ESC = 0b1,
 	ENTER = 0b10
@@ -155,7 +166,8 @@ public class Dialog : IScene {
 	}
 	int deltaIndex = 2;
 
-	public Action<IScene> Go { get; set; } = default;
+	public Action<IScene> Go { get; set; } = _ => { };
+	public Action<Sf> Draw { get; set; } = _ => { };
 
 	public void Update (TimeSpan delta) {
 		ticks++;
@@ -206,7 +218,7 @@ public class Dialog : IScene {
 			}
 		}
 	}
-	public void Render (ISurf surf, TimeSpan delta) {
+	public void Render (Sf surf, TimeSpan delta) {
 		//this.RenderBackground();
 		if(background != null) {
 			foreach(((var px, var py), var t) in background) {

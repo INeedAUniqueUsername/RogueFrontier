@@ -16,8 +16,9 @@ public class TradeMenu: IScene {
     public delegate int GetPrice (Item i);
 
     public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { get; set; }
 
-    public TradeMenu (IScene prev, PlayerShip playerShip, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
+	public TradeMenu (IScene prev, PlayerShip playerShip, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
 	}
 }
 public class IntroMeeting : IPlayerInteraction {

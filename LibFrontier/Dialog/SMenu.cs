@@ -12,7 +12,7 @@ using System.Xml.Linq;
 namespace RogueFrontier;
 public static partial class SMenu {
 
-	public static void RenderBackground (this ISurf c) {
+	public static void RenderBackground (this Sf c) {
 		c.Clear(ABGR.Black, ABGR.SetA(ABGR.Black, 128));
 		/*
         var back = new Console(c.Width, c.Height);
@@ -39,7 +39,7 @@ public static partial class SMenu {
 		public Line width = Line.Single;
 		public uint f = ABGR.White, b = ABGR.Black;
 	}
-	public static void DrawRect (this ISurf surf, int xStart, int yStart, int dx, int dy, RectOptions op) {
+	public static void DrawRect (this Sf surf, int xStart, int yStart, int dx, int dy, RectOptions op) {
 		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>
 			(char)BoxInfo.IBMCGA.glyphFromInfo[new(n, e, s, w)];
 
@@ -1245,6 +1245,7 @@ public class ListMenu<T> : IScene {
     public ref string title => ref list.title;
 
 	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
 
 	public Action escape;
     public ListMenu(PlayerShip player, string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape) {
@@ -1272,7 +1273,7 @@ public class ListMenu<T> : IScene {
             list.ProcessKeyboard(keyboard);
         }
     }
-    public void Render(ISurf Surface, TimeSpan delta) {
+    public void Render(Sf Surface, TimeSpan delta) {
         Surface.Clear();
         Surface.RenderBackground();
     }
@@ -1296,7 +1297,7 @@ public class DescPanel<T> {
     public DescPanel () { }
     public void SetInfo(string name, List<Tile[]> desc) =>
         (this.name, this.desc) = (name, desc);
-    public void Render(ISurf Surface, TimeSpan delta) {
+    public void Render(Sf Surface, TimeSpan delta) {
         Surface.Clear();
         Surface.Print(0, 0, Tile.Arr(name, ABGR.Yellow, ABGR.Black));
 
@@ -1453,7 +1454,7 @@ public class ListPane<T> {
         time += delta.TotalSeconds;
     }
     const int lineWidth = 36;
-    public void Render(ISurf Surface, TimeSpan delta) {
+    public void Render(Sf Surface, TimeSpan delta) {
         int x = 0;
         int y = 0;
         int w = lineWidth + 7;
@@ -1589,7 +1590,7 @@ public class ScrollBar {
             }
         }
     }
-    public void Render(ISurf Surface, TimeSpan delta) {
+    public void Render(Sf Surface, TimeSpan delta) {
         Surface.Clear();
         if(count <= 26) {
             return;
@@ -1853,10 +1854,11 @@ public class ListWidget<T>:IScene {
     public ref string title => ref list.title;
     public ref bool groupMode => ref list.groupMode;
 
-    public Action<IScene> Go { get; set; }
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
 
 	public Action escape;
-    public ISurf Surface;
+    public Sf Surface;
     public ListWidget(string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape){
         descPane = new DescPanel<T>();
         list = new(title, items, getName, UpdateDesc) {

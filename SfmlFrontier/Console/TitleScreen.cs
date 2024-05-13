@@ -28,14 +28,15 @@ public class TitleScreen : IScene {
     public List<Message> povDesc;
     //XY screenCenter;
     public XY camera;
-    public Dictionary<(int, int), ColoredGlyph> tiles;
+    public Dictionary<(int, int), Tile> tiles;
     public byte[] titleMusic = File.ReadAllBytes("Assets/music/Title.wav");
-
-	public Action<IScene> Go { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-    ISurf Surface;
-	public TitleScreen(ISurf Surface, System World) {
-        this.Surface = Surface;
+    public Action<IScene> Go { set; get; } = _ => { };
+    public Action<Sf> Draw { set; get; } = _ => { };
+    public int Width => sf.Width;
+    public int Height => sf.Height;
+	public Sf sf;
+	public TitleScreen(int Width, int Height, System World) {
+        this.sf = new Sf(Width, Height);
         this.World = World;
 
         profile = Profile.Load(out var p) ? p : new Profile();
@@ -48,27 +49,30 @@ public class TitleScreen : IScene {
 
         int x = 2;
         int y = 9;
-        var fs = FontSize * 1;
+        //var fs = FontSize * 1;
 
+#if false
         Button("[Enter]   Play Story Mode", StartGame);
         Button("[Shift-A] Arena Mode", StartArena);
         Button("[Shift-C] Controls", StartConfig);
         Button("[Shift-L] Load Game", StartLoad);
-        Button("[Shift-S] Survival Mode", StartSurvival);
         Button("[Shift-Z] Credits", StartCredits);
         Button("[Escape]  Exit", Exit);
-        void Button(string s, Action a) =>
-            Children.Add(new LabelButton(s, a) { Position = new(x, y++), FontSize = fs });
+        void Button (string s, Action a)
+            //=> Children.Add(new LabelButton(s, a) { Position = new(x, y++), FontSize = fs });
+            { return; }
+#endif
         var f = "Settings.json";
         if (File.Exists(f)) {
             settings = SaveGame.Deserialize<Settings>(File.ReadAllText(f));
         } else {
             settings = Settings.standard;
         }
+#if false
         config = new(48, 64, settings) { Position = new(0, 30), FontSize = fs };
         load = new(48, 64, profile) { Position = new(0, 30), FontSize = fs };
         credits = new(48, 64) { Position = new(0, 30), FontSize = fs };
-
+        
         y = 0;
         credits.Children.Add(new Label("[Credits]") { Position = new(0, y++) });
         y++;
@@ -79,7 +83,10 @@ public class TitleScreen : IScene {
         y++;
         credits.Children.Add(new Label("Rogue Frontier is an independent project inspired by Transcendence") { Position = new(0, y++) });
         credits.Children.Add(new Label("Transcendence is a trademark of Kronosaur Productions") { Position = new(0, y++) });
+#endif
     }
+#if false
+
     private void StartGame() {
         //Tones.pressed.Play();
         SadConsole.Game.Instance.Screen = new TitleSlideIn(this, new PlayerCreator(this, World, settings, StartCrawl)) { IsFocused = true };
@@ -100,7 +107,7 @@ public class TitleScreen : IScene {
             var playerClass = playable[index];
 
             IntroCrawl crawl = null;
-            crawl = new(Surface, () => null) { IsFocused = true };
+            crawl = new(sf, () => null) { IsFocused = true };
             SadConsole.Game.Instance.Screen = crawl;
 
             var crawlMusic = new Sound(new SoundBuffer("Assets/music/Crawl.wav")) {
@@ -228,85 +235,12 @@ public class TitleScreen : IScene {
             load.Reset();
         }
     }
-    public void StartSurvival() {
-        Tones.pressed.Play();
-        Game.Instance.Screen = new PlayerCreator(this, World, settings, CreateGame) { IsFocused = true };
-
-        void CreateGame(ShipSelectorModel context) {
-            var loc = $"{AppDomain.CurrentDomain.BaseDirectory}/save/{context.playerName}";
-            string file;
-            do { file = $"{loc}-{new Random().Next(9999)}.sav"; }
-            while (File.Exists(file));
-
-
-            Player player = new Player() {
-                Settings = settings,
-                file = file,
-                name = context.playerName,
-                Genome = context.playerGenome
-            };
-
-            var (playable, index) = (context.playable, context.shipIndex);
-            var playerClass = playable[index];
-
-            //Name is seed
-            var seed = player.name.GetHashCode();
-
-            var playerStart = new XY(0, 0);
-            var playerSovereign = World.types.Lookup<Sovereign>("sovereign_player");
-            var playerShip = new PlayerShip(player, new BaseShip(World, playerClass, playerStart), playerSovereign);
-            playerShip.AddMessage(new Message("Welcome to the Rogue Frontier!"));
-
-            World.RemoveAll();
-
-
-            World.AddEffect(new Heading(playerShip));
-            World.AddEntity(playerShip);
-            AddStarterKit(playerShip);
-
-            World.AddEvent(new Waves(playerShip));
-
-            var stationType = World.types.Lookup<StationType>("station_constellation_astra");
-            var station = new Station(World, stationType, playerStart);
-            station.onDestroyed += new NotifyStationDestroyed(playerShip, station);
-            World.AddEntity(station);
-            station.CreateSegments();
-            station.CreateGuards();
-
-
-            //playerShip.powers.AddRange(World.types.Get<PowerType>().Select(pt => new Power(pt)));
-
-            var playerMain = new Mainframe(Width, Height, profile, playerShip);
-            playerShip.onDestroyed += playerMain;
-
-            playerMain.Update(new());
-            playerMain.PlaceTiles(new());
-            playerMain.RenderWorld(new());
-
-            MinimalCrawlScreen ds = null;
-            ds = new MinimalCrawlScreen(
-@"You find yourself in the Zone of No Escape.
-
-Unidentified spacecraft appear out of nowhere
-and make no response to your transmissions...
-
-Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new Point(Width / 4, 8), IsFocused = true };
-
-
-            SadConsole.Game.Instance.Screen = ds;
-            void IntroPause() {
-                SadConsole.Game.Instance.Screen = new Pause(ds, StartGame, 3) { IsFocused = true };
-            }
-            void StartGame() {
-                SadConsole.Game.Instance.Screen = playerMain;
-                playerMain.IsFocused = true;
-            }
-        }
-    }
+    */
+#endif
     private void Exit() {
         Environment.Exit(0);
     }
-    public override void Update(TimeSpan timeSpan) {
+    public void Update(TimeSpan timeSpan) {
         World.UpdateActive(timeSpan.TotalSeconds);
         World.UpdatePresent();
         tiles.Clear();
@@ -349,7 +283,7 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
                     new Message(pov.name),
                 };
         if (pov.hull is LayeredArmor las) {
-            povDesc.AddRange(las.GetDesc().Select(m => new Message(m.String)));
+            povDesc.AddRange(las.GetDesc().Select((m, i) => new Message(new string([..m.Select(t => (char)t.Glyph)]))));
         } else if (pov.hull is HP hp) {
             povDesc.Add(new Message($"HP: {hp}"));
         }
@@ -357,13 +291,13 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
             povDesc.Add(new Message(device.source.type.name));
         }
     }
-    public override void Render(TimeSpan drawTime) {
-        this.Clear();
+    public void Render(TimeSpan drawTime) {
+        sf.Clear();
         var titleY = 0;
-        title.ToList().ForEach(line => this.Print(0, titleY++, line, Color.White, Color.Black));
+        title.ToList().ForEach(line => sf.Print(0, titleY++, line, ABGR.White, ABGR.Black));
         //Wait until we are focused to print the POV desc
         //This will happen when TitleSlide transition finishes
-        if (IsFocused) {
+        if (true) {
             int descX = Width / 2;
             int descY = Height * 3 / 4;
 
@@ -374,124 +308,43 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
 
                 var lineX = descX + (indent ? 8 : 0);
 
-                this.Print(lineX, descY, line.Draw());
+                sf.Print(lineX, descY, line.Draw());
                 indent = true;
                 descY++;
             }
         }
         foreach(var x in Enumerable.Range(0, Width)) {
             foreach(var y in Enumerable.Range(0, Height)) {
-                var g = this.GetGlyph(x, y);
+                var g = sf.GetGlyph(x, y);
                 var offset = new XY(x, Height - y) - new XY(Width / 2, Height / 2);
                 var location = camera + offset;
-                if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
+                if (g == 0 || g == ' ' || ABGR.A(sf.GetFront(x, y)) == 0) {
                     if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                        if (tile.Background.A < 255) {
-                            tile.Background = World.backdrop.GetBackground(location, camera).Blend(tile.Background);
+                        if (ABGR.A(tile.Background) < 255) {
+                            tile = tile with { Background = ABGR.Blend(World.backdrop.GetBackground(location, camera), tile.Background) };
                         }
-                        this.SetCellAppearance(x, y, tile);
+                        sf.SetTile(x, y, tile);
                     } else {
-                        this.SetCellAppearance(x, y, World.backdrop.GetTile(location, camera));
+                        sf.SetTile(x, y, World.backdrop.GetTile(location, camera));
                     }
                 } else {
 
-                    this.SetBackground(x, y, World.backdrop.GetBackground(location, camera));
+                    sf.SetBack(x, y, World.backdrop.GetBackground(location, camera));
                 }
             }
         }
 
-        /*
-        int tiling = 2;
-        int w = Width / tiling;
-        int h = Height / tiling;
-        Parallel.For(0, tiling * tiling, i => {
-            (int _x, int _y) = (w * (i % tiling), h * (i / tiling));
-
-            foreach(var x in Enumerable.Range(_x, w)) {
-                foreach(var y in Enumerable.Range(_y, h)) {
-
-                    var g = this.GetGlyph(x, y);
-
-                    var offset = new XY(x, Height - y) - new XY(Width / 2, Height / 2);
-                    var location = camera + offset;
-                    if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
-
-
-                        if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                            if (tile.Background == Color.Transparent) {
-                                tile.Background = World.backdrop.GetBackground(location, camera);
-                            }
-                            this.SetCellAppearance(x, y, tile);
-                        } else {
-                            this.SetCellAppearance(x, y, World.backdrop.GetTile(location, camera));
-                        }
-                    } else {
-                        this.SetBackground(x, y, World.backdrop.GetBackground(location, camera));
-                    }
-                }
-            }
-        });
-        */
-
-        /*
-        for (int x = 0; x < Width; x++) {
-            for (int y = 0; y < Height; y++) {
-                var g = this.GetGlyph(x, y);
-
-                var offset = new XY(x, Height - y) - new XY(Width / 2, Height / 2);
-                var location = camera + offset;
-                if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
-
-
-                    if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                        if (tile.Background == Color.Transparent) {
-                            tile.Background = World.backdrop.GetBackground(location, camera);
-                        }
-                        this.SetCellAppearance(x, y, tile);
-                    } else {
-                        this.SetCellAppearance(x, y, World.backdrop.GetTile(location, camera));
-                    }
-                } else {
-                    this.SetBackground(x, y, World.backdrop.GetBackground(location, camera));
-                }
-
-            }
-        }
-        */
-        /*
-        Parallel.For(0, Width * Height, i => {
-            (int x, int y) = (i % Width, i / Width);
-            var g = this.GetGlyph(x, y);
-            var offset = new XY(x, Height - y) - new XY(Width / 2, Height / 2);
-            var location = camera + offset;
-            if (g == 0 || g == ' ' || this.GetForeground(x, y).A == 0) {
-
-
-                if (tiles.TryGetValue(location.roundDown, out var tile)) {
-                    if (tile.Background == Color.Transparent) {
-                        tile.Background = World.backdrop.GetBackground(location, camera);
-                    }
-                    this.SetCellAppearance(x, y, tile);
-                } else {
-                    this.SetCellAppearance(x, y, World.backdrop.GetTile(location, camera));
-                }
-            } else {
-                this.SetBackground(x, y, World.backdrop.GetBackground(location, camera));
-            }
-        });
-        */
-
-        base.Render(drawTime);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
-        if (info.IsKeyPressed(Keys.K)) {
-            if (pov.active) {
+    public void ProcessKeyboard (KB info) {
+        if(info[KC.K] == KS.Pressed) {
+            if(pov.active) {
                 pov.Destroy(pov);
             }
         }
-        if (info.IsKeyPressed(Keys.P)) {
+        if(info[KC.P] == KS.Pressed) {
 
         }
+#if false
         if (info.IsKeyPressed(Enter)) {
             StartGame();
         }
@@ -517,21 +370,16 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
             if (info.IsKeyPressed(P)) {
                 StartProfile();
             }
-            if (info.IsKeyPressed(S)) {
-                StartSurvival();
-            }
             if (info.IsKeyPressed(Z)) {
                 StartCredits();
             }
-#if DEBUG
             if (info.IsKeyPressed(G)) {
                 QuickStart();
             }
-#endif
         }
-        return base.ProcessKeyboard(info);
-    }
-#if DEBUG
+#endif
+	}
+#if false
     public void QuickStart() {
 
         if (true) {
@@ -590,7 +438,7 @@ Survive as long as you can.".Replace("\r", null), IntroPause) { Position = new P
         SadConsole.Game.Instance.Screen = playerMain;
     }
 #endif
-    void AddStarterKit(PlayerShip playerShip) {
+	void AddStarterKit(PlayerShip playerShip) {
         var tc = playerShip.world.types;
         playerShip.cargo.UnionWith(Group<Item>.From(tc, SGenerator.ParseFrom(tc, SGenerator.ItemFrom),
           @"<Items>

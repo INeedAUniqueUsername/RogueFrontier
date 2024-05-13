@@ -15,7 +15,7 @@ using LibGamer;
 using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
 
-class IntroCrawl {
+class IntroCrawl : IScene {
     private readonly TileImage[] images = {
             new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
             new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
@@ -66,12 +66,19 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
 
     //LoadingSymbol spinner;
 
-    ColoredString[] effect;
+    Tile[,] effect;
 
     List<CloudParticle> clouds;
 
     Random random = new Random();
-    public IntroCrawl(int Width, int Height, Func<Console> next) {
+
+    Sf sf;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public IntroCrawl(int Width, int Height, Func<Console> next) {
+        this.sf = new Sf(Width, Height);
         this.Width = Width;
         this.Height = Height;
         this.next = next;
@@ -81,29 +88,28 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
         tick = 0;
         int effectWidth = Width * 3 / 5;
         int effectHeight = Height * 3 / 5;
-        effect = new ColoredString[effectHeight];
+        effect = new Tile[effectWidth, effectHeight];
         for (int y = 0; y < effectHeight; y++) {
-            effect[y] = new ColoredString(effectWidth);
             for (int x = 0; x < effectWidth; x++) {
-                effect[y][x] = GetGlyph(x, y);
+                effect[x,y] = GetGlyph(x, y);
             }
         }
         //spinner = new LoadingSymbol(16);
         clouds = new List<CloudParticle>();
-        Color Front(int value) {
-            return new Color(255 - value / 2, 255 - value, 255, 255 - value / 4);
+        uint Front(int value) {
+            return ABGR.RGBA((byte)(255 - value / 2), (byte)(255 - value), 255, (byte)(255 - value / 4));
             //return new Color(128 + value / 2, 128 + value/4, 255);
         }
-        Color Back(int value) {
+        uint Back(int value) {
             //return new Color(255 - value, 255 - value, 255 - value).Noise(r, 0.3).Round(17).Subtract(25);
-            return new Color(204 - value, 204 - value, 255 - value).Noise(random, 0.3).Round(17).Subtract(25);
+            return ABGR.RGB((byte)(204 - value), (byte)(204 - value), (byte)(255 - value));//.Noise(random, 0.3).Round(17).Subtract(25);
         }
-        ColoredGlyphAndEffect GetGlyph(int x, int y) {
-            Color front = Front(255 * x / effectWidth);
-            Color back = Back(255 * x / effectWidth);
+        Tile GetGlyph(int x, int y) {
+            uint front = Front(255 * x / effectWidth);
+            uint back = Back(255 * x / effectWidth);
             char c;
             if (random.Next(x) < 5
-                || (effect[y][x - 1].GlyphCharacter != ' ' && random.Next(x) < 10)
+                || (effect[x - 1,y].Glyph != ' ' && random.Next(x) < 10)
                 ) {
                 const string vwls = "?&%~=+;";
                 c = vwls[random.Next(vwls.Length)];
@@ -112,7 +118,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
             }
 
 
-            return new ColoredGlyphAndEffect() { Foreground = front, Background = back, Glyph = c };
+            return new Tile(front, back, c);
         }
     }
     public void Update(TimeSpan time) {
@@ -159,7 +165,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
         }
     }
     public void Render(TimeSpan drawTime) {
-        this.Clear();
+        sf.Clear();
 
         int topEdge = Height / 5;
         int bottomEdge = 4 * Height / 5;
@@ -168,7 +174,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                     //Print background
                     int effectY = topEdge;
                     foreach (var line in effect) {
-                        this.Print(0, effectY, line);
+                        sf.Print(0, effectY, line);
                         effectY++;
                     }
                     break;
@@ -177,15 +183,24 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                     foreach ((var p, var t) in images[0].Sprite
                         .Where(p => p.Key.x < backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 
-                        this.SetCellAppearance(p.x, p.y, t);
+                        sf.SetTile(p.x, p.y, t);
                     }
 
                     int effectY = topEdge;
-                    foreach (var line in effect
+                    IEnumerable<Tile[]> GetRows() {
+                        for(int y = 0; y < effect.GetLength(1); y++) {
+                            IEnumerable<Tile> GetItems () {
+                                for(int x = 0; x < effect.GetLength(0); x++) {
+                                    yield return effect[x, y];
+                                }
+                            }
+                            yield return [..GetItems()];
+                        }
+                    }
+                    foreach (var line in GetRows()
                         .Where(l => l.Count() > backgroundSlideX)
-                        .Select(l => l.SubString(backgroundSlideX))) {
-
-                        this.Print(backgroundSlideX, effectY, line);
+                        .Select((l, i) => l[backgroundSlideX..])) {
+                        sf.Print(backgroundSlideX, effectY, line);
                         effectY++;
                     }
 
@@ -196,14 +211,14 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                         foreach ((var p, var t) in images[0].Sprite
                             .Where(p => p.Key.x >= backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 
-                            this.SetCellAppearance(p.x, p.y, t);
+                            sf.SetTile(p.x, p.y, t);
                         }
                     }
 
                     foreach ((var p, var t) in images[1].Sprite
                         .Where(p => p.Key.x < backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 
-                        this.SetCellAppearance(p.x, p.y, t);
+                        sf.SetTile(p.x, p.y, t);
                     }
                     break;
                 }
@@ -212,14 +227,14 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                         foreach ((var p, var t) in images[1].Sprite
                             .Where(p => p.Key.x >= backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 
-                            this.SetCellAppearance(p.x, p.y, t);
+                            sf.SetTile(p.x, p.y, t);
                         }
                     }
                     var b = new ColoredGlyph(Color.Black, Color.Black, 0);
                     foreach ((var p, var t) in images[1].Sprite
                         .Where(p => p.Key.x < backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 
-                        this.SetCellAppearance(p.x, p.y, b);
+                        sf.SetTile(p.x, p.y, b);
                     }
                     break;
                 }
@@ -228,8 +243,8 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
         var top = Height - 1;
         foreach (var cloud in clouds) {
             var (x, y) = cloud.pos;
-            this.SetForeground(x, top - y, cloud.symbol.Foreground);
-            this.SetGlyph(x, top - y, cloud.symbol.Glyph);
+            sf.SetFront(x, top - y, cloud.symbol.Foreground);
+            sf.SetGlyph(x, top - y, cloud.symbol.Glyph);
         }
 
 
@@ -260,7 +275,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                     textY++;
                 } else {
                     if (c != ' ') {
-                        this.Print(textX, textY, "" + c, Color.White, this.GetBackground(textX, textY));
+                        sf.Print(textX, textY, "" + c, ABGR.White, sf.GetBack(textX, textY));
                     }
                     textX++;
                 }
@@ -274,7 +289,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                     textY++;
                 } else {
                     if (c != ' ') {
-                        this.Print(textX, textY, "" + c, Color.White, this.GetBackground(textX, textY));
+                        sf.Print(textX, textY, "" + c, ABGR.White, sf.GetBack(textX, textY));
                     }
                     textX++;
                 }
@@ -292,7 +307,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
         }
         */
     }
-    public bool ProcessKeyboard(Keyboard info) {
+    public void HandleKey (Keyboard info) {
         if (info.IsKeyPressed(SadConsole.Input.Keys.Enter)) {
             if (speedUp) {
                 sectionNumber = text.Length;

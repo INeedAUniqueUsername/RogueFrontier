@@ -16,4 +16,5 @@ public class Player {
 
     public int money;
     public Player() { }
+    
 }

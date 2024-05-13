@@ -9,14 +9,14 @@ using Console = SadConsole.Console;
 namespace RogueFrontier;
 
 public class Viewport {
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     public Camera camera;
     public System world;
     public Dictionary<(int, int), Tile> tiles=new();
-    public ISurf Surface;
-    public Viewport(Monitor m) {
-        this.Surface = Surface;
+    public Sf sf;
+    public Viewport(int Width, int Height, Monitor m) {
+        this.sf = new Sf(Width, Height);
         camera = m.camera;
         world = m.world;
     }
@@ -32,7 +32,7 @@ public class Viewport {
         world.PlaceTilesVisible(tiles, getVisibleDistanceLeft);
     }
     public void Render(TimeSpan delta) {
-        Surface.Clear();
+        sf.Clear();
         int HalfViewWidth = Width / 2;
         int HalfViewHeight = Height / 2;
         for (int x = -HalfViewWidth; x < HalfViewWidth; x++) {
@@ -41,7 +41,7 @@ public class Viewport {
                 if (tiles.TryGetValue(location.roundDown, out var tile)) {
                     var xScreen = x + HalfViewWidth;
                     var yScreen = HalfViewHeight - y;
-                    Surface.Tile[xScreen, yScreen] = tile;
+                    sf.Tile[xScreen, yScreen] = tile;
                 }
             }
         }

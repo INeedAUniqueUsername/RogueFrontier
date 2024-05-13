@@ -8,10 +8,11 @@ using SadRogue.Primitives;
 using System.IO;
 using Common;
 using System.Linq;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class PauseScreen : ISadSurface {
+public class PauseScreen : IScene {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
 
@@ -20,7 +21,11 @@ public class PauseScreen : ISadSurface {
 
     public int Width => Surface.Width;
     public int Height => Surface.Height;
-    public PauseScreen(Mainframe playerMain) {
+
+	public Action<IScene> Go { get;set; }
+	public Action<Sf> Draw { get;set; }
+
+	public PauseScreen(Mainframe playerMain) {
         Surface = new(playerMain.Width, playerMain.Height);
 
 		this.playerMain = playerMain;
@@ -52,7 +57,7 @@ public class PauseScreen : ISadSurface {
     public void Render(TimeSpan delta) {
         Surface.Clear();
 
-        var c = new ConsoleComposite(playerMain.back.Surface, playerMain.viewport.Surface);
+        var c = new ConsoleComposite();//(playerMain.back.Surface, playerMain.viewport.sf);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 var source = c[x, y];
@@ -129,6 +134,6 @@ public class PauseScreen : ISadSurface {
     }
     public void Quit() {
         var w = playerMain.world;
-        GameHost.Instance.Screen = new TitleScreen(playerMain.Width, playerMain.Height, new System(new Universe(w.types, new Rand()))) { IsFocused = true };
+        Go(new TitleScreen(playerMain.Width, playerMain.Height, new System(new Universe(w.types, new Rand()))));
     }
 }
