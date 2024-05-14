@@ -267,7 +267,7 @@
 					sovereign=	"sovereign_orion_warlords"
 					stealth=	"4"
 					behavior=	"orionWarlords"
-					structure=	"Assets/sprites/OrionWarlordsCamp.asc.cg"
+					structure=	"Assets/sprites/OrionWarlordsCamp.dat"
 		>
 
 		<HP	maxHP="250"/>
@@ -363,7 +363,7 @@
 					
 					behavior=	"orionWarlords"
 
-					structure=	"Assets/sprites/OrionWarlordsStronghold.asc.cg"
+					structure=	"Assets/sprites/OrionWarlordsStronghold.dat"
 		>
 
 		<HP	maxHP="500"/>

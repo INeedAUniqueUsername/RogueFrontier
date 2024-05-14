@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bi3thh6p8l4us"
-path="res://.godot/imported/Square.png-19b7097dfd7536043f3249a8cd6ffaf7.ctex"
+path="res://.godot/imported/Square.png-8e5186abb628e591ef301510b25cbdf3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/Square.png"
-dest_files=["res://.godot/imported/Square.png-19b7097dfd7536043f3249a8cd6ffaf7.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/Square.png"
+dest_files=["res://.godot/imported/Square.png-8e5186abb628e591ef301510b25cbdf3.ctex"]
 
 [params]
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dmlx6dj745ekt"
-path="res://.godot/imported/TheSilentAlbum_v2.asc.png-0ef9b0b468ff3e4dbc383c6268704d7e.ctex"
+path="res://.godot/imported/TheSilentAlbum_v2.asc.png-01044ea51727e6906f43da5562ff815b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/TheSilentAlbum_v2.asc.png"
-dest_files=["res://.godot/imported/TheSilentAlbum_v2.asc.png-0ef9b0b468ff3e4dbc383c6268704d7e.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/TheSilentAlbum_v2.asc.png"
+dest_files=["res://.godot/imported/TheSilentAlbum_v2.asc.png-01044ea51727e6906f43da5562ff815b.ctex"]
 
 [params]
 

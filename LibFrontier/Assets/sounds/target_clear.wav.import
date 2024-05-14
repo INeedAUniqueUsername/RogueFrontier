@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://diadl2weohfsg"
-path="res://.godot/imported/target_clear.wav-870acb9df8bdc209359d0f21104899f8.sample"
+path="res://.godot/imported/target_clear.wav-e141936c4eee5ba34c709570c56e4dfc.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/target_clear.wav"
-dest_files=["res://.godot/imported/target_clear.wav-870acb9df8bdc209359d0f21104899f8.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/target_clear.wav"
+dest_files=["res://.godot/imported/target_clear.wav-e141936c4eee5ba34c709570c56e4dfc.sample"]
 
 [params]
 

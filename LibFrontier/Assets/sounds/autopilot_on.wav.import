@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bwtlpqpvpk51v"
-path="res://.godot/imported/autopilot_on.wav-4ceaf73858f65cdb25891eb822b118c9.sample"
+path="res://.godot/imported/autopilot_on.wav-3809b4ae081c89317d2585b4981ca6c3.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/autopilot_on.wav"
-dest_files=["res://.godot/imported/autopilot_on.wav-4ceaf73858f65cdb25891eb822b118c9.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/autopilot_on.wav"
+dest_files=["res://.godot/imported/autopilot_on.wav-3809b4ae081c89317d2585b4981ca6c3.sample"]
 
 [params]
 

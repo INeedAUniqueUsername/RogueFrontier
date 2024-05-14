@@ -1,4 +1,8 @@
-﻿using Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using RangeExtensions;
+using Common;
 
 namespace LibGamer;
 public record Rect(int x, int y, int width, int height) {

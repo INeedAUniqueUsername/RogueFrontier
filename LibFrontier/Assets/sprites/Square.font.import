@@ -3,12 +3,12 @@
 importer="font_data_bmfont"
 type="FontFile"
 uid="uid://jrhv7cu6li2v"
-path="res://.godot/imported/Square.font-d695b0c27cc4098015e89f32978a3f16.fontdata"
+path="res://.godot/imported/Square.font-bcc1b1adfd580f2f0dc556c935c03d22.fontdata"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/Square.font"
-dest_files=["res://.godot/imported/Square.font-d695b0c27cc4098015e89f32978a3f16.fontdata"]
+source_file="res://Lib/LibFrontier/Assets/sprites/Square.font"
+dest_files=["res://.godot/imported/Square.font-bcc1b1adfd580f2f0dc556c935c03d22.fontdata"]
 
 [params]
 

@@ -12,7 +12,7 @@ namespace LibGamer;
 /// Surface of Tiles. Wrapper for array of tiles.
 /// </summary>
 public class Sf {
-
+	public bool redraw = false;
 	public XY pos = (0, 0);
 	public Sf(int Width, int Height, int Scale = 1) {
 		this.Width = Width;
@@ -28,28 +28,54 @@ public class Sf {
 	public int Height { get; }
 	public int Scale { get; }
 	public Tile[] Data;
+
+	public HashSet<(int x, int y)> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
 	public int GetIndex (int x, int y) => y * Width + x;
-	public void Clear (uint front = 0, uint back = 0, uint glyph = 0) => Array.Fill(Data, LibGamer.Tile.empty);
+	public void Clear (uint front = 0, uint back = 0, uint glyph = 0) {
+		redraw = true;
+
+		Active.Clear();
+		Array.Fill(Data, LibGamer.Tile.empty);
+	}
 	public uint GetFront (int x, int y) => Data[GetIndex(x, y)].Foreground;
 	public void SetFront (int x, int y, uint color) {
+		
 		ref var t = ref Data[GetIndex(x, y)];
+		if(t.Foreground == color) return;
+		Active.Add((x, y));
+		redraw = true;
 		t = t with { Foreground = color };
 	}
 	public uint GetBack (int x, int y) => Data[GetIndex(x, y)].Background;
 	public void SetBack (int x, int y, uint color) {
 		ref var t = ref Data[GetIndex(x, y)];
+		if(t.Background == color) return;
+		Active.Add((x, y));
+		redraw = true;
 		t = t with { Background = color };
 	}
 	public uint GetGlyph (int x, int y) => Data[GetIndex(x, y)].Glyph;
 	public void SetGlyph (int x, int y, uint g) {
 		ref var t = ref Data[GetIndex(x, y)];
+		if(t.Glyph == g) return;
+		Active.Add((x, y));
+		redraw = true;
 		t = t with { Glyph = g };
 	}
 	public Tile GetTile (int x, int y) => Data[GetIndex(x, y)];
-	public void SetTile (int x, int y, Tile g) => Data[GetIndex(x, y)] = g;
+	public void SetTile (int x, int y, Tile g) {
+
+		ref var t = ref Data[GetIndex(x, y)];
+		if(t == g) return;
+		Active.Add((x, y));
+		redraw = true;
+		Data[GetIndex(x, y)] = g;
+	
+	
+	}
 	public void Print (int x, int y, params Tile[] str) {
 		var i = GetIndex(x, y);
 		foreach(var t in str) {

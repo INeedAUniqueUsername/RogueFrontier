@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://ciaa7q4obey20"
-path="res://.godot/imported/dock_end.wav-ffd1dd832b94138cdd4e875d45978aab.sample"
+path="res://.godot/imported/dock_end.wav-d823f0b26b45e3c35e6edeace117853a.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/dock_end.wav"
-dest_files=["res://.godot/imported/dock_end.wav-ffd1dd832b94138cdd4e875d45978aab.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/dock_end.wav"
+dest_files=["res://.godot/imported/dock_end.wav-d823f0b26b45e3c35e6edeace117853a.sample"]
 
 [params]
 

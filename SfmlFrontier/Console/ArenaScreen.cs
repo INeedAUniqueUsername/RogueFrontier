@@ -1,16 +1,9 @@
 ﻿using SadConsole.Input;
-using System;
-using System.Collections.Generic;
 using SadRogue.Primitives;
 using Common;
 using LibGamer;
-using SadConsole;
-using Console = SadConsole.Console;
-using System.Linq;
 using static SadConsole.Input.Keys;
 using ArchConsole;
-using static RogueFrontier.PlayerShip;
-using System.Text.Json.Serialization;
 
 namespace RogueFrontier;
 
@@ -21,7 +14,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
     public void Observe(PlayerShip.Destroyed ev) => Reset();
 
     TitleScreen prev;
-    Settings settings;
+    ShipControls settings;
     System World;
     public XY camera;
     public Dictionary<(int, int), Tile> tiles;
@@ -38,7 +31,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
     public Action<IScene> Go { get; set; }
     public Action<Sf> Draw { get; set; }
 
-    public ArenaScreen(TitleScreen prev, Settings settings, System World) {
+    public ArenaScreen(TitleScreen prev, ShipControls settings, System World) {
         this.prev = prev;
         this.sf = new Sf(prev.Width, prev.Height);
 		this.settings = settings;
@@ -516,7 +509,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
             return;
         }
 
-        mouse.Update(state, IsMouseOver);
+        mouse.Update(state, state.IsOnScreenObject);
         mouse.nowPos = new Point(mouse.nowPos.X, Height - mouse.nowPos.Y);
         if (mouse.left == ClickState.Held) {
             camera += new XY(mouse.prevPos - mouse.nowPos);

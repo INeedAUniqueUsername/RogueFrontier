@@ -1,11 +1,4 @@
-﻿
-using ArchConsole;
-using LibGamer;
-using SadConsole;
-using SadConsole.Input;
-using SadRogue.Primitives;
-using System;
-using System.Linq;
+﻿using LibGamer;
 
 namespace RogueFrontier;
 
@@ -148,7 +141,7 @@ public class IntermissionScreen : IScene {
     }
     public void Continue() {
         game.Save();
-        game.OnLoad(playerMain);
+        //game.OnLoad(playerMain);
 
         Go(new TitleSlideOpening(new Pause(playerMain.sf, Resume, 4), playerMain.sf));
         void Resume() {

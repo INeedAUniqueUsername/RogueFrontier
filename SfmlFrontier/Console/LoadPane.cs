@@ -1,22 +1,23 @@
 ﻿using ArchConsole;
+using LibGamer;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using System;
-using System.IO;
-using System.Linq;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier;
 
-class LoadPane : Console {
+class LoadPane : IScene {
     Profile profile;
-    public LoadPane(int Width, int Height, Profile profile) : base(Width, Height) {
+    Sf sf;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+    public List<object> Children = new();
+
+	public LoadPane(int Width, int Height, Profile profile) {
+        sf = new Sf(Width, Height);
         this.profile = profile;
-
-        UseKeyboard = true;
-        FocusOnMouseClick = true;
-
         Init();
     }
     public void Reset() {
@@ -45,11 +46,11 @@ class LoadPane : Console {
                                 //live.playerShip.player.Settings;
 
                                 live.playerShip.onDestroyed += playerMain;
-                                GameHost.Instance.Screen = playerMain;
-
+                                Go(playerMain);
+                                
 
                                 //If we have any load hooks, trigger them now
-                                live.hook?.Value(playerMain);
+                                //live.hook?.Value(playerMain);
                                 break;
                             }
                         case DeadGame dead: {
@@ -58,26 +59,23 @@ class LoadPane : Console {
                                 playerMain.PlaceTiles(new());
                                 var deathScreen = new EpitaphScreen(playerMain, dead.epitaph);
                                 dead.playerShip.onDestroyed +=playerMain;
-                                GameHost.Instance.Screen = deathScreen;
-                                deathScreen.IsFocused = true;
+                                Go(deathScreen);
                                 break;
                             }
                     }
-                }) { Position = new Point(x, y++), FontSize = FontSize };
+                }) { Position = new Point(x, y++), /*FontSize = FontSize*/ };
                 Children.Add(b);
             }
         } else {
-            Children.Add(new Label("No save files found") { Position = new Point(x, y++), FontSize = FontSize });
+            Children.Add(new Label("No save files found") { Position = new Point(x, y++), /*FontSize = FontSize*/ });
         }
     }
 
-    public override bool ProcessKeyboard(Keyboard info) {
+    public void HandleKey(Keyboard info) {
         if (info.IsKeyPressed(Keys.Escape)) {
-            Parent.Children.Remove(this);
+            Go(null);
         }
-        return base.ProcessKeyboard(info);
     }
-    public override bool ProcessMouse(MouseScreenObjectState state) {
-        return base.ProcessMouse(state);
+    public void HandleMouse(MouseScreenObjectState state) {
     }
 }

@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://b0ne61epp0nek"
-path="res://.godot/imported/square.ttf-49904a781b9ebc33450610037acbeb15.fontdata"
+path="res://.godot/imported/square.ttf-097a39e35eeb0c49fdef5da00996eee1.fontdata"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/square.ttf"
-dest_files=["res://.godot/imported/square.ttf-49904a781b9ebc33450610037acbeb15.fontdata"]
+source_file="res://Lib/LibFrontier/Assets/sprites/square.ttf"
+dest_files=["res://.godot/imported/square.ttf-097a39e35eeb0c49fdef5da00996eee1.fontdata"]
 
 [params]
 

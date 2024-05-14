@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cdedrww5ttiet"
-path="res://.godot/imported/crossbow_heavy.wav-a19466b2af75836d6b0371d0411468bd.sample"
+path="res://.godot/imported/crossbow_heavy.wav-dc587dbc9d3e0473a03a4675e3fb328d.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/crossbow_heavy.wav"
-dest_files=["res://.godot/imported/crossbow_heavy.wav-a19466b2af75836d6b0371d0411468bd.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/crossbow_heavy.wav"
+dest_files=["res://.godot/imported/crossbow_heavy.wav-dc587dbc9d3e0473a03a4675e3fb328d.sample"]
 
 [params]
 

@@ -10,7 +10,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-		<ProjectReference Include="..\SfmlASECII\SfmlASECII.csproj" />
+		<ProjectReference Include="..\LibSadConsole\LibSadConsole.csproj" />
 	</ItemGroup>
 
 </Project>

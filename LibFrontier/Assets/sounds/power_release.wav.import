@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cti6t8rv2nleo"
-path="res://.godot/imported/power_release.wav-3324e03b65af8fb5bf6bd084029fc15a.sample"
+path="res://.godot/imported/power_release.wav-478233a7c4592e1c5b4bcd071c35922b.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/power_release.wav"
-dest_files=["res://.godot/imported/power_release.wav-3324e03b65af8fb5bf6bd084029fc15a.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/power_release.wav"
+dest_files=["res://.godot/imported/power_release.wav-478233a7c4592e1c5b4bcd071c35922b.sample"]
 
 [params]
 

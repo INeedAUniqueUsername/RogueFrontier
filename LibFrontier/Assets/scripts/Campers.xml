@@ -8,7 +8,7 @@
 
 		behavior=	"none"
 
-		structure=	"Assets/sprites/CamperOutpost.asc.cg"
+		structure=	"Assets/sprites/CamperOutpost.dat"
 		>
 
 		<HP	maxHP="300"/>

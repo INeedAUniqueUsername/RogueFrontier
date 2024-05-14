@@ -1,13 +1,8 @@
 ﻿using ArchConsole;
 using SadConsole;
 using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using Console = SadConsole.Console;
 using SadRogue.Primitives;
-using System.IO;
 using Common;
-using System.Linq;
 using LibGamer;
 
 namespace RogueFrontier;
@@ -15,27 +10,19 @@ namespace RogueFrontier;
 public class PauseScreen : IScene {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
-
     public ScreenSurface Surface { get; private init; }
     public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
-
     public int Width => Surface.Width;
     public int Height => Surface.Height;
-
 	public Action<IScene> Go { get;set; }
 	public Action<Sf> Draw { get;set; }
-
 	public PauseScreen(Mainframe playerMain) {
         Surface = new(playerMain.Width, playerMain.Height);
-
 		this.playerMain = playerMain;
         this.sparkle = new SparkleFilter(Width, Height);
-
         int x = 2;
         int y = 2;
-
         var fs = Surface.FontSize * 3;
-
         Surface.Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
         y++;
         Surface.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
@@ -70,7 +57,7 @@ public class PauseScreen : IScene {
         {
             int x = Width / 2 + 8;
             int y = 6;
-            var controls = playerMain.playerShip.person.Settings;
+            var controls = playerMain.Settings;
             foreach (var line in controls.GetString().Replace("\r", null).Split('\n')) {
                 Surface.Print(x, y++, line.PadRight(Width - x - 4), Color.White, Color.Black);
             }
@@ -105,22 +92,16 @@ public class PauseScreen : IScene {
     public void SaveQuit() {
         //Remove PlayerMain events
         playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScreenObject);
-
         Save();
         Quit();
     }
-
     public void DeleteQuit() {
         //Remove PlayerMain events
         playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScreenObject);
-
         Delete();
         Quit();
     }
-
     public void SelfDestruct() {
-        
-        
         var p = playerMain.playerShip;
         p.ship.active = false;
         var items = p.cargo

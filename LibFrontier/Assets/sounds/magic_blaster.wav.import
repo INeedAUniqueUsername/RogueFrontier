@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bhr1bb8m1u764"
-path="res://.godot/imported/magic_blaster.wav-a38ee544a02fe948ffdce55be02185d8.sample"
+path="res://.godot/imported/magic_blaster.wav-6c0f7d9d16d338d685b8c53643d1488f.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/magic_blaster.wav"
-dest_files=["res://.godot/imported/magic_blaster.wav-a38ee544a02fe948ffdce55be02185d8.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/magic_blaster.wav"
+dest_files=["res://.godot/imported/magic_blaster.wav-6c0f7d9d16d338d685b8c53643d1488f.sample"]
 
 [params]
 

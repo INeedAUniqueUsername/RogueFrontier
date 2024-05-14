@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://do8be8yfwyupj"
-path="res://.godot/imported/power_charge_old.wav-9461b7a13c2ef026c3a16dc53362155a.sample"
+path="res://.godot/imported/power_charge_old.wav-fc3f7dc8ae15eb5f339fabef439f110d.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/power_charge_old.wav"
-dest_files=["res://.godot/imported/power_charge_old.wav-9461b7a13c2ef026c3a16dc53362155a.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/power_charge_old.wav"
+dest_files=["res://.godot/imported/power_charge_old.wav-fc3f7dc8ae15eb5f339fabef439f110d.sample"]
 
 [params]
 

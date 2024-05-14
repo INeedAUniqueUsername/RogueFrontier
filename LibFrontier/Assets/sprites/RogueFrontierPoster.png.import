@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6gnf2i2lqsam"
-path="res://.godot/imported/RogueFrontierPoster.png-036e3d00639e16df7ef3058bd324bfd1.ctex"
+path="res://.godot/imported/RogueFrontierPoster.png-dd6570b0d9399beccd9658076ded4f80.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/RogueFrontierPoster.png"
-dest_files=["res://.godot/imported/RogueFrontierPoster.png-036e3d00639e16df7ef3058bd324bfd1.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/RogueFrontierPoster.png"
+dest_files=["res://.godot/imported/RogueFrontierPoster.png-dd6570b0d9399beccd9658076ded4f80.ctex"]
 
 [params]
 

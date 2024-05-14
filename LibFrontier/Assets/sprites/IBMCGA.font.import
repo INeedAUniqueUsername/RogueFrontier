@@ -3,12 +3,12 @@
 importer="font_data_bmfont"
 type="FontFile"
 uid="uid://bkbgibn6ocqu"
-path="res://.godot/imported/IBMCGA.font-1c856c1a5f520390dfe051e5251afb0f.fontdata"
+path="res://.godot/imported/IBMCGA.font-4ec21a7ebf54ef161b6bcbd08f1b627b.fontdata"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/IBMCGA.font"
-dest_files=["res://.godot/imported/IBMCGA.font-1c856c1a5f520390dfe051e5251afb0f.fontdata"]
+source_file="res://Lib/LibFrontier/Assets/sprites/IBMCGA.font"
+dest_files=["res://.godot/imported/IBMCGA.font-4ec21a7ebf54ef161b6bcbd08f1b627b.fontdata"]
 
 [params]
 

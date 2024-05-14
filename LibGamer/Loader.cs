@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,7 +20,7 @@ public static class STypeConverter {
 }
 public static class ImageLoader {
 	public static Dictionary<(int X, int Y), TileTuple> LoadTile (string path) =>
-		DeserializeObject<Dictionary<(int X, int Y), TileTuple>>(File.ReadAllText(path));
+		DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(path));
 	public static T DeserializeObject<T> (string s) {
 		STypeConverter.PrepareConvert();
 		return JsonConvert.DeserializeObject<T>(s);

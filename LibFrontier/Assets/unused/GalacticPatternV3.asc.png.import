@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dflewm31i63l6"
-path="res://.godot/imported/GalacticPatternV3.asc.png-062cc2efadeb16363c39a8e1606a23c2.ctex"
+path="res://.godot/imported/GalacticPatternV3.asc.png-da41ba8291225fb8eb6e23c7ff17d1bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/unused/GalacticPatternV3.asc.png"
-dest_files=["res://.godot/imported/GalacticPatternV3.asc.png-062cc2efadeb16363c39a8e1606a23c2.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/GalacticPatternV3.asc.png"
+dest_files=["res://.godot/imported/GalacticPatternV3.asc.png-da41ba8291225fb8eb6e23c7ff17d1bf.ctex"]
 
 [params]
 

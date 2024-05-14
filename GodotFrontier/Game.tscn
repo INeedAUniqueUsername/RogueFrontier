@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://jiv35452qi28"]
+
+[ext_resource type="Script" path="res://Game.cs" id="1_se32s"]
+[ext_resource type="Script" path="res://addons/glyphdot/Surface.cs" id="2_oh6c5"]
+
+[node name="Node" type="Node"]
+script = ExtResource("1_se32s")
+
+[node name="Surface" type="Node2D" parent="."]
+script = ExtResource("2_oh6c5")
+GridWidth = 96
+GridHeight = 64

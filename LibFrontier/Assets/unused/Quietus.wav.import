@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://byf8115rpb5sb"
-path="res://.godot/imported/Quietus.wav-4149b27bd708160a80a01b5cf51a9be2.sample"
+path="res://.godot/imported/Quietus.wav-8073a3f6c889fc947f7d2f8f7d53d1f7.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/Quietus.wav"
-dest_files=["res://.godot/imported/Quietus.wav-4149b27bd708160a80a01b5cf51a9be2.sample"]
+source_file="res://Lib/LibFrontier/Assets/unused/Quietus.wav"
+dest_files=["res://.godot/imported/Quietus.wav-8073a3f6c889fc947f7d2f8f7d53d1f7.sample"]
 
 [params]
 

@@ -1,4 +1,3 @@
-﻿using Antlr4.Runtime.Atn;
 using LibGamer;
 using System;
 using System.Collections.Generic;
@@ -25,13 +24,13 @@ public static class SScene {
 	}
 	public static Dictionary<XYI, TileTuple> LoadImage (string file) =>
 		ImageLoader.DeserializeObject<Dictionary<XYI, TileTuple>>(File.ReadAllText(file));
-	public static Dictionary<XYI, TileTuple> ToImage (this string[] image, uint tint) {
-		var result = new Dictionary<XYI, TileTuple>();
+	public static Dictionary<XYI, Tile> ToImage (this string[] image, uint tint) {
+		var result = new Dictionary<XYI, Tile>();
 		for(int y = 0; y < image.Length; y++) {
 			var line = image[y];
 			for(int x = 0; x < line.Length; x++) {
-				result[(x, y * 2)] = (tint, ABGR.Black, line[x]);
-				result[(x, y * 2 + 1)] = (tint, ABGR.Black, line[x]);
+				result[(x, y * 2)] = new(tint, ABGR.Black, line[x]);
+				result[(x, y * 2 + 1)] = new(tint, ABGR.Black, line[x]);
 			}
 		}
 		return result;
@@ -185,7 +184,7 @@ public class Dialog : IScene {
 				}
 			} else if(descIndex < desc.Length) {
 				lineCount = desc.Count(c => c.Glyph == '\n');
-				foreach(var (i, option) in navigation.Index()) {
+				foreach(var (i, option) in navigation.Select((n, i) => (i, n))) {
 					keyMap[char.ToUpper(option.key)] = i;
 				}
 				PrintComplete();

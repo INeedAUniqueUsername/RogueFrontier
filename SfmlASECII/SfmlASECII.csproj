@@ -5,14 +5,9 @@
 		<TargetFramework>net9.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<None Remove="
-			Content\*.import
-			">
+		<None Remove="Assets\*.import">
 		</None>
-		<None Include="
-			Content\*.font;
-			Content\*.png;
-			">
+		<None Include="Assets\*.font; Assets\*.png;">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<EmbeddedResource Include="Icon.ico" />

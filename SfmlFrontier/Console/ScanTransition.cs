@@ -1,8 +1,5 @@
 ﻿using LibGamer;
-using SadConsole;
 using SadConsole.Input;
-using SadRogue.Primitives;
-using System;
 namespace RogueFrontier;
 
 public class ScanTransition : IScene {

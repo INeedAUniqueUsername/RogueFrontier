@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cxcr3kdva1qln"
-path="res://.godot/imported/generic_shield_damage.wav-3ead60514d3a4d455ef2f0db8497cb76.sample"
+path="res://.godot/imported/generic_shield_damage.wav-af3e2670f7a4eb39649385fcc73d02f1.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/generic_shield_damage.wav"
-dest_files=["res://.godot/imported/generic_shield_damage.wav-3ead60514d3a4d455ef2f0db8497cb76.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/generic_shield_damage.wav"
+dest_files=["res://.godot/imported/generic_shield_damage.wav-af3e2670f7a4eb39649385fcc73d02f1.sample"]
 
 [params]
 

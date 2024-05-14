@@ -3,8 +3,6 @@ using Common;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using System;
-using System.Collections.Generic;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier;

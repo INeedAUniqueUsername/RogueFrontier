@@ -1,8 +1,6 @@
 ﻿using Common;
 using SadRogue.Primitives;
 using SadConsole;
-using System;
-using System.Collections.Generic;
 
 namespace RogueFrontier;
 

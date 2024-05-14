@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://jnmtxk8cdufx"
-path="res://.godot/imported/Splash.wav-6b2b12c1eee59bccc53d25d1d35a5cdf.sample"
+path="res://.godot/imported/Splash.wav-012c50784bd89c94e6d8bad489a27ee6.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/music/Splash.wav"
-dest_files=["res://.godot/imported/Splash.wav-6b2b12c1eee59bccc53d25d1d35a5cdf.sample"]
+source_file="res://Lib/LibFrontier/Assets/music/Splash.wav"
+dest_files=["res://.godot/imported/Splash.wav-012c50784bd89c94e6d8bad489a27ee6.sample"]
 
 [params]
 

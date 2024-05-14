@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7ak65cga1ol1"
-path="res://.godot/imported/TitleDecorator.asc.png-99eb700882e59e0d2428ad2bc2e41f37.ctex"
+path="res://.godot/imported/TitleDecorator.asc.png-8770b7a70f7dfe94f6f5af8cb3c2574e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/slides/TitleDecorator.asc.png"
-dest_files=["res://.godot/imported/TitleDecorator.asc.png-99eb700882e59e0d2428ad2bc2e41f37.ctex"]
+source_file="res://Lib/LibFrontier/Assets/meta/slides/TitleDecorator.asc.png"
+dest_files=["res://.godot/imported/TitleDecorator.asc.png-8770b7a70f7dfe94f6f5af8cb3c2574e.ctex"]
 
 [params]
 

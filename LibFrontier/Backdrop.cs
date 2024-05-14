@@ -52,11 +52,11 @@ public class Backdrop {
         for (int i = layers.Count - 1; i > -1; i--) {
             Blend(layers[i].GetTile(point, camera));
         }
-        void Blend(Tile tile) {
-            b = ABGR.Blend(Premultiply(b), tile.Background);
-            if (tile.Glyph != ' ' && tile.Glyph != 0) {
-                f = tile.Foreground;
-                g = tile.Glyph;
+        void Blend(Tile front) {
+            b = ABGR.Blend(Premultiply(b), front.Background);
+            if (front.Glyph != ' ' && front.Glyph != 0) {
+                f = front.Foreground;
+                g = front.Glyph;
             }
         }
         void BlendBack(uint back) {

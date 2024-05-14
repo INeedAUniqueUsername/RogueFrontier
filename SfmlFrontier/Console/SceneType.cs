@@ -1,17 +1,7 @@
 ﻿using SadConsole.Input;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using SadRogue.Primitives;
-using System;
 using SadConsole;
 using Console = SadConsole.Console;
-using ArchConsole;
-using ASECII;
-using System.IO;
-using SFML.Audio;
-using LibGamer;
-using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
 public static partial class SScene {
     public static void ProcessMouseTree(this IScreenObject root, Mouse m) {

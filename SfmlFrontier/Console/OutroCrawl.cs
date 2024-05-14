@@ -1,14 +1,8 @@
 ﻿
 using SadConsole;
 using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static SadConsole.ColoredString;
 using SadRogue.Primitives;
 using Console = SadConsole.Console;
-using System.IO;
-using Common;
 using CloudJumper;
 using SFML.Audio;
 using LibGamer;

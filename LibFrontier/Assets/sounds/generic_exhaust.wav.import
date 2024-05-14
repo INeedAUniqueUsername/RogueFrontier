@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://b602o2wljjj1b"
-path="res://.godot/imported/generic_exhaust.wav-f506a37f2e338c0f8b6f147d197bfec8.sample"
+path="res://.godot/imported/generic_exhaust.wav-02f4e98dae857062bf069b67cc110715.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/generic_exhaust.wav"
-dest_files=["res://.godot/imported/generic_exhaust.wav-f506a37f2e338c0f8b6f147d197bfec8.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/generic_exhaust.wav"
+dest_files=["res://.godot/imported/generic_exhaust.wav-02f4e98dae857062bf069b67cc110715.sample"]
 
 [params]
 

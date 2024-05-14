@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cmvde5nyccif"
-path="res://.godot/imported/GalacticCore.asc.png-d9e0e3e723d2dd60da945da20fb6719e.ctex"
+path="res://.godot/imported/GalacticCore.asc.png-fca0020681783c2e310d143359ca3e36.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/unused/GalacticCore.asc.png"
-dest_files=["res://.godot/imported/GalacticCore.asc.png-d9e0e3e723d2dd60da945da20fb6719e.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/GalacticCore.asc.png"
+dest_files=["res://.godot/imported/GalacticCore.asc.png-fca0020681783c2e310d143359ca3e36.ctex"]
 
 [params]
 

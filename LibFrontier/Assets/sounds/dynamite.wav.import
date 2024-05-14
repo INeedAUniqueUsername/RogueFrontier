@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://go6b8mkoc6sg"
-path="res://.godot/imported/dynamite.wav-39f764212ae72b7e2b0ecc286151107d.sample"
+path="res://.godot/imported/dynamite.wav-d31dfd60e36453a3d4582a70855a3256.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/dynamite.wav"
-dest_files=["res://.godot/imported/dynamite.wav-39f764212ae72b7e2b0ecc286151107d.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/dynamite.wav"
+dest_files=["res://.godot/imported/dynamite.wav-d31dfd60e36453a3d4582a70855a3256.sample"]
 
 [params]
 

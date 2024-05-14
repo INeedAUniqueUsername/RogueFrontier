@@ -12,17 +12,17 @@ public record WH(int w, int h);
 [JsonObject(MemberSerialization.OptIn)]
 public class XY {
     [JsonProperty]
-    public double x;
+    public double x { get; set; }
     [JsonProperty]
-    public double y;
+    public double y { get; set; }
     [JsonIgnore]
     public float xf => (float)x;
     [JsonIgnore]
     public float yf => (float)y;
     [JsonIgnore]
-    public int xi { get => (int)x; set => x = value; }
+    public int xi { get => (int)x; }
     [JsonIgnore]
-    public int yi { get => (int)y; set => x = value; }
+    public int yi { get => (int)y; }
     [JsonIgnore]
     public static readonly XY Zero = new(0, 0);
     public XY() {

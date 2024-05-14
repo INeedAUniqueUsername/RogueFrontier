@@ -3,8 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -92,16 +90,15 @@ public class LiveGame {
     public System world;
     public Player player => playerShip.person;
     public PlayerShip playerShip;
-    public Lis<LoadHook> hook;
+    //public Lis<LoadHook> hook;
 
-    public delegate void LoadHook(Mainframe main);
     public LiveGame() { }
-    public LiveGame(System world, PlayerShip playerShip, Lis<LoadHook> onLoad = null) {
+    public LiveGame(System world, PlayerShip playerShip /*, Lis<LoadHook> onLoad = null*/) {
         this.world = world;
         this.playerShip = playerShip;
-        this.hook = onLoad;
+        //this.hook = onLoad;
     }
-    public void OnLoad(Mainframe main) => hook?.Value?.Invoke(main);
+    //public void OnLoad(Mainframe main) => hook?.Value?.Invoke(main);
     public void Save() {
         var s = SaveGame.Serialize(this);
         File.WriteAllText(player.file, s);

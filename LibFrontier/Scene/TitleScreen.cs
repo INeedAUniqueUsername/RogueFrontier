@@ -1,28 +1,18 @@
-﻿using SadConsole;
-using SadRogue.Primitives;
-using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static SadConsole.Input.Keys;
-using Common;
-using System.IO;
-using Console = SadConsole.Console;
-using RogueFrontier.Screens;
-using ArchConsole;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using SFML.Audio;
+﻿using Common;
 using LibGamer;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System;
 namespace RogueFrontier;
 public class TitleScreen : IScene {
-    ConfigPane config;
-    LoadPane load;
-    Console credits;
+    //ConfigPane config;
+    //LoadPane load;
+    //Console credits;
     public Profile profile;
     public System World;
     public static string[] title = File.ReadAllText("Assets/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
-    public Settings settings;
+    public ShipControls settings;
     public AIShip pov;
     public int povTimer;
     public List<Message> povDesc;
@@ -64,9 +54,9 @@ public class TitleScreen : IScene {
 #endif
         var f = "Settings.json";
         if (File.Exists(f)) {
-            settings = SaveGame.Deserialize<Settings>(File.ReadAllText(f));
+            settings = SaveGame.Deserialize<ShipControls>(File.ReadAllText(f));
         } else {
-            settings = Settings.standard;
+            settings = ShipControls.standard;
         }
 #if false
         config = new(48, 64, settings) { Position = new(0, 30), FontSize = fs };
@@ -333,6 +323,8 @@ public class TitleScreen : IScene {
                 }
             }
         }
+
+        Draw(sf);
 
     }
     public void ProcessKeyboard (KB info) {

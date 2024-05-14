@@ -1,11 +1,10 @@
-﻿using Common;
+using Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.Intrinsics.Wasm;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -20,7 +19,9 @@ public record ABGR(uint packed) {
 	public static uint? TryAttColor (XElement e, string key, uint? fallback) => e.TryAtt(key, out var c) ? Parse(c) : fallback;
 
 
-	public static uint Parse (string name) => (uint)typeof(ABGR).GetField(name).GetValue(null);
+	public static uint Parse (string name) =>
+		(uint?)(typeof(ABGR).GetField(name)?.GetValue(null))
+		?? uint.Parse(name, System.Globalization.NumberStyles.HexNumber);
 	public uint SetR (byte a) => SetR(this, a);
 	public uint SetG (byte a) => SetG(this, a);
 	public uint SetB (byte a) => SetB(this, a);
@@ -66,11 +67,22 @@ public record ABGR(uint packed) {
 	//Essentially the same as blending this color over Color.Black
 	public static uint Premultiply (uint abgr) {
 		var (a, b, g, r) = Data(abgr);
-		return RGBA((byte)(r * a / 0xFF), (byte)(g * a / 255), (byte)(b * a / 255), a);
+		return RGBA((byte)(r * a / 255f), (byte)(g * a / 255f), (byte)(b * a / 255f), a);
 	}
 	//Premultiply and also set the alpha
 	public static uint PremultiplySet (ABGR c, byte alpha) => ABGR.RGBA((byte)(c.r * c.a / 255), (byte)(c.g * c.a / 255), (byte)(c.b * c.a / 255), alpha);
-	public static uint Blend (uint from, uint to) => 0;
+	public static uint Blend (uint back, uint front, byte setAlpha = 255) {
+		//Background should be premultiplied because we ignore its alpha value
+		var alpha = ABGR.A(front);
+		var inv_alpha = (byte)(255 - ABGR.A(front));
+		return ABGR.RGBA(
+			r: (byte)((alpha * ABGR.R(front) + inv_alpha * ABGR.R(back)) >> 8),
+			g: (byte)((alpha * ABGR.G(front) + inv_alpha * ABGR.G(back)) >> 8),
+			b: (byte)((alpha * ABGR.B(front) + inv_alpha * ABGR.B(back)) >> 8),
+			a: setAlpha
+			);
+	}
+
 	//public static (byte R, byte G, byte B, byte A) RGBA(uint abgr) => (R(abgr), G(abgr), B(abgr), A(abgr));
 
 	public static (byte R, byte G, byte B, byte A) Data (uint abgr) =>
@@ -83,10 +95,10 @@ public record ABGR(uint packed) {
 	public static byte R (uint abgr) => (byte)(abgr & 0x000000FF);
 	public static uint RGB (byte r, byte g, byte b) => RGBA(r, g, b, 255);
 	public static uint RGBA (byte r, byte g, byte b, byte a) => (uint)(
-	a >> 00 +
-	b >> 08 +
-	g >> 16 +
-	r >> 24
+	((uint)a << 24) +
+	((uint)b << 16) +
+	((uint)g << 08) +
+	((uint)r << 00)
 	);
 
 
@@ -306,12 +318,11 @@ public record ABGR(uint packed) {
 public record Tile (uint Foreground, uint Background, uint Glyph) {
 	public static implicit operator Tile (TileTuple t) => new(t.Foreground, t.Background, t.Glyph);
 	public static Tile From(XElement e) {
-		var f = ABGR.Parse(e.Att("f"));
-		var b = ABGR.Parse(e.Att("b"));
-		var g = e.ExpectAttChar("g");
+		var f = ABGR.Parse(e.TryAtt(["f", "foreground"], "White"));
+		var b = ABGR.Parse(e.TryAtt(["b", "background"], "Black"));
+		var g = e.TryAtt(["g", "glyph"], out var _g) ? char.Parse(_g) : throw new Exception();
 		return new Tile(f, b, g);
 	}
-
 	public static Tile[] ArrFrom(XElement element, uint df = ABGR.White, uint db = ABGR.Black) {
 		var f = ABGR.TryAttColor(element, "f", df);
 		var b = ABGR.TryAttColor(element, "b", db);
@@ -362,13 +373,17 @@ public record StaticTile () : ITile {
 	[JsonIgnore]
 	public Tile Original => new(foreground, background, glyph);
 	[JsonProperty]
-	[Opt] public uint foreground;
+	[Opt(parse = false)] public uint foreground;
 	[JsonProperty]
-	[Opt] public uint background;
+	[Opt(parse =false)] public uint background;
 	[JsonProperty]
-	[Req] public uint glyph;
+	[Req(parse = false)] public uint glyph;
 	public StaticTile (XElement e) : this() {
-		e.Initialize(this);
+		e.Initialize(this, transform:new() {
+			[nameof(foreground)] = (string s) => ABGR.Parse(s),
+			[nameof(background)] = (string s) => ABGR.Parse(s),
+			[nameof(glyph)] = (string s) => (uint)s[0],
+		});
 	}
 	public StaticTile (Tile cg) : this() =>
 		(foreground, background, glyph) = (cg.Foreground, cg.Background, cg.Glyph);

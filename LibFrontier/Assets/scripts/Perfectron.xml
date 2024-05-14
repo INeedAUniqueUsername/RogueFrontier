@@ -172,7 +172,7 @@
 	<StationType	codename="station_perfectron_fortress"
 					name=		"Perfectron fortress"
 					sovereign=	"sovereign_perfectron"
-					structure="Assets/sprites/NRobotFortress.asc.cg"
+					structure="Assets/sprites/NRobotFortress.dat"
 		>
 
 		<HP	maxHP="600"/>
@@ -187,7 +187,7 @@
 	<StationType	codename="station_perfectron_power_station"
 					name=		"Perfectron generator"
 					sovereign=	"sovereign_perfectron"
-					structure="Assets/sprites/NRobotPowerStation.asc.cg"
+					structure="Assets/sprites/NRobotPowerStation.dat"
 		>
 		<HP	maxHP="400"/>
 		<Weapons>

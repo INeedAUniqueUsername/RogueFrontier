@@ -2,18 +2,16 @@
 using LibGamer;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using System.Collections.Generic;
-using System.Linq;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier.Screens;
 
 class ConfigPane : Console {
-    Settings settings;
+    ShipControls settings;
     Control? currentSet;
     Dictionary<Control, LabelButton> buttons;
 
-    public ConfigPane(int Width, int Height, Settings settings) : base(Width, Height) {
+    public ConfigPane(int Width, int Height, ShipControls settings) : base(Width, Height) {
         this.settings = settings;
 
         UseKeyboard = true;

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cp3d7ydmjt57r"
-path="res://.godot/imported/warning_2.wav-dba02eeaf391769ec3ef90ec32a49645.sample"
+path="res://.godot/imported/warning_2.wav-098265e30c156eed4b8994949ee71de7.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/warning_2.wav"
-dest_files=["res://.godot/imported/warning_2.wav-dba02eeaf391769ec3ef90ec32a49645.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/warning_2.wav"
+dest_files=["res://.godot/imported/warning_2.wav-098265e30c156eed4b8994949ee71de7.sample"]
 
 [params]
 

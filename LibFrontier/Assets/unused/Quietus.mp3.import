@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://cxt20l30k4gix"
-path="res://.godot/imported/Quietus.mp3-10518fc10bca11c4efb27a04eee5e52c.mp3str"
+path="res://.godot/imported/Quietus.mp3-b6378d99a56a4d0d54152c888c621169.mp3str"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/Quietus.mp3"
-dest_files=["res://.godot/imported/Quietus.mp3-10518fc10bca11c4efb27a04eee5e52c.mp3str"]
+source_file="res://Lib/LibFrontier/Assets/unused/Quietus.mp3"
+dest_files=["res://.godot/imported/Quietus.mp3-b6378d99a56a4d0d54152c888c621169.mp3str"]
 
 [params]
 

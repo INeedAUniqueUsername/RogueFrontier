@@ -19,6 +19,8 @@ public class Profile {
     public static string file = "Profile.json";
     public bool allowDictator = false;
     public HashSet<Achievement> achievements = new();
+
+    //public ShipControls controls;
     public static bool Load(out Profile p) {
         p = File.Exists(file) ? JsonConvert.DeserializeObject<Profile>(File.ReadAllText(file)) : null;
 		return p != null;

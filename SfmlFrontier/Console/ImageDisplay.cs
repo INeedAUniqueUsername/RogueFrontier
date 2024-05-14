@@ -1,7 +1,4 @@
-﻿using System;
-using SadConsole;
-using Console = SadConsole.Console;
-using Common;
+﻿using Common;
 using SadRogue.Primitives;
 using LibGamer;
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjokpbntgk3qp"
-path="res://.godot/imported/Itch Cover.png-04ad17ee76d030e5384956be47d58ea1.ctex"
+path="res://.godot/imported/Itch Cover.png-da408476be1d63f26e600e37abb4bdea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/Itch Cover.png"
-dest_files=["res://.godot/imported/Itch Cover.png-04ad17ee76d030e5384956be47d58ea1.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/Itch Cover.png"
+dest_files=["res://.godot/imported/Itch Cover.png-da408476be1d63f26e600e37abb4bdea.ctex"]
 
 [params]
 

@@ -425,7 +425,7 @@ public record WeaponDesc {
             [nameof(rightRange)] = toRad,
 
             [nameof(ammoType)] = (string at) => types.Lookup<ItemType>(at),
-            [nameof(sound)] = (string s) => File.ReadAllBytes(s)
+            [nameof(sound)] = (string s) => Constants.LoadAudio(s)
         });
         //Projectile = new(e.ExpectElement("Projectile"));
         //sound = e.TryAtt("sound", out string s) ? new SoundBuffer(s) : null;
@@ -620,9 +620,9 @@ public record TrailDesc : ITrail {
     public TrailDesc() { }
     public TrailDesc(XElement e) {
         e.Initialize(this, transform: new(){
-            ["foreground"] = (string s) => (string)null ?? throw new Exception(),
-            ["background"] = (string s) => (string)null ?? throw new Exception()
-        });
+            ["foreground"] = (string s) => ABGR.Parse(s),
+            ["background"] = (string s) => ABGR.Parse(s)
+		});
     }
     public Effect GetParticle(XY Position, XY Velocity = null) => new FadingTile(Position, new(foreground, background, glyph), lifetime);
 }

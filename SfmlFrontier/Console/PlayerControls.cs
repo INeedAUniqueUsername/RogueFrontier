@@ -1,32 +1,10 @@
-﻿using SadConsole.Input;
-using System.Collections.Generic;
-using System.Linq;
-using static LibGamer.KC;
-using static RogueFrontier.Control;
+﻿using static LibGamer.KC;
 using Helper = Common.Main;
-using System;
 using LibGamer;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace RogueFrontier;
-
-public enum Control {
-    Thrust,
-    TurnRight,
-    TurnLeft,
-    Brake,
-    Autopilot,
-    Dock,
-    TargetFriendly,
-    ClearTarget,
-    ShipStatus,
-    Gate,
-    TargetEnemy,
-    InvokePowers,
-    NextPrimary,
-    FirePrimary,
-    FireSecondary,
-    AutoAim
-}
 public class PlayerControls {
     public PlayerShip playerShip;
     private Mainframe playerMain;
@@ -86,7 +64,6 @@ public class PlayerControls {
             }
         }
     }
-
     public void ProcessCommon() {
         if (input.ToggleUI) {
             playerMain.audio.button_press.Play();
@@ -143,7 +120,7 @@ public class PlayerControls {
         if (input.ShipMenu) {
             playerMain.audio.button_press.Play();
             playerShip.DisengageAutopilot();
-            playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
+            //playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
         }
     }
     public void ProcessWithMenu() {
@@ -174,12 +151,10 @@ public class PlayerControls {
             playerMain.sceneContainer.Children.Add(SListWidget.UsefulItems(playerMain, playerShip));
 #endif
         }
-        if (input.NetworkMap && playerMain.networkMap is var nm) {
+        if (input.NetworkMap && playerMain.networkMap is {} nm) {
             playerMain.audio.button_press.Play();
             nm.IsVisible = !nm.IsVisible;
         }
-
-
         if(keys?[B] == KS.Pressed) {
             playerMain.audio.button_press.Play();
 #if false
@@ -196,7 +171,7 @@ public class PlayerControls {
 
         if (keys[F1] == KS.Pressed) {
             playerMain.audio.button_press.Play();
-            playerMain.dialog = new IdentityScreen(playerMain);
+            //playerMain.dialog = new IdentityScreen(playerMain);
             //playerMain.OnIntermission();
         }
     }
@@ -205,24 +180,6 @@ public class PlayerControls {
         keys = info;
         input.Read(playerMain.Settings.controls, info);
     }
-    public static Dictionary<Control, KC> standard => new() {
-        { Thrust, Up },
-        { TurnRight, Right },
-        { TurnLeft, Left },
-        { Brake, Down },
-        { Autopilot, A },
-        { Dock, D },
-        { TargetFriendly, F },
-        { ClearTarget, R },
-        { Gate, G },
-        { Control.ShipStatus, S },
-        { TargetEnemy, T },
-        { InvokePowers, I },
-        { NextPrimary, W },
-        { FirePrimary, X },
-        { FireSecondary, LeftControl },
-        { AutoAim, Z }
-    };
 }
 public class PlayerInput {
     public bool Shift;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using SadConsole;
+﻿using SadConsole;
 using SadConsole.Renderers;
 using SadRogue.Primitives;
 using Console = SadConsole.Console;

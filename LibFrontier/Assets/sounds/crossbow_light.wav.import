@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bcbif8ogym2vw"
-path="res://.godot/imported/crossbow_light.wav-4847b8cd7af2f0d09e7a32d7d63a5980.sample"
+path="res://.godot/imported/crossbow_light.wav-dcb6578b8104820b008779274c842bfb.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/crossbow_light.wav"
-dest_files=["res://.godot/imported/crossbow_light.wav-4847b8cd7af2f0d09e7a32d7d63a5980.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/crossbow_light.wav"
+dest_files=["res://.godot/imported/crossbow_light.wav-dcb6578b8104820b008779274c842bfb.sample"]
 
 [params]
 

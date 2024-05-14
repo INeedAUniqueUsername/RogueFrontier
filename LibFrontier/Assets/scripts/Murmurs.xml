@@ -11,7 +11,7 @@
 				glyph=		"O"
 				foreground= "5511AAFF"
 				background=	"Black"
-				structure="Assets/sprites/MurmurOutpost.asc.cg"
+				structure="Assets/sprites/MurmurOutpost.dat"
 		>
 
 		<HP	maxHP="800"/>

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bekicfctbcutu"
-path="res://.godot/imported/flashbang_explosion.wav-dc43c2a0707aa0ba2d7b1c4d2edc16ca.sample"
+path="res://.godot/imported/flashbang_explosion.wav-9481678a22e5778db73d792001ea4a31.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/flashbang_explosion.wav"
-dest_files=["res://.godot/imported/flashbang_explosion.wav-dc43c2a0707aa0ba2d7b1c4d2edc16ca.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/flashbang_explosion.wav"
+dest_files=["res://.godot/imported/flashbang_explosion.wav-9481678a22e5778db73d792001ea4a31.sample"]
 
 [params]
 

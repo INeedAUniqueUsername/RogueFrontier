@@ -1,27 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Common;
+﻿using Common;
 using SadRogue.Primitives;
 using static SadConsole.Input.Keys;
 using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
-using Helper = Common.Main;
-using Newtonsoft.Json;
 using ArchConsole;
 using static RogueFrontier.PlayerShip;
-using static RogueFrontier.Station;
-using System.Threading.Tasks;
-using System.IO;
-using System.Threading;
 using SFML.Audio;
-using Microsoft.Win32.SafeHandles;
 using static Common.ColorCommand;
 using System.Reflection;
-using System.Numerics;
 using LibGamer;
-using SFML.System;
 using System.Xml.Linq;
 using SfmlFrontier;
 using System.Data;
@@ -43,6 +31,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var (p, d, w) = ev;
         OnPlayerDestroyed($"Destroyed by {d?.name ?? "unknown forces"}", w);
     }
+
+    public ShipControls Settings;
     public Sf sf;
     public int Width => sf.Width;
     public int Height => sf.Height;
@@ -195,7 +185,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             transition = null;
         });
     }
-    public void OnIntermission(Lis<LiveGame.LoadHook> hook = null) {
+    public void OnIntermission() {
         HideAll();
         Go(new ExitTransition(this, this.sf, () => {
 			MinimalCrawlScreen ds = null;
@@ -205,7 +195,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 				void EndGame () {
 					Go(new IntermissionScreen(
 						this,
-						new(world, playerShip, hook),
+						new(world, playerShip),
 						$"Fate unknown"));
 				}
 			}

@@ -1,17 +1,53 @@
-﻿using Newtonsoft.Json;
-using static RogueFrontier.Control;
+﻿using static RogueFrontier.Control;
+using static LibGamer.KC;
 using LibGamer;
+using System.Collections.Generic;
 namespace RogueFrontier;
 
-public class Settings {
-    //Remember to update whenever we load game
-    public Dictionary<Control, KC> controls = new Dictionary<Control, KC>();
-    [JsonIgnore]
-    public static Settings standard => new Settings() {
-        controls = PlayerControls.standard
-    };
-    public Settings() {
-    }
+public enum Control {
+	Thrust,
+	TurnRight,
+	TurnLeft,
+	Brake,
+	Autopilot,
+	Dock,
+	TargetFriendly,
+	ClearTarget,
+	ShipStatus,
+	Gate,
+	TargetEnemy,
+	InvokePowers,
+	NextPrimary,
+	FirePrimary,
+	FireSecondary,
+	AutoAim
+}
+public class ShipControls {
+
+
+	public static ShipControls standard = new() {
+		controls = new() {
+			{ Thrust, Up },
+			{ TurnRight, Right },
+			{ TurnLeft, Left },
+			{ Brake, Down },
+			{ Autopilot, A },
+			{ Dock, D },
+			{ TargetFriendly, F },
+			{ ClearTarget, R },
+			{ Gate, G },
+			{ ShipStatus, S },
+			{ TargetEnemy, T },
+			{ InvokePowers, I },
+			{ NextPrimary, W },
+			{ FirePrimary, X },
+			{ FireSecondary, LeftControl },
+			{ AutoAim, Z }
+		}
+	};
+
+	//Remember to update whenever we load game
+	public Dictionary<Control, KC> controls = new Dictionary<Control, KC>();
     public string GetString() {
         const int w = -16;
         return @$"[Controls]

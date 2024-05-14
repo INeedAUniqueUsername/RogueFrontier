@@ -1,13 +1,6 @@
 ﻿using Common;
 using LibGamer;
-using SadConsole;
-using SadRogue.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Console = SadConsole.Console;
 namespace RogueFrontier;
-
 public class Viewport {
     public int Width => sf.Width;
     public int Height => sf.Height;

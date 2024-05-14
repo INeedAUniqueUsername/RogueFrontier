@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://c7agv3sdmnyr5"
-path="res://.godot/imported/iron_cannon.wav-8e32b38983dd3617e6f596fa6bd4d6af.sample"
+path="res://.godot/imported/iron_cannon.wav-397e8b147adda5b2e0508be725e2ad5b.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/iron_cannon.wav"
-dest_files=["res://.godot/imported/iron_cannon.wav-8e32b38983dd3617e6f596fa6bd4d6af.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/iron_cannon.wav"
+dest_files=["res://.godot/imported/iron_cannon.wav-397e8b147adda5b2e0508be725e2ad5b.sample"]
 
 [params]
 

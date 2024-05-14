@@ -1,18 +1,16 @@
 ﻿using LibGamer;
-using SadConsole;
+using RogueFrontier;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Console = SadConsole.Console;
-namespace RogueFrontier;
+namespace SfmlFrontier;
 
-public class GateTransition : Console {
-    Viewport prev, next;
+public class GateTransition : IScene {
+    Viewport back, front;
     double amount;
     Rectangle rect;
-    public Action Transition;
+    public Action next;
+
+    Sf sf;int Width => sf.Width;int Height => sf.Height;
 
     class Particle {
         public int lifetime;
@@ -23,22 +21,23 @@ public class GateTransition : Console {
         }
     }
     private List<Particle> particles = new();
-    public GateTransition(Viewport prev, Viewport next, Action Transition) : base(prev.Width, prev.Height) {
-        this.prev = prev;
-        this.next = next;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public GateTransition(Viewport back, Viewport front, Action next) {
+        this.back = back;
+        this.front = front;
         rect = new(new(Width / 2, Height / 2), 0, 0);
-        this.Transition = Transition;
+        this.next = next;
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
+    public void HandleKey(Keyboard keyboard) {
         if (keyboard.IsKeyPressed(Keys.Enter)) {
-            Transition();
+            next();
         }
-        return base.ProcessKeyboard(keyboard);
     }
-    public override void Update(TimeSpan delta) {
-        prev.Update(delta);
-        //next.Update(delta);
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
+        back.Update(delta);
         amount += delta.TotalSeconds * 1;
 
         if (amount < 1) {
@@ -50,53 +49,48 @@ public class GateTransition : Console {
             particles.ForEach(p => p.lifetime--);
             particles.RemoveAll(p => p.lifetime < 1);
         } else {
-            Transition();
+            next();
         }
     }
-    public override void Render(TimeSpan delta) {
-        this.Clear();
-        Console particleLayer = new Console(Width, Height);
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        var particleLayer = new Sf(Width, Height);
         particles.ForEach(p => {
             var pos = p.pos;
-            particleLayer.SetBackground(pos.X, pos.Y, new Color(255, 255, 255, p.lifetime * 255 / 15));
+            particleLayer.SetBack(pos.X, pos.Y, ABGR.RGBA(255, 255, 255, (byte)(p.lifetime * 255 / 15)));
         });
-
-
-        Sf back = new (Width, Height);
-
-        if (next != null) {
-            BackdropConsole prevBack = new(prev);
-            BackdropConsole nextBack = new(next);
-
+        var _back = new Sf(Width, Height);
+        if (front != null) {
+            BackdropConsole prevBack = new(back);
+            BackdropConsole nextBack = new(front);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
                     Point p = new(x, y);
-                    (var v, var b) = rect.Contains(p) ? (next, nextBack) : (prev, prevBack);
-                    back.SetTile(x, y, b.GetTile(x, y));
+                    (var v, var b) = rect.Contains(p) ? (front, nextBack) : (back, prevBack);
+                    _back.SetTile(x, y, b.GetTile(x, y));
                     var g = v.GetTile(x, y);
                     //var g = (rect.Contains(p) ? next : prev).GetCellAppearance(x, y);
-                    this.SetCellAppearance(x, Height - y, g);
+                    sf.SetTile(x, Height - y, g);
                 }
             }
         } else {
-            BackdropConsole prevBack = new(prev);
-
+            var prevBack = new BackdropConsole(back);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
-                    Point p = new(x, y);
+                    var p = new Point(x, y);
                     if (rect.Contains(p)) {
-                        this.SetCellAppearance(x, Height - y, new ColoredGlyph(Color.Black, Color.Black, 0));
+                        sf.SetTile(x, Height - y, new Tile(ABGR.Black, ABGR.Black, 0));
                     } else {
-                        (var v, var b) = (prev, prevBack);
-                        back.SetCellAppearance(x, y, b.GetTile(x, y));
-                        ColoredGlyph g = v.GetTile(x, y);
-                        this.SetCellAppearance(x, Height - y, g);
+                        (var v, var b) = (back, prevBack);
+                        _back.SetTile(x, y, b.GetTile(x, y));
+                        var g = v.GetTile(x, y);
+                        sf.SetTile(x, Height - y, g);
                     }
                 }
             }
         }
-        back.Render(delta);
-        base.Render(delta);
-        particleLayer.Render(delta);
+        Draw(_back);
+        Draw(sf);
+        Draw(particleLayer);
     }
 }

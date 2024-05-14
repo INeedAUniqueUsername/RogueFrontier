@@ -8,7 +8,7 @@ using LibGamer;
 using static LibGamer.Tile;
 namespace Common;
 public class TileImage {
-    public Dictionary<(int x, int y), TileTuple> Sprite;
+    public Dictionary<(int x, int y), Tile> Sprite;
     public XYI Size;
     public TileImage(Dictionary<XYI, TileTuple> Sprite) {
         int left = Sprite.Keys.Min(p => p.X);

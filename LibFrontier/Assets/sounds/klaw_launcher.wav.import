@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bp0nfr4vhn00s"
-path="res://.godot/imported/klaw_launcher.wav-2c902a3c4334b12638898b4ce5f91ceb.sample"
+path="res://.godot/imported/klaw_launcher.wav-5d39a18d9a868d8d071b09a01b9e0206.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/klaw_launcher.wav"
-dest_files=["res://.godot/imported/klaw_launcher.wav-2c902a3c4334b12638898b4ce5f91ceb.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/klaw_launcher.wav"
+dest_files=["res://.godot/imported/klaw_launcher.wav-5d39a18d9a868d8d071b09a01b9e0206.sample"]
 
 [params]
 

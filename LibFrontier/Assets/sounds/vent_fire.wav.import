@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://c854h63qhxrw7"
-path="res://.godot/imported/vent_fire.wav-d12da37c454caccc988e12f17144a814.sample"
+path="res://.godot/imported/vent_fire.wav-84df2dfa9920ff3c044d15102999af93.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/vent_fire.wav"
-dest_files=["res://.godot/imported/vent_fire.wav-d12da37c454caccc988e12f17144a814.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/vent_fire.wav"
+dest_files=["res://.godot/imported/vent_fire.wav-84df2dfa9920ff3c044d15102999af93.sample"]
 
 [params]
 

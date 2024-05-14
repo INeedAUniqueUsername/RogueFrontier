@@ -59,7 +59,7 @@ public static class Main {
     public static string Repeat(this string str, int times) =>
         string.Join("", Enumerable.Range(0, times).Select(i => str));
     public static string ExpectFile(string path) =>
-         (File.Exists(path)) ? path :
+         (File.Exists(path = Path.GetFullPath(path))) ? path :
             throw new Exception($"File {path} does not exist");
     public static bool TryFile(string path, out string file) =>
         (file = File.Exists(path) ? path : null) != null;
@@ -293,20 +293,27 @@ public static class Main {
         (result = e.Element(key)) != null;
     public static bool HasElements(this XElement e, string key, out IEnumerable<XElement> result) =>
         (result = e.Elements(key)) != null;
-    public static string Att(this XElement e, string key) =>
-        e.Attribute(key)?.Value;
+    public static string Att(this XElement e, params string[] key) =>
+        key.Select(k => e.Attribute(k)?.Value).Except([null]).FirstOrDefault();
+
+
     public static string ExpectAtt(this XElement e, string key) =>
         e.Att(key)
             ?? throw e.Missing<string>(key);
     public static XElement ExpectElement(this XElement e, string name) =>
         e.Element(name)
             ?? throw new Exception($"Element <{e.Name}> requires subelement {name} ### {e.Name}");
-    
-    public static bool TryAtt(this XElement e, string key, out string result) =>
-        (result = e.Att(key)) != null;
-    public static string TryAtt(this XElement e, string key, string fallback = "") =>
-        e.Att(key) ?? fallback;
-    public static string TryAttNullable(this XElement e, string key) =>
+
+	public static bool TryAtt (this XElement e, string key, out string result) =>
+		(result = e.Att(key)) != null;
+
+	public static bool TryAtt (this XElement e, string[] key, out string result) =>
+		(result = e.Att(key)) != null;
+	public static string TryAtt (this XElement e, string key, string fallback = "") =>
+		e.Att(key) ?? fallback;
+
+	public static string TryAtt (this XElement e, string[] key, string fallback = "") =>
+		e.Att(key) ?? fallback; public static string TryAttNullable(this XElement e, string key) =>
         e.Att(key);
     public static char TryAttChar(this XElement e, string attribute, char fallback) =>
         e.TryAtt(attribute, out string s) ?

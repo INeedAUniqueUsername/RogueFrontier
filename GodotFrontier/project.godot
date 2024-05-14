@@ -10,9 +10,9 @@ config_version=5
 
 [application]
 
-config/name="Rogue-Frontier"
-run/main_scene="res://Mainframe.tscn"
-config/features=PackedStringArray("4.3", "C#", "Forward Plus")
+config/name="GodotFrontier"
+run/main_scene="res://Game.tscn"
+config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]

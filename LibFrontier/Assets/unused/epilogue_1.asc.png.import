@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://tvocb22ufhin"
-path="res://.godot/imported/epilogue_1.asc.png-19702eeee90cb79e8422b44a53e68980.ctex"
+path="res://.godot/imported/epilogue_1.asc.png-fded92dec9145f79c70fd90bfdfde65e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/epilogue_1.asc.png"
-dest_files=["res://.godot/imported/epilogue_1.asc.png-19702eeee90cb79e8422b44a53e68980.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/epilogue_1.asc.png"
+dest_files=["res://.godot/imported/epilogue_1.asc.png-fded92dec9145f79c70fd90bfdfde65e.ctex"]
 
 [params]
 

@@ -42,7 +42,7 @@ public record PowerType() : IDesignType {
                 glowColor = glowColors[v];
                 return v;
             },
-            [nameof(sound)] = (string s) => File.ReadAllBytes(s)
+            [nameof(sound)] = (string s) => Constants.LoadAudio(s)
         });
         Effect = new(e.Elements().Select(e => (PowerEffect)(e.Name.LocalName switch {
             "Projectile" => new PowerProjectile(e),
@@ -249,9 +249,11 @@ public record PowerBarrier() : PowerEffect {
     public Shape shape;
     [Req] public int radius;
     [Req] public int lifetime;
-    [Opt] public uint color;
+    [Opt(parse = false)] public uint color;
     public PowerBarrier(XElement e) : this() {
-        e.Initialize(this);
+        e.Initialize(this, transform:new() {
+            [nameof(color)] = (string s) => ABGR.Parse(s)
+        });
         barrierType = e.ExpectAttEnum<BarrierType>(nameof(barrierType));
         shape = e.TryAttEnum(nameof(shape), Shape.circle);
     }

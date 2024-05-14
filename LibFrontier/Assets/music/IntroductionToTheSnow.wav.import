@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bexrjlig71xbg"
-path="res://.godot/imported/IntroductionToTheSnow.wav-0f8ee58e88664ce40f337b25854e527c.sample"
+path="res://.godot/imported/IntroductionToTheSnow.wav-81fc760a715c302d20eb821cb94403ce.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/music/IntroductionToTheSnow.wav"
-dest_files=["res://.godot/imported/IntroductionToTheSnow.wav-0f8ee58e88664ce40f337b25854e527c.sample"]
+source_file="res://Lib/LibFrontier/Assets/music/IntroductionToTheSnow.wav"
+dest_files=["res://.godot/imported/IntroductionToTheSnow.wav-81fc760a715c302d20eb821cb94403ce.sample"]
 
 [params]
 

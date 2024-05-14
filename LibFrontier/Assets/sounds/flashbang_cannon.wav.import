@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://ccqvx80ltfs2n"
-path="res://.godot/imported/flashbang_cannon.wav-ed15c053e0c0f7626878e4cde72b3fe4.sample"
+path="res://.godot/imported/flashbang_cannon.wav-83a1564ecd04a0bb774645942e20b050.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/flashbang_cannon.wav"
-dest_files=["res://.godot/imported/flashbang_cannon.wav-ed15c053e0c0f7626878e4cde72b3fe4.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/flashbang_cannon.wav"
+dest_files=["res://.godot/imported/flashbang_cannon.wav-83a1564ecd04a0bb774645942e20b050.sample"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cxnf88am3gp2j"
-path="res://.godot/imported/CrawlTrailer.wav-a97b1e0f694f8d2089186ef919dc8a17.sample"
+path="res://.godot/imported/CrawlTrailer.wav-0aa664f4e61c0503380ef3e4fd270eed.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/music/CrawlTrailer.wav"
-dest_files=["res://.godot/imported/CrawlTrailer.wav-a97b1e0f694f8d2089186ef919dc8a17.sample"]
+source_file="res://Lib/LibFrontier/Assets/music/CrawlTrailer.wav"
+dest_files=["res://.godot/imported/CrawlTrailer.wav-0aa664f4e61c0503380ef3e4fd270eed.sample"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://dil2jfyb5y5n7"
-path="res://.godot/imported/Constellation.wav-7f0fe504d0b632bb2dbb436c96a0172f.sample"
+path="res://.godot/imported/Constellation.wav-a7211000ebc7edb73263866e52e23035.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/music/Constellation.wav"
-dest_files=["res://.godot/imported/Constellation.wav-7f0fe504d0b632bb2dbb436c96a0172f.sample"]
+source_file="res://Lib/LibFrontier/Assets/music/Constellation.wav"
+dest_files=["res://.godot/imported/Constellation.wav-a7211000ebc7edb73263866e52e23035.sample"]
 
 [params]
 

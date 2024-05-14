@@ -7,8 +7,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\meta\Icon.ico" />
+		<None Remove="Preview/*; Assets/sprites/*.png;  Assets/sprites/*.asc; Assets/sprites/*.import; Assets/sprites/*.ttf; Assets/sprites/*.zip; Assets/sounds/*.cpt; Assets/sounds/*.wav.import; Assets/unused/*; Assets/slides/*; Assets/music/*.import; Assets/music/*.mscz; Assets/music/*.flac; Assets/music/*.mp3; Assets/manual/*; Assets/meta/*; ">
+		</None>
 
-		<None Remove="&#xD;&#xA;			  Preview/*;&#xD;&#xA;			  Assets/sprites/*.png; &#xD;&#xA;			  Assets/sprites/*.asc;&#xD;&#xA;			  Assets/sprites/*.import;&#xD;&#xA;			  Assets/sprites/*.ttf;&#xD;&#xA;			  Assets/sprites/*.zip;&#xD;&#xA;			  Assets/sounds/*.cpt;&#xD;&#xA;			  Assets/sounds/*.wav.import;&#xD;&#xA;			  Assets/unused/*;&#xD;&#xA;			  Assets/slides/*;&#xD;&#xA;			  Assets/music/*.import;&#xD;&#xA;			  Assets/music/*.mscz;&#xD;&#xA;			  Assets/music/*.flac;&#xD;&#xA;			  Assets/music/*.mp3;&#xD;&#xA;			  Assets/manual/*;&#xD;&#xA;			  Assets/meta/*;&#xD;&#xA;			  ">
+		<None Include=" Assets\sprites\IBMCGA+.png; Assets\sprites\IBMCGA+.font; Assets\sprites\Title.txt; Assets\sprites\*.dat;  Assets\scripts\*.xml; Assets\sounds\*.wav; Assets\music\*.wav;">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 
 		<Content Include="Assets\meta\Icon.ico" />

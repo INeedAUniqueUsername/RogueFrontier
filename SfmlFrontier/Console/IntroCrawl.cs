@@ -1,15 +1,8 @@
 ﻿using SadConsole;
 using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static SadConsole.ColoredString;
-using SadRogue.Primitives;
 using Console = SadConsole.Console;
-using System.IO;
 using Common;
 using CloudJumper;
-using ASECII;
 using LibGamer;
 
 using TileTuple = (uint Foreground, uint Background, int Glyph);
@@ -230,7 +223,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                             sf.SetTile(p.x, p.y, t);
                         }
                     }
-                    var b = new ColoredGlyph(Color.Black, Color.Black, 0);
+                    var b = new Tile(ABGR.Black, ABGR.Black, 0);
                     foreach ((var p, var t) in images[1].Sprite
                         .Where(p => p.Key.x < backgroundSlideX && p.Key.y > topEdge && p.Key.y < bottomEdge)) {
 

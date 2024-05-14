@@ -1,12 +1,6 @@
 ﻿using SadConsole;
 using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Console = SadConsole.Console;
-using SadRogue.Primitives;
-using Common;
-using SFML.Audio;
 
 namespace RogueFrontier;
 public class TradeMenu : Console {

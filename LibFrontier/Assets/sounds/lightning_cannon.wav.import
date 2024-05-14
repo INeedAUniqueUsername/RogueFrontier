@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://fu3sb7t0dygx"
-path="res://.godot/imported/lightning_cannon.wav-bc7fd0a4d83d659dbbab852ecf6277e8.sample"
+path="res://.godot/imported/lightning_cannon.wav-ad1df54b6c0b0dae6124ea9d6029852d.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/lightning_cannon.wav"
-dest_files=["res://.godot/imported/lightning_cannon.wav-bc7fd0a4d83d659dbbab852ecf6277e8.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/lightning_cannon.wav"
+dest_files=["res://.godot/imported/lightning_cannon.wav-ad1df54b6c0b0dae6124ea9d6029852d.sample"]
 
 [params]
 

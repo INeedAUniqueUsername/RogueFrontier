@@ -1,14 +1,4 @@
-﻿using SadRogue.Primitives;
-using SadConsole;
-using SadConsole.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Console = SadConsole.Console;
-using Common;
-using ArchConsole;
-using SFML.Audio;
-using CloudJumper;
+﻿using SadConsole.Input;
 using LibGamer;
 namespace RogueFrontier;
 class ShipMenu : IScene {

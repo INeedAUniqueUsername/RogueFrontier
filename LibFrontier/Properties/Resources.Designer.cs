@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RogueFrontier.Properties {
+namespace SfmlFrontier.Properties {
     using global::System;
     
     

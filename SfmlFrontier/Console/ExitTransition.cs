@@ -1,10 +1,4 @@
-﻿using SadRogue.Primitives;
-using SadConsole;
-using System;
-using System.Collections.Generic;
-using Console = SadConsole.Console;
-using SadConsole.Input;
-using LibGamer;
+﻿using LibGamer;
 
 namespace RogueFrontier;
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://k58qqg5gpba8"
-path="res://.godot/imported/DaughtersOutpostFirstLookV2.asc.png-de0f9bb920caf3a81143153d3d677d43.ctex"
+path="res://.godot/imported/DaughtersOutpostFirstLookV2.asc.png-6a20638f7c67813feb62808d3fa8ef87.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/unused/DaughtersOutpostFirstLookV2.asc.png"
-dest_files=["res://.godot/imported/DaughtersOutpostFirstLookV2.asc.png-de0f9bb920caf3a81143153d3d677d43.ctex"]
+source_file="res://Lib/LibFrontier/Assets/unused/DaughtersOutpostFirstLookV2.asc.png"
+dest_files=["res://.godot/imported/DaughtersOutpostFirstLookV2.asc.png-6a20638f7c67813feb62808d3fa8ef87.ctex"]
 
 [params]
 

@@ -3,10 +3,12 @@ namespace RogueFrontier;
 public class WreckScene : IScene {
     Player player;
     IScene prev;
+    Sf sf;
 
-    public Action<IScene> Go { set; get; }
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
 
-    ListPane<Item> playerPane, dockedPane;
+	ListPane<Item> playerPane, dockedPane;
 
     DescPanel<Item> descPane;
 
@@ -22,6 +24,7 @@ public class WreckScene : IScene {
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
         this.player = playerShip.person;
         this.prev = prev;
+        sf = new Sf(Program.WIDTH, Program.HEIGHT);
 
         descPane = new DescPanel<Item>();
         
@@ -68,12 +71,13 @@ public class WreckScene : IScene {
             currentPane.ProcessKeyboard(kb);
         }
     }
-    public void Render(Sf Surface, TimeSpan delta) {
-        Surface.Clear();
-        Surface.RenderBackground();
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        sf.RenderBackground();
         int y = 4;
         var f = ABGR.White;
         var b = ABGR.Black;
-        Surface.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
+        sf.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
+        Draw(sf);
     }
 }

@@ -1,23 +1,9 @@
-﻿using System;
-using Console = System.Console;
-using SadConsole;
-using Con = SadConsole.Console;
-using System.IO;
-using System.Collections.Generic;
-using Common;
+﻿using SadConsole;
 using LibGamer;
-using SadRogue.Primitives;
-using System.Linq;
-using ASECII;
-using SadConsole.Input;
 using static Common.Main;
-using System.Globalization;
-using SFML.Audio;
 using System.Xml.Linq;
 using System.Reflection;
-using SFML.System;
-
-using TileTuple = (uint Foreground, uint Background, int Glyph);
+using SfmlFrontier;
 namespace RogueFrontier;
 partial class Program {
     static Program() {
@@ -27,8 +13,8 @@ partial class Program {
     public static int WIDTH, HEIGHT;
     public static string FONT_8X8 = ExpectFile("Assets/sprites/IBMCGA+.font");
     public static string main = ExpectFile("Assets/scripts/Main.xml");
-    public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.asc.cg");
-    public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.asc.cg");
+    public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.dat");
+    public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.dat");
     
     static void OutputSchema() {
 
@@ -102,13 +88,23 @@ partial class Program {
                 prev.Go -= Go;
                 prev.Draw -= Draw;
             }
+            if(next == null) {
+                throw new Exception("Main scene cannot be null");
+            }
             current = next;
             current.Go += Go;
             current.Draw += Draw;
         };
         void Draw(Sf sf) {
+            var c = new SadConsole.Console(sf.Width, sf.Height);
+            foreach(var p in sf.Active) {
+                var t = sf.Data[sf.GetIndex(p.x, p.y)];
+				c.SetCellAppearance(p.x, p.y, t.ToCG());
+            }
+            c.Render(new TimeSpan());
+            return;
         }
-        Go(null);
+        Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
         host.FrameUpdate += (o, gh) => {
             current.Update(gh.UpdateFrameDelta);
         };

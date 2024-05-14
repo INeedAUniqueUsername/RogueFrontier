@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://dkrm8an74cs21"
-path="res://.godot/imported/repair_stop.wav-47a307c906e7bb6a4b963997d128f281.sample"
+path="res://.godot/imported/repair_stop.wav-1d758e2768a14492dfef3a3f73840889.sample"
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sounds/repair_stop.wav"
-dest_files=["res://.godot/imported/repair_stop.wav-47a307c906e7bb6a4b963997d128f281.sample"]
+source_file="res://Lib/LibFrontier/Assets/sounds/repair_stop.wav"
+dest_files=["res://.godot/imported/repair_stop.wav-1d758e2768a14492dfef3a3f73840889.sample"]
 
 [params]
 

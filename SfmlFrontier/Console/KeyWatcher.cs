@@ -1,5 +1,4 @@
-﻿using System;
-using Console = SadConsole.Console;
+﻿using Console = SadConsole.Console;
 using SadConsole.Input;
 
 namespace RogueFrontier;

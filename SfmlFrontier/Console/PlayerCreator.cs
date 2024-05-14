@@ -1,15 +1,8 @@
 ﻿using Common;
-using SadConsole;
-using SadConsole.Input;
-using SadConsole.UI;
-using System;
 using SadRogue.Primitives;
-using System.Collections.Generic;
-using System.Linq;
-using static SadConsole.Input.Keys;
-using Console = SadConsole.Console;
 using Label = ArchConsole.Label;
 using ArchConsole;
+using LibGamer;
 namespace RogueFrontier;
 
 class ShipSelectorModel {
@@ -25,23 +18,26 @@ class ShipSelectorModel {
 
     public char[,] portrait;
 }
-class PlayerCreator : ControlsConsole {
+class PlayerCreator : IScene {
     private ref System World => ref context.World;
     private ref List<ShipClass> playable => ref context.playable;
     private ref int index => ref context.shipIndex;
     private ref List<GenomeType> genomes => ref context.genomes;
     private ref int genomeIndex => ref context.genomeIndex;
     private ref GenomeType playerGenome => ref context.playerGenome;
-
-
-    private Console prev;
+    public List<object> Children = new();
+    Sf sf; int Width => sf.Width; int Height => sf.Height;
+    private IScene prev;
+    private Sf sf_prev;
     private ShipSelectorModel context;
-    private Settings settings;
+    private ShipControls settings;
     private Action<ShipSelectorModel> next;
     private LabelButton leftArrow, rightArrow;
     double time = 0;
-    public PlayerCreator(Console prev, System World, Settings settings, Action<ShipSelectorModel> next) : base(prev.Width, prev.Height) {
+    public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
+        sf = new Sf(sf_prev.Width, sf_prev.Height);
         this.prev = prev;
+        this.sf_prev = sf_prev;
         this.next = next;
 
         context = new ShipSelectorModel() {
@@ -124,12 +120,11 @@ class PlayerCreator : ControlsConsole {
         });
         PlaceArrows();
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         time += delta.TotalSeconds;
-        base.Update(delta);
     }
-    public override void Render(TimeSpan drawTime) {
-        this.Clear();
+    public void Render(TimeSpan drawTime) {
+        sf.Clear();
 
         var current = playable[index];
 
@@ -140,7 +135,7 @@ class PlayerCreator : ControlsConsole {
 
         var nameX = Width / 4 - current.name.Length / 2;
         var y = shipDescY;
-        this.Print(nameX, y, current.name);
+        sf.Print(nameX, y, current.name);
 
         var map = current.playerSettings.map;
         var mapWidth = map.Select(line => line.Length).Max();
@@ -150,72 +145,74 @@ class PlayerCreator : ControlsConsole {
         //Ideally the art looks like the original with an added 3D effect
         foreach (var line in current.playerSettings.map) {
             for (int i = 0; i < line.Length; i++) {
-                this.SetCellAppearance(mapX + i, y, new ColoredGlyph(new Color(255, 255, 255, 230 + (int)(Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), Color.Black, line[i]));
+                sf.SetTile(mapX + i, y, new Tile(ABGR.RGBA(255, 255, 255, (byte)(230 + Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), ABGR.Black, line[i]));
             }
             y++;
             for (int i = 0; i < line.Length; i++) {
-                this.SetCellAppearance(mapX + i, y, new ColoredGlyph(new Color(255, 255, 255, 230 + (int)(Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), Color.Black, line[i]));
+                sf.SetTile(mapX + i, y, new Tile(ABGR.RGBA(255, 255, 255, (byte)(230 + Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), ABGR.Black, line[i]));
             }
             y++;
         }
 
         string s = "[Image is for promotional use only]";
         var strX = Width / 4 - s.Length / 2;
-        this.Print(strX, y, s);
+        sf.Print(strX, y, s);
 
         var descX = Width * 2 / 4;
         y = shipDescY;
         foreach (var line in current.playerSettings.description.Wrap(Width / 3)) {
-            this.Print(descX, y, line);
+            sf.Print(descX, y, line);
             y++;
         }
 
         y++;
 
         //Show installed devices on the right pane
-        this.Print(descX, y, "[Devices]");
+        sf.Print(descX, y, "[Devices]");
         y++;
         foreach (var device in current.devices.Generate(World.types)) {
-            this.Print(descX + 4, y, device.source.type.name);
+            sf.Print(descX + 4, y, device.source.type.name);
             y++;
         }
         y += 2;
         foreach (var line in settings.GetString().Split('\n', '\r')) {
-            this.Print(descX, y++, line);
+            sf.Print(descX, y++, line);
         }
 
         for (y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
 
-                var g = this.GetGlyph(x, y);
+                var g = sf.GetGlyph(x, y);
                 if (g == 0 || g == ' ') {
-                    this.SetCellAppearance(x, y, new ColoredGlyph(
-                        new Color(255, 255, 255, (int)(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5))),
-                        Color.Black,
+                    sf.SetTile(x, y, new Tile(
+                        ABGR.RGBA(255, 255, 255, (byte)(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5))),
+                        ABGR.Black,
                         '='));
                 }
             }
         }
-
-        base.Render(drawTime);
+        Draw(sf);
     }
 
     public bool showRight => index < playable.Count - 1;
     public bool showLeft => index > 0;
-    public override bool ProcessKeyboard(Keyboard info) {
-        if (info.IsKeyPressed(Right) && showRight) {
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+
+	public void HandleKey(KB kb) {
+        if (kb[KC.Right] == KS.Pressed && showRight) {
             SelectRight();
         }
-        if (info.IsKeyPressed(Left) && showLeft) {
+        if (kb[KC.Left] == KS.Pressed && showLeft) {
             SelectLeft();
         }
-        if (info.IsKeyPressed(Escape)) {
+        if (kb[KC.Escape] == KS.Pressed) {
             Back();
         }
-        if (info.IsKeyPressed(Enter)) {
+        if (kb[KC.Enter] == KS.Pressed) {
             Start();
         }
-        return base.ProcessKeyboard(info);
     }
     public void UpdateArrows() {
         if (leftArrow != null) {
@@ -259,8 +256,7 @@ class PlayerCreator : ControlsConsole {
 
     public void Back() {
         //Tones.pressed.Play();
-        IsFocused = false;
-        Game.Instance.Screen = new TitleSlideOut(this, sf, prev);
+        Go(new TitleSlideOut(this, sf, prev, sf_prev));
     }
     public void Start() {
         //Tones.pressed.Play();

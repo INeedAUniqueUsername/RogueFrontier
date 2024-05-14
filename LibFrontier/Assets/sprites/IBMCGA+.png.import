@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bywtlms7olu8l"
-path="res://.godot/imported/IBMCGA+.png-8220596cc325cd43af89b52fc3ee5180.ctex"
+path="res://.godot/imported/IBMCGA+.png-2a1721d2e55a562fad578023e502ee70.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/IBMCGA+.png"
-dest_files=["res://.godot/imported/IBMCGA+.png-8220596cc325cd43af89b52fc3ee5180.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/IBMCGA+.png"
+dest_files=["res://.godot/imported/IBMCGA+.png-2a1721d2e55a562fad578023e502ee70.ctex"]
 
 [params]
 

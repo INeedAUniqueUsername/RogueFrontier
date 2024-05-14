@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dn03pkjcc16xa"
-path="res://.godot/imported/NewEra.png-28bcd18cb9697b7c23d68d7bb3bc2ff2.ctex"
+path="res://.godot/imported/NewEra.png-9f3adae93d6e2fe8654b16979da51b1e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/Frontier/Assets/sprites/NewEra.png"
-dest_files=["res://.godot/imported/NewEra.png-28bcd18cb9697b7c23d68d7bb3bc2ff2.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/NewEra.png"
+dest_files=["res://.godot/imported/NewEra.png-9f3adae93d6e2fe8654b16979da51b1e.ctex"]
 
 [params]
 

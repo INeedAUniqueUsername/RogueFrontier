@@ -1,15 +1,10 @@
 ﻿using SadConsole.Input;
-using System;
-using System.Collections.Generic;
 using SadRogue.Primitives;
 using Common;
 using SadConsole;
 using Console = SadConsole.Console;
-using System.Linq;
 using static SadConsole.Input.Keys;
 using ArchConsole;
-using static RogueFrontier.PlayerShip;
-using System.Text.Json.Serialization;
 
 namespace RogueFrontier;
 
