@@ -35,7 +35,7 @@ public record PowerType() : IDesignType {
     public uint glowColor;
 
     public List<PowerEffect> Effect;
-    public void Initialize(TypeCollection collection, XElement e) {
+    public void Initialize(TypeLoader collection, XElement e) {
         var parent = e.TryAtt("inherit", out var inherit) ? collection.Lookup<PowerType>(inherit) : null;
         e.Initialize(this, parent, transform: new() {
             [nameof(voice)] = (Voice v) => {
@@ -67,7 +67,7 @@ public interface PowerEffect {
 public record PowerRechargeWeapon() : PowerEffect {
     [Req] public int maxCharges;
     WeaponDesc weaponType;
-    public PowerRechargeWeapon(TypeCollection tc, XElement e) : this() {
+    public PowerRechargeWeapon(TypeLoader tc, XElement e) : this() {
         e.Initialize(this);
         weaponType = tc.Lookup<ItemType>(e.ExpectAtt("codename")).Weapon
                         ?? throw new Exception();

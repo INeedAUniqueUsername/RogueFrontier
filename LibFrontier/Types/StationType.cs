@@ -83,7 +83,7 @@ public class StationType : IDesignType {
 			e.Initialize(this);
 		}
 	}
-	public void Initialize(TypeCollection tc, XElement e) {
+	public void Initialize(TypeLoader tc, XElement e) {
 		e.Initialize(this, transform: new() {
 			[nameof(Construction)] = (XElement x) => new ConstructionDesc(tc, x),
 			[nameof(Ships)] = (XElement x) => new ShipGroup(x, SGenerator.ParseFrom(tc, SGenerator.ShipFrom)),
@@ -251,7 +251,7 @@ public class StationType : IDesignType {
 		public List<ConstructionEntry> catalog;
 		public ConstructionDesc() {
 		}
-		public ConstructionDesc(TypeCollection tc, XElement e) {
+		public ConstructionDesc(TypeLoader tc, XElement e) {
 			e.Initialize(this);
 			catalog = e.Elements("Construct").Select(s => new ConstructionEntry(tc, s)).ToList();
 		}
@@ -261,7 +261,7 @@ public class StationType : IDesignType {
 		public ShipClass type;
 		public ShipEntry.IShipOrderDesc order;
 		public ConstructionEntry() { }
-		public ConstructionEntry(TypeCollection tc, XElement e) {
+		public ConstructionEntry(TypeLoader tc, XElement e) {
 			e.Initialize(this);
 			type = tc.Lookup<ShipClass>(e.ExpectAtt("codename"));
 			order = ShipEntry.IShipOrderDesc.Get(e);

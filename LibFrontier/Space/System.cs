@@ -45,7 +45,7 @@ public class System {
 
     public Universe universe;
     [JsonIgnore]
-    public TypeCollection types => universe.types;
+    public TypeLoader types => universe.types;
     [JsonIgnore]
     public Rand karma => universe.karma;
     public Backdrop backdrop=new();

@@ -17,7 +17,7 @@ class RenderShip : Console {
     }
     private static void Init() {
 
-        TypeCollection tc = new TypeCollection("Assets/scripts/Main.xml");
+        TypeLoader tc = new TypeLoader("Assets/scripts/Main.xml");
 
         Directory.CreateDirectory("RogueFrontierRenders");
         foreach ((var codename, var sc) in tc.GetDict<ShipClass>()) {

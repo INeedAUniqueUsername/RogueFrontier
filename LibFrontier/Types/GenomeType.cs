@@ -5,7 +5,7 @@ namespace RogueFrontier;
 
 public class GenomeType : IDesignType {
     [Req] public string name, species, gender, subjective, objective, possessiveAdj, possessiveNoun, reflexive;
-    public void Initialize(TypeCollection collection, XElement e) {
+    public void Initialize(TypeLoader collection, XElement e) {
         e.Initialize(this);
     }
 }

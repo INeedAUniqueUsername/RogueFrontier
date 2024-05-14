@@ -3,6 +3,6 @@
 namespace RogueFrontier;
 
 public class ImageType : IDesignType {
-    public void Initialize(TypeCollection collection, XElement e) {
+    public void Initialize(TypeLoader collection, XElement e) {
     }
 }

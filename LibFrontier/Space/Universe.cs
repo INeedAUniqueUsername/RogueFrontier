@@ -8,7 +8,7 @@ namespace RogueFrontier;
 public class UniverseDesc {
     public List<SystemDesc> systems=new();
     public List<LinkDesc> links=new();
-    public UniverseDesc(TypeCollection tc, XElement e) {
+    public UniverseDesc(TypeLoader tc, XElement e) {
         if (e.HasElement("Topology", out var xmlTopology)) {
             foreach (var element in xmlTopology.Elements()) {
                 switch (element.Name.LocalName) {
@@ -36,7 +36,7 @@ public class UniverseDesc {
         public List<GlobalStargateDesc> globalStargates;
 
         public SystemDesc() { }
-        public SystemDesc(TypeCollection tc, XElement e) {
+        public SystemDesc(TypeLoader tc, XElement e) {
             e.Initialize(this);
             if (e.HasElement("SystemGroup", out var xmlSystemGroup)) {
                 systemGroup = new(xmlSystemGroup, SGenerator.ParseFrom(tc, SSystemElement.Create));
@@ -65,7 +65,7 @@ public class Universe : Ob<EntityAdded> {
     public void Observe(EntityAdded ev) =>
         onEntityAdded.Observe(ev);
     public Rand karma;
-    public TypeCollection types;
+    public TypeLoader types;
 
     public Dictionary<string, Entity> identifiedObjects=new();
     public Dictionary<string, System> systems=new();
@@ -73,11 +73,11 @@ public class Universe : Ob<EntityAdded> {
     public Dictionary<string, HashSet<Stargate>> systemGates=new();
     public Dictionary<string, (int, int)> grid = new();
     public Vi<EntityAdded> onEntityAdded = new();
-    public Universe(TypeCollection types = null, Rand karma = null) {
-        this.types = types ?? new TypeCollection();
+    public Universe(TypeLoader types = null, Rand karma = null) {
+        this.types = types ?? new TypeLoader();
         this.karma = karma ?? new Rand();
     }
-    public Universe(UniverseDesc desc, TypeCollection types = null, Rand karma = null) : this(types, karma) {
+    public Universe(UniverseDesc desc, TypeLoader types = null, Rand karma = null) : this(types, karma) {
         foreach (var entry in desc.systems) {
             var s = new System(this) { id = entry.id, name = entry.name };
             s.onEntityAdded += this;

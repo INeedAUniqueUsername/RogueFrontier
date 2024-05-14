@@ -6,7 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 namespace RogueFrontier;
-public class TypeCollection {
+public class TypeLoader {
 	[JsonProperty]
 	private Dictionary<string, XElement> sources=new();
 	[JsonProperty]
@@ -31,14 +31,14 @@ public class TypeCollection {
 	}
 	InitState state;
 	//After our first initialization, any types we create later must be initialized immediately. Any dependency types must already be bound
-	public TypeCollection() {
+	public TypeLoader() {
 		state = InitState.InitializePending;
 		Debug.Print("TypeCollection created");
 	}
-	public TypeCollection(params string[] modules) : this() {
+	public TypeLoader(params string[] modules) : this() {
 		LoadFile(modules);
 	}
-	public TypeCollection(params XElement[] modules) : this() {
+	public TypeLoader(params XElement[] modules) : this() {
 		//We do two passes
 		//The first pass creates DesignType references for each type and stores the source code
 		foreach (var m in modules) {
@@ -166,5 +166,5 @@ public class TypeCollection {
 	}
 }
 public interface IDesignType {
-	void Initialize(TypeCollection collection, XElement e);
+	void Initialize(TypeLoader collection, XElement e);
 }

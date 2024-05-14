@@ -10,8 +10,8 @@ namespace RogueFrontier;
 
 public delegate T Parse<T>(XElement e);
 public interface ShipGenerator {
-    IEnumerable<AIShip> Generate(TypeCollection tc, ActiveObject owner);
-    public IEnumerable<AIShip> GenerateAndPlace(TypeCollection tc, ActiveObject owner) {
+    IEnumerable<AIShip> Generate(TypeLoader tc, ActiveObject owner);
+    public IEnumerable<AIShip> GenerateAndPlace(TypeLoader tc, ActiveObject owner) {
         var w = owner.world;
         var result = Generate(tc, owner);
         foreach(var s in result) {
@@ -32,7 +32,7 @@ public class ShipGroup : ShipGenerator {
             generators.Add(parse(element));
         }
     }
-    public IEnumerable<AIShip> Generate(TypeCollection tc, ActiveObject owner) =>
+    public IEnumerable<AIShip> Generate(TypeLoader tc, ActiveObject owner) =>
         generators.SelectMany(g => g.Generate(tc, owner));
 }
 public enum ShipOrder {
@@ -47,7 +47,7 @@ public class ShipEntry : ShipGenerator {
     [Par(construct = false)] public IShipOrderDesc orderDesc;
     [Opt] public EShipBehavior behavior;
     public ShipEntry() { }
-    public ShipEntry(TypeCollection tc, XElement e) {
+    public ShipEntry(TypeLoader tc, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(sovereign)] = (string s) => tc.Lookup<Sovereign>(s),
             [nameof(shipClass)] = (string s) => tc.Lookup<ShipClass>(s),
@@ -60,7 +60,7 @@ public class ShipEntry : ShipGenerator {
             EShipBehavior.none => null,
             EShipBehavior.trader => new Merchant()
         };
-    public IEnumerable<AIShip> Generate(TypeCollection tc, ActiveObject owner) {
+    public IEnumerable<AIShip> Generate(TypeLoader tc, ActiveObject owner) {
         Sovereign s = sovereign ?? owner.sovereign ?? throw new Exception("Sovereign expected");
         var count = this.count.Roll();
         Func<int, XY> GetPos = orderDesc switch {
@@ -148,17 +148,17 @@ public record ModRoll() {
     }
 }
 public interface IGenerator<T> {
-    List<T> Generate(TypeCollection t);
+    List<T> Generate(TypeLoader t);
 
 }
 public record None<T>() : IGenerator<T> {
     public None(XElement e) : this() { }
-    public List<T> Generate(TypeCollection tc) => new();
+    public List<T> Generate(TypeLoader tc) => new();
 }
 public static class SGenerator {
-    public static Parse<T> ParseFrom<T>(TypeCollection tc, Func<TypeCollection, XElement, T> f) =>
+    public static Parse<T> ParseFrom<T>(TypeLoader tc, Func<TypeLoader, XElement, T> f) =>
         (XElement e) => f(tc, e);
-    public static ShipGenerator ShipFrom(TypeCollection tc, XElement element) {
+    public static ShipGenerator ShipFrom(TypeLoader tc, XElement element) {
         var f = ParseFrom(tc, ShipFrom);
         return element.Name.LocalName switch {
             "Ship" => new ShipEntry(tc, element),
@@ -166,7 +166,7 @@ public static class SGenerator {
             _ => throw new Exception($"Unknown <Ships> subelement {element.Name}")
         };
     }
-    public static IGenerator<Item> ItemFrom(TypeCollection tc, XElement element) {
+    public static IGenerator<Item> ItemFrom(TypeLoader tc, XElement element) {
         var f = ParseFrom(tc, ItemFrom);
         return element.Name.LocalName switch {
             "Item" => new ItemEntry(tc, element),
@@ -217,14 +217,14 @@ public static class SGenerator {
 }
 public record Group<T>() : IGenerator<T> {
     public List<IGenerator<T>> generators=new();
-    public static List<T> From(TypeCollection tc, Parse<IGenerator<T>> parse, string str) => new Group<T>(XElement.Parse(str), parse).Generate(tc);
+    public static List<T> From(TypeLoader tc, Parse<IGenerator<T>> parse, string str) => new Group<T>(XElement.Parse(str), parse).Generate(tc);
     public Group(XElement e, Parse<IGenerator<T>> parse) : this() {
         generators = new();
         foreach (var element in e.Elements()) {
             generators.Add(parse(element));
         }
     }
-    public List<T> Generate(TypeCollection tc) =>
+    public List<T> Generate(TypeLoader tc) =>
         new(generators.SelectMany(g => g.Generate(tc)));
 }
 public record Table<T>() : IGenerator<T> {
@@ -232,7 +232,7 @@ public record Table<T>() : IGenerator<T> {
     [Opt] public bool replacement = true;
     public List<(double chance, IGenerator<T>)> generators;
     private double totalChance;
-    public static List<T> From(TypeCollection tc, Parse<IGenerator<T>> parse, string str) => new Table<T>(XElement.Parse(str), parse).Generate(tc);
+    public static List<T> From(TypeLoader tc, Parse<IGenerator<T>> parse, string str) => new Table<T>(XElement.Parse(str), parse).Generate(tc);
     public Table(XElement e, Parse<IGenerator<T>> parse) : this() {
         e.Initialize(this);
         generators = new();
@@ -242,7 +242,7 @@ public record Table<T>() : IGenerator<T> {
             totalChance += chance;
         }
     }
-    public List<T> Generate(TypeCollection tc) {
+    public List<T> Generate(TypeLoader tc) {
         if (replacement) {
             return new(Enumerable.Range(0, count.Roll()).SelectMany(i => {
                 var c = new Random().NextDouble() * totalChance;
@@ -290,15 +290,15 @@ public record ItemEntry() : IGenerator<Item> {
     [Req(alias = "codename", parse = false)]
           public ItemType type;
     [Par]public ModRoll mod;
-    public ItemEntry(TypeCollection tc, XElement e) : this() {
+    public ItemEntry(TypeLoader tc, XElement e) : this() {
         e.Initialize(this, transform: new() {
             [nameof(type)] = (string s) => tc.Lookup<ItemType>(s)
         });
     }
-    public List<Item> Generate(TypeCollection tc) =>
+    public List<Item> Generate(TypeLoader tc) =>
         new(Enumerable.Range(0, count.Roll()).Select(_ => new Item(type, mod.Generate())));
     //In case we want to make sure immediately that the type is valid
-    public void ValidateEager(TypeCollection tc) =>
+    public void ValidateEager(TypeLoader tc) =>
         tc.Lookup<ItemType>(type.codename);
 }
 public record ArmorEntry() : IGenerator<Armor> {
@@ -307,18 +307,18 @@ public record ArmorEntry() : IGenerator<Armor> {
     public ArmorEntry(XElement e) : this() {
         e.Initialize(this);
     }
-    List<Armor> IGenerator<Armor>.Generate(TypeCollection tc) =>
+    List<Armor> IGenerator<Armor>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    public Armor Generate(TypeCollection tc) =>
+    public Armor Generate(TypeLoader tc) =>
         SDevice.Generate<Armor>(tc, codename, mod);
-    public void ValidateEager(TypeCollection tc) =>
+    public void ValidateEager(TypeLoader tc) =>
         Generate(tc);
 
 }
 public static class SDevice {
-    private static T Install<T>(TypeCollection tc, string codename, ModRoll mod) where T : class, Device =>
+    private static T Install<T>(TypeLoader tc, string codename, ModRoll mod) where T : class, Device =>
         new Item(tc.Lookup<ItemType>(codename), mod.Generate()).Get<T>();
-    public static T Generate<T>(TypeCollection tc, string codename, ModRoll mod) where T : class, Device =>
+    public static T Generate<T>(TypeLoader tc, string codename, ModRoll mod) where T : class, Device =>
         Install<T>(tc, codename, mod) ??
             throw new Exception($"Expected <ItemType> type with <{typeof(T).Name}> desc: {codename}");
 }
@@ -328,11 +328,11 @@ public record ReactorEntry() : IGenerator<Device> {
     public ReactorEntry(XElement e) : this() {
         e.Initialize(this);
     }
-    List<Device> IGenerator<Device>.Generate(TypeCollection tc) =>
+    List<Device> IGenerator<Device>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    Reactor Generate(TypeCollection tc) =>
+    Reactor Generate(TypeLoader tc) =>
         SDevice.Generate<Reactor>(tc, codename, mod);
-    public void ValidateEager(TypeCollection tc) => Generate(tc);
+    public void ValidateEager(TypeLoader tc) => Generate(tc);
 }
 
 public record SolarEntry() : IGenerator<Device> {
@@ -341,11 +341,11 @@ public record SolarEntry() : IGenerator<Device> {
     public SolarEntry(XElement e) : this() {
         e.Initialize(this);
     }
-    List<Device> IGenerator<Device>.Generate(TypeCollection tc) =>
+    List<Device> IGenerator<Device>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    Solar Generate(TypeCollection tc) =>
+    Solar Generate(TypeLoader tc) =>
         SDevice.Generate<Solar>(tc, codename, mod);
-    public void ValidateEager(TypeCollection tc) => Generate(tc);
+    public void ValidateEager(TypeLoader tc) => Generate(tc);
 }
 public record ServiceEntry() : IGenerator<Device> {
     [Req] public string codename;
@@ -353,10 +353,10 @@ public record ServiceEntry() : IGenerator<Device> {
     public ServiceEntry(XElement e) : this() {
         e.Initialize(this);
     }
-    List<Device> IGenerator<Device>.Generate(TypeCollection tc) =>
+    List<Device> IGenerator<Device>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    Service Generate(TypeCollection tc) => SDevice.Generate<Service>(tc, codename, mod);
-    public void ValidateEager(TypeCollection tc) => Generate(tc);
+    Service Generate(TypeLoader tc) => SDevice.Generate<Service>(tc, codename, mod);
+    public void ValidateEager(TypeLoader tc) => Generate(tc);
 }
 
 public record ShieldEntry() : IGenerator<Device>, IGenerator<Shield> {
@@ -365,13 +365,13 @@ public record ShieldEntry() : IGenerator<Device>, IGenerator<Shield> {
     public ShieldEntry(XElement e) : this() {
         e.Initialize(this);
     }
-    List<Device> IGenerator<Device>.Generate(TypeCollection tc) =>
+    List<Device> IGenerator<Device>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    List<Shield> IGenerator<Shield>.Generate(TypeCollection tc) =>
+    List<Shield> IGenerator<Shield>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    Shield Generate(TypeCollection tc) =>
+    Shield Generate(TypeLoader tc) =>
         SDevice.Generate<Shield>(tc, codename, mod);
-    public void ValidateEager(TypeCollection tc) => Generate(tc);
+    public void ValidateEager(TypeLoader tc) => Generate(tc);
 }
 public record WeaponList() : IGenerator<Weapon> {
     public List<IGenerator<Weapon>> generators;
@@ -387,7 +387,7 @@ public record WeaponList() : IGenerator<Weapon> {
             }
         }
     }
-    public List<Weapon> Generate(TypeCollection tc) =>
+    public List<Weapon> Generate(TypeLoader tc) =>
         new(generators.SelectMany(g => g.Generate(tc)));
 }
 public record WeaponEntry() : IGenerator<Device>, IGenerator<Weapon> {
@@ -406,11 +406,11 @@ public record WeaponEntry() : IGenerator<Device>, IGenerator<Weapon> {
             [nameof(offset)] = (XElement e) => XY.TryParse(e, new(0, 0))
         });
     }
-    List<Weapon> IGenerator<Weapon>.Generate(TypeCollection tc) =>
+    List<Weapon> IGenerator<Weapon>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    List<Device> IGenerator<Device>.Generate(TypeCollection tc) =>
+    List<Device> IGenerator<Device>.Generate(TypeLoader tc) =>
         new() { Generate(tc) };
-    Weapon Generate(TypeCollection tc) {
+    Weapon Generate(TypeLoader tc) {
         
         
         var w = SDevice.Generate<Weapon>(tc, codename, mod);
@@ -430,5 +430,5 @@ public record WeaponEntry() : IGenerator<Device>, IGenerator<Weapon> {
         w.offset = offset;
         return w;
     }
-    public void ValidateEager(TypeCollection tc) => Generate(tc);
+    public void ValidateEager(TypeLoader tc) => Generate(tc);
 }

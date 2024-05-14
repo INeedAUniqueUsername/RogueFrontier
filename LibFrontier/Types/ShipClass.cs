@@ -36,7 +36,7 @@ public class ShipClass : IDesignType {
         }
     }
     public ShipClass() { }
-    public void Initialize(TypeCollection collection, XElement e) {
+    public void Initialize(TypeLoader collection, XElement e) {
         var parent = e.TryAtt("inherit", out string inherit) ? collection.Lookup<ShipClass>(inherit) : null;
         e.Initialize(this, parent);
         if (parent != null) {
@@ -73,7 +73,7 @@ public class ShipClass : IDesignType {
     }
 }
 public interface HullSystemDesc {
-    HullSystem Create(TypeCollection tc);
+    HullSystem Create(TypeLoader tc);
 }
 public record HitPointDesc : HullSystemDesc {
     [Req] public int maxHP;
@@ -81,7 +81,7 @@ public record HitPointDesc : HullSystemDesc {
     public HitPointDesc(XElement e) {
         e.Initialize(this);
     }
-    public HullSystem Create(TypeCollection tc) =>
+    public HullSystem Create(TypeLoader tc) =>
         new HP(maxHP);
 }
 public record LayeredArmorDesc : HullSystemDesc {
@@ -90,7 +90,7 @@ public record LayeredArmorDesc : HullSystemDesc {
     public LayeredArmorDesc(XElement e) {
         armorList = new Group<Armor>(e, SGenerator.ArmorFrom);
     }
-    public HullSystem Create(TypeCollection tc) =>
+    public HullSystem Create(TypeLoader tc) =>
         new LayeredArmor(armorList.Generate(tc));
 }
 public record PlayerSettings() {
