@@ -21,7 +21,10 @@ public partial class Game : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		RogueFrontier.System GenerateIntroSystem () {
-			var w = new RogueFrontier.System();
+
+			var a = new Assets("Lib/LibFrontier/Assets");
+			var u = new Universe(a);
+			var w = new RogueFrontier.System(u);
 			w.types.LoadFile(main);
 			if(w.types.TryLookup<SystemType>("system_intro", out var s)) {
 				s.Generate(w);

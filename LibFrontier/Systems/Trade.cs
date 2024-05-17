@@ -44,7 +44,7 @@ public record TradeEntry(ItemFilter filter, double priceFactor, int priceInc) {
 public record TradeDesc() : IDesignType {
     Dictionary<ItemType, int> priceTable;
     List<TradeEntry> buyAdj, sellAdj;
-    public void Initialize(TypeLoader tc, XElement e) {
+    public void Initialize(Assets tc, XElement e) {
         priceTable = e.Element("Prices")?.Value.Trim().Split("\n")
             .Select(line => line.Split(":")).ToDictionary(
             parts => tc.Lookup<ItemType>(parts[0]),

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 namespace RogueFrontier;
-public class TypeLoader {
+public class Assets {
 	[JsonProperty]
 	private Dictionary<string, XElement> sources=new();
 	[JsonProperty]
@@ -31,14 +31,16 @@ public class TypeLoader {
 	}
 	InitState state;
 	//After our first initialization, any types we create later must be initialized immediately. Any dependency types must already be bound
-	public TypeLoader() {
+	public Assets(string root = "Assets") {
+
+		this.root = Path.GetFullPath(root);
 		state = InitState.InitializePending;
 		Debug.Print("TypeCollection created");
 	}
-	public TypeLoader(params string[] modules) : this() {
+	public Assets(params string[] modules) : this() {
 		LoadFile(modules);
 	}
-	public TypeLoader(params XElement[] modules) : this() {
+	public Assets(params XElement[] modules) : this() {
 		//We do two passes
 		//The first pass creates DesignType references for each type and stores the source code
 		foreach (var m in modules) {
@@ -47,6 +49,10 @@ public class TypeLoader {
 		//The second pass initializes each type from the source code
 		Initialize();
 	}
+	public string root;
+	public byte[] GetAudio (string s) => File.ReadAllBytes($"{root}/sounds/{Path.GetFileName(s)}");
+	public string GetSprite (string s) => File.ReadAllText($"{root}/sprites/{Path.GetFileName(s)}");
+
 	void Initialize() {
 		state = InitState.Initializing;
 		//We don't evaluate all sources; just the ones that are used by DesignTypes
@@ -166,5 +172,5 @@ public class TypeLoader {
 	}
 }
 public interface IDesignType {
-	void Initialize(TypeLoader collection, XElement e);
+	void Initialize(Assets collection, XElement e);
 }

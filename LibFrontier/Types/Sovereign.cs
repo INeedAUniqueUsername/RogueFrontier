@@ -102,7 +102,7 @@ public class Sovereign : IDesignType {
         sovDispositions = new();
         entityDispositions = new();
     }
-    public void Initialize(TypeLoader tc, XElement e) {
+    public void Initialize(Assets tc, XElement e) {
         codename = e.ExpectAtt("codename");
         if (Enum.TryParse<BasicAlignment>(e.ExpectAtt("alignment"), out BasicAlignment alignment)) {
             this.alignment = alignment;

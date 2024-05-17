@@ -17,8 +17,8 @@ class RenderShip : Console {
     }
     private static void Init() {
 
-        TypeLoader tc = new TypeLoader("Assets/scripts/Main.xml");
-
+        var tc = new Assets();
+        tc.LoadFile("Assets/scripts/Main.xml");
         Directory.CreateDirectory("RogueFrontierRenders");
         foreach ((var codename, var sc) in tc.GetDict<ShipClass>()) {
             if (sc.playerSettings?.map == null) {

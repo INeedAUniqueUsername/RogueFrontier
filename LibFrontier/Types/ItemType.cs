@@ -13,7 +13,7 @@ public interface ItemUse {
 public record DeployShip : ItemUse {
     [Req(parse = false)] public ShipClass shipClass;
     public DeployShip() { }
-    public DeployShip(TypeLoader tc, XElement e) {
+    public DeployShip(Assets tc, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(shipClass)] = (string s) => tc.Lookup<ShipClass>(s)
         });
@@ -38,7 +38,7 @@ public record DeployShip : ItemUse {
 public record DeployStation : ItemUse {
     [Req(parse = false)] public StationType stationType;
     public DeployStation() { }
-    public DeployStation(TypeLoader tc, XElement e) {
+    public DeployStation(Assets tc, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(stationType)] = (string s) => tc.Lookup<StationType>(s)
         });
@@ -90,7 +90,7 @@ public record InvokePower : ItemUse {
     [Req] public int charges;
     [Req(parse = false)] public PowerType powerType;
     public InvokePower() { }
-    public InvokePower(TypeLoader tc, XElement e) {
+    public InvokePower(Assets tc, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(powerType)] = (string s) => tc.Lookup<PowerType>(s)
         });
@@ -110,7 +110,7 @@ public record InvokePower : ItemUse {
 public record Refuel : ItemUse {
     [Req] public int energy;
     public Refuel() { }
-    public Refuel(TypeLoader tc, XElement e) {
+    public Refuel(Assets tc, XElement e) {
         e.Initialize(this);
     }
     public string GetDesc(PlayerShip player, Item item) => "Refuel reactor";
@@ -149,7 +149,7 @@ public record DepleteTargetShields() : ItemUse {
 }
 public record ReplaceDevice() : ItemUse {
     [Req(parse =false)]public ItemType from, to;
-    public ReplaceDevice(TypeLoader tc, XElement e) : this() => e.Initialize(this, transform: new() {
+    public ReplaceDevice(Assets tc, XElement e) : this() => e.Initialize(this, transform: new() {
         [nameof(from)] = tc.Lookup<ItemType>,
         [nameof(to)] = tc.Lookup<ItemType>,
     });
@@ -164,7 +164,7 @@ public record ReplaceDevice() : ItemUse {
 public record RechargeWeapon() : ItemUse {
     [Req(parse = false)] public WeaponDesc weaponType;
     [Req] public int charges;
-    public RechargeWeapon(TypeLoader tc, XElement e) : this() {
+    public RechargeWeapon(Assets tc, XElement e) : this() {
         e.Initialize(this, transform: new() {
             [nameof(weaponType)] = (string s) => tc.Lookup<ItemType>(s).Weapon
         });
@@ -258,10 +258,10 @@ public record ItemType : IDesignType {
 
     class InvokeFrom {
         [Opt(type = typeof(EItemUse))] public ItemUse invoke;
-        public InvokeFrom(TypeLoader tc, XElement e) => e.Initialize(this, transform: new() {
+        public InvokeFrom(Assets tc, XElement e) => e.Initialize(this, transform: new() {
             [nameof(invoke)] = (EItemUse u) => Create(u, tc, e)
         });
-        public static ItemUse Create(EItemUse u, TypeLoader tc, XElement e) => u switch {
+        public static ItemUse Create(EItemUse u, Assets tc, XElement e) => u switch {
             EItemUse.none => null,
             EItemUse.deployShip => new DeployShip(tc, e),
             EItemUse.deployStation => new DeployStation(tc, e),
@@ -275,7 +275,7 @@ public record ItemType : IDesignType {
             _ => throw new Exception("Unsupported use type")
         };
     }
-    public void Initialize(TypeLoader tc, XElement e) {
+    public void Initialize(Assets tc, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(Launcher)] = (XElement e) => new LauncherDesc(tc, e),
             [nameof(Weapon)] = (XElement e) => new WeaponDesc(tc, e),
@@ -346,7 +346,7 @@ public record LaunchDesc {
     [Req(parse = false)] public ItemType ammoType;
     public FragmentDesc shot;
     public LaunchDesc() {}
-    public LaunchDesc(TypeLoader types, XElement e) {
+    public LaunchDesc(Assets types, XElement e) {
         e.Initialize(this, transform: new() {
             [nameof(ammoType)] = (string s) => types.Lookup<ItemType>(s),
         });
@@ -364,7 +364,7 @@ public record LauncherDesc {
     public Launcher GetLauncher(Item i) => new(i, this);
     public Weapon GetWeapon(Item i) => new(i, weaponDesc);
     public LauncherDesc() { }
-    public LauncherDesc(TypeLoader types, XElement e) {
+    public LauncherDesc(Assets types, XElement e) {
         e.Initialize(this);
         missiles = new();
         if(e.HasElements("Missile", out var xmlMissileArr)) {
@@ -416,7 +416,7 @@ public record WeaponDesc {
     public int minRange => Projectile.missileSpeed * Projectile.lifetime / (Constants.TICKS_PER_SECOND * Constants.TICKS_PER_SECOND); //DOES NOT INCLUDE CAPACITOR EFFECTS
     public Weapon GetWeapon(Item i) => new(i, this);
     public WeaponDesc() { }
-    public WeaponDesc(TypeLoader types, XElement e) {
+    public WeaponDesc(Assets types, XElement e) {
         var toRad = (double d) => d * Math.PI / 180;
         e.Initialize(this, transform:new() {
             [nameof(angle)] = toRad,
@@ -425,7 +425,7 @@ public record WeaponDesc {
             [nameof(rightRange)] = toRad,
 
             [nameof(ammoType)] = (string at) => types.Lookup<ItemType>(at),
-            [nameof(sound)] = (string s) => Constants.LoadAudio(s)
+            [nameof(sound)] = (string s) => types.GetAudio(s)
         });
         //Projectile = new(e.ExpectElement("Projectile"));
         //sound = e.TryAtt("sound", out string s) ? new SoundBuffer(s) : null;
