@@ -37,7 +37,8 @@ namespace ASECII {
 
             this.Children.Add(spriteMenu);
             this.Children.Add(controlsMenu);
-        }
+			Settings.WindowTitle = $"ASECII: {model.filepath}";
+		}
         public void InitControls() {
             int x = 0;
             int y = 0;
@@ -1037,7 +1038,7 @@ namespace ASECII {
                             var p = Game.Instance.Screen as Console;
                             Game.Instance.Screen = new FileMenu(p.Width, p.Height, new SaveMode(model, this));
                         } else {
-                            model.Save(this);
+                            model.Save();
                         }
                     }
                 }
@@ -1168,8 +1169,8 @@ namespace ASECII {
             mode = Mode.Brush;
 
         }
-        public void Save(Console renderer) {
-            var fileName = Path.GetDirectoryName(filepath) + "/" + Path.GetFileNameWithoutExtension(filepath);
+        public void Save() {
+            var fileName = Path.GetFullPath(Path.GetDirectoryName(filepath) + "/" + Path.GetFileNameWithoutExtension(filepath));
             File.WriteAllText($"{fileName}.asc", ASECIILoader.SerializeObject(this));
 			File.WriteAllText($"{fileName}.dat", ASECIILoader.SerializeObject(sprite.exportData));
 			var preview = sprite.preview;
@@ -1423,6 +1424,7 @@ namespace ASECII {
         }
 
         public void OnLoad() {
+            Save();
             line ??= new LineMode(this);
             fill ??= new FillMode(this);
         }
@@ -1683,7 +1685,8 @@ namespace ASECII {
     [JsonObject(MemberSerialization.Fields)]
     public class BrushMode {
         public SpriteModel model;
-        public MouseWatch mouse;
+        [JsonIgnore]
+        public MouseWatch mouse = new();
         public int glyph = 'A';
         public Color foreground = Color.White;
         public Color background = Color.Black;
@@ -1699,14 +1702,17 @@ namespace ASECII {
                 glyph = value.Glyph;
             }
         }
+
+        public BrushMode () {
+        }
         public BrushMode(SpriteModel model) {
             this.model = model;
-            mouse = new MouseWatch();
 
             filter = new GlyphScramble(model, this);
         }
 
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver) {
+            mouse ??= new MouseWatch();
             mouse.Update(state, IsMouseOver);
             //glyph = (char)((glyph + state.Mouse.ScrollWheelValueChange / 120 + 255) % 255);
             if(state.IsOnScreenObject) {
@@ -1756,10 +1762,10 @@ namespace ASECII {
     [JsonObject(MemberSerialization.Fields)]
     public class FillMode {
         public SpriteModel model;
-        public MouseWatch mouse;
+		[JsonIgnore]
+		public MouseWatch mouse = new MouseWatch();
         public FillMode(SpriteModel model) {
             this.model = model;
-            mouse = new MouseWatch();
         }
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver, bool shift, bool ctrl, bool alt) {
             mouse.Update(state, IsMouseOver);
@@ -1820,11 +1826,11 @@ namespace ASECII {
             }
             return points;
         }
-        //public Point moved => start.HasValue ? end - start.Value : new Point(0, 0);
-        public MouseWatch mouse;
+		//public Point moved => start.HasValue ? end - start.Value : new Point(0, 0);
+		[JsonIgnore]
+		public MouseWatch mouse = new();
         public LineMode(SpriteModel model) {
             this.model = model;
-            mouse = new MouseWatch();
         }
         public void ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, state.IsOnScreenObject);
@@ -1862,12 +1868,13 @@ namespace ASECII {
     public class PickMode {
         public bool quickPick;
         public SpriteModel model;
-        public MouseWatch mouse;
+		[JsonIgnore]
+		public MouseWatch mouse = new MouseWatch();
         public PickMode(SpriteModel model) {
             this.model = model;
-            mouse = new MouseWatch();
         }
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver) {
+            mouse ??= new MouseWatch();
             mouse.Update(state, IsMouseOver);
             if (state.IsOnScreenObject) {
                 if (state.Mouse.LeftButtonDown && mouse.leftPressedOnScreen) {
@@ -1903,10 +1910,10 @@ namespace ASECII {
     public class EraseMode {
         public MultiEdit placement;
         public SpriteModel model;
-        public MouseWatch mouse;
+		[JsonIgnore]
+		public MouseWatch mouse = new MouseWatch();
         public EraseMode(SpriteModel model) {
             this.model = model;
-            mouse = new MouseWatch();
         }
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver) {
             mouse.Update(state, IsMouseOver);
@@ -2038,13 +2045,13 @@ namespace ASECII {
         public Point? start;
         public Point? current;
         public Point end;
-        //public Point moved => start.HasValue ? end - start.Value : new Point(0, 0);
-        public MouseWatch mouse;
+		//public Point moved => start.HasValue ? end - start.Value : new Point(0, 0);
+		[JsonIgnore]
+		public MouseWatch mouse = new();
         public MoveMode(SpriteModel model, Selection selection, Layer layer) {
             this.model = model;
             this.selection = selection;
             this.layer = layer;
-            mouse = new MouseWatch();
         }
         public void ProcessMouse(MouseScreenObjectState state) {
             mouse.Update(state, state.IsOnScreenObject);
@@ -2328,7 +2335,8 @@ namespace ASECII {
     public class SelectWandMode {
         public SpriteModel model;
         public Selection selection;
-        public MouseWatch mouse;
+		[JsonIgnore]
+		public MouseWatch mouse = new();
         bool prevLeft;
 
         public SelectWandMode(SpriteModel model, Selection selection) {

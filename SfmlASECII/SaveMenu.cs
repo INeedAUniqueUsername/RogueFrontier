@@ -38,7 +38,7 @@ namespace ASECII {
         }
         public void Enter(Console console, string filepath) {
             model.filepath = filepath;
-            model.Save(renderer);
+            model.Save();
             Game.Instance.Screen = console;
         }
     }
@@ -275,6 +275,8 @@ namespace ASECII {
                         Failed("Filepath does not exist");
                         return;
                     }
+                    model.filepath = Path.GetFullPath(file);
+                    model.Save();
                     var s = new LoadSuccess(model);
                     preloaded[file] = s;
                     Handle(file, s);

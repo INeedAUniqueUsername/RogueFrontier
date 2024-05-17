@@ -34,10 +34,11 @@ namespace ASECII {
                 var model = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(path));
                 if(model.filepath != path) {
                     model.filepath = path;
-                    model.Save(null);
+                    model.Save();
                 }
-                model.OnLoad();
-                Game.Instance.Screen = new EditorMain(width, height, model);
+				model.OnLoad();
+
+				Game.Instance.Screen = new EditorMain(width, height, model);
                 return;
             }
             if(LoadState()) {
@@ -63,7 +64,6 @@ namespace ASECII {
                         var model = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(e.loaded));
 
                         model.OnLoad();
-                        Settings.WindowTitle = $"ASECII: {model.filepath}";
                         Game.Instance.Screen = new EditorMain(width, height, model);
                         return true;
                     

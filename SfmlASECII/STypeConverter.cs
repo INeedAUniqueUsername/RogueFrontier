@@ -18,18 +18,21 @@ namespace ASECII;
 			//TypeDescriptor.AddAttributes(typeof(Color), new TypeConverterAttribute(typeof(ColorConverter)));
 		}
     }
-    public static class ASECIILoader {
-        public static Dictionary<(int, int), TileValue> LoadCG(string path) =>
-            DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(path));
-        public static T DeserializeObject<T>(string s) {
-            STypeConverter.PrepareConvert();
-            return JsonConvert.DeserializeObject<T>(s, SFileMode.settings);
-        }
-        public static string SerializeObject(object o) {
-            STypeConverter.PrepareConvert();
-            return JsonConvert.SerializeObject(o, SFileMode.settings);
-        }
+public static class ASECIILoader {
+    public static Dictionary<(int, int), TileValue> LoadCG (string path) =>
+        DeserializeObject<Dictionary<(int, int), TileValue>>(File.ReadAllText(path));
+    public static T DeserializeObject<T> (string s) {
+
+        s = s.Replace(", ASECII", ", SfmlASECII").Replace("ArchConsole", "LibSadConsole");
+
+        STypeConverter.PrepareConvert();
+        return JsonConvert.DeserializeObject<T>(s, SFileMode.settings);
     }
+    public static string SerializeObject (object o) {
+        STypeConverter.PrepareConvert();
+        return JsonConvert.SerializeObject(o, SFileMode.settings);
+    }
+}
     public class Int2Converter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
             return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
