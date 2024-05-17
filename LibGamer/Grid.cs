@@ -185,6 +185,139 @@ public class XY {
     public static implicit operator Point(XY xy) => new(xy.xi, xy.yi);
     public static implicit operator XY(Point p) => new(p.X, p.Y);
 }
+[JsonObject(MemberSerialization.OptIn)]
+public class XYI {
+	[JsonProperty]
+	public int x { get; set; }
+	[JsonProperty]
+	public int y { get; set; }
+	[JsonIgnore]
+	public static readonly XY Zero = new(0, 0);
+	public XYI (int xi = 0, int yi = 0) {
+		this.x = xi;
+		this.y = yi;
+	}
+    public XYI (XY xy) : this(xy.xi, xy.yi) { }
+    public XYI ((int x, int y) p) : this(p.x, p.y) { }
+
+	public XYI To (XYI dest) => dest - this;
+	public static XY operator + (XYI p, XYI other) => new(p.x + other.x, p.y + other.y);
+	//public static XY operator +(XY p, Point other) => new(p.x + other.X, p.y + other.Y);
+	public static XYI operator + (XYI p, (int x, int y) other) => new(p.x + other.x, p.y + other.y);
+	public static XYI operator - (XYI p) => new(-p.x, -p.y);
+	public static XYI operator - (XYI p, XYI other) => new(p.x - other.x, p.y - other.y);
+	public static XYI operator - (XYI p, (int x, int y) other) => new(p.x - other.x, p.y - other.y);
+	public static XYI operator - ((int x, int y) p, XYI other) => new(p.x - other.x, p.y - other.y);
+	public static XYI operator * (XYI p, XYI other) => new(p.x * other.x, p.y * other.y);
+	public static XY operator * (XYI p, double scalar) => new(p.x * scalar, p.y * scalar);
+	public static XYI operator * (XYI p, int scalar) => new(p.x * scalar, p.y * scalar);
+	public static XY operator / (XYI p, double scalar) => new(p.x / scalar, p.y / scalar);
+	public static XYI operator / (XYI p, int scalar) => new(p.x / scalar, p.y / scalar);
+	//public static XY operator /(XY p, Point pt) => new(p.x / pt.X, p.y / pt.Y);
+	public static XYI operator / (XYI p, (int x, int y) rhs) => new(p.x / rhs.x, p.y / rhs.y);
+	public static XYI operator % (XYI p, XYI limit) {
+		(int x, int y) = p;
+		while(x < 0) x += limit.x;
+		while(y < 0) y += limit.y;
+		while(x >= limit.x) x -= limit.x;
+		while(y >= limit.y) y -= limit.y;
+		return new(x, y);
+	}
+	public void Deconstruct (out int x, out int y) {
+		x = (int)this.x;
+		y = (int)this.y;
+	}
+	[JsonIgnore]
+	public XY clone {
+		get => new(x, y);
+	}
+	public XY PlusX (double x) => new(this.x + x, y);
+	public XY PlusY (double y) => new(x, this.y + y);
+	[JsonIgnore]
+	public XY abs => new(Math.Abs(x), Math.Abs(y));
+	[JsonIgnore]
+	public XY truncate => new XY(x, y);
+	[JsonIgnore]
+	public XY flipX => new(-x, y);
+	[JsonIgnore]
+	public XY flipY => new(x, -y);
+	public XYI Step (XYI other, int length = 1) {
+		XYI offset = other - this;
+		if(offset.magnitude <= length) {
+			return other;
+		}
+		return this + offset.WithMagnitude(length);
+	}
+	public IEnumerable<XYI> LineTo (XYI other) {
+		var p = this;
+		while(p != other) {
+			yield return p;
+			p = p.Step(other);
+		}
+		yield return p;
+	}
+	public static XY Polar (double angleRad, double magnitude = 1) =>
+		new(Math.Cos(angleRad) * magnitude, Math.Sin(angleRad) * magnitude);
+	public XYI Snap (int gridSize) => (this / gridSize) * gridSize;
+
+	public XY Snap (double gridSize) => (this / gridSize).roundDown * gridSize;
+
+	public static implicit operator (int, int) (XYI p) => (p.x, p.y);
+	public static implicit operator (float, float) (XYI p) => (p.x, p.y);
+	public static implicit operator (double, double) (XYI p) => (p.x, p.y);
+	public static implicit operator XYI ((int x, int y) p) => new(p.x, p.y);
+
+	public double Dist (XYI other) => To(other).magnitude;
+	public double Dot (XYI other) => x * other.x + y * other.y;
+	[JsonIgnore]
+	public bool isZero => magnitude < 0.1;
+	public XY Scale (XYI origin, double scale) => (this - origin) * scale + origin;
+	public XY Scale (double scale) => this * scale;
+	public XY IncMagnitude (double inc) => WithMagnitude(magnitude + inc);
+	public XY WithMagnitude (double magnitude) {
+		var a = angleRad;
+		return new(Math.Cos(a) * magnitude, Math.Sin(a) * magnitude);
+	}
+	public override string ToString () => $"({x}, {y})";
+
+	[JsonIgnore]
+	public double maxCoord => Math.Max(Math.Abs(x), Math.Abs(y));
+	[JsonIgnore]
+	public double manhattan => Math.Abs(x) + Math.Abs(y);
+	[JsonIgnore]
+	public double length => magnitude;
+	[JsonIgnore]
+	public double magnitude => Math.Sqrt(magnitude2);
+	[JsonIgnore]
+	public double magnitude2 => (x * x + y * y);
+	[JsonIgnore]
+	public XY normal {
+		get {
+			double magnitude = this.magnitude;
+			if(magnitude > 0) {
+				return new(x / magnitude, y / magnitude);
+			} else {
+				return new(0, 0);
+			}
+		}
+	}
+	[JsonIgnore]
+	public double angleRad => Math.Atan2(y, x);
+	public double angleDeg => angleRad * 180 / Math.PI;
+
+	public XY Rotate (double radians) {
+		if(radians == 0) {
+			return new(x, y);
+		}
+		var sin = Math.Sin(radians);
+		var cos = Math.Cos(radians);
+		return new(x * cos - y * sin, x * sin + y * cos);
+	}
+	public static implicit operator Point (XYI xy) => new(xy.x, xy.y);
+	public static implicit operator XYI (Point p) => new(p.X, p.Y);
+}
+
+
 public class XYZGridComparer : IEqualityComparer<XYZ> {
     public bool Equals(XYZ p1, XYZ p2) => (p1.xi == p2.xi && p1.yi == p2.yi && p1.zi == p2.zi);
 
