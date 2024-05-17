@@ -19,7 +19,7 @@ namespace ASECII {
             //SadConsole.Settings.UnlimitedFPS = true;
             SadConsole.Settings.UseDefaultExtendedFont = true;
             Settings.WindowTitle = "ASECII";
-            SadConsole.Game.Create(width, height, "Content/IBMCGA+.font", (args, k) => { });
+            SadConsole.Game.Create(width, height, "Assets/IBMCGA+.font", (args, k) => { });
             SadConsole.Game.Instance.Started += (a, k) => Init();
             SadConsole.Game.Instance.Run();
             SadConsole.Game.Instance.Dispose();

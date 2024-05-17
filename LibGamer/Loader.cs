@@ -19,15 +19,20 @@ public static class STypeConverter {
 	}
 }
 public static class ImageLoader {
+	public static readonly JsonSerializerSettings settings = new JsonSerializerSettings {
+		PreserveReferencesHandling = PreserveReferencesHandling.All,
+		TypeNameHandling = TypeNameHandling.All,
+		ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+	};
 	public static Dictionary<(int X, int Y), TileTuple> LoadTile (string path) =>
 		DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(path));
 	public static T DeserializeObject<T> (string s) {
 		STypeConverter.PrepareConvert();
-		return JsonConvert.DeserializeObject<T>(s);
+		return JsonConvert.DeserializeObject<T>(s, settings);
 	}
 	public static string SerializeObject (object o) {
 		STypeConverter.PrepareConvert();
-		return JsonConvert.SerializeObject(o);
+		return JsonConvert.SerializeObject(o, settings);
 	}
 }
 public class Int2Converter : TypeConverter {
