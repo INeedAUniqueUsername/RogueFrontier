@@ -11,11 +11,15 @@ namespace ASECII {
         public Point origin;
         public Point end;
         public Dictionary<(int, int), TileValue> preview = new();
+        [IgnoreDataMember]
+        public Dictionary<(int, int), (uint Foreground, uint Background, int Glyph)> exportData = new();
+
+
         public static TileValue empty => new TileValue(Color.Transparent, Color.Transparent, 0);
         public Sprite() {}
         public bool InRect(Point pos) => pos.X >= origin.X && pos.Y >= origin.Y && pos.X <= end.X && pos.Y <= end.Y;
         public void UpdatePreview() {
-            preview = new Dictionary<(int, int), TileValue>();
+            preview.Clear();
             foreach(var layer in layers) {
                 if (!layer.visible) {
                     continue;
@@ -54,6 +58,11 @@ namespace ASECII {
                     var t = tile;
                     modifier?.Invoke(t, current);
                 }
+            }
+
+            exportData.Clear();
+            foreach(var(pos, tile) in preview) {
+                exportData[pos] = (tile.Foreground.PackedValue, tile.Background.PackedValue, tile.Glyph);
             }
             if (preview.Any()) {
                 origin = new Point(preview.Keys.Min(k => k.Item1), preview.Keys.Min(k => k.Item2));
@@ -327,6 +336,13 @@ namespace ASECII {
             }
         }
     }
+
+    public interface TileRef {
+        Color Foreground { get; }
+        Color Background { get; }
+        int Glyph { get; }
+        ColoredGlyph cg { get; }
+    }
     public class TileIndex : TileRef {
         [IgnoreDataMember]
         public Color Foreground => cg.Foreground;
@@ -362,6 +378,23 @@ namespace ASECII {
             this.backgroundIndex = backgroundIndex;
             this.Glyph = Glyph;
         }
+    }
+    [DataContract]
+    public class TileValue : TileRef {
+        [DataMember]
+        public Color Foreground { get; set; }
+        [DataMember]
+        public Color Background { get; set; }
+        [DataMember]
+        public int Glyph { get; set; }
+        [IgnoreDataMember]
+        public ColoredGlyph cg => new ColoredGlyph(Foreground, Background, Glyph);
+        public TileValue(Color Foreground, Color Background, int Glyph) {
+            this.Foreground = Foreground;
+            this.Background = Background;
+            this.Glyph = Glyph;
+        }
+        public static implicit operator ColoredGlyph(TileValue tv) => new ColoredGlyph(tv.Foreground, tv.Background, tv.Glyph);
     }
 
     public class NotepadTile : TileRef {

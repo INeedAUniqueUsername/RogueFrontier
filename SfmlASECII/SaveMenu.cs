@@ -15,7 +15,6 @@ using Console = SadConsole.Console;
 using ArchConsole;
 using Newtonsoft.Json.Serialization;
 using System.Threading.Tasks;
-using LibGamer;
 
 namespace ASECII {
     public interface FileMode {
@@ -55,11 +54,11 @@ namespace ASECII {
             Settings.WindowTitle = $"ASECII: {filepath}";
             if (File.Exists(filepath)) {
                 try {
-                    var sprite = ImageLoader.DeserializeObject<SpriteModel>(File.ReadAllText(filepath));
+                    var sprite = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(filepath));
 
                     if(sprite.filepath != filepath) {
                         sprite.filepath = filepath;
-                        File.WriteAllText($"{filepath}", ImageLoader.SerializeObject(sprite));
+                        File.WriteAllText($"{filepath}", ASECIILoader.SerializeObject(sprite));
                     }
 
                     sprite.OnLoad();
@@ -72,7 +71,7 @@ namespace ASECII {
             } else {
                 var model = new SpriteModel(Width, Height) { filepath = filepath };
                 model.sprite.layers.Add(new Layer());
-                File.WriteAllText(filepath, ImageLoader.SerializeObject(model));
+                File.WriteAllText(filepath, ASECIILoader.SerializeObject(model));
                 console.Children.Add(new EditorMain(Width, Height, model));
             }
         }
@@ -110,7 +109,7 @@ namespace ASECII {
         string console = "";
 
         public FileMenu(int width, int height, FileMode mode) : base(width, height) {
-            this.recentFiles = File.Exists(RECENTFILES) ? ImageLoader.DeserializeObject<HashSet<string>>(File.ReadAllText(RECENTFILES)).Where(f => File.Exists(f)).ToHashSet() : new HashSet<string>();
+            this.recentFiles = File.Exists(RECENTFILES) ? ASECIILoader.DeserializeObject<HashSet<string>>(File.ReadAllText(RECENTFILES)).Where(f => File.Exists(f)).ToHashSet() : new HashSet<string>();
             this.preloaded = new Dictionary<string, ILoadResult>();
             this.recentListing = new List<LabelButton>();
             int n = 3;
@@ -164,7 +163,7 @@ namespace ASECII {
 
         public void AddRecentFile(string s) {
             recentFiles.Add(s);
-            File.WriteAllText(RECENTFILES, ImageLoader.SerializeObject(recentFiles));
+            File.WriteAllText(RECENTFILES, ASECIILoader.SerializeObject(recentFiles));
         }
         public void UpdateListing(string filepath) {
             folderListing.ForEach(b => this.Children.Remove(b));
@@ -271,7 +270,7 @@ namespace ASECII {
             await Task.Run(StartLoad);
             void StartLoad() {
                 try {
-                    var model = ImageLoader.DeserializeObject<SpriteModel>(File.ReadAllText(file));
+                    var model = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(file));
                     if (model?.filepath == null) {
                         Failed("Filepath does not exist");
                         return;

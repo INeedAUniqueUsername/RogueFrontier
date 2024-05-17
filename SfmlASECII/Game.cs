@@ -4,7 +4,9 @@ using System.IO;
 using Color = SadRogue.Primitives.Color;
 using SadConsole;
 using SadConsole.UI;
-using LibGamer;
+using System.Diagnostics;
+using System;
+using System.Reflection;
 
 namespace ASECII {
     public class Program {
@@ -19,26 +21,36 @@ namespace ASECII {
             //SadConsole.Settings.UnlimitedFPS = true;
             SadConsole.Settings.UseDefaultExtendedFont = true;
             Settings.WindowTitle = "ASECII";
-            SadConsole.Game.Create(width, height, "Assets/IBMCGA+.font", (args, k) => { });
-            SadConsole.Game.Instance.Started += (a, k) => Init();
+
+            SadConsole.Game.Create(width, height, $"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/Assets/IBMCGA+.font", (args, k) => { });
+            SadConsole.Game.Instance.Started +=
+                (a, k) => Init(args is [{ } path] ? path.Replace("\"", "") : null);
             SadConsole.Game.Instance.Run();
             SadConsole.Game.Instance.Dispose();
-        }
-
-        private static void Init() {
+		}
+        private static void Init(string path = null) {
+			if(path != null) {
+                Debug.WriteLine($"Opening {path}");
+                var model = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(path));
+                if(model.filepath != path) {
+                    model.filepath = path;
+                    model.Save(null);
+                }
+                model.OnLoad();
+                Game.Instance.Screen = new EditorMain(width, height, model);
+                return;
+            }
             if(LoadState()) {
                 return;
             }
-
             // Create your console
-            var firstConsole = new FileMenu(width, height, new LoadMode());
-
-            SadConsole.Game.Instance.Screen = firstConsole;
-            firstConsole.FocusOnMouseClick = true;
+            var c = new FileMenu(width, height, new LoadMode());
+            SadConsole.Game.Instance.Screen = c;
+            c.FocusOnMouseClick = true;
         }
         public static void SaveState(ProgramState state) {
             if (state != null) {
-                File.WriteAllText(STATE_FILE, ImageLoader.SerializeObject(state));
+                File.WriteAllText(STATE_FILE, ASECIILoader.SerializeObject(state));
             } else {
                 File.Delete(STATE_FILE);
             }
@@ -46,13 +58,13 @@ namespace ASECII {
         public static bool LoadState() {
             if (File.Exists(STATE_FILE)) {
                 try {
-                    var state = ImageLoader.DeserializeObject<ProgramState>(File.ReadAllText(STATE_FILE));
+                    var state = ASECIILoader.DeserializeObject<ProgramState>(File.ReadAllText(STATE_FILE));
                     if(state is EditorState e && File.Exists(e.loaded)) {
-                        var sprite = ImageLoader.DeserializeObject<SpriteModel>(File.ReadAllText(e.loaded));
+                        var model = ASECIILoader.DeserializeObject<SpriteModel>(File.ReadAllText(e.loaded));
 
-                        sprite.OnLoad();
-                        Settings.WindowTitle = $"ASECII: {sprite.filepath}";
-                        Game.Instance.Screen = new EditorMain(width, height, sprite);
+                        model.OnLoad();
+                        Settings.WindowTitle = $"ASECII: {model.filepath}";
+                        Game.Instance.Screen = new EditorMain(width, height, model);
                         return true;
                     
                     }
