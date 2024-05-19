@@ -4,16 +4,14 @@ using RogueFrontier;
 using System;
 using static Common.Main;
 
-public partial class Game : Node
-{
-
+public partial class Game : Node{
 	static Game () {
 		HEIGHT = 60;
 		WIDTH = HEIGHT * 5 / 3; //100
 	}
 	public static int WIDTH, HEIGHT;
 	//public static string FONT_8X8 = ExpectFile("Assets/sprites/IBMCGA+.font");
-	public static string main = ExpectFile("Lib/LibFrontier/Assets/scripts/Main.xml");
+	public static string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
 	//public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.dat");
 	//public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.dat");
 
@@ -23,7 +21,7 @@ public partial class Game : Node
 		Console.WriteLine("aaaa");
 		RogueFrontier.System GenerateIntroSystem () {
 
-			var a = new Assets("Lib/LibFrontier/Assets");
+			var a = new Assets();
 			var u = new Universe(a);
 			var w = new RogueFrontier.System(u);
 			w.types.LoadFile(main);

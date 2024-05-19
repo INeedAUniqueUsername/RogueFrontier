@@ -31,9 +31,7 @@ public class Assets {
 	}
 	InitState state;
 	//After our first initialization, any types we create later must be initialized immediately. Any dependency types must already be bound
-	public Assets(string root = "Assets") {
-
-		this.root = Path.GetFullPath(root);
+	public Assets() {
 		state = InitState.InitializePending;
 		Debug.Print("TypeCollection created");
 	}
@@ -46,9 +44,17 @@ public class Assets {
 		//The second pass initializes each type from the source code
 		Initialize();
 	}
-	public string root;
-	public byte[] GetAudio (string s) => File.ReadAllBytes($"{root}/sounds/{Path.GetFileName(s)}");
-	public string GetSprite (string s) => File.ReadAllText($"{root}/sprites/{Path.GetFileName(s)}");
+#if GODOT
+
+	public static string ROOT = "Lib/LibFrontier/Assets";
+#else
+
+	public static string ROOT = "Assets";
+#endif
+
+	public static byte[] GetAudio (string s) => File.ReadAllBytes($"{ROOT}/sounds/{Path.GetFileName(s)}");
+	public static byte[] GetMusic (string s) => File.ReadAllBytes($"{ROOT}/music/{Path.GetFileName(s)}");
+	public static string GetSprite (string s) => File.ReadAllText($"{ROOT}/sprites/{Path.GetFileName(s)}");
 
 	void Initialize() {
 		state = InitState.Initializing;

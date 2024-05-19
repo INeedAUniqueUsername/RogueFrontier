@@ -4,6 +4,7 @@ using static Common.Main;
 using System.Xml.Linq;
 using System.Reflection;
 using SfmlFrontier;
+using System.Collections.Concurrent;
 namespace RogueFrontier;
 partial class Program {
     static Program() {
@@ -95,8 +96,10 @@ partial class Program {
             current.Go += Go;
             current.Draw += Draw;
         };
+
+        ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
         void Draw(Sf sf) {
-            var c = new SadConsole.Console(sf.Width, sf.Height);
+            var c = consoles.GetOrAdd(sf, new SadConsole.Console(sf.Width, sf.Height));
             foreach(var p in sf.Active) {
                 var t = sf.Data[sf.GetIndex(p.x, p.y)];
 				c.SetCellAppearance(p.x, p.y, t.ToCG());

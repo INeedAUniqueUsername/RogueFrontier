@@ -11,7 +11,7 @@ public class TitleScreen : IScene {
     //Console credits;
     public Profile profile;
     public System World;
-    public static string[] title = File.ReadAllText("Assets/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
+    public static string[] title = File.ReadAllText($"{Assets.ROOT}/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
     public ShipControls settings;
     public AIShip pov;
     public int povTimer;
@@ -19,7 +19,7 @@ public class TitleScreen : IScene {
     //XY screenCenter;
     public XY camera;
     public Dictionary<(int, int), Tile> tiles;
-    public byte[] titleMusic = File.ReadAllBytes("Assets/music/Title.wav");
+    public byte[] titleMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Title.wav");
     public Action<IScene> Go { set; get; } = _ => { };
     public Action<Sf> Draw { set; get; } = _ => { };
     public int Width => sf.Width;

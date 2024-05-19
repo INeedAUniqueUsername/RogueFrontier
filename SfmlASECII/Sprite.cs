@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using LibGamer;
 
 namespace ASECII {
     public class Sprite {
@@ -12,8 +13,9 @@ namespace ASECII {
         public Point end;
         public Dictionary<(int, int), TileValue> preview = new();
         [IgnoreDataMember]
-        public HashSet<((int,int), (uint,uint,int))> exportData => [.. from p in preview select (p.Key, p.Value.Data)];
-
+        public HashSet<((int X,int Y) P, (uint F,uint B,int G) T)> exportData => [.. from p in preview select (p.Key, p.Value.Data)];
+		[IgnoreDataMember]
+		public HashSet<string> exportDataGd => [..from p in exportData select $"{p.P.X} {p.P.Y} {p.T.F} {p.T.B} {p.T.G}"];
 
         public static TileValue empty => new TileValue(Color.Transparent, Color.Transparent, 0);
         public Sprite() {}

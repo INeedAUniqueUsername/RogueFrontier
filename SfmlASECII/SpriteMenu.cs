@@ -1173,6 +1173,7 @@ namespace ASECII {
             var fileName = Path.GetFullPath(Path.GetDirectoryName(filepath) + "/" + Path.GetFileNameWithoutExtension(filepath));
             File.WriteAllText($"{fileName}.asc", ASECIILoader.SerializeObject(this));
 			File.WriteAllText($"{fileName}.dat", ASECIILoader.SerializeObject(sprite.exportData));
+			File.WriteAllText($"{fileName}.dat_gd", ASECIILoader.SerializeObject(sprite.exportDataGd));
 			var preview = sprite.preview;
 			StringBuilder str = new StringBuilder();
             for (int y = sprite.origin.Y; y <= sprite.end.Y; y++) {
