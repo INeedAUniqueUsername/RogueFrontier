@@ -20,6 +20,7 @@ public partial class Game : Node
 	IScene current;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
+		Console.WriteLine("aaaa");
 		RogueFrontier.System GenerateIntroSystem () {
 
 			var a = new Assets("Lib/LibFrontier/Assets");
@@ -35,7 +36,7 @@ public partial class Game : Node
 		void Go (IScene next) {
 			if(current is { } prev) {
 				prev.Go -= Go;
-				prev.Draw -= Draw;
+				prev.Draw -= Draw; 
 			}
 			if(next == null) {
 				throw new Exception("Main scene cannot be null");

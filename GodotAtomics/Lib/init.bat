@@ -1,1 +1,0 @@
-mklink /D glyphdot ..\..\..\glyphdot\addons\glyphdot

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://cup54vmi15a75"]
+
+[ext_resource type="Script" path="res://addons/glyphdot/Surface.cs" id="1_qgcxx"]
+[ext_resource type="Script" path="res://Mainframe.cs" id="1_rcoon"]
+
+[node name="Node" type="Node"]
+script = ExtResource("1_rcoon")
+
+[node name="Readout" type="Node2D" parent="."]
+visible = false
+script = ExtResource("1_qgcxx")
+GridWidth = 96
+GridHeight = 64
+
+[node name="Viewport" type="Node2D" parent="."]
+texture_filter = 1
+script = ExtResource("1_qgcxx")
+GridWidth = 96
+GridHeight = 64

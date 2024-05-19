@@ -37,6 +37,7 @@ namespace ASECII {
                     model.Save();
                 }
 				model.OnLoad();
+                FileMenu.SaveRecentFile(path);
 
 				Game.Instance.Screen = new EditorMain(width, height, model);
                 return;

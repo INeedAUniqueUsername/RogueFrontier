@@ -6,12 +6,17 @@ using System.Globalization;
 using System.Linq;
 using System.IO;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json.Utilities;
 using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace LibGamer;
 //https://stackoverflow.com/a/57319194
 public static class STypeConverter {
 	public static void PrepareConvert () {
 		//https://stackoverflow.com/a/57319194
+
+		AotHelper.EnsureType<Int2Converter>();
+		AotHelper.EnsureType<UInt2Converter>();
+		AotHelper.EnsureType<TileTupleConverter>();
 		TypeDescriptor.AddAttributes(typeof((int, int)), new TypeConverterAttribute(typeof(Int2Converter)));
 		TypeDescriptor.AddAttributes(typeof((uint, uint)), new TypeConverterAttribute(typeof(UInt2Converter)));
 		TypeDescriptor.AddAttributes(typeof(TileTuple), new TypeConverterAttribute(typeof(TileTupleConverter)));
@@ -24,9 +29,13 @@ public static class ImageLoader {
 		TypeNameHandling = TypeNameHandling.All,
 		ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 	};
-	public static Dictionary<(int X, int Y), TileTuple> LoadTile (string path) =>
-		DeserializeObject<((int, int), TileTuple)[]>(File.ReadAllText(path)).ToDictionary();
+	public static Dictionary<(int X, int Y), TileTuple> LoadTile (string path) {
+		Console.WriteLine($"Reading {path}");
+		return ReadTile(File.ReadAllText(path));
+	}
+	public static Dictionary<(int X, int Y), TileTuple> ReadTile (string data) => DeserializeObject<HashSet<((int x, int y), TileTuple t)>>(data).ToDictionary();
 	public static T DeserializeObject<T> (string s) {
+		
 		STypeConverter.PrepareConvert();
 		return JsonConvert.DeserializeObject<T>(s, settings);
 	}

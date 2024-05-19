@@ -97,7 +97,10 @@ namespace ASECII {
         SpriteModel hoveredFile;
         Dictionary<string, ILoadResult> preloaded;
 
-        HashSet<string> recentFiles;
+        public static HashSet<string> LoadRecentFiles () => File.Exists(RECENTFILES) ? ASECIILoader.DeserializeObject<HashSet<string>>(File.ReadAllText(RECENTFILES)).Where(f => File.Exists(f)).ToHashSet() : new HashSet<string>();
+
+
+		HashSet<string> recentFiles;
         List<LabelButton> recentListing;
         
         List<LabelButton> folderListing;
@@ -109,7 +112,7 @@ namespace ASECII {
         string console = "";
 
         public FileMenu(int width, int height, FileMode mode) : base(width, height) {
-            this.recentFiles = File.Exists(RECENTFILES) ? ASECIILoader.DeserializeObject<HashSet<string>>(File.ReadAllText(RECENTFILES)).Where(f => File.Exists(f)).ToHashSet() : new HashSet<string>();
+            this.recentFiles = LoadRecentFiles();
             this.preloaded = new Dictionary<string, ILoadResult>();
             this.recentListing = new List<LabelButton>();
             int n = 3;
@@ -165,7 +168,13 @@ namespace ASECII {
             recentFiles.Add(s);
             File.WriteAllText(RECENTFILES, ASECIILoader.SerializeObject(recentFiles));
         }
-        public void UpdateListing(string filepath) {
+
+		public static void SaveRecentFile (string s) {
+            var recentFiles = LoadRecentFiles();
+			recentFiles.Add(s);
+			File.WriteAllText(RECENTFILES, ASECIILoader.SerializeObject(recentFiles));
+		}
+		public void UpdateListing(string filepath) {
             folderListing.ForEach(b => this.Children.Remove(b));
             folderListing.Clear();
             int i = 2;

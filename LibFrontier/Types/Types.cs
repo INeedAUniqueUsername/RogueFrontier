@@ -37,9 +37,6 @@ public class Assets {
 		state = InitState.InitializePending;
 		Debug.Print("TypeCollection created");
 	}
-	public Assets(params string[] modules) : this() {
-		LoadFile(modules);
-	}
 	public Assets(params XElement[] modules) : this() {
 		//We do two passes
 		//The first pass creates DesignType references for each type and stores the source code

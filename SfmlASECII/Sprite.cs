@@ -12,7 +12,7 @@ namespace ASECII {
         public Point end;
         public Dictionary<(int, int), TileValue> preview = new();
         [IgnoreDataMember]
-        public ((int,int), (uint,uint,int))[] exportData = [];
+        public HashSet<((int,int), (uint,uint,int))> exportData => [.. from p in preview select (p.Key, p.Value.Data)];
 
 
         public static TileValue empty => new TileValue(Color.Transparent, Color.Transparent, 0);
@@ -59,7 +59,6 @@ namespace ASECII {
                     modifier?.Invoke(t, current);
                 }
             }
-            exportData = [..from p in preview select (p.Key, p.Value.Data)];
             if (preview.Any()) {
                 origin = new Point(preview.Keys.Min(k => k.Item1), preview.Keys.Min(k => k.Item2));
                 end = new Point(preview.Keys.Max(k => k.Item1), preview.Keys.Max(k => k.Item2));

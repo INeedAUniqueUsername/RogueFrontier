@@ -10,14 +10,14 @@ config_version=5
 
 [application]
 
-config/name="GodotFrontier"
+config/name="GdFrontier"
 run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]
 
-project/assembly_name="Rogue-Frontier"
+project/assembly_name="GdFrontier"
 
 [editor_plugins]
 

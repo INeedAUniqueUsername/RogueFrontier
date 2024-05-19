@@ -109,7 +109,8 @@ public class StationType : IDesignType {
 
 		segments = new();
 		if (e.TryAtt("structure", out var structure)) {
-			var sprite = ImageLoader.LoadTile(structure).ToDictionary(
+
+			var sprite = ImageLoader.ReadTile(tc.GetSprite(structure)).ToDictionary(
 				pair => (X:pair.Key.X, Y:-pair.Key.Y),
 				pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));
 			tile = sprite.TryGetValue((0, 0), out var cg) ? new(cg) : null;
