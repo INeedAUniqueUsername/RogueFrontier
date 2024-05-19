@@ -101,6 +101,13 @@ public record ABGR(uint packed) {
 	((uint)r << 00)
 	);
 
+	public static uint ToRGBA (uint abgr) => (uint)(
+		((abgr & 0x000000FF) << 24) +
+		((abgr & 0x0000FF00) << 08) +
+		((abgr & 0x00FF0000) >> 08) +
+		((abgr & 0xFF000000) >> 24)
+	);
+
 
 	public static float GetLightness (uint c) {
 		int r = R(c);

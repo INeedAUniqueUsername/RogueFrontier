@@ -2,6 +2,7 @@ using Godot;
 using LibGamer;
 using RogueFrontier;
 using System;
+using System.Collections.Concurrent;
 using static Common.Main;
 
 public partial class Game : Node{
@@ -30,6 +31,10 @@ public partial class Game : Node{
 			}
 			return w;
 		}
+
+		var surface = GetNode<Surface>("Surface");
+		ConcurrentDictionary<Sf, Surface> surfaces = new();
+
 		Go(new TitleScreen(96, 64, GenerateIntroSystem()));
 		void Go (IScene next) {
 			if(current is { } prev) {
@@ -43,12 +48,18 @@ public partial class Game : Node{
 			current.Go += Go;
 			current.Draw += Draw;
 		};
+
 		void Draw (Sf sf) {
-			var c = (Surface)GetNode("Surface");
+			var c = surfaces.GetOrAdd(sf, sf => {
+				var s = (Surface)surface.Duplicate();
+				AddChild(s);
+				return s;
+			});
 			foreach(var p in sf.Active) {
 				var t = sf.Data[sf.GetIndex(p.x, p.y)];
-				c.Print(p.x, p.y, (char)t.Glyph, new Color(t.Foreground), new Color(t.Background));
+				c.Print(p.x, p.y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
 			}
+			c.QueueRedraw();
 			return;
 		}
 	}
