@@ -25,7 +25,7 @@ public static class ImageLoader {
 		ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 	};
 	public static Dictionary<(int X, int Y), TileTuple> LoadTile (string path) =>
-		DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(path));
+		DeserializeObject<((int, int), TileTuple)[]>(File.ReadAllText(path)).ToDictionary();
 	public static T DeserializeObject<T> (string s) {
 		STypeConverter.PrepareConvert();
 		return JsonConvert.DeserializeObject<T>(s, settings);
