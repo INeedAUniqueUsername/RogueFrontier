@@ -4,7 +4,7 @@ using Common;
 using SadConsole;
 using Console = SadConsole.Console;
 using static SadConsole.Input.Keys;
-using ArchConsole;
+using LibSadConsole;
 
 namespace RogueFrontier;
 

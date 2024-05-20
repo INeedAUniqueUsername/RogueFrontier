@@ -3,7 +3,7 @@ using SadRogue.Primitives;
 using Common;
 using LibGamer;
 using static SadConsole.Input.Keys;
-using ArchConsole;
+using LibSadConsole;
 
 namespace RogueFrontier;
 
