@@ -11,21 +11,22 @@ namespace RogueFrontier;
 public class PauseScreen : IScene {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
-    public ScreenSurface Surface { get; private init; }
-    public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+    public Sf sf;
+    public bool visible;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
 	public Action<IScene> Go { get;set; }
 	public Action<Sf> Draw { get;set; }
 	public Action<SoundCtx> PlaySound { get; set; }
+
 	public PauseScreen(Mainframe playerMain) {
-        Surface = new(playerMain.Width, playerMain.Height);
+        sf = new(playerMain.Width, playerMain.Height);
 		this.playerMain = playerMain;
         this.sparkle = new SparkleFilter(Width, Height);
         int x = 2;
         int y = 2;
-        var fs = Surface.FontSize * 3;
-        Surface.Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
+        var fs = sf.FontSize * 3;
+        Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
         y++;
         Surface.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
         y++;
@@ -41,39 +42,39 @@ public class PauseScreen : IScene {
     }
     public void Update(TimeSpan delta) {
         sparkle.Update();
-        Surface.Update(delta);
     }
     public void Render(TimeSpan delta) {
-        Surface.Clear();
+        sf.Clear();
 
         var c = new ConsoleComposite();//(playerMain.back.Surface, playerMain.viewport.sf);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 var source = c[x, y];
-                var cg = source.Gray();
+                var cg = source.Gray;
                 sparkle.Filter(x, y, ref cg);
-                Surface.SetCellAppearance(x, y, cg);
+                sf.SetTile(x, y, cg);
             }
         }
-
         {
             int x = Width / 2 + 8;
             int y = 6;
             var controls = playerMain.Settings;
             foreach (var line in controls.GetString().Replace("\r", null).Split('\n')) {
-                Surface.Print(x, y++, line.PadRight(Width - x - 4), Color.White, Color.Black);
+                sf.Print(x, y++, line.PadRight(Width - x - 4), ABGR.White, ABGR.Black);
             }
         }
-        Surface.Render(delta);
+        Draw(sf);
     }
-    public bool ProcessKeyboard(Keyboard info) {
-        if (info.IsKeyPressed(Keys.Escape)) {
+    public void HandleKey(KB kb) {
+        if (kb.IsPress(KC.Escape)) {
             Continue();
         }
-        return Surface.ProcessKeyboard(info);
+    }
+    public void HandleMouse(HandState state) {
+        
     }
     public void Continue() {
-        Surface.IsVisible = false;
+        visible = false;
     }
     public void Save() {
         var ps = playerMain.playerShip;

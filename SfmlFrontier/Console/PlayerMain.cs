@@ -47,7 +47,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public PlayerControls playerControls;
     public Noisemaker audio;
     public XY mouseWorldPos;
-    Keyboard prevKeyboard=new();
     MouseScreenObjectState prevMouse=new(null, new());
     public bool sleepMouse = true;
     public BackdropConsole back;
@@ -55,7 +54,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public GateTransition transition;
     public Megamap uiMegamap;
     public Vignette vignette;
-    public Console sceneContainer;
     public Readout uiMain;  //If this is visible, then all other ui Consoles are visible
     public Edgemap uiEdge;
     public Minimap uiMinimap;
@@ -115,8 +113,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         viewport = new(Width, Height, monitor);
         uiMegamap = new(monitor, world.backdrop.layers.Last());
         vignette = new(this);
-        sceneContainer = new(Width, Height);
-        sceneContainer.Focused += (e, o) => SetFocus();
         uiMain = new(monitor);
         uiEdge = new(monitor);
         uiMinimap = new(monitor);
@@ -124,8 +120,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         powerWidget.Surface.IsVisible = false;
         powerWidget.Surface.Position = new(3, 32);
 
-		pauseScreen = new(this) { IsVisible = false };
-        networkMap = new(this) { IsVisible = false };
+		pauseScreen = new(this) { visible = false };
+        networkMap = new(this) { visible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
         systems = new(new List<System>(playerShip.world.universe.systems.Values));
     }
@@ -138,13 +134,13 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     }
     public void HideAll() {
         //Force exit any scenes
-        sceneContainer.Children.Clear();
+        dialog = null;
         //Force exit power menu
         powerWidget.Surface.IsVisible = false;
         uiMain.visible = false;
 
         //Pretty sure this can't happen but make sure
-        pauseScreen.IsVisible = false;
+        pauseScreen.visible = false;
     }
     public void Jump() {
         var prevViewport = new Viewport(Width, Height, monitor with { camera = new(playerShip.position)});
@@ -319,12 +315,12 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         //if(!frameRendered) return;
         if (updatesSinceRender > 2) return;
         updatesSinceRender++;
-        if (pauseScreen.Surface.IsVisible) {
+        if (pauseScreen.visible) {
             pauseScreen.Update(delta);
             return;
         }
-        if (networkMap.IsVisible) {
-            networkMap.Update(delta);
+        if (networkMap.visible) {
+            //networkMap.Update(delta);
             return;
         }
         var gameDelta = delta.TotalSeconds * (playerShip.autopilot ? 3 : 1) * Math.Max(0, 1 - playerShip.ship.silence);
@@ -355,7 +351,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             lock (world) {
 
                 //Need to fix this for silence system
-                if (!sceneContainer.Children.Any()) {
+                if (dialog != null) {
                     playerControls.ProcessAll();
                     playerControls.input = new();
                 }
@@ -405,8 +401,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         } else {
             camera.rotation += d / 10;
         }
-        if (sceneContainer.Children.Any()) {
-            sceneContainer.Update(delta);
+        if (dialog is { }di) {
+            di.Update(delta);
         } else {
             if (uiMain.visible) {
                 uiMegamap.Update(delta);
@@ -446,19 +442,19 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         viewport.Render(delta);
     }
     public void Render(TimeSpan drawTime) {
-        if (pauseScreen.IsVisible) {
+        if (pauseScreen.visible) {
             back.Render(drawTime);
             viewport.Render(drawTime);
 
             vignette.Render(drawTime);
             pauseScreen.Render(drawTime);
-        } else if (networkMap.IsVisible) {
+        } else if (networkMap.visible) {
             networkMap.Render(drawTime);
-        } else if (sceneContainer.Children.Any()) {
+        } else if (dialog != null) {
             back.Render(drawTime);
             viewport.Render(drawTime);
             vignette.Render(drawTime);
-            sceneContainer.Render(drawTime);
+            dialog.Render(drawTime);
         } else if(playerShip.active) {
             //viewport.UsePixelPositioning = true;
             //viewport.Position = (playerShip.position - playerShip.position.roundDown) * 8 * new XY(1, -1) * -1;
@@ -520,112 +516,82 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         //frameRendered = true;
         updatesSinceRender = 0;
     }
-    public void ProcessKeyboard(Keyboard info) {
-        var kb = SadGamer.ToKB(info);
-		if (sceneContainer.Children.Any()) {
-            var children = new List<IScreenObject>(sceneContainer.Children);
-            foreach (var c in children) {
-                c.ProcessKeyboard(info);
-            }
+    public void HandleKey(KB kb) {
+		if (dialog is { }dl) {
+            dl.HandleKey(kb);
             return;
         }
-        uiMegamap.ProcessKeyboard(info);
+        uiMegamap.HandleKey(kb);
         /*
         if (uiMain.IsVisible) {
             uiMegamap.ProcessKeyboard(info);
         }
         */
-        prevKeyboard = info;
 #if false
         if (info.IsKeyPressed(N)) {
             galaxyMap.IsVisible = !galaxyMap.IsVisible;
         }
 #endif
         //Intercept the alphanumeric/Escape keys if the power menu is active
-        if (pauseScreen.IsVisible) {
-            pauseScreen.ProcessKeyboard(info);
-        } else if (networkMap.IsVisible) {
-            networkMap.ProcessKeyboard(info);
+        if (pauseScreen.visible) {
+            pauseScreen.HandleKey(kb);
+        } else if (networkMap.visible) {
+            networkMap.HandleKey(kb);
         } else if (powerWidget.Surface.IsVisible) {
             playerControls.UpdateInput(kb);
-            powerWidget.ProcessKeyboard(info);
+            powerWidget.HandleKey(kb);
         } else {
             playerControls.UpdateInput(kb);
-            var p = (Keys k) => info.IsKeyPressed(k);
-            var d = (Keys k) => info.IsKeyDown(k);
-            if (d(LeftShift) || d(RightShift)) {
-                if (p(OemOpenBrackets)) {
+            var p = kb.IsPress;
+            var d = kb.IsDown;
+            if (d(KC.LeftShift) || d(KC.RightShift)) {
+                if (p(KC.OemOpenBrackets)) {
                     targetCameraRotation += Math.PI/2;
                 }
-                if (p(OemCloseBrackets)) {
+                if (p(KC.OemCloseBrackets)) {
                     targetCameraRotation -= Math.PI/2;
                 }
             } else {
-                if (d(OemOpenBrackets)) {
+                if (d(KC.OemOpenBrackets)) {
                     camera.rotation += 0.01;
                     targetCameraRotation = camera.rotation;
                 }
-                if (d(OemCloseBrackets)) {
+                if (d(KC.OemCloseBrackets)) {
                     camera.rotation -= 0.01;
                     targetCameraRotation = camera.rotation;
                 }
             }
         }
     }
-    public void TargetMouse() {
-        var targetList = new List<ActiveObject>(
-                    world.entities.all
-                    .OfType<ActiveObject>()
-                    .OrderBy(e => (e.position - mouseWorldPos).magnitude)
-                    .Distinct()
-                    );
-
-        //Set target to object closest to mouse cursor
-        //If there is no target closer to the cursor than the playership, then we toggle aiming by crosshair
-        //Using the crosshair, we can effectively force any omnidirectional weapons to point at the crosshair
-        if (targetList.First() == playerShip) {
-            if (playerShip.GetTarget(out var t) && t == crosshair) {
-                crosshair.active = false;
-                playerShip.ClearTarget();
-            } else {
-                crosshair.active = true;
-                playerShip.SetTargetList(new() { crosshair });
-            }
-        } else {
-            playerShip.targetList = targetList;
-            playerShip.targetIndex = 0;
-            playerShip.UpdateWeaponTargets();
-        }
-    }
-    public void HandleMouse(MouseScreenObjectState state) {
-        if (pauseScreen.IsVisible) {
-            pauseScreen.Surface.ProcessMouseTree(state.Mouse);
-        } else if (networkMap.IsVisible) {
-            networkMap.ProcessMouseTree(state.Mouse);
-        } else if (sceneContainer.Children.Any()) {
-            sceneContainer.ProcessMouseTree(state.Mouse);
+    public void HandleMouse(HandState state) {
+        if (pauseScreen.visible) {
+            pauseScreen.HandleMouse(state);
+        } else if (networkMap.visible) {
+            networkMap.HandleMouse(state);
+        } else if (dialog != null) {
+            dialog.HandleMouse(state);
         } else if (powerWidget.Surface.IsVisible
             && powerWidget.blockMouse
             && new MouseScreenObjectState(powerWidget.Surface, state.Mouse).IsOnScreenObject) {
-            powerWidget.Surface.ProcessMouseTree(state.Mouse);
-        } else if (state.IsOnScreenObject) {
+            powerWidget.HandleMouse(state);
+        } else if (state.nowOn) {
             if(sleepMouse) {
-                sleepMouse = state.SurfacePixelPosition.Equals(prevMouse.SurfacePixelPosition);
+                sleepMouse = state.pos.Equals(prevMouse.SurfacePixelPosition);
             }
             //bool moved = mouseScreenPos != state.SurfaceCellPosition;
             //var mouseScreenPos = state.SurfaceCellPosition;
-            var mouseScreenPos = new XY(state.SurfacePixelPosition / new ScreenSurface(1, 1).FontSize) - new XY(0.5, 0.75);
+            var mouseScreenPos = new XY(state.pos.x / 8, state.pos.y / 8) - new XY(0.5, 0.75);
             
             //(var a, var b) = (state.SurfaceCellPosition, state.SurfacePixelPosition);
             //Placeholder for mouse wheel-based weapon selection
-            if (state.Mouse.ScrollWheelValueChange > 0) {
+            if (state.ScrollWheelValueChange > 0) {
                 if (playerControls.input.Shift) {
                     playerShip.NextSecondary();
                 } else {
                     playerShip.NextPrimary();
                 }
                 playerControls.input.UsingMouse = true;
-            } else if (state.Mouse.ScrollWheelValueChange < 0) {
+            } else if (state.ScrollWheelValueChange < 0) {
                 if (playerControls.input.Shift) {
                     playerShip.PrevSecondary();
                 } else {
@@ -680,7 +646,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                     playerControls.input.UsingMouse = true;
                 }
             }
-            if (state.Mouse.LeftButtonDown) {
+            if (state.leftDown) {
                 if (playerControls.input.Shift) {
                     playerControls.input.FireSecondary = true;
                 } else {
@@ -688,13 +654,37 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 }
                 playerControls.input.UsingMouse = true;
             }
-            if (state.Mouse.RightButtonDown) {
+            if (state.rightDown) {
                 playerControls.input.Thrust = true;
                 playerControls.input.UsingMouse = true;
             }
         }
-        prevMouse = state;
     }
+	public void TargetMouse () {
+		var targetList = new List<ActiveObject>(
+					world.entities.all
+					.OfType<ActiveObject>()
+					.OrderBy(e => (e.position - mouseWorldPos).magnitude)
+					.Distinct()
+					);
+
+		//Set target to object closest to mouse cursor
+		//If there is no target closer to the cursor than the playership, then we toggle aiming by crosshair
+		//Using the crosshair, we can effectively force any omnidirectional weapons to point at the crosshair
+		if(targetList.First() == playerShip) {
+			if(playerShip.GetTarget(out var t) && t == crosshair) {
+				crosshair.active = false;
+				playerShip.ClearTarget();
+			} else {
+				crosshair.active = true;
+				playerShip.SetTargetList(new() { crosshair });
+			}
+		} else {
+			playerShip.targetList = targetList;
+			playerShip.targetIndex = 0;
+			playerShip.UpdateWeaponTargets();
+		}
+	}
 }
 public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener, IWeaponListener, Ob<Projectile.Detonated> {
     private class AutoLoad : Attribute {}
@@ -933,28 +923,28 @@ public class Megamap {
         screenCenter = screenSize / 2;
     }
     public double delta => Math.Min(targetViewScale / (2 * 30), 1);
-    public void ProcessKeyboard(Keyboard info) {
-        var p = (Keys k) => info.IsKeyPressed(k);
-        var d = (Keys k) => info.IsKeyDown(k);
-        if (d(LeftControl) || d(RightControl)) {
-            if (p(OemMinus)) {
+    public void HandleKey(KB kb) {
+        var p = kb.IsPress;
+        var d = kb.IsDown;
+        if (d(KC.LeftControl) || d(KC.RightControl)) {
+            if (p(KC.OemMinus)) {
                 targetViewScale *= 2;
             }
-            if (p(OemPlus)) {
+            if (p(KC.OemPlus)) {
                 targetViewScale /= 2;
                 if (targetViewScale < 1) {
                     targetViewScale = 1;
                 }
             }
-            if (p(D0)) {
+            if (p(KC.D0)) {
                 targetViewScale = 1;
             }
         } else {
-            if (d(OemMinus)) {
+            if (d(KC.OemMinus)) {
                 viewScale += delta;
                 targetViewScale = viewScale;
             }
-            if (d(OemPlus)) {
+            if (d(KC.OemPlus)) {
                 viewScale -= delta;
                 if (viewScale < 1) {
                     viewScale = 1;
@@ -962,7 +952,7 @@ public class Megamap {
                 targetViewScale = viewScale;
             }
         }
-        if (p(M)) {
+        if (p(KC.M)) {
             if(targetViewScale >= 16) {
                 targetViewScale = 1.0;
             } else {
@@ -990,9 +980,7 @@ public class Megamap {
             );
     }
     public void Render(TimeSpan delta) {
-
         Surface.Clear();
-
         var alpha = this.alpha;
         if (alpha > 0) {
             if(alpha < 128) {
@@ -2314,11 +2302,10 @@ public class PowerWidget {
         }
         Surface.Update(delta);
     }
-    public void ProcessKeyboard(Keyboard keyboard) {
-        foreach (var k in keyboard.KeysDown) {
-            var ch = k.Character;
+    public void HandleKey(KB kb) {
+        foreach (var k in kb.Down) {
             //If we're pressing a digit/letter, then we're charging up a power
-            int powerIndex = SMenu.keyToIndex(ch);
+            int powerIndex = SMenu.keyToIndex((char)k);
             //Find the power
             if (powerIndex > -1 && powerIndex < playerShip.powers.Count) {
                 var power = playerShip.powers[powerIndex];
@@ -2329,7 +2316,7 @@ public class PowerWidget {
                 }
             }
         }
-        if (keyboard.IsKeyPressed(Escape)) {
+        if (kb.IsPress(KC.Escape)) {
             //Set charge for all powers back to 0
             foreach (var p in playerShip.powers) {
                 p.invokeCharge = 0;
@@ -2338,7 +2325,7 @@ public class PowerWidget {
             //Hide menu
             //IsVisible = false;
         }
-        if (keyboard.IsKeyPressed(I)) {
+        if (kb.IsPress(KC.I)) {
             //Set charge for all powers back to 0
             foreach (var p in playerShip.powers) {
                 if (p.invokeCharge < p.invokeDelay) {

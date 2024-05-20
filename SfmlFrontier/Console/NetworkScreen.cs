@@ -5,64 +5,67 @@ using SadConsole;
 using Console = SadConsole.Console;
 using static SadConsole.Input.Keys;
 using LibSadConsole;
+using LibGamer;
 
 namespace RogueFrontier;
 
-public class GalaxyMap : Console {
+public class GalaxyMap {
+    public Action<Sf> Draw { set; get; }
     Universe univ;
     public XY camera=new();
-    MouseWatch mouse=new();
+    Hand mouse=new();
     private XY center;
-    public GalaxyMap(Mainframe prev) : base(prev.Width, prev.Height) {
+    public Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+
+    public bool visible;
+    public GalaxyMap(Mainframe prev) {
         univ = prev.world.universe;
         center = new XY(prev.Width, prev.Height) / 2;
+        sf = new Sf(prev.Width, prev.Height);
     }
-    public override void Update(TimeSpan timeSpan) {
-        base.Update(timeSpan);
-    }
-    public override void Render(TimeSpan drawTime) {
-        this.Clear();
-        var visible = univ.grid.Select(pair => (id: univ.systems[pair.Key], pos: pair.Value - camera + center))
-            .Where(pair => true);
-        foreach((var system, var p) in visible) {
-            (var x, var y) = p;
-            this.SetCellAppearance(x, Height - y, new ColoredGlyph(Color.White, Color.Transparent, '*'));
-
+    public void Render(TimeSpan drawTime) {
+        if(!visible) {
+            return;
         }
-        base.Render(drawTime);
+        sf.Clear();
+        var tiles = univ.grid.Select(pair => (id: univ.systems[pair.Key], pos: pair.Value - camera + center))
+            .Where(pair => true);
+        foreach((var system, var p) in tiles) {
+            (var x, var y) = p;
+            sf.SetTile(x, Height - y, new Tile(ABGR.White, ABGR.Transparent, '*'));
+        }
+        Draw(sf);
     }
-    public override bool ProcessKeyboard(Keyboard info) {
+    public void HandleKey(KB kb) {
 
-        foreach (var pressed in info.KeysDown) {
+        foreach (var pressed in kb.Down) {
             var delta = 1 / 3f;
-            switch (pressed.Key) {
-                case Keys.Up:
+            switch (pressed) {
+                case KC.Up:
                     camera += new XY(0, delta);
                     break;
-                case Keys.Down:
+                case KC.Down:
                     camera += new XY(0, -delta);
                     break;
-                case Keys.Right:
+                case KC.Right:
                     camera += new XY(delta, 0);
                     break;
-                case Keys.Left:
+                case KC.Left:
                     camera += new XY(-delta, 0);
                     break;
-                case Escape:
-                    IsVisible = false;
+                case KC.Escape:
+                    //IsVisible = false;
                     break;
             }
         }
-        Done:
-        return base.ProcessKeyboard(info);
     }
-    public override bool ProcessMouse(MouseScreenObjectState state) {
-        mouse.Update(state, IsMouseOver);
-        mouse.nowPos = new Point(mouse.nowPos.X, Height - mouse.nowPos.Y);
-        if (mouse.left == ClickState.Held) {
-            camera += new XY(mouse.prevPos - mouse.nowPos);
+    public void HandleMouse(HandState state) {
+        mouse.Update(state);
+        mouse.nowPos = new Point(mouse.nowPos.x, Height - mouse.nowPos.y);
+        if (mouse.left == Pressing.Down) {
+            camera += (XY)mouse.prevPos - (XY)mouse.nowPos;
         }
-
-        return base.ProcessMouse(state);
     }
 }

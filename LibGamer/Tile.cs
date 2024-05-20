@@ -118,6 +118,13 @@ public record ABGR(uint packed) {
 		var max = Math.Max(Math.Max(r, g), b);
 		return (max + min) / 510f;
 	}
+
+	public static uint SetLightness (uint c, float brightness) =>
+		ABGR.FromHSL(c.GetHue(), c.GetSaturation(), brightness);
+
+
+
+
 	public static uint ToGray (uint c) => FromHSL(0, 0, GetLightness(c));
 	public static uint FromHSL (float h, float s, float l) {
 		if(h < 0f || h > 360f) {
@@ -348,6 +355,16 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 			}
 		}
 	}
+
+
+
+	public Tile Gray =>
+		new(ABGR.ToGray(Foreground), ABGR.ToGray(Background), Glyph);
+
+
+
+
+
 
 
 	public static Tile empty { get; } = new(0, 0, 0);

@@ -48,7 +48,7 @@ public class LabelButton {
 		if(!mouse.nowOn) {
 			return;
 		}
-		if(mouse.leftPressedOnScreen) {
+		if(mouse.leftPressOnScreen) {
 			switch(mouse.left) {
 				case Pressing.Released:
 					leftClick?.Invoke();
@@ -58,7 +58,7 @@ public class LabelButton {
 					break;
 			}
 		}
-		if(mouse.rightPressedOnScreen) {
+		if(mouse.rightPressOnScreen) {
 			switch(mouse.right) {
 				case Pressing.Released:
 					rightClick?.Invoke();
@@ -75,8 +75,8 @@ public class LabelButton {
 		if(!enabled) {
 			(f, b) = (ABGR.Gray, ABGR.Black);
 		} else if(mouse.nowOn &&
-			((mouse.nowLeft && mouse.leftPressedOnScreen)
-			|| (mouse.nowRight && mouse.rightPressedOnScreen))) {
+			((mouse.nowLeft && mouse.leftPressOnScreen)
+			|| (mouse.nowRight && mouse.rightPressOnScreen))) {
 			(f, b) = (ABGR.Black, ABGR.White);
 		} else {
 			(f, b) = (ABGR.White, mouse.nowOn ? ABGR.Gray : ABGR.Black);

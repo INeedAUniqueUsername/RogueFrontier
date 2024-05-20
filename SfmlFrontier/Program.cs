@@ -123,10 +123,12 @@ partial class Program {
 
 			kb.Update([.. gh.Keyboard.KeysDown.Select(k => (KC)k.Key)]);
 			var m = gh.Mouse;
-			
-			current.Update(gh.UpdateFrameDelta);
-            current.HandleKey(kb);
-            current.HandleMouse(new HandState(m.ScreenPosition, m.LeftButtonDown, m.RightButtonDown, m.IsOnScreen));
+
+            if(current is { } c) {
+                c.Update(gh.UpdateFrameDelta);
+                c.HandleKey(kb);
+                c.HandleMouse(new HandState(m.ScreenPosition, m.ScrollWheelValue, m.LeftButtonDown, m.MiddleButtonDown, m.RightButtonDown, m.IsOnScreen));
+            }
         };
         host.FrameRender += (o, gh) => {
             current.Render(gh.DrawFrameDelta);

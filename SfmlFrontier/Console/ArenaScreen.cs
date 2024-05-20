@@ -19,7 +19,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
     public XY camera;
     public Dictionary<(int, int), Tile> tiles;
     XY screenCenter;
-    MouseWatch mouse;
+    Hand mouse;
     public ActiveObject pov;
     ActiveObject nearest;
     public Mainframe mainframe;
@@ -416,13 +416,13 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
         }
         Draw(sf);
     }
-    public void ProcessKeyboard(Keyboard info) {
+    public void HandleKey(KB kb) {
 
-        if (info.IsKeyPressed(Escape)) {
+        if (kb.IsPress(KC.Escape)) {
             if (mainframe != null) {
 
-                if (mainframe.sceneContainer.Children.Any()) {
-					mainframe.ProcessKeyboard(info);
+                if (mainframe.dialog != null) {
+					mainframe.HandleKey(kb);
 					return;
 				}
 
@@ -433,25 +433,23 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 
                 pov = aiShip;
                 Reset(mainframe.camera.position);
-
-
             } else {
                 prev.pov = null;
                 prev.camera = camera;
                 Go(prev);
             }
         } else if (mainframe != null) {
-            mainframe.ProcessKeyboard(info);
+            mainframe.HandleKey(kb);
             return;
         }
 
-        if (info.IsKeyPressed(Tab)) {
+        if (kb.IsPress(KC.Tab)) {
             ToggleArena();
         }
-        if (info.IsKeyPressed(Keys.Space)) {
+        if (kb.IsPress(KC.Space)) {
             passTime = !passTime;
         }
-        if (info.IsKeyPressed(A)) {
+        if (kb.IsPress(KC.A)) {
             if (nearest is AIShip a) {
                 a.ship.active = false;
                 World.RemoveEntity(a);
@@ -470,50 +468,50 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
                 HideArena();
             }
         }
-        if (info.IsKeyPressed(Keys.F)) {
+        if (kb.IsPress(KC.F)) {
             if (pov == nearest) {
                 pov = null;
             } else {
                 pov = nearest;
             }
         }
-        if (info.IsKeyPressed(K) && nearest != null) {
+        if (kb.IsPress(KC.K) && nearest != null) {
             nearest.Destroy();
-            if (info.IsKeyDown(LeftShift)) {
+            if (kb.IsDown(KC.LeftShift)) {
                 foreach (var s in World.entities.all.OfType<ActiveObject>()) {
                     s.Destroy();
                 }
             }
         }
 
-        foreach (var pressed in info.KeysDown) {
+        foreach (var pressed in kb.Down) {
             var delta = 1 / 3f;
-            switch (pressed.Key) {
-                case Keys.Up:
+            switch (pressed) {
+                case KC.Up:
                     camera += new XY(0, delta);
                     break;
-                case Keys.Down:
+                case KC.Down:
                     camera += new XY(0, -delta);
                     break;
-                case Keys.Right:
+                case KC.Right:
                     camera += new XY(delta, 0);
                     break;
-                case Keys.Left:
+                case KC.Left:
                     camera += new XY(-delta, 0);
                     break;
             }
         }
     }
-    public void HandleMouse (MouseScreenObjectState state) {
+    public void HandleMouse (HandState state) {
         if (mainframe != null) {
             mainframe.HandleMouse(state);
             return;
         }
 
-        mouse.Update(state, state.IsOnScreenObject);
-        mouse.nowPos = new Point(mouse.nowPos.X, Height - mouse.nowPos.Y);
-        if (mouse.left == ClickState.Held) {
-            camera += new XY(mouse.prevPos - mouse.nowPos);
+        mouse.Update(state);
+        mouse.nowPos = (mouse.nowPos.x, Height - mouse.nowPos.y);
+        if (mouse.left == Pressing.Down) {
+            camera += (XY)mouse.prevPos - (XY)mouse.nowPos;
         }
     }
 }

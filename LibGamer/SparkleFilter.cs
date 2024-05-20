@@ -1,6 +1,5 @@
-﻿using SadConsole;
-using System;
-namespace Common;
+﻿using System;
+namespace LibGamer;
 
 public class SparkleFilter {
     float[,] time;
@@ -21,10 +20,10 @@ public class SparkleFilter {
             }
         }
     }
-    public void Filter(int x, int y, ref ColoredGlyph cg) {
+    public void Filter(int x, int y, ref Tile cg) {
         var value = Math.Sin(time[x, y] * 2 * Math.PI / cycle);
-        float brightness = cg.Foreground.GetBrightness();
-        brightness = (float)Math.Clamp(brightness + value * brightness / 4, 0, 1);
-        cg.Foreground = cg.Foreground.SetBrightness(brightness);
+        float lt = ABGR.GetLightness(cg.Foreground);
+        lt = (float)Math.Clamp(lt + value * lt / 4, 0, 1);
+        cg = cg with { Foreground = ABGR.SetLightness(cg.Foreground, lt) };
     }
 }

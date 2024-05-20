@@ -93,7 +93,6 @@ public static class SConsole {
 	public static Col SetBrightness (this Col c, float brightness) =>
 		Col.FromHSL(c.GetHue(), c.GetSaturation(), brightness);
 
-
 	public static Col TryAttColor (this XElement e, string attribute, Col fallback) {
 		if(e.TryAtt(attribute, out string s)) {
 			if(int.TryParse(s, NumberStyles.HexNumber, null, out var packed)) {

@@ -21,22 +21,27 @@ namespace LibGamer;
         Exit,
         Outside
     }
-public record HandState((int x, int y) pos, bool leftDown, bool rightDown, bool nowOn);
+public record HandState((int x, int y) pos, int wheelValue, bool leftDown, bool middleDown, bool rightDown, bool nowOn) {
+    public HandState OnRect (Rect r) => this with { pos = (pos.x - r.x, pos.y - r.y), nowOn = r.Contains(pos) };
+}
 public record Hand {
     public Hovering mouse;
     public bool nowOn;
     public bool prevOn;
     public Pressing left;
     public Pressing right;
-    public bool leftPressedOnScreen;
-    public bool rightPressedOnScreen;
-    public (int x, int y) leftPressedPos;
-    public (int x, int y) rightPressedPos;
+    public bool leftPressOnScreen;
+    public bool rightPressOnScreen;
+    public (int x, int y) leftPressPos;
+    public (int x, int y) rightPressPos;
     public (int x, int y) prevPos;
     public (int x, int y) nowPos;
+    public (int x, int y) deltaPos => (nowPos.x - prevPos.x, nowPos.y - prevPos.y);
     public bool prevLeft;
+    public bool prevWheel;
     public bool prevRight;
     public bool nowLeft;
+    public bool nowMiddle;
     public bool nowRight;
 
     public int MouseWheelScroll;
@@ -57,12 +62,12 @@ public record Hand {
         left = !prevLeft ? (!nowLeft ? Pressing.Up : Pressing.Pressed) : (nowLeft ? Pressing.Down : Pressing.Released);
         right = !prevRight ? (!nowRight ? Pressing.Up : Pressing.Pressed) : (nowRight ? Pressing.Down : Pressing.Released);
         if(left == Pressing.Pressed) {
-            leftPressedOnScreen = state.nowOn;
-            leftPressedPos = state.pos;
+            leftPressOnScreen = state.nowOn;
+            leftPressPos = state.pos;
         }
         if(right == Pressing.Pressed) {
-            rightPressedOnScreen = state.nowOn;
-            rightPressedPos = state.pos;
+            rightPressOnScreen = state.nowOn;
+            rightPressPos = state.pos;
         }
     }
 }
