@@ -3,6 +3,7 @@ using LibGamer;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using LabelButton = LibSadConsole.LabelButton;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier;
@@ -12,8 +13,9 @@ class LoadPane : IScene {
     Sf sf;
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
-    public List<object> Children = new();
+	public List<object> Children = new();
 
 	public LoadPane(int Width, int Height, Profile profile) {
         sf = new Sf(Width, Height);

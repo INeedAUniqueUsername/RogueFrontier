@@ -30,8 +30,9 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
     int Height => sf.Height;
     public Action<IScene> Go { get; set; }
     public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
-    public ArenaScreen(TitleScreen prev, ShipControls settings, System World) {
+	public ArenaScreen(TitleScreen prev, ShipControls settings, System World) {
         this.prev = prev;
         this.sf = new Sf(prev.Width, prev.Height);
 		this.settings = settings;

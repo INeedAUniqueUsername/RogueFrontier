@@ -10,12 +10,17 @@ public enum KS : byte {
 	Up =		0b00,
 	Down =		0b01,
 	//Changed = 0b10,
-	Released =	0b10,
-	Pressed =	0b11,
+	Release =	0b10,
+	Press =	0b11,
 }
 public class KB {
 	public KS[] state = new KS[255];
-	public HashSet<KC> Pressed = [], Released = [], Down = [];
+	public HashSet<KC> Press = [], Release = [], Down = [];
+
+	public bool IsPress (KC k) => this[k] == KS.Press;
+	public bool IsDown (KC k) => this[k] == KS.Down;
+	public bool IsRelease (KC k) => this[k] == KS.Release;
+
 	public KS this[KC k] {
 		get => this[(byte)k];
 		set => this[(byte)k] = value;
@@ -31,32 +36,31 @@ public class KB {
 
 	}
 	public KB(HashSet<KC> Pressed, HashSet<KC> Down, HashSet<KC> Released) {
-		this.Pressed = Pressed;
-		this.Released = Released;
+		this.Press = Pressed;
+		this.Release = Released;
 		this.Down = Down;
-		foreach(var k in Pressed) this[k] = KS.Pressed;
 		foreach(var k in Down) this[k] = KS.Down;
-
-		foreach(var k in Released) this[k] = KS.Released;
+		foreach(var k in Pressed) this[k] = KS.Press;
+		foreach(var k in Released) this[k] = KS.Release;
 	}
 	public void Update (HashSet<KC> nextDown) {
-		foreach(var code in Released) {
+		foreach(var code in Release) {
 			state[(byte)code] = KS.Up;
 		}
-		Released.Clear();
-		Pressed.Clear();
+		Release.Clear();
+		Press.Clear();
 		foreach(var code in nextDown) {
 			this[code] = KS.Down;
 			var prevDown = Down.Contains(code);
 			if(!prevDown) {
-				this[code] = KS.Pressed;
-				Pressed.Add(code);
+				this[code] = KS.Press;
+				Press.Add(code);
 			}
 			Down.Remove(code);
 		}
 		foreach(var code in Down) {
-			this[code] = KS.Released;
-			Released.Add(code);
+			this[code] = KS.Release;
+			Release.Add(code);
 		}
 		Down = nextDown;
 	}

@@ -21,10 +21,11 @@ namespace LibGamer;
         Exit,
         Outside
     }
-public class Pointer {
+public record HandState((int x, int y) pos, bool leftDown, bool rightDown, bool nowOn);
+public class Hand {
     public Hovering mouse;
-    public bool nowMouseOver;
-    public bool prevMouseOver;
+    public bool nowOn;
+    public bool prevOn;
     public Pressing left;
     public Pressing right;
     public bool leftPressedOnScreen;
@@ -39,29 +40,29 @@ public class Pointer {
     public bool nowRight;
 
     public int MouseWheelScroll;
-    public void Update ((int x, int y) pos, bool leftDown, bool rightDown, bool IsMouseOver) {
+    public void Update (HandState state) {
 		prevPos = nowPos;
-		nowPos = pos;
+		nowPos = state.pos;
 
 		prevLeft = nowLeft;
 		prevRight = nowRight;
-		nowLeft = leftDown;
-		nowRight = rightDown;
+		nowLeft = state.leftDown;
+		nowRight = state.rightDown;
 
-		prevMouseOver = nowMouseOver;
-        nowMouseOver = IsMouseOver;
-        mouse = !prevMouseOver ? (nowMouseOver ? Hovering.Enter : Hovering.Outside) : (nowMouseOver ? Hovering.Hover : Hovering.Exit);
+		prevOn = nowOn;
+        nowOn = state.nowOn;
+        mouse = !prevOn ? (nowOn ? Hovering.Enter : Hovering.Outside) : (nowOn ? Hovering.Hover : Hovering.Exit);
 
 
         left = !prevLeft ? (!nowLeft ? Pressing.Up : Pressing.Pressed) : (nowLeft ? Pressing.Down : Pressing.Released);
         right = !prevRight ? (!nowRight ? Pressing.Up : Pressing.Pressed) : (nowRight ? Pressing.Down : Pressing.Released);
         if(left == Pressing.Pressed) {
-            leftPressedOnScreen = IsMouseOver;
-            leftPressedPos = pos;
+            leftPressedOnScreen = state.nowOn;
+            leftPressedPos = state.pos;
         }
         if(right == Pressing.Pressed) {
-            rightPressedOnScreen = IsMouseOver;
-            rightPressedPos = pos;
+            rightPressedOnScreen = state.nowOn;
+            rightPressedPos = state.pos;
         }
     }
 }

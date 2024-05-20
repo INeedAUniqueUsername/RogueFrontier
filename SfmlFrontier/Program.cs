@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using SfmlFrontier;
 using System.Collections.Concurrent;
+using SFML.Audio;
 namespace RogueFrontier;
 partial class Program {
     static Program() {
@@ -80,22 +81,26 @@ partial class Program {
             GameHost.Instance.Screen = new BackdropConsole(Width, Height, new Backdrop(), () => new Common.XY(0.5, 0.5));
 			return;
 #endif
-        IScene current = null;
-        void Go(IScene next) {
-            if(current is { } prev) {
-                prev.Go -= Go;
-                prev.Draw -= Draw;
-            }
-            if(next == null) {
-                throw new Exception("Main scene cannot be null");
-            }
-            current = next;
-            current.Go += Go;
-            current.Draw += Draw;
-        };
 
         ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
-        void Draw(Sf sf) {
+        ConcurrentDictionary<SoundCtx, Sound> sounds = new();
+		IScene current = null;
+		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
+		void Go (IScene next) {
+			if(current is { } prev) {
+				prev.Go -= Go;
+				prev.Draw -= Draw;
+                prev.PlaySound -= PlaySound;
+			}
+			if(next == null)
+				throw new Exception("Main scene cannot be null");
+			current = next;
+			
+            current.Go += Go;
+			current.Draw += Draw;
+            current.PlaySound += PlaySound;
+		};
+		void Draw(Sf sf) {
             var c = consoles.GetOrAdd(sf, new SadConsole.Console(sf.Width, sf.Height));
             foreach(var p in sf.Active) {
                 var t = sf.Data[sf.GetIndex(p.x, p.y)];
@@ -104,9 +109,24 @@ partial class Program {
             c.Render(new TimeSpan());
             return;
         }
-        Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
+        void PlaySound(SoundCtx s) {
+            var snd = sounds.GetOrAdd(s, s => new Sound(new SoundBuffer(s.data)) { Volume = s.volume });
+            if(snd.Status == SoundStatus.Playing) {
+                snd.Stop();
+            }
+            snd.Play();
+        }
+        var kb = new KB();
+        var hand = new Hand();
         host.FrameUpdate += (o, gh) => {
-            current.Update(gh.UpdateFrameDelta);
+
+			kb.Update([.. gh.Keyboard.KeysDown.Select(k => (KC)k.Key)]);
+			var m = gh.Mouse;
+			hand.Update(new HandState(m.ScreenPosition, m.LeftButtonDown, m.RightButtonDown, m.IsOnScreen));
+
+			current.Update(gh.UpdateFrameDelta);
+            current.HandleKey(kb);
+            current.HandleMouse(hand);
         };
         host.FrameRender += (o, gh) => {
             current.Render(gh.DrawFrameDelta);

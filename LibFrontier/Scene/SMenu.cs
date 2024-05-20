@@ -851,7 +851,7 @@ public static partial class SMenu {
                     job.active = false;
                     player.AddMessage(new Message($"Repair job terminated."));
 
-					screen.PlaySound?.Invoke(stop);
+					screen.PlaySound?.Invoke(new(stop,33));
 				}
                 return;
             }
@@ -872,7 +872,7 @@ public static partial class SMenu {
             player.world.AddEvent(job);
             player.AddMessage(new Message($"Repair job initiated..."));
 
-            screen.PlaySound?.Invoke(start);
+            screen.PlaySound?.Invoke(new(start, 33));
 
             callback?.Invoke();
         }
@@ -880,7 +880,7 @@ public static partial class SMenu {
             player.world.RemoveEvent(r);
             player.AddMessage(new Message($"Repair job {(r.terminated ? "terminated" : "completed")}"));
 
-			screen.PlaySound?.Invoke(stop);
+			screen.PlaySound?.Invoke(new(stop, 33));
 		}
         void Escape() {
             if (job?.active == true) {
@@ -889,7 +889,7 @@ public static partial class SMenu {
                 job = null;
                 player.AddMessage(new Message($"Repair job canceled"));
 
-				screen.PlaySound?.Invoke(stop);
+				screen.PlaySound?.Invoke(new(stop,33));
 				return;
             }
             prev.Show();
@@ -1235,7 +1235,9 @@ public static partial class SMenu {
 }
 
 public class ListMenu<T> : IScene {
-    public Action<byte[]> PlaySound;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
     public PlayerShip player;
 
@@ -1244,8 +1246,6 @@ public class ListMenu<T> : IScene {
 
     public ref string title => ref list.title;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public Action escape;
     public ListMenu(PlayerShip player, string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape) {
@@ -1267,7 +1267,7 @@ public class ListMenu<T> : IScene {
         this.escape = escape;
     }
     public void ProcessKeyboard(KB keyboard) {
-        if (keyboard[KC.Escape] == KS.Pressed) {
+        if (keyboard[KC.Escape] == KS.Press) {
             escape?.Invoke();
         } else {
             list.ProcessKeyboard(keyboard);
@@ -1320,7 +1320,7 @@ public class ListPane<T> {
     public Invoke invoke;
     public IndexChanged indexChanged;
 
-    public Action<SoundDesc> PlaySound;
+    public Action<SoundCtx> PlaySound;
 
     public delegate string GetName(T t);
     public delegate void Invoke(T t);
@@ -1401,7 +1401,7 @@ public class ListPane<T> {
                     Math.Min(index.Value + inc, count - 1);
             time = 0;
         }
-        foreach (var key in keyboard.Pressed) {
+        foreach (var key in keyboard.Press) {
             switch (key) {
                 case KC.Up:       Up(1); break;
                 case KC.PageUp:   Up(26); break;
@@ -1434,7 +1434,7 @@ public class ListPane<T> {
     }
 
     bool mouseOnItem;
-    public void ProcessMouse(Pointer state) {
+    public void ProcessMouse(Hand state) {
         
         var paneRect = new Rect(1, 3, lineWidth + 8, 26);
         if (mouseOnItem = paneRect.Contains(state.nowPos)) {
@@ -1548,8 +1548,8 @@ public class ScrollBar {
     bool mouseOnBar;
     bool clickOnBar;
     int prevClick = 0;
-    public void ProcessMouse(Pointer state) {
-        if (state.nowMouseOver) {
+    public void ProcessMouse(Hand state) {
+        if (state.nowOn) {
             var (barStart, barEnd) = GetBarRange();
             var y = state.nowPos.y;
             if (state.nowLeft) {
@@ -1848,14 +1848,16 @@ public class ButtonPane {
 #endif
 
 public class ListWidget<T>:IScene {
-    public ListPane<T> list;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+
+	public ListPane<T> list;
     public DescPanel<T> descPane;
 
     public ref string title => ref list.title;
     public ref bool groupMode => ref list.groupMode;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public Action escape;
     public Sf Surface;
@@ -1876,7 +1878,7 @@ public class ListWidget<T>:IScene {
         this.escape = escape;
     }
     public void ProcessKeyboard(KB keyboard) {
-        if (keyboard[KC.Escape] == KS.Pressed) {
+        if (keyboard[KC.Escape] == KS.Press) {
             escape?.Invoke();
         } else {
             list.ProcessKeyboard(keyboard);

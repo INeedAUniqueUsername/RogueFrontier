@@ -17,6 +17,7 @@ public class TradeMenu: IScene {
 
     public Action<IScene> Go { set; get; }
 	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
 	public TradeMenu (IScene prev, PlayerShip playerShip, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
 	}

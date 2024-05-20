@@ -13,6 +13,7 @@ using LibGamer;
 using System.Xml.Linq;
 using SfmlFrontier;
 using System.Data;
+using LabelButton = LibSadConsole.LabelButton;
 namespace RogueFrontier;
 public record Monitor (System world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
@@ -24,8 +25,10 @@ interface ISadSurface{
 }
 //SadConsole-specific code
 public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
-    public Action<IScene> Go { set; get; } = s => { };
-    public Action<Sf> Draw { set; get; } = _ => { };
+    public Action<IScene> Go { set; get; }
+    public Action<Sf> Draw { set; get; }
+    public Action<SoundCtx> PlaySound { set; get; }
+
     public Action SetFocus = () => { };
 	public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;

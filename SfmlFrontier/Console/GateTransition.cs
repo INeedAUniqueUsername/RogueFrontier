@@ -5,7 +5,11 @@ using SadRogue.Primitives;
 namespace SfmlFrontier;
 
 public class GateTransition : IScene {
-    Viewport back, front;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+
+	Viewport back, front;
     double amount;
     Rectangle rect;
     public Action next;
@@ -21,9 +25,6 @@ public class GateTransition : IScene {
         }
     }
     private List<Particle> particles = new();
-
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public GateTransition(Viewport back, Viewport front, Action next) {
         this.back = back;

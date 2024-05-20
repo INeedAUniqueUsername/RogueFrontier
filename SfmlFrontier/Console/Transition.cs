@@ -9,11 +9,12 @@ using SfmlFrontier;
 
 namespace RogueFrontier;
 public class TitleSlideOpening : IScene {
-    public Sf sf { get; }
-    public int Width => sf.Width;
-    public int Height => sf.Height;
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public Sf sf { get; }
+    public int Width => sf.Width;
+    public int Height => sf.Height;
 
 	public IScene next;
     public Sf nextSf;
@@ -78,21 +79,21 @@ public class TitleSlideOpening : IScene {
         }
     }
     public void HandleKey(KB kb) {
-        if (kb[[KC.Enter, KC.Escape]].Contains(KS.Pressed)) {
+        if (kb[[KC.Enter, KC.Escape]].Contains(KS.Press)) {
             fast = true;
         }
         return;
     }
 }
 public class TitleSlideOut : IScene {
-    public IScene prev, next;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public IScene prev, next;
     public Sf sf_prev, sf_next;
     public Sf sf;
     public int Width => sf.Width;
     public int Height => sf.Height;
-
-	public Action<IScene> Go { set; get; } = _ => { };
-	public Action<Sf> Draw { set; get; } = _ => { };
 
 	int x = 0;
     double time = 0;
@@ -144,13 +145,16 @@ public class TitleSlideOut : IScene {
         }
     }
     public void HandleKey(KB keyboard) {
-        if (keyboard.Pressed.Intersect([KC.Enter, KC.Escape]).Any()) {
+        if (keyboard.Press.Intersect([KC.Enter, KC.Escape]).Any()) {
             fast = true;
         }
     }
 }
 public class TitleSlideIn : IScene {
-    public Console prev;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public Console prev;
     public Console next;
     int x = -16;
 
@@ -158,8 +162,6 @@ public class TitleSlideIn : IScene {
     int Width => sf.Width;
     int Height => sf.Height;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public TitleSlideIn(Console prev, Console next) {
         sf = new Sf(prev.Width, prev.Height);
@@ -213,13 +215,13 @@ public class TitleSlideIn : IScene {
     }
 }
 public class FadeIn : IScene {
-    IScene next;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	IScene next;
     Sf sf_next;
     Sf sf;
     float alpha;
-
-	public Action<IScene> Go { get; set; }
-    public Action<Sf> Draw { get; set; }
 
 	public FadeIn(IScene next, Sf sf_next) {
         this.next = next;
@@ -281,13 +283,12 @@ public class FadeOut : Console {
 }
 
 public class Pause : IScene {
-    Action next;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Action next;
     Sf background;
     double time;
-
-	public Action<IScene> Go { set; get; }
-	public Action<Sf> Draw { set; get; }
-
 	public Pause(Sf background, Action next, double time = 5) {
         this.background = background;
         this.time = time;

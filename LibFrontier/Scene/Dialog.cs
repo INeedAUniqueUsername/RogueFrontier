@@ -63,12 +63,13 @@ public static class SScene {
 public interface IScene {
 	Action<IScene> Go { get; set; }
 	Action<Sf> Draw { get; set; }
+	Action<SoundCtx> PlaySound { get; set; }
 	public void Show () => Go(this);
 	public void Close () => Go(null);
 	public void Update (TimeSpan delta) { }
 	public void Render (TimeSpan delta) { }
 	public void HandleKey (KB kb) { }
-	public void HandleMouse (Pointer mouse) { }
+	public void HandleMouse (Hand mouse) { }
 }
 public interface IRender {
 	Sf sf { get; }
@@ -105,7 +106,6 @@ public static class SNav {
 }
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
-	public event Action<SoundDesc> PlaySound;
 	public event Action PrintComplete;
 	public string descStr;
 	public Tile[] desc;
@@ -125,10 +125,7 @@ public class Dialog : IScene {
 	int lineCount;
 	public static double maxCharge = 0.5;
 
-	public SoundDesc button_press = new() {
-		data = File.ReadAllBytes("Assets/sounds/button_press.wav"),
-		volume = 33
-	};
+	public SoundCtx button_press = new SoundCtx(File.ReadAllBytes("Assets/sounds/button_press.wav"), 33) {};
 	public Dialog (string descStr, List<NavChoice> navigation){
 		this.descStr = descStr;
 		
@@ -165,8 +162,9 @@ public class Dialog : IScene {
 	}
 	int deltaIndex = 2;
 
-	public Action<IScene> Go { get; set; } = _ => { };
-	public Action<Sf> Draw { get; set; } = _ => { };
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
 	public void Update (TimeSpan delta) {
 		ticks++;
@@ -261,7 +259,7 @@ public class Dialog : IScene {
 	}
 	public void ProcessKeyboard (KB kb) {
 		charging = false;
-		if(kb[KC.Escape] == KS.Pressed || prevEscape && kb[KC.Escape, 1]) {
+		if(kb[KC.Escape] == KS.Press || prevEscape && kb[KC.Escape, 1]) {
 			if(!prevEscape) {
 				PlaySound(button_press);
 			}
@@ -302,7 +300,7 @@ public class Dialog : IScene {
 					enter = true;
 				}
 			}
-			if(kb[KC.Up] == KS.Pressed) {
+			if(kb[KC.Up] == KS.Press) {
 				PlaySound(button_press);
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
@@ -312,7 +310,7 @@ public class Dialog : IScene {
 			}
 		}
 	}
-	public void ProcessMouse (Pointer state) {
+	public void ProcessMouse (Hand state) {
 		if(state.nowLeft) {
 			if(descIndex < desc.Length - 1) {
 				descIndex = desc.Length - 1;

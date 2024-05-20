@@ -16,6 +16,7 @@ public class DeathPause : IScene {
 
 	public Action<IScene> Go { get; set; }
     public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
 	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
@@ -44,6 +45,7 @@ public class DeathTransition : IScene {
 
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
 	public class Particle {
         public int x, destY;

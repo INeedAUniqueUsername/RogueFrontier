@@ -10,8 +10,11 @@ using LibGamer;
 namespace RogueFrontier;
 
 class OutroCrawl : IScene {
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
-    public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
+	public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
     public Sound bgm = new Sound() { Volume = 50, SoundBuffer = music };
     
     int tick;
@@ -30,10 +33,8 @@ class OutroCrawl : IScene {
     public int Width => sf.Width;
     public int Height => sf.Height;
 
-    public Action<IScene> Go { set; get; }
-	public Action<Sf> Draw { set; get; }
 
-    private IScene sub;
+	private IScene sub;
 	public OutroCrawl(int width, int height, Action next) {
 #if false
         sf = new Sf(width, height);

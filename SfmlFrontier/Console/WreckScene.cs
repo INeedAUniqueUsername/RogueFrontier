@@ -1,12 +1,12 @@
 ﻿using LibGamer;
 namespace RogueFrontier;
 public class WreckScene : IScene {
-    Player player;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Player player;
     IScene prev;
     Sf sf;
-
-	public Action<IScene> Go { set; get; }
-	public Action<Sf> Draw { set; get; }
 
 	ListPane<Item> playerPane, dockedPane;
 
@@ -59,13 +59,13 @@ public class WreckScene : IScene {
     ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
 
 	public void ProcessKeyboard(KB kb) {
-        if (kb[KC.Escape] == KS.Pressed) {
+        if (kb[KC.Escape] == KS.Press) {
             Exit();
         } else {
-            if(kb[KC.Left] == KS.Pressed) {
+            if(kb[KC.Left] == KS.Press) {
                 playerSide = true;
             }
-            if(kb[KC.Right] == KS.Pressed) {
+            if(kb[KC.Right] == KS.Press) {
                 playerSide = false;
             }
             currentPane.ProcessKeyboard(kb);

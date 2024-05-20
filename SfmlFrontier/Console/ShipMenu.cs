@@ -2,14 +2,14 @@
 using LibGamer;
 namespace RogueFrontier;
 class ShipMenu : IScene {
-    public IScene prev;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public IScene prev;
     public PlayerShip playerShip;
     public Timeline story;
 
     public Sf sf;
-
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	//Idea: Show an ASCII-art map of the ship where the player can walk around
 	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {

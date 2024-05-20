@@ -15,6 +15,7 @@ using static SadConsole.Input.Keys;
 using Console = SadConsole.Console;
 using SadConsole.Renderers;
 using Label = LibSadConsole.Label;
+using LabelButton = LibSadConsole.LabelButton;
 using LibGamer;
 
 namespace ASECII {

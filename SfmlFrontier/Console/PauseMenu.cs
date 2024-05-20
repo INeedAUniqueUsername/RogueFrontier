@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Common;
 using LibGamer;
 
+using LabelButton = LibSadConsole.LabelButton;
 namespace RogueFrontier;
 
 public class PauseScreen : IScene {
@@ -16,6 +17,7 @@ public class PauseScreen : IScene {
     public int Height => Surface.Height;
 	public Action<IScene> Go { get;set; }
 	public Action<Sf> Draw { get;set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 	public PauseScreen(Mainframe playerMain) {
         Surface = new(playerMain.Width, playerMain.Height);
 		this.playerMain = playerMain;

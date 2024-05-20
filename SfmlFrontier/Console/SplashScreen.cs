@@ -4,7 +4,10 @@ using LibGamer;
 namespace RogueFrontier;
 
 public class SplashScreen : IScene {
-    Action next;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Action next;
     System World;
     public Dictionary<(int, int), Tile> tiles;
     XY screenCenter;
@@ -13,9 +16,6 @@ public class SplashScreen : IScene {
     Sf sf;
     int Width => sf.Width;
     int Height => sf.Height;
-
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public SplashScreen(Action next) {
         this.next = next;

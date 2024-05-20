@@ -4,14 +4,15 @@ using LibGamer;
 namespace RogueFrontier;
 
 class MinimalCrawlScreen : IScene {
-    public Sf sf;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public Sf sf;
     private Action next;
     private readonly string text;
     bool speedUp;
     int index;
     int tick;
-    public Action<IScene> Go { get; set; } = _ => { };
-    public Action<Sf> Draw { get; set; } = _ => { };
 	public MinimalCrawlScreen(Sf prev, string text, Action next) {
         this.sf = new Sf(text.Split('\n').Max(l => l.Length), text.Split('\n').Length);
         this.next = next;

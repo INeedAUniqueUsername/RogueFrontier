@@ -145,7 +145,7 @@ public class PlayerControls {
             playerMain.audio.button_press.Play();
             pw.Surface.IsVisible = !pw.Surface.IsVisible;
         }
-        if (keys?[U] == KS.Pressed) {
+        if (keys?[U] == KS.Press) {
             playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.UsefulItems(playerMain, playerShip));
@@ -155,13 +155,13 @@ public class PlayerControls {
             playerMain.audio.button_press.Play();
             nm.IsVisible = !nm.IsVisible;
         }
-        if(keys?[B] == KS.Pressed) {
+        if(keys?[B] == KS.Press) {
             playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.ManageDevices(playerMain, playerShip));
 #endif
         }
-        if(keys?[C] == KS.Pressed) {
+        if(keys?[C] == KS.Press) {
             playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.Communications(playerMain, playerShip));
@@ -169,7 +169,7 @@ public class PlayerControls {
         }
 
 
-        if (keys[F1] == KS.Pressed) {
+        if (keys[F1] == KS.Press) {
             playerMain.audio.button_press.Play();
             //playerMain.dialog = new IdentityScreen(playerMain);
             //playerMain.OnIntermission();
@@ -192,7 +192,7 @@ public class PlayerInput {
     public bool UsingMouse;
     public PlayerInput() { }
     public void Read(Dictionary<Control, KC> controls, KB kb) {
-        var p = (Control c) => kb[controls[c]] == KS.Pressed;
+        var p = (Control c) => kb[controls[c]] == KS.Press;
         var d = (Control c) => kb[controls[c], 1];
         Shift = kb[LeftShift, 1] || kb[RightShift, 1];
         Thrust =        d(Control.Thrust);
@@ -209,16 +209,16 @@ public class PlayerInput {
         FirePrimary =   d(Control.FirePrimary);
         FireSecondary = d(Control.FireSecondary);
         AutoAim =       d(Control.AutoAim);
-        ToggleUI =      kb[Tab] == KS.Pressed;
+        ToggleUI =      kb[Tab] == KS.Press;
         Gate =          p(Control.Gate);
         Autopilot =     p(Control.Autopilot);
         Dock =          p(Control.Dock);
         ShipMenu =      p(Control.ShipStatus);
-        Escape =        kb[KC.Escape] == KS.Pressed;
+        Escape =        kb[KC.Escape] == KS.Press;
         InvokePowers =  p(Control.InvokePowers);
-        Communications= kb[C] == KS.Pressed;
-        NetworkMap=     kb[N] == KS.Pressed;
-        QuickZoom =     kb[M] == KS.Pressed;
+        Communications= kb[C] == KS.Press;
+        NetworkMap=     kb[N] == KS.Press;
+        QuickZoom =     kb[M] == KS.Press;
     }
     public void ClientOnly() {
         Autopilot = false;

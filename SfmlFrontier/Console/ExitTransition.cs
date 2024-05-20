@@ -16,6 +16,7 @@ public class ExitTransition : IScene {
 
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 
 	public ExitTransition(IScene prev, Sf sf_prev, Action next) {
         this.prev = prev;
@@ -48,7 +49,7 @@ public class ExitTransition : IScene {
         }
     }
     public void HandleKey(KB kb) {
-        if (kb[KC.Enter] == KS.Pressed) {
+        if (kb[KC.Enter] == KS.Press) {
             Transition();
         }
     }

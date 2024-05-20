@@ -13,6 +13,7 @@ public class WreckScene : IScene {
     Sf sf;
 	public Action<IScene> Go { set; get; }
 	public Action<Sf> Draw { set; get; }
+	public Action<SoundCtx> PlaySound { get; set; }
 	private void SetDesc(Item i) {
         if (i == null) {
             descPane.SetInfo("", []);
@@ -57,13 +58,13 @@ public class WreckScene : IScene {
     ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
 
 	public void HandleKey(KB kb) {
-        if (kb[KC.Escape] == KS.Pressed) {
+        if (kb[KC.Escape] == KS.Press) {
             prev.Show();
         } else {
-            if(kb[KC.Left] == KS.Pressed) {
+            if(kb[KC.Left] == KS.Press) {
                 playerSide = true;
             }
-            if(kb[KC.Right] == KS.Pressed) {
+            if(kb[KC.Right] == KS.Press) {
                 playerSide = false;
             }
             currentPane.ProcessKeyboard(kb);

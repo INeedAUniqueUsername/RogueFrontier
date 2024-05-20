@@ -7,8 +7,9 @@ public class EpitaphScreen : IScene {
     Epitaph epitaph;
 
     Sf Surface;
-    public Action<IScene> Go { set; get; } = _ => { };
-    public Action<Sf> Draw { set; get; } = _ => { };
+    public Action<IScene> Go { set; get; }
+    public Action<Sf> Draw { set; get; }
+    public Action<SoundCtx> PlaySound { get; set; }
 
 	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
@@ -121,9 +122,10 @@ public class IntermissionScreen : IScene {
     LiveGame game;
     string desc;
 
-    public Action<IScene> Go { set; get; } = _ => { };
-    public Action<Sf> Draw { get; set; } = _ => { };
-    Sf Surface;
+    public Action<IScene> Go { set; get; }
+    public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Sf Surface;
 
 	public IntermissionScreen(Mainframe playerMain, LiveGame game, string desc) {
         this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height);
@@ -165,12 +167,11 @@ public class IntermissionScreen : IScene {
 }
 
 public class IdentityScreen : IScene {
-    Sf Surface;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Sf Surface;
     Mainframe playerMain;
-
-    public Action<IScene> Go { set; get; } = _ => { };
-    public Action<Sf> Draw { set; get; } = _ => { };
-
 	public IdentityScreen(Mainframe playerMain) {
         this.Surface = new Sf(Program.WIDTH, Program.HEIGHT);
         this.playerMain = playerMain;

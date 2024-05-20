@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.Drawing;
 namespace RogueFrontier;
 public class TitleScreen : IScene {
-    //ConfigPane config;
+    ConfigPane config;
     //LoadPane load;
     //Console credits;
     public Profile profile;
@@ -20,8 +21,9 @@ public class TitleScreen : IScene {
     public XY camera;
     public Dictionary<(int, int), Tile> tiles;
     public byte[] titleMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Title.wav");
-    public Action<IScene> Go { set; get; } = _ => { };
-    public Action<Sf> Draw { set; get; } = _ => { };
+    public Action<IScene> Go { set; get; }
+    public Action<Sf> Draw { set; get; }
+    public Action<SoundCtx> PlaySound { get; set; }
     public int Width => sf.Width;
     public int Height => sf.Height;
 	public Sf sf;
@@ -58,9 +60,9 @@ public class TitleScreen : IScene {
         } else {
             settings = ShipControls.standard;
         }
+        config = new(settings);
+        //load = new(profile);
 #if false
-        config = new(48, 64, settings) { Position = new(0, 30), FontSize = fs };
-        load = new(48, 64, profile) { Position = new(0, 30), FontSize = fs };
         credits = new(48, 64) { Position = new(0, 30), FontSize = fs };
         
         y = 0;
@@ -74,9 +76,19 @@ public class TitleScreen : IScene {
         credits.Children.Add(new Label("Rogue Frontier is an independent project inspired by Transcendence") { Position = new(0, y++) });
         credits.Children.Add(new Label("Transcendence is a trademark of Kronosaur Productions") { Position = new(0, y++) });
 #endif
-    }
+	}
+
+
+
+
 #if false
 
+	public void StartArena () =>
+		Go(new ArenaScreen(this, settings, World) {
+			IsFocused = true,
+			camera = camera,
+			pov = pov
+		});
     private void StartGame() {
         //Tones.pressed.Play();
         SadConsole.Game.Instance.Screen = new TitleSlideIn(this, new PlayerCreator(this, World, settings, StartCrawl)) { IsFocused = true };
@@ -181,10 +193,6 @@ public class TitleScreen : IScene {
         }
     }
 
-    public void StartArena() =>
-        Game.Instance.Screen = new ArenaScreen(this, settings, World) {
-            IsFocused = true, camera = camera, pov = pov
-        };
     private void ClearMenu() {
         foreach (var c in new Console[] { config, load, credits }) {
             Children.Remove(c);
@@ -227,7 +235,7 @@ public class TitleScreen : IScene {
     }
     */
 #endif
-    private void Exit() {
+	private void Exit() {
         Environment.Exit(0);
     }
     public void Update(TimeSpan timeSpan) {
@@ -324,22 +332,22 @@ public class TitleScreen : IScene {
             }
         }
 
+        config.Render(sf);
+
         Draw(sf);
 
     }
-    public void ProcessKeyboard (KB info) {
-        if(info[KC.K] == KS.Pressed) {
+    public void HandleKey (KB info) {
+        if(info.IsPress(KC.K)) {
             if(pov.active) {
                 pov.Destroy(pov);
             }
         }
-        if(info[KC.P] == KS.Pressed) {
-
-        }
+        if (info.IsPress(KC.Enter)) {
+            PlaySound(Tones.pressed);
+            //StartGame();
+		}
 #if false
-        if (info.IsKeyPressed(Enter)) {
-            StartGame();
-        }
         if (info.IsKeyPressed(Escape)) {
             if (Children.Contains(load)) {
                 Children.Remove(load);
@@ -437,4 +445,77 @@ public class TitleScreen : IScene {
                 <Item codename=""item_orator_charm_silence""       count=""1""/>
             </Items>"));
     }
+
+
+
+
+
+	class ConfigPane {
+		ShipControls settings;
+		Control? currentSet;
+		Dictionary<Control, LabelButton> buttons;
+
+        public bool visible;
+		public ConfigPane (ShipControls settings) {
+			this.settings = settings;
+
+			currentSet = null;
+			buttons = new Dictionary<Control, LabelButton>();
+
+			Init();
+		}
+		public void Reset () {
+			Init();
+		}
+		public void Init () {
+			int x = 2;
+			int y = 0;
+
+			var controls = settings.controls;
+			foreach(var control in controls.Keys) {
+				var c = control;
+				string label = GetLabel(c);
+				LabelButton b = null;
+				b = new LabelButton((x, y++), label, () => {
+
+					if(currentSet.HasValue) {
+						ResetLabel(currentSet.Value);
+					}
+
+					currentSet = c;
+					b.text = $"{c,-16} {"[Press Key]",-12}";
+				});
+
+				buttons[control] = b;
+			}
+		}
+		string GetLabel (Control control) => $"{control,-16} {settings.controls[control],-12}";
+		public void ResetLabel (Control k) => buttons[k].text = GetLabel(k);
+		public void HandleKey (KB info) {
+			if(info.IsPress(KC.Escape)) {
+				if(currentSet.HasValue) {
+					ResetLabel(currentSet.Value);
+					currentSet = null;
+				} else {
+				}
+			} else if(info.Press.Any()) {
+				if(currentSet.HasValue) {
+					settings.controls[currentSet.Value] = (KC)info.Press.First();
+					ResetLabel(currentSet.Value);
+					currentSet = null;
+				}
+			}
+		}
+        public void HandleMouse(Hand hand) {
+            
+        }
+        public void Render(Sf on) {
+            if(visible) {
+                foreach(var (_, button) in buttons) {
+                    button.Render(on);
+                }
+            }
+        }
+	}
+
 }

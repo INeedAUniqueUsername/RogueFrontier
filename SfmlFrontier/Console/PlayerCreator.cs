@@ -3,6 +3,7 @@ using SadRogue.Primitives;
 using Label = LibSadConsole.Label;
 using LibSadConsole;
 using LibGamer;
+using LabelButton = LibSadConsole.LabelButton;
 namespace RogueFrontier;
 
 class ShipSelectorModel {
@@ -19,7 +20,12 @@ class ShipSelectorModel {
     public char[,] portrait;
 }
 class PlayerCreator : IScene {
-    private ref System World => ref context.World;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+
+
+	private ref System World => ref context.World;
     private ref List<ShipClass> playable => ref context.playable;
     private ref int index => ref context.shipIndex;
     private ref List<GenomeType> genomes => ref context.genomes;
@@ -197,20 +203,18 @@ class PlayerCreator : IScene {
     public bool showRight => index < playable.Count - 1;
     public bool showLeft => index > 0;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public void HandleKey(KB kb) {
-        if (kb[KC.Right] == KS.Pressed && showRight) {
+        if (kb[KC.Right] == KS.Press && showRight) {
             SelectRight();
         }
-        if (kb[KC.Left] == KS.Pressed && showLeft) {
+        if (kb[KC.Left] == KS.Press && showLeft) {
             SelectLeft();
         }
-        if (kb[KC.Escape] == KS.Pressed) {
+        if (kb[KC.Escape] == KS.Press) {
             Back();
         }
-        if (kb[KC.Enter] == KS.Pressed) {
+        if (kb[KC.Enter] == KS.Press) {
             Start();
         }
     }

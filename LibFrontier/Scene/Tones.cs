@@ -4,11 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using LibGamer;
+using RogueFrontier;
 namespace RogueFrontier;
 public static class Tones {
-	public static SoundDesc pressed = new() {
-		data= File.ReadAllBytes("Assets/sounds/button_press.wav"),
-		volume = 33
-	};
+	public static SoundCtx pressed = new SoundCtx(File.ReadAllBytes("Assets/sounds/button_press.wav"), 33);
 }

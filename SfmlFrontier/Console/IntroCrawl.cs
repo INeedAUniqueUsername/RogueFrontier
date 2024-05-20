@@ -9,7 +9,10 @@ using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace RogueFrontier;
 
 class IntroCrawl : IScene {
-    private readonly TileImage[] images = {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	private readonly TileImage[] images = {
             new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
             new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
         };
@@ -67,8 +70,6 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
 
     Sf sf;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
 
 	public IntroCrawl(int Width, int Height, Func<Console> next) {
         this.sf = new Sf(Width, Height);

@@ -3,9 +3,9 @@ using SadConsole.Input;
 namespace RogueFrontier;
 
 public class ScanTransition : IScene {
-    public Action<Sf> Draw { set; get; }
 	public Action<IScene> Go { get; set; }
-
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
 	IScene next;
     Sf sf;
     public int Width => sf.Width;
