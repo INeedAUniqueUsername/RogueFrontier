@@ -29,7 +29,7 @@ public class Sf {
 	public int Scale { get; }
 	public Tile[] Data;
 
-	public HashSet<(int x, int y)> Active = new();
+	public Dictionary<(int x,int y), Tile> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
@@ -42,48 +42,51 @@ public class Sf {
 	}
 	public uint GetFront (int x, int y) => Data[GetIndex(x, y)].Foreground;
 	public void SetFront (int x, int y, uint color) {
-		
-		ref var t = ref Data[GetIndex(x, y)];
+
+		var i = GetIndex(x, y);
+		ref var t = ref Data[i];
 		if(t.Foreground == color) return;
-		Active.Add((x, y));
 		redraw = true;
 		t = t with { Foreground = color };
+		Active[(x, y)] = t;
 	}
 	public uint GetBack (int x, int y) => Data[GetIndex(x, y)].Background;
 	public void SetBack (int x, int y, uint color) {
-		ref var t = ref Data[GetIndex(x, y)];
+		var i = GetIndex(x, y);
+		ref var t = ref Data[i];
 		if(t.Background == color) return;
-		Active.Add((x, y));
 		redraw = true;
 		t = t with { Background = color };
+		Active[(x, y)] = t;
 	}
 	public uint GetGlyph (int x, int y) => Data[GetIndex(x, y)].Glyph;
 	public void SetGlyph (int x, int y, uint g) {
-		ref var t = ref Data[GetIndex(x, y)];
+		var i = GetIndex(x, y);
+		ref var t = ref Data[i];
 		if(t.Glyph == g) return;
-		Active.Add((x, y));
 		redraw = true;
 		t = t with { Glyph = g };
+		Active[(x, y)] = t;
 	}
 	public Tile GetTile (int x, int y) => Data[GetIndex(x, y)];
 	public void SetTile (int x, int y, Tile g) {
-
-		ref var t = ref Data[GetIndex(x, y)];
+		var i = GetIndex(x, y);
+		ref var t = ref Data[i];
 		if(t == g) return;
-		Active.Add((x, y));
 		redraw = true;
-		Data[GetIndex(x, y)] = g;
-	
-	
+		Data[i] = g;
+		Active[(x, y)] = t;
 	}
 	public void Print (int x, int y, params Tile[] str) {
 		var i = GetIndex(x, y);
 		foreach(var t in str) {
 			Data[i] = t;
+			Active[(i % Width, i / Width)] = t;
 			i++;
 		}
 	}
 	public void Print (int x, int y, string str, uint Front = ABGR.White, uint Back = ABGR.Black) => Print(x, y, LibGamer.Tile.Arr(str,Front, Back));
+	public void Print (int x, int y, char c, uint Front = ABGR.White, uint Back = ABGR.Black) => Print(x, y, $"{c}", Front, Back);
 	public record Grid<T>(Grid<T>.Get get, Grid<T>.Set set) {
 		public delegate T Get(int x, int y);
 		public delegate void Set (int x, int y, T t);

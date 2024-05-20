@@ -51,9 +51,8 @@ public partial class Program : Node{
 				s.Show();
 				return s;
 			});
-			foreach(var p in sf.Active) {
-				var t = sf.Data[sf.GetIndex(p.x, p.y)];
-				c.Print(p.x, p.y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
+			foreach(var ((x,y),t) in sf.Active) {
+				c.Print(x, y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
 			}
 			c.QueueRedraw();
 			return;

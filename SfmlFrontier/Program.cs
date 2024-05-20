@@ -102,9 +102,8 @@ partial class Program {
 		};
 		void Draw(Sf sf) {
             var c = consoles.GetOrAdd(sf, new SadConsole.Console(sf.Width, sf.Height));
-            foreach(var p in sf.Active) {
-                var t = sf.Data[sf.GetIndex(p.x, p.y)];
-				c.SetCellAppearance(p.x, p.y, t.ToCG());
+            foreach(var ((x,y),t) in sf.Active) {
+				c.SetCellAppearance(x, y, t.ToCG());
             }
             c.Render(new TimeSpan());
             return;
