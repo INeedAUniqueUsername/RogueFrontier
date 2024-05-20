@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://d223kywkp7mw4"]
+
+[ext_resource type="Script" path="res://addons/glyphdot/Surface.cs" id="1_e6bi1"]
+
+[node name="Surface" type="Node2D"]
+script = ExtResource("1_e6bi1")
+GridWidth = 96
+GridHeight = 64

@@ -31,7 +31,7 @@ public partial class Game : Node{
 			return w;
 		}
 
-		var surface = GetNode<Surface>("Surface");
+		var surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
 		ConcurrentDictionary<Sf, Surface> surfaces = new();
 
 		Go(new TitleScreen(96, 64, GenerateIntroSystem()));
@@ -50,7 +50,7 @@ public partial class Game : Node{
 
 		void Draw (Sf sf) {
 			var c = surfaces.GetOrAdd(sf, sf => {
-				var s = (Surface)surface.Duplicate();
+				var s = surface.Instantiate<Surface>();
 				AddChild(s);
 				s.Show();
 				return s;
@@ -67,11 +67,11 @@ public partial class Game : Node{
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta) {
 
-		var c = (Surface)GetNode("Surface");
-		c.Print(1, 1, "Hello World");
+		//var c = (Surface)GetNode("Surface");
+		//c.Print(1, 1, "Hello World");
 		current?.Update(TimeSpan.FromSeconds(delta));
 		current?.Render(TimeSpan.FromSeconds(delta));
 
-		c.QueueRedraw();
+		//c.QueueRedraw();
 	}
 }
