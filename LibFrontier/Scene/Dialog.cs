@@ -68,7 +68,7 @@ public interface IScene {
 	public void Update (TimeSpan delta) { }
 	public void Render (TimeSpan delta) { }
 	public void HandleKey (KB kb) { }
-	public void HandleMouse (object mouse) { }
+	public void HandleMouse (Pointer mouse) { }
 }
 public interface IRender {
 	Sf sf { get; }

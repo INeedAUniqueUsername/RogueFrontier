@@ -16,12 +16,9 @@ partial class Program {
     public static string main = ExpectFile("Assets/scripts/Main.xml");
     public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.dat");
     public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.dat");
-    
     static void OutputSchema() {
-
         var d = new Dictionary<Type, XElement>();
         WriteSchema(typeof(ItemType), d);
-
         var module = new XElement("Schema");
         foreach (var (key, value) in d) {
             module.Add(value);

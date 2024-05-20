@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ArchConsole;
+namespace LibSadConsole;
 public enum ButtonStates {
     PrevUp = 1,
     PrevDown = 2,

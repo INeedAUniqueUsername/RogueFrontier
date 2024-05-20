@@ -1,7 +1,7 @@
 ﻿using Common;
 using SadRogue.Primitives;
-using Label = ArchConsole.Label;
-using ArchConsole;
+using Label = LibSadConsole.Label;
+using LibSadConsole;
 using LibGamer;
 namespace RogueFrontier;
 

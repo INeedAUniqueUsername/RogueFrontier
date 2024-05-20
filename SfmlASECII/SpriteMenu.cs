@@ -1,4 +1,4 @@
-﻿using ArchConsole;
+﻿using LibSadConsole;
 using Newtonsoft.Json;
 using SadConsole;
 using SadConsole.Input;
@@ -11,11 +11,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ArchConsole;
 using static SadConsole.Input.Keys;
 using Console = SadConsole.Console;
 using SadConsole.Renderers;
-using Label = ArchConsole.Label;
+using Label = LibSadConsole.Label;
 using LibGamer;
 
 namespace ASECII {

@@ -5,8 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using static Common.Main;
 
-public partial class Game : Node{
-	static Game () {
+public partial class Program : Node{
+	static Program () {
 		HEIGHT = 60;
 		WIDTH = HEIGHT * 5 / 3; //100
 	}
@@ -20,7 +20,6 @@ public partial class Game : Node{
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		RogueFrontier.System GenerateIntroSystem () {
-
 			var a = new Assets();
 			var u = new Universe(a);
 			var w = new RogueFrontier.System(u);
@@ -30,10 +29,8 @@ public partial class Game : Node{
 			}
 			return w;
 		}
-
 		var surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
 		ConcurrentDictionary<Sf, Surface> surfaces = new();
-
 		Go(new TitleScreen(96, 64, GenerateIntroSystem()));
 		void Go (IScene next) {
 			if(current is { } prev) {
@@ -47,7 +44,6 @@ public partial class Game : Node{
 			current.Go += Go;
 			current.Draw += Draw;
 		};
-
 		void Draw (Sf sf) {
 			var c = surfaces.GetOrAdd(sf, sf => {
 				var s = surface.Instantiate<Surface>();
@@ -63,15 +59,12 @@ public partial class Game : Node{
 			return;
 		}
 	}
-
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta) {
-
 		//var c = (Surface)GetNode("Surface");
 		//c.Print(1, 1, "Hello World");
 		current?.Update(TimeSpan.FromSeconds(delta));
 		current?.Render(TimeSpan.FromSeconds(delta));
-
 		//c.QueueRedraw();
 	}
 }

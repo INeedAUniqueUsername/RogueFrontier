@@ -4,7 +4,7 @@ using static SadConsole.Input.Keys;
 using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
-using ArchConsole;
+using LibSadConsole;
 using static RogueFrontier.PlayerShip;
 using SFML.Audio;
 using static Common.ColorCommand;
