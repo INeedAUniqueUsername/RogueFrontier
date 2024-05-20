@@ -19,7 +19,6 @@ public partial class Game : Node{
 	IScene current;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
-		Console.WriteLine("aaaa");
 		RogueFrontier.System GenerateIntroSystem () {
 
 			var a = new Assets();
@@ -53,6 +52,7 @@ public partial class Game : Node{
 			var c = surfaces.GetOrAdd(sf, sf => {
 				var s = (Surface)surface.Duplicate();
 				AddChild(s);
+				s.Show();
 				return s;
 			});
 			foreach(var p in sf.Active) {
