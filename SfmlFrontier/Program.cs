@@ -101,7 +101,10 @@ partial class Program {
             current.PlaySound += PlaySound;
 		};
 		void Draw(Sf sf) {
-            var c = consoles.GetOrAdd(sf, new SadConsole.Console(sf.Width, sf.Height));
+            
+            var c = consoles.GetOrAdd(sf, sf =>
+                new SadConsole.Console(sf.Width, sf.Height) {  Position = new(sf.pos.xi, sf.pos.yi) }
+                );
             foreach(var ((x,y),t) in sf.Active) {
 				c.SetCellAppearance(x, y, t.ToCG());
             }
@@ -116,16 +119,14 @@ partial class Program {
             snd.Play();
         }
         var kb = new KB();
-        var hand = new Hand();
         host.FrameUpdate += (o, gh) => {
 
 			kb.Update([.. gh.Keyboard.KeysDown.Select(k => (KC)k.Key)]);
 			var m = gh.Mouse;
-			hand.Update(new HandState(m.ScreenPosition, m.LeftButtonDown, m.RightButtonDown, m.IsOnScreen));
-
+			
 			current.Update(gh.UpdateFrameDelta);
             current.HandleKey(kb);
-            current.HandleMouse(hand);
+            current.HandleMouse(new HandState(m.ScreenPosition, m.LeftButtonDown, m.RightButtonDown, m.IsOnScreen));
         };
         host.FrameRender += (o, gh) => {
             current.Render(gh.DrawFrameDelta);

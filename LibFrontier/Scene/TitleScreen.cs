@@ -7,6 +7,9 @@ using System;
 using System.Drawing;
 namespace RogueFrontier;
 public class TitleScreen : IScene {
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+	public Action<SoundCtx> PlaySound { get; set; }
 	ConfigPane config;
 	//LoadPane load;
 	//Console credits;
@@ -21,12 +24,10 @@ public class TitleScreen : IScene {
 	public XY camera;
 	public Dictionary<(int, int), Tile> tiles;
 	public byte[] titleMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Title.wav");
-	public Action<IScene> Go { set; get; }
-	public Action<Sf> Draw { set; get; }
-	public Action<SoundCtx> PlaySound { get; set; }
 	public int Width => sf.Width;
 	public int Height => sf.Height;
 	public Sf sf;
+	private List<LabelButton> buttons = [];
 	public TitleScreen(int Width, int Height, System World) {
 		this.sf = new Sf(Width, Height);
 		this.World = World;
@@ -43,17 +44,17 @@ public class TitleScreen : IScene {
 		int y = 9;
 		//var fs = FontSize * 1;
 
-#if false
-		Button("[Enter]   Play Story Mode", StartGame);
-		Button("[Shift-A] Arena Mode", StartArena);
-		Button("[Shift-C] Controls", StartConfig);
-		Button("[Shift-L] Load Game", StartLoad);
-		Button("[Shift-Z] Credits", StartCredits);
+		Button("[Enter]   Play Story Mode", null);
+		Button("[Shift-A] Arena Mode", null);
+		Button("[Shift-C] Controls", null);
+		Button("[Shift-L] Load Game", null);
+		Button("[Shift-Z] Credits", null);
 		Button("[Escape]  Exit", Exit);
-		void Button (string s, Action a)
-			//=> Children.Add(new LabelButton(s, a) { Position = new(x, y++), FontSize = fs });
-			{ return; }
-#endif
+		void Button (string s, Action a) {
+			var b = new LabelButton((x, y++), s, a);
+			b.Draw += sf => Draw?.Invoke(sf);
+			buttons.Add(b);
+		}
 		var f = "Settings.json";
 		if (File.Exists(f)) {
 			settings = SaveGame.Deserialize<ShipControls>(File.ReadAllText(f));
@@ -342,13 +343,27 @@ public class TitleScreen : IScene {
 				x++;
 			}
 			titleY++;
-			
+
 		}
-
 		config.Render(sf);
-
 		Draw(sf);
 
+		buttons.ForEach(b => b.Render());
+
+
+
+	}
+	Hand mouse = new();
+	public void HandleMouse(HandState state) {
+		mouse.Update(state);
+		if(mouse.nowOn) {
+            foreach (var item in buttons){
+				item.HandleMouse(state with {
+					nowOn = item.on.pixelRect.Contains(mouse.nowPos)
+				});
+            }
+        }
+		return;
 	}
 	public void HandleKey (KB info) {
 		if(info.IsPress(KC.K)) {
@@ -525,7 +540,7 @@ public class TitleScreen : IScene {
 		public void Render(Sf on) {
 			if(visible) {
 				foreach(var (_, button) in buttons) {
-					button.Render(on);
+					button.Render();
 				}
 			}
 		}

@@ -22,7 +22,7 @@ namespace LibGamer;
         Outside
     }
 public record HandState((int x, int y) pos, bool leftDown, bool rightDown, bool nowOn);
-public class Hand {
+public record Hand {
     public Hovering mouse;
     public bool nowOn;
     public bool prevOn;

@@ -11,6 +11,8 @@ namespace LibGamer;
 
 
 public class LabelButton {
+	public Action<Sf> Draw { set; get; }
+
 	(int x, int y) pos;
 	public string text {
 		set {
@@ -28,7 +30,9 @@ public class LabelButton {
 
 	Hand mouse;
 	public bool enabled;
-	public LabelButton ((int,int) pos,string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
+	public Sf on;
+	public LabelButton ((int,int) pos, string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
+		on = new Sf(text.Length, 1, 1) { pos = pos };
 		this.pos = pos;
 		this.text = text;
 		this.leftClick = leftClick;
@@ -65,7 +69,7 @@ public class LabelButton {
 			}
 		}
 	}
-	public void Render (Sf on) {
+	public void Render () {
 		uint f, b;
 
 		if(!enabled) {
@@ -77,6 +81,7 @@ public class LabelButton {
 		} else {
 			(f, b) = (ABGR.White, mouse.nowOn ? ABGR.Gray : ABGR.Black);
 		}
-		on.Print(pos.x, pos.y, text, f, b);
+		on.Print(0, 0, text, f, b);
+		Draw?.Invoke(on);
 	}
 }

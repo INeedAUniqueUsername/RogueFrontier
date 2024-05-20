@@ -14,6 +14,10 @@ namespace LibGamer;
 public class Sf {
 	public bool redraw = false;
 	public XY pos = (0, 0);
+
+	public int fontWidth = 8;
+	public Rect pixelRect => new Rect(fontWidth * pos.xi, fontWidth * pos.yi, fontWidth * Width, fontWidth * Height);
+
 	public Sf(int Width, int Height, int Scale = 1) {
 		this.Width = Width;
 		this.Height = Height;

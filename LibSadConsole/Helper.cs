@@ -16,15 +16,16 @@ namespace Common;
 
 public static class SConsole {
 
-	public static void MakeFont(this Tf tf) {
-
+	public static SadFont MakeFont(this Tf tf) {
 		var t = GameHost.Instance.GetTexture(tf.path);
-		GameHost.Instance.Fonts[tf.path] = new SadFont(
+		var sf = new SadFont(
 			tf.GlyphWidth, tf.GlyphHeight,
 			0,
 			t.Height / tf.GlyphHeight, t.Width / tf.GlyphWidth,
 			0, t, tf.path
 			);
+		GameHost.Instance.Fonts[tf.path] = sf;
+		return sf;
 	}
 
 	public static bool AreKeysPressed (this Keyboard keyboard, params Keys[] keys) =>
