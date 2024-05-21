@@ -9,8 +9,10 @@ using LibGamer;
 namespace LibGamer;
 
 
+interface IControl {
 
-public class LabelButton {
+}
+public class SfButton {
 	public Action<Sf> Draw { set; get; }
 
 	(int x, int y) pos;
@@ -23,15 +25,13 @@ public class LabelButton {
 	private string _text;
 	public Action leftClick;
 	public Action rightClick;
-
-
 	public Action leftHold;
 	public Action rightHold;
 
 	Hand mouse;
 	public bool enabled;
 	public Sf on;
-	public LabelButton ((int,int) pos, string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
+	public SfButton ((int,int) pos, string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
 		on = new Sf(text.Length, 1, 1) { pos = pos };
 		this.pos = pos;
 		this.text = text;
@@ -41,14 +41,14 @@ public class LabelButton {
 		this.enabled = enabled;
 	}
 	public void HandleMouse (HandState state) {
-		mouse.Update(state);
+		mouse.Update(state.OnRect(on.rect));
 		if(!enabled) {
 			return;
 		}
 		if(!mouse.nowOn) {
 			return;
 		}
-		if(mouse.leftPressOnScreen) {
+		if(mouse.leftPress.on) {
 			switch(mouse.left) {
 				case Pressing.Released:
 					leftClick?.Invoke();
@@ -58,7 +58,7 @@ public class LabelButton {
 					break;
 			}
 		}
-		if(mouse.rightPressOnScreen) {
+		if(mouse.rightPress.on) {
 			switch(mouse.right) {
 				case Pressing.Released:
 					rightClick?.Invoke();
@@ -75,8 +75,8 @@ public class LabelButton {
 		if(!enabled) {
 			(f, b) = (ABGR.Gray, ABGR.Black);
 		} else if(mouse.nowOn &&
-			((mouse.nowLeft && mouse.leftPressOnScreen)
-			|| (mouse.nowRight && mouse.rightPressOnScreen))) {
+			((mouse.nowLeft && mouse.leftPress.on)
+			|| (mouse.nowRight && mouse.leftPress.on))) {
 			(f, b) = (ABGR.Black, ABGR.White);
 		} else {
 			(f, b) = (ABGR.White, mouse.nowOn ? ABGR.Gray : ABGR.Black);

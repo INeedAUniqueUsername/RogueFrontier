@@ -17,57 +17,70 @@ namespace LibGamer;
     }
     public enum Hovering {
         Enter,
-        Hover,
+        On,
         Exit,
-        Outside
+        Off
     }
-public record HandState((int x, int y) pos, int wheelValue, bool leftDown, bool middleDown, bool rightDown, bool nowOn) {
-    public HandState OnRect (Rect r) => this with { pos = (pos.x - r.x, pos.y - r.y), nowOn = r.Contains(pos) };
+public record HandState((int x, int y) pos, int wheelValue, bool leftDown, bool middleDown, bool rightDown, bool on) {
+
+    public HandState OnRect (Rect r) => this with { pos = (pos.x - r.x, pos.y - r.y), on = r.Contains(pos) };
 }
 public record Hand {
-    public Hovering mouse;
-    public bool nowOn;
-    public bool prevOn;
-    public Pressing left;
-    public Pressing right;
-    public bool leftPressOnScreen;
-    public bool rightPressOnScreen;
-    public (int x, int y) leftPressPos;
-    public (int x, int y) rightPressPos;
-    public (int x, int y) prevPos;
-    public (int x, int y) nowPos;
+    public Hovering mouse => (prevOn, nowOn) switch {
+        (true, true) => Hovering.On,
+        (true, false) => Hovering.Exit,
+        (false, true) => Hovering.Enter,
+        (false, false) => Hovering.Off,
+    };
+    public Pressing left => (prevLeft, nowLeft) switch {
+		(true, true) => Pressing.Down,
+		(true, false) => Pressing.Released,
+		(false, true) => Pressing.Pressed,
+		(false, false) => Pressing.Up
+	};
+
+	public Pressing middle => (prevMiddle, nowMiddle) switch {
+		(true, true) => Pressing.Down,
+		(true, false) => Pressing.Released,
+		(false, true) => Pressing.Pressed,
+		(false, false) => Pressing.Up
+	};
+	public Pressing right => (prevRight, nowRight) switch {
+        (true, true) => Pressing.Down,
+        (true, false) => Pressing.Released,
+        (false, true) => Pressing.Pressed,
+        (false, false) => Pressing.Up
+    };
+
+	public bool nowOn => now.on;
+	public bool prevOn => prev.on;
+
+    public record Press((int x, int y) pos, bool on);
+
+	public Press leftPress = new Press((0,0), false);
+    public Press rightPress = new Press((0, 0), false);
+    public (int x, int y) prevPos => prev.pos;
+    public (int x, int y) nowPos => now.pos;
     public (int x, int y) deltaPos => (nowPos.x - prevPos.x, nowPos.y - prevPos.y);
-    public bool prevLeft;
-    public bool prevWheel;
-    public bool prevRight;
-    public bool nowLeft;
-    public bool nowMiddle;
-    public bool nowRight;
+    public bool prevLeft => prev.leftDown;
+    public bool prevMiddle => prev.middleDown;
+    public bool prevRight => prev.rightDown;
+    public bool nowLeft => now.leftDown;
+    public bool nowMiddle => now.middleDown;
+    public bool nowRight => now.rightDown;
 
-    public int MouseWheelScroll;
+    public int deltaWheel => now.wheelValue - prev.wheelValue;
+
+	private HandState prev = new HandState((0,0), 0, false, false, false, false);
+	private HandState now = new HandState((0, 0), 0, false, false, false, false);
     public void Update (HandState state) {
-		prevPos = nowPos;
-		nowPos = state.pos;
-
-		prevLeft = nowLeft;
-		prevRight = nowRight;
-		nowLeft = state.leftDown;
-		nowRight = state.rightDown;
-
-		prevOn = nowOn;
-        nowOn = state.nowOn;
-        mouse = !prevOn ? (nowOn ? Hovering.Enter : Hovering.Outside) : (nowOn ? Hovering.Hover : Hovering.Exit);
-
-
-        left = !prevLeft ? (!nowLeft ? Pressing.Up : Pressing.Pressed) : (nowLeft ? Pressing.Down : Pressing.Released);
-        right = !prevRight ? (!nowRight ? Pressing.Up : Pressing.Pressed) : (nowRight ? Pressing.Down : Pressing.Released);
+        prev = now;
+        now = state;
         if(left == Pressing.Pressed) {
-            leftPressOnScreen = state.nowOn;
-            leftPressPos = state.pos;
+            leftPress = new(state.pos, state.on);
         }
         if(right == Pressing.Pressed) {
-            rightPressOnScreen = state.nowOn;
-            rightPressPos = state.pos;
-        }
+			leftPress = new(state.pos, state.on);
+		}
     }
 }

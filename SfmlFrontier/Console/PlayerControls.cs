@@ -138,7 +138,7 @@ public class PlayerControls {
             if (pw?.Surface.IsVisible == true) {
                 pw.Surface.IsVisible = false;
             } else {
-                playerMain.pauseScreen.IsVisible = true;
+                playerMain.pauseScreen.visible = true;
             }
         }
         if (input.InvokePowers && pw != null) {
@@ -153,7 +153,7 @@ public class PlayerControls {
         }
         if (input.NetworkMap && playerMain.networkMap is {} nm) {
             playerMain.audio.button_press.Play();
-            nm.IsVisible = !nm.IsVisible;
+            nm.visible = !nm.visible;
         }
         if(keys?[B] == KS.Press) {
             playerMain.audio.button_press.Play();

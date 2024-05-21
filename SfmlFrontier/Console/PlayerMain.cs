@@ -34,7 +34,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var (p, d, w) = ev;
         OnPlayerDestroyed($"Destroyed by {d?.name ?? "unknown forces"}", w);
     }
-
     public ShipControls Settings;
     public Sf sf;
     public int Width => sf.Width;
@@ -47,7 +46,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public PlayerControls playerControls;
     public Noisemaker audio;
     public XY mouseWorldPos;
-    MouseScreenObjectState prevMouse=new(null, new());
     public bool sleepMouse = true;
     public BackdropConsole back;
     public Viewport viewport;
@@ -71,6 +69,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Sound music;
     public System silenceSystem;
     public Monitor monitor;
+    public Hand mouse = new();
+
 
     public IScene dialog;
     private void SetDialog(IScene dialog) {
@@ -564,6 +564,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         }
     }
     public void HandleMouse(HandState state) {
+        mouse.Update(state);
         if (pauseScreen.visible) {
             pauseScreen.HandleMouse(state);
         } else if (networkMap.visible) {
@@ -571,12 +572,11 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         } else if (dialog != null) {
             dialog.HandleMouse(state);
         } else if (powerWidget.Surface.IsVisible
-            && powerWidget.blockMouse
-            && new MouseScreenObjectState(powerWidget.Surface, state.Mouse).IsOnScreenObject) {
+            && powerWidget.blockMouse) {
             powerWidget.HandleMouse(state);
-        } else if (state.nowOn) {
+        } else if (state.on) {
             if(sleepMouse) {
-                sleepMouse = state.pos.Equals(prevMouse.SurfacePixelPosition);
+				sleepMouse = mouse.nowPos == mouse.prevPos;
             }
             //bool moved = mouseScreenPos != state.SurfaceCellPosition;
             //var mouseScreenPos = state.SurfaceCellPosition;
@@ -584,14 +584,14 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             
             //(var a, var b) = (state.SurfaceCellPosition, state.SurfacePixelPosition);
             //Placeholder for mouse wheel-based weapon selection
-            if (state.ScrollWheelValueChange > 0) {
+            if (mouse.deltaWheel > 0) {
                 if (playerControls.input.Shift) {
                     playerShip.NextSecondary();
                 } else {
                     playerShip.NextPrimary();
                 }
                 playerControls.input.UsingMouse = true;
-            } else if (state.ScrollWheelValueChange < 0) {
+            } else if (mouse.deltaWheel < 0) {
                 if (playerControls.input.Shift) {
                     playerShip.PrevSecondary();
                 } else {
@@ -605,9 +605,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             centerOffset *= uiMegamap.viewScale;
             mouseWorldPos = (centerOffset.Rotate(camera.rotation) + camera.position);
             ActiveObject t;
-            if (state.Mouse.MiddleClicked && !playerControls.input.Shift) {
+            if (mouse.middle == Pressing.Pressed && !playerControls.input.Shift) {
                 TargetMouse();
-            } else if(state.Mouse.MiddleButtonDown && playerControls.input.Shift) {
+            } else if(state.middleDown && playerControls.input.Shift) {
                 playerControls.input.FirePrimary = true;
                 playerControls.input.FireSecondary = true;
                 playerControls.input.UsingMouse = true;
@@ -2336,6 +2336,9 @@ public class PowerWidget {
             //Hide menu
             //IsVisible = false;
         }
+    }
+    public void HandleMouse(HandState state) {
+
     }
     public void Render(TimeSpan delta) {
         int x = 0;

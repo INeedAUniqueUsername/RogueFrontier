@@ -25,7 +25,8 @@ public class PauseScreen : IScene {
         this.sparkle = new SparkleFilter(Width, Height);
         int x = 2;
         int y = 2;
-        var fs = sf.FontSize * 3;
+        var fs = sf.Scale * 3;
+#if false
         Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
         y++;
         Surface.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
@@ -39,6 +40,7 @@ public class PauseScreen : IScene {
         Surface.Children.Add(new LabelButton("Self Destruct", SelfDestruct) { Position = new Point(x, y++), FontSize = fs });
         y++;
         Surface.Children.Add(new LabelButton("Delete & Quit", DeleteQuit) { Position = new Point(x, y++), FontSize = fs });
+#endif
     }
     public void Update(TimeSpan delta) {
         sparkle.Update();
@@ -46,7 +48,7 @@ public class PauseScreen : IScene {
     public void Render(TimeSpan delta) {
         sf.Clear();
 
-        var c = new ConsoleComposite();//(playerMain.back.Surface, playerMain.viewport.sf);
+        var c = new SfList();//(playerMain.back.Surface, playerMain.viewport.sf);
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 var source = c[x, y];

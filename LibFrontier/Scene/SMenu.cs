@@ -1548,11 +1548,11 @@ public class ScrollBar {
     bool mouseOnBar;
     bool clickOnBar;
     int prevClick = 0;
-    public void ProcessMouse(Hand state) {
-        if (state.nowOn) {
+    public void ProcessMouse(HandState state) {
+        if (state.on) {
             var (barStart, barEnd) = GetBarRange();
-            var y = state.nowPos.y;
-            if (state.nowLeft) {
+            var y = state.pos.y;
+            if (state.leftDown) {
 
                 if (clickOnBar) {
                     int delta = y - prevClick;
@@ -1575,8 +1575,8 @@ public class ScrollBar {
                 clickOnBar = false;
             }
         } else {
-            if(clickOnBar && state.nowLeft) {
-                var y = state.nowPos.y;
+            if(clickOnBar && state.leftDown) {
+                var y = state.pos.y;
                 int delta = y - prevClick;
                 Scroll(delta);
 
@@ -1585,8 +1585,8 @@ public class ScrollBar {
                 mouseOnBar = clickOnBar = false;
             }
 
-            if(state.MouseWheelScroll != 0) {
-                Scroll(state.MouseWheelScroll);
+            if(state.wheelValue != 0) {
+                Scroll(state.wheelValue);
             }
         }
     }

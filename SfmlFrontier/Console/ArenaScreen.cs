@@ -507,9 +507,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
             mainframe.HandleMouse(state);
             return;
         }
-
-        mouse.Update(state);
-        mouse.nowPos = (mouse.nowPos.x, Height - mouse.nowPos.y);
+        mouse.Update(state with { pos = (state.pos.x, Height - state.pos.y) });
         if (mouse.left == Pressing.Down) {
             camera += (XY)mouse.prevPos - (XY)mouse.nowPos;
         }

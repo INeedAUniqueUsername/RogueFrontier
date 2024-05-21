@@ -62,8 +62,7 @@ public class GalaxyMap {
         }
     }
     public void HandleMouse(HandState state) {
-        mouse.Update(state);
-        mouse.nowPos = new Point(mouse.nowPos.x, Height - mouse.nowPos.y);
+        mouse.Update(state with { pos = (mouse.nowPos.x, Height - mouse.nowPos.y) });
         if (mouse.left == Pressing.Down) {
             camera += (XY)mouse.prevPos - (XY)mouse.nowPos;
         }

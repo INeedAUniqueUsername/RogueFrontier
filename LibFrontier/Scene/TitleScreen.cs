@@ -27,7 +27,7 @@ public class TitleScreen : IScene {
 	public int Width => sf.Width;
 	public int Height => sf.Height;
 	public Sf sf;
-	private List<LabelButton> buttons = [];
+	private List<SfButton> buttons = [];
 	public TitleScreen(int Width, int Height, System World) {
 		this.sf = new Sf(Width, Height);
 		this.World = World;
@@ -51,7 +51,7 @@ public class TitleScreen : IScene {
 		Button("[Shift-Z] Credits", null);
 		Button("[Escape]  Exit", Exit);
 		void Button (string s, Action a) {
-			var b = new LabelButton((x, y++), s, a);
+			var b = new SfButton((x, y++), s, a);
 			b.Draw += sf => Draw?.Invoke(sf);
 			buttons.Add(b);
 		}
@@ -297,14 +297,10 @@ public class TitleScreen : IScene {
 		if (true) {
 			int descX = Width / 2;
 			int descY = Height * 3 / 4;
-
-
 			bool indent = false;
 			foreach (var line in povDesc) {
 				line.Update(drawTime.TotalSeconds);
-
 				var lineX = descX + (indent ? 8 : 0);
-
 				sf.Print(lineX, descY, line.Draw());
 				indent = true;
 				descY++;
@@ -320,12 +316,11 @@ public class TitleScreen : IScene {
 						if (ABGR.A(tile.Background) < 255) {
 							tile = tile with { Background = ABGR.Blend(World.backdrop.GetBackground(location, camera), tile.Background) };
 						}
-						sf.SetTile(x, y, tile);
 					} else {
-						sf.SetTile(x, y, World.backdrop.GetTile(location, camera));
+						tile = World.backdrop.GetTile(location, camera);
 					}
+					sf.SetTile(x, y, tile);
 				} else {
-
 					sf.SetBack(x, y, World.backdrop.GetBackground(location, camera));
 				}
 			}
@@ -349,18 +344,13 @@ public class TitleScreen : IScene {
 		Draw(sf);
 
 		buttons.ForEach(b => b.Render());
-
-
-
 	}
 	Hand mouse = new();
 	public void HandleMouse(HandState state) {
-		mouse.Update(state);
+		mouse.Update(state.OnRect(sf.rect));
 		if(mouse.nowOn) {
             foreach (var item in buttons){
-				item.HandleMouse(state with {
-					nowOn = item.on.pixelRect.Contains(mouse.nowPos)
-				});
+				item.HandleMouse(state);
             }
         }
 		return;
@@ -481,14 +471,14 @@ public class TitleScreen : IScene {
 	class ConfigPane {
 		ShipControls settings;
 		Control? currentSet;
-		Dictionary<Control, LabelButton> buttons;
+		Dictionary<Control, SfButton> buttons;
 
 		public bool visible;
 		public ConfigPane (ShipControls settings) {
 			this.settings = settings;
 
 			currentSet = null;
-			buttons = new Dictionary<Control, LabelButton>();
+			buttons = new Dictionary<Control, SfButton>();
 
 			Init();
 		}
@@ -503,8 +493,8 @@ public class TitleScreen : IScene {
 			foreach(var control in controls.Keys) {
 				var c = control;
 				string label = GetLabel(c);
-				LabelButton b = null;
-				b = new LabelButton((x, y++), label, () => {
+				SfButton b = null;
+				b = new SfButton((x, y++), label, () => {
 
 					if(currentSet.HasValue) {
 						ResetLabel(currentSet.Value);
@@ -534,7 +524,7 @@ public class TitleScreen : IScene {
 				}
 			}
 		}
-		public void HandleMouse(Hand hand) {
+		public void HandleMouse(HandState state) {
 			
 		}
 		public void Render(Sf on) {

@@ -120,9 +120,46 @@ public record ABGR(uint packed) {
 	}
 
 	public static uint SetLightness (uint c, float brightness) =>
-		ABGR.FromHSL(c.GetHue(), c.GetSaturation(), brightness);
+		FromHSL(H(c), S(c), brightness);
 
+	public static float H (uint c) {
+		int r = R(c);
+		int g = G(c);
+		int b = B(c);
+		if(r == g && g == b) {
+			return 0f;
+		}
 
+		var min = Enumerable.Min<int>([r, g, b]);
+		var max = Enumerable.Max<int>([r, g, b]);
+
+		float num = max - min;
+		float num2 = ((r == max) ? ((float)(g - b) / num) : ((g != max) ? ((float)(r - g) / num + 4f) : ((float)(b - r) / num + 2f)));
+		num2 *= 60f;
+		if(num2 < 0f) {
+			num2 += 360f;
+		}
+
+		return num2;
+	}
+	public static float S(uint c) {
+
+		int r = R(c);
+		int g = G(c);
+		int b = B(c);
+		if(r == g && g == b) {
+			return 0f;
+		}
+
+		var min = Enumerable.Min<int>([r, g, b]);
+		var max = Enumerable.Max<int>([r, g, b]);
+
+		int num = max + min;
+		if(num > 255) {
+			num = 510 - max - min;
+		}
+		return (float)(max - min) / (float)num;
+	}
 
 
 	public static uint ToGray (uint c) => FromHSL(0, 0, GetLightness(c));
