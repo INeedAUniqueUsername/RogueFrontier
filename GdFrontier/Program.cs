@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using static Common.Main;
 
 public partial class Program : Node{
@@ -38,6 +39,7 @@ public partial class Program : Node{
 		}
 		var surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
 		ConcurrentDictionary<Sf, Surface> surfaces = new();
+		ConcurrentDictionary<Tf, SurfaceFont> fonts = [];
 		Go(new TitleScreen(96, 64, GenerateIntroSystem()));
 		void Go (IScene next) {
 			if(current is { } prev) {
@@ -51,18 +53,39 @@ public partial class Program : Node{
 			current.Go += Go;
 			current.Draw += Draw;
 		};
+
 		void Draw (Sf sf) {
 			var c = surfaces.GetOrAdd(sf, sf => {
 				var s = surface.Instantiate<Surface>();
 				AddChild(s);
 				s.Show();
+
+				var pos = sf.pos * sf.font.GlyphSize;
+				s.Position = new Vector2(pos.xf, pos.yf);
+
+				s.font = fonts.GetOrAdd(sf.font, f => {
+
+					var i = Image.Create(f.Width, f.Height, false, Image.Format.Rgba8);
+					i.LoadPngFromBuffer(f.data);
+					return new SurfaceFont() {
+						GlyphWidth = f.GlyphWidth,
+						GlyphHeight = f.GlyphHeight,
+						GlyphPadding = 0,
+						SolidGlyphIndex = f.solidGlyphIndex,
+						Columns = f.cols,
+						Texture = ImageTexture.CreateFromImage(i)
+					};
+
+				});
+				
 				return s;
 			});
 			c.Clear();
 			foreach(var ((x,y),t) in sf.Active) {
 				c.Print(x, y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
 			}
-			c.QueueRedraw();
+			c.Show();
+			//c.QueueRedraw();
 			return;
 		}
 	}
@@ -79,8 +102,10 @@ public partial class Program : Node{
 		current?.HandleKey(kb);
 		current?.HandleMouse(hand);
 
+		foreach(Node2D c in GetChildren().OfType<Node2D>()) {
+			c.Hide();
+		}
 		current?.Render(TimeSpan.FromSeconds(delta));
-		//c.QueueRedraw();
 	}
 
 	public override void _Input (InputEvent ev) {

@@ -140,13 +140,13 @@
 				damageHP=		"1d8"
 				
 				lifetime=		"40"
-				glyph=			"*"
+				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
 				<Decay lifetime="10" damageRate="1/60" degradeFactor="2.5"/>
 				<Trail
 					lifetime=	"10"
-					glyph=		"*"
+					glyph=		"\7"
 					foreground=	"FF55FFFF"
 					background=	"BB77DDFF"/>
 			</Projectile>
@@ -160,7 +160,7 @@
 				
 			attributes= "Amethyst"
 
-			desc=		"The second-generation Amethyst laser cannon features improved damage output. Its internal specifications are protected behind several layers of legal fees."
+			desc=		"The second-generation Amethyst laser cannon features improved damage output. Its internal specifications are protected by lawyers."
 		>
 		<Weapon
 			initialCharges=	"1800"
@@ -205,13 +205,13 @@
 				damageHP=		"2d8"
 				
 				lifetime=		"40"
-				glyph=			"*"
+				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
 				<Decay lifetime="20" damageRate="2/60" degradeFactor="2.5"/>
 				<Trail
 					lifetime=	"10"
-					glyph=		"*"
+					glyph=		"\7"
 					foreground=	"FF55FFFF"
 					background=	"BB77DDFF"/>
 			</Projectile>

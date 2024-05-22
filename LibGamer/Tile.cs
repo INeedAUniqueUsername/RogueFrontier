@@ -419,12 +419,21 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
 	public static Tile[] Arr (string str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => [.. str.Select(c => new Tile(Foreground, Background, c))];
 	public static IEnumerable<Tile> WithA (IEnumerable<Tile> str, byte front, byte back) =>
-		str.Select(t => t with { Foreground = front, Background = back });
+		from t in str select t with {
+			Foreground = ABGR.SetA(t.Foreground, front),
+			Background = ABGR.SetA(t.Background, back)
+		};
 	public Tile PremultiplySet (byte alpha) {
 		if(alpha == 255) {
 			return this;
 		}
 		return new(ABGR.PremultiplySet(Foreground, alpha), ABGR.PremultiplySet(Background, alpha), Glyph);
+	}
+	public Tile SetA (byte alpha) {
+		if(alpha == 255) {
+			return this;
+		}
+		return new(ABGR.SetA(Foreground, alpha), ABGR.SetA(Background, alpha), Glyph);
 	}
 	public bool IsVisible => Glyph != ' ' || Background != ABGR.Transparent;
 }

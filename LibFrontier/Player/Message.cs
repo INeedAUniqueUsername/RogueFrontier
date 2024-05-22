@@ -80,7 +80,7 @@ public class Message : IPlayerMessage {
         var result = Tile.WithA(message[0..(int)Math.Min(index, message.Length)], a, a);
         if (flash > 0) {
             byte value = 255;
-            result = result.Select(t => t with { Background = ABGR.RGB(value, 0, 0) });
+            result = result.Select(t => t with { Background = ABGR.RGB(value, 0, 0) }).ToList();
         }
         return [..result];
     }

@@ -442,9 +442,9 @@ public record SystemStar() : SystemElement {
             }
         }
         */
-        var rectSize = radius * 16;
+        var rectSize = radius * 24;
         var p = lc.pos;
-		lc.world.backdrop.starlight.AddLayer(0, new GeneratedGrid<uint>(new LightGenerator(lc, radius)), new(p.xi, p.yi, rectSize, rectSize));
+		lc.world.backdrop.starlight.AddLayer(0, new GeneratedGrid<uint>(new LightGenerator(lc, radius)), new(p.xi - rectSize, p.yi - rectSize, rectSize * 2, rectSize * 2));
         lc.world.stars.Add(new Star(lc.pos, radius));
     }
 }

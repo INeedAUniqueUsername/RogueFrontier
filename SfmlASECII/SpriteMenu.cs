@@ -17,6 +17,7 @@ using SadConsole.Renderers;
 using Label = LibSadConsole.Label;
 using LabelButton = LibSadConsole.LabelButton;
 using LibGamer;
+using static SFML.Graphics.Font;
 
 namespace ASECII {
     class EditorMain : SadConsole.Console {
@@ -1275,7 +1276,11 @@ namespace ASECII {
                     keyboard.ProcessKeyboard(info);
                 }
             } else {
-                if (info.IsKeyPressed(Escape)) {
+                if(mode == Mode.Brush) {
+					brush.ProcessKeyboard(info);
+				}
+
+				if (info.IsKeyPressed(Escape)) {
                     switch (mode) {
                         case Mode.Read:
                             //Not supposed to happen since we exit
@@ -1711,7 +1716,25 @@ namespace ASECII {
 
             filter = new GlyphScramble(model, this);
         }
+        public void ProcessKeyboard(Keyboard info) {
+			if(info.IsKeyPressed(Right)) {
+                model.brush.glyph++;
+				model.brushChanged?.Invoke();
+			}
+			if(info.IsKeyPressed(Left)) {
+				model.brush.glyph--;
+                model.brushChanged?.Invoke();
+			}
+			if(info.IsKeyPressed(Up)) {
+				model.brush.glyph -= 16;
+				model.brushChanged?.Invoke();
 
+			}
+			if(info.IsKeyPressed(Down)) {
+				model.brush.glyph += 16;
+				model.brushChanged?.Invoke();
+			}
+		}
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver) {
             mouse ??= new MouseWatch();
             mouse.Update(state, IsMouseOver);

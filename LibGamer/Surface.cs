@@ -116,4 +116,9 @@ public class Sf {
 	}
 }
 
-public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {}
+public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
+	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
+
+	public int Width => GlyphWidth * cols;
+	public int Height=>GlyphHeight * rows;
+}

@@ -77,6 +77,6 @@ public class WreckScene : IScene {
         var f = ABGR.White;
         var b = ABGR.Black;
         sf.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
 }

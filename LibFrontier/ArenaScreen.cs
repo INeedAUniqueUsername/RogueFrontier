@@ -126,6 +126,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 								station.weapons.AddRange(devices.Select(d => new Item(d.source).weapon).Where(d => d != null));
 							}
 
+
 							World.AddEntity(station);
 							station.CreateSatellites(new() { pos = camera, focus=camera, world=World });
 							station.CreateSegments();

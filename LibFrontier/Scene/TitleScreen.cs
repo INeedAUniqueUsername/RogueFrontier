@@ -357,6 +357,27 @@ public class TitleScreen : IScene {
 			PlaySound(Tones.pressed);
 			//StartGame();
 		}
+
+		if(info.IsDown(KC.LeftShift)) {
+			if(info.IsPress(KC.A)) {
+				StartArena();
+			}
+			if(info.IsPress(KC.C)) {
+				//StartConfig();
+			}
+			if(info.IsPress(KC.L)) {
+				//StartLoad();
+			}
+			if(info.IsPress(KC.P)) {
+				//StartProfile();
+			}
+			if(info.IsPress(KC.Z)) {
+				//StartCredits();
+			}
+			if(info.IsPress(KC.G)) {
+				//QuickStart();
+			}
+		}
 #if false
 		if (info.IsKeyPressed(Escape)) {
 			if (Children.Contains(load)) {
@@ -365,26 +386,6 @@ public class TitleScreen : IScene {
 				Children.Remove(config);
 			} else {
 				Program.StartRegular();
-			}
-		}
-		if (info.IsKeyDown(LeftShift)) {
-			if (info.IsKeyPressed(A)) {
-				StartArena();
-			}
-			if (info.IsKeyPressed(C)) {
-				StartConfig();
-			}
-			if (info.IsKeyPressed(L)) {
-				StartLoad();
-			}
-			if (info.IsKeyPressed(P)) {
-				StartProfile();
-			}
-			if (info.IsKeyPressed(Z)) {
-				StartCredits();
-			}
-			if (info.IsKeyPressed(G)) {
-				QuickStart();
 			}
 		}
 #endif

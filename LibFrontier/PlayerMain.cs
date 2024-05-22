@@ -488,7 +488,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
                     uiMain.Render(delta);       Draw(uiMain.sf);
                     uiEdge.Render(delta);       Draw(uiEdge.sf);
-                    //uiMinimap.Render(delta);    Draw(uiMinimap.sf);
+                    uiMinimap.Render(delta);    Draw(uiMinimap.sf);
                 } else {
                     uiMegamap.Render(delta);    Draw(uiMegamap.sf);
                     vignette.Render(delta);     Draw(vignette.sf);
@@ -788,7 +788,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     }
     public void PlayDocking(bool start) {
         dock.data = (start ? dock_start : dock_end);
-        PlaySound(dock);
+        PlaySound?.Invoke(dock);
     }
     double time;
     public void Update(double delta) {
@@ -2026,14 +2026,14 @@ public class Minimap {
     public byte alpha;
     List<(int x, int y)> area = new();
     public Sf sf;
-	int Width,Height;
+    int Width => sf.Width;
+    int Height=>sf.Height;
 	XY screenSize, screenCenter;
     public Minimap(Monitor m) {
-        this.sf = new Sf(m.Width, m.Height, Fonts.FONT_8x8);
         this.player = m.playerShip;
-        this.size = 48;
-        this.camera = m.camera;
-        Width = sf.Width; Height = sf.Height;
+        this.size = 16;
+		this.sf = new Sf(size, size, Fonts.FONT_8x8) { pos = (m.Width - 16 - 3, 3) };
+		this.camera = m.camera;
 		screenSize = new(Width, Height);
         screenCenter = screenSize / 2;
 
@@ -2058,28 +2058,27 @@ public class Minimap {
             ent => ent is { tile:not null } and not ISegment && player.GetVisibleDistanceLeft(ent) is var dist && dist > 0 ? (ent, dist) : null
         );
 
-        var b = ABGR.RGBA(102, 102, 102, 153);
+        var b = ABGR.RGBA(102, 102, 102, (byte)((153 * alpha) / 255));
+        uint f;
+        char g;
         foreach(var(x, y) in area) {
             if (scaledEntities.TryGetValue((x, y), out var entities)) {
                 (var entity, var distance) = entities[(int)time % entities.Count()].Value;
 
-                var g = entity.tile.Glyph;
-                var f = entity.tile.Foreground;
+                g = (char)entity.tile.Glyph;
+                f = entity.tile.Foreground;
 
                 const double threshold = 16;
                 if (distance < threshold) {
                     f = ABGR.SetA(f, (byte)(255 * distance / threshold));
                 }
-
-                sf.Tile[x, y] = new Tile(f, b, g).PremultiplySet(alpha);
             } else {
-                var foreground = ABGR.SetA(ABGR.White, (byte)(51 + ((x + y) % 2 == 0 ? 0 : 12)));
-                sf.Tile[x, y] =
-                    new Tile(foreground, b, '#')
-                        .PremultiplySet(alpha);
-
-            }
-        }
+                f = ABGR.SetA(ABGR.White, (byte)(51 + ((x + y) % 2 == 0 ? 0 : 12)));
+                g = '#';
+			}
+            f = ABGR.SetA(f, (byte)((ABGR.A(f) * alpha) / 255));
+			sf.Tile[x, y] = new Tile(f, b, g);
+		}
         Draw?.Invoke(sf);
     }
 }
