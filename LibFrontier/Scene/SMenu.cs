@@ -77,10 +77,39 @@ public static partial class SMenu {
 				yield return $"{sw}{new string(hori, dx - 2)}{se}";
 			}
 		}
+        
 		int y = yStart;
-		foreach(var line in GetLines()) {
-			surf.Print(xStart, y++, Tile.Arr(line, op.f, op.b));
+		/* */
+        foreach(var line in GetLines()) {
+			int x = xStart;
+			foreach(var c in line) {
+
+                var b = surf.Back[x, y];
+
+				surf.Print(x, y, new Tile(op.f, ABGR.Blend(b, op.b), c));
+				x++;
+			}
+			y++;
 		}
+        /* */
+        /* 
+		if(ABGR.A(op.b) == 0) {
+			foreach(var line in GetLines()) {
+                int x = xStart;
+                foreach(var c in line) {
+                    if(c != ' ') {
+						surf.Print(x, y, new Tile(op.f, op.b, c));
+					}
+                    x++;
+                }
+				y++;
+			}
+		} else {
+			foreach(var line in GetLines()) {
+				surf.Print(xStart, y++, Tile.Arr(line, op.f, op.b));
+			}
+		}
+        /* */
 	}
 
 

@@ -8,7 +8,7 @@
 
 		behavior=	"none"
 
-		structure=	"Assets/sprites/CamperOutpost.dat"
+		structure=	"station_camper_outpost.dat"
 		>
 
 		<HP	maxHP="300"/>

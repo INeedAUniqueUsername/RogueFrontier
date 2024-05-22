@@ -1048,16 +1048,18 @@ public class Megamap {
             }
             int w = (int)(Width / (viewScale) - 1);
             int h = (int)(Height / (viewScale) - 1);
-			var visiblePerimeter = new Rect(Width / 2 - w/2, Height/2 - h/2, w, h);
+
+#if false
+            var visiblePerimeter = new Rect(Width / 2 - w/2, Height/2 - h/2, w, h);
             foreach (var (x,y) in visiblePerimeter.Perimeter) {
                 var b = sf.Back[x, y];
                 sf.Back[x, y] = ABGR.BlendPremultiply(b, ABGR.RGBA(255, 255, 255, (byte)(128/viewScale)));
             }
-            /*
+#else
             sf.DrawRect(Width / 2 - w / 2, Height / 2 - h / 2, w, h, new SMenu.RectOptions() {
                 b = ABGR.Transparent,
             });
-            */
+#endif            
             foreach ((var offset, var visible) in scaledEntities) {
                 var (x, y) = offset;
                 (var entity, var distance) = visible[(int)time % visible.Count].Value;
@@ -1706,8 +1708,14 @@ public class Readout {
         }
         //Print Player
         {
-            int x = 3;
+            int x = 4;
             int y = 3;
+
+            sf.DrawRect(x++, y++, 36, 16, new() {
+                f = ABGR.White,
+                b = ABGR.SetA(ABGR.Black, 128),
+            });
+
             var b = ABGR.Black;
             var ship = player.ship;
             var devices = ship.devices;
@@ -1715,8 +1723,7 @@ public class Readout {
             var reactors = devices.Reactor;
             var weapons = devices.Weapon;
             var shields = devices.Shield;
-            var misc = devices.Installed.OfType<Service>();
-            {
+            var misc = devices.Installed.OfType<Service>(); {
                 double totalFuel = reactors.Sum(r => r.energy),
                        maxFuel = reactors.Sum(r => r.desc.capacity),
                        netDelta = reactors.Sum(r => r.energyDelta),

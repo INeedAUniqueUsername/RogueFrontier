@@ -8,14 +8,10 @@ using System.Collections.Concurrent;
 using SFML.Audio;
 namespace RogueFrontier;
 partial class Program {
-    static Program() {
-        HEIGHT = 60;
-        WIDTH = HEIGHT * 5 / 3; //100
-    }
-    public static int WIDTH, HEIGHT;
+    public static int WIDTH = 100, HEIGHT = 60;
 	public static string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
-    public static string cover = ExpectFile($"{Assets.ROOT}/sprites/RogueFrontierPosterV2.dat");
-    public static string splash = ExpectFile($"{Assets.ROOT}/sprites/SplashBackgroundV2.dat");
+    public static string cover = ExpectFile($"{Assets.ROOT}/sprites/game_title.dat");
+    public static string splash = ExpectFile($"{Assets.ROOT}/sprites/game_splash_background.dat");
 
 	static void OutputSchema() {
         var d = new Dictionary<Type, XElement>();

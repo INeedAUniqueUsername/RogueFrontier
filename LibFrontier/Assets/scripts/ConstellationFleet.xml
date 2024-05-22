@@ -7,7 +7,7 @@
 
 					crimeOnDestroy="true"
 
-					structure=	"Assets/sprites/station_constellation_shipyard.dat"
+					structure=	"station_constellation_shipyard.dat"
 		>
 
 		<HP	maxHP="700"/>

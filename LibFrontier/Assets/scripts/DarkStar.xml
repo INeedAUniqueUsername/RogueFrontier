@@ -283,7 +283,7 @@
 					sovereign=	"sovereign_dark_star"
 					
 					stealth="2"
-					structure="Assets/sprites/DarkStarFortress.dat"
+					structure=	"station_dark_star_fortress.dat"
 		>
 		<HP	maxHP="600"/>
 		<Weapons>
@@ -299,7 +299,7 @@
 					name=		"Dark Star shipyard"
 					sovereign=	"sovereign_dark_star"
 					stealth="2"
-					structure="Assets/sprites/DarkStarShipyard.dat"
+					structure=	"station_dark_star_shipyard.dat"
 		>
 
 		<HP	maxHP="900"/>

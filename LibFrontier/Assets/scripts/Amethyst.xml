@@ -5,7 +5,7 @@
 
 					behavior=	"amethystStore"
 					
-					structure=	"Assets/sprites/AmethystStore.dat"
+					structure=	"station_amethyst_store.dat"
 					
 					crimeOnDestroy="true"
 		>

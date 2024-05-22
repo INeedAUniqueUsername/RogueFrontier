@@ -26,7 +26,7 @@
 
 				behavior=	"none"
 					
-				structure=	"Assets/sprites/BeowulfClub.dat"
+				structure=	"station_beowulf_club.dat"
 		>
 
 		<HP	maxHP="300"/>

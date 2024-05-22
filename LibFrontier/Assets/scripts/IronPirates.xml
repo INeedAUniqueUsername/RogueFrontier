@@ -245,7 +245,7 @@
 					name=		"Iron Pirates hideout"
 					sovereign=	"sovereign_iron_pirates"
 					behavior=	"pirate"
-					structure=	"Assets/sprites/station_iron_pirates_hideout.dat"
+					structure=	"station_iron_pirates_hideout.dat"
 		>
 
 		<HP	maxHP="250"/>
@@ -261,7 +261,7 @@
 		name=		"Iron Pirates foundry"
 		sovereign=	"sovereign_iron_pirates"
 		behavior=	"pirate"
-		structure=	"Assets/sprites/station_iron_pirates_foundry.dat"
+		structure=	"station_iron_pirates_foundry.dat"
 		>
 
 		<HP	maxHP="500"/>

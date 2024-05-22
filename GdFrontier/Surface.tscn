@@ -4,5 +4,5 @@
 
 [node name="Surface" type="Node2D"]
 script = ExtResource("1_e6bi1")
-GridWidth = 96
+GridWidth = 100
 GridHeight = 64

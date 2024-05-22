@@ -8,17 +8,12 @@ using System.Diagnostics;
 using System.Linq;
 using static Common.Main;
 
-public partial class Program : Node{
-	static Program () {
-		HEIGHT = 60;
-		WIDTH = HEIGHT * 5 / 3; //100
-	}
-	public static int WIDTH, HEIGHT;
+public partial class Program : Node2D {
+	public static int WIDTH = 100, HEIGHT = 60;
 	//public static string FONT_8X8 = ExpectFile("Assets/sprites/IBMCGA+.font");
 	public static string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
 	//public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.dat");
 	//public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.dat");
-
 
 
 	IScene current;
@@ -40,7 +35,7 @@ public partial class Program : Node{
 		var surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
 		ConcurrentDictionary<Sf, Surface> surfaces = new();
 		ConcurrentDictionary<Tf, SurfaceFont> fonts = [];
-		Go(new TitleScreen(96, 64, GenerateIntroSystem()));
+		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
 		void Go (IScene next) {
 			if(current is { } prev) {
 				prev.Go -= Go;
@@ -59,6 +54,10 @@ public partial class Program : Node{
 				var s = surface.Instantiate<Surface>();
 				AddChild(s);
 				s.Show();
+
+				s.GridWidth = sf.Width;
+				s.GridHeight = sf.Height;
+
 
 				var pos = sf.pos * sf.font.GlyphSize;
 				s.Position = new Vector2(pos.xf, pos.yf);
@@ -108,6 +107,12 @@ public partial class Program : Node{
 		current?.Render(TimeSpan.FromSeconds(delta));
 	}
 
+	public override void _PhysicsProcess (double delta) {
+	}
+
+	public override void _Draw () {
+		base._Draw();
+	}
 	public override void _Input (InputEvent ev) {
 		switch(ev) {
 			case InputEventKey k: {

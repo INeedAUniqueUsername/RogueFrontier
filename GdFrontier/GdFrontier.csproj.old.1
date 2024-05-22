@@ -1,0 +1,21 @@
+<Project Sdk="Godot.NET.Sdk/4.2.1">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net7.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'ios' ">net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>RogueFrontier</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Lib/*/*.cs" />
+    <Compile Remove="Lib/*/obj/*/*/*.cs" />
+    <Compile Include="Lib/LibGamer/*.cs" />
+    <Compile Include="Lib/LibFrontier/*.cs" />
+    <PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
+    <PackageReference Include="Kodi.IEnumerable.Extensions" Version="0.1.0" />
+    <PackageReference Include="Namotion.Reflection" Version="3.1.1" />
+    <PackageReference Include="Json.NET.Aot" Version="9.0.1" />
+    <PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+    <PackageReference Include="RangeExtensions" Version="2.1.1" />
+  </ItemGroup>
+</Project>

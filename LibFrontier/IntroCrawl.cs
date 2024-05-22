@@ -14,8 +14,8 @@ class IntroCrawl : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	private readonly TileImage[] images = {
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(Assets.GetSprite("crawl_new_era.dat")))),
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(Assets.GetSprite("crawl_pillars_of_creation.dat"))))
         };
     private readonly string[] text = new[] {
 @"In a vision I could see
