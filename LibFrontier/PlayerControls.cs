@@ -3,6 +3,7 @@ using Helper = Common.Main;
 using LibGamer;
 using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace RogueFrontier;
 public class PlayerControls {
@@ -66,7 +67,7 @@ public class PlayerControls {
     }
     public void ProcessCommon() {
         if (input.ToggleUI) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
             playerMain.uiMain.visible = !playerMain.uiMain.visible;
         }
         if (input.Gate) {
@@ -118,7 +119,7 @@ public class PlayerControls {
             }
         }
         if (input.ShipMenu) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
             playerShip.DisengageAutopilot();
             //playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
         }
@@ -134,43 +135,43 @@ public class PlayerControls {
         ProcessCommon();
         var pw = playerMain.powerWidget;
         if (input.Escape) {
-            playerMain.audio.button_press.Play();
-            if (pw?.Surface.IsVisible == true) {
-                pw.Surface.IsVisible = false;
+            //playerMain.audio.button_press.Play();
+            if (pw?.visible== true) {
+                pw.visible = false;
             } else {
                 playerMain.pauseScreen.visible = true;
             }
         }
         if (input.InvokePowers && pw != null) {
-            playerMain.audio.button_press.Play();
-            pw.Surface.IsVisible = !pw.Surface.IsVisible;
+            //playerMain.audio.button_press.Play();
+            pw.visible = !pw.visible;
         }
         if (keys?[U] == KS.Press) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.UsefulItems(playerMain, playerShip));
 #endif
         }
         if (input.NetworkMap && playerMain.networkMap is {} nm) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
             nm.visible = !nm.visible;
         }
         if(keys?[B] == KS.Press) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.ManageDevices(playerMain, playerShip));
 #endif
         }
         if(keys?[C] == KS.Press) {
-            playerMain.audio.button_press.Play();
+            //playerMain.audio.button_press.Play();
 #if false
             playerMain.sceneContainer.Children.Add(SListWidget.Communications(playerMain, playerShip));
 #endif
         }
 
 
-        if (keys[F1] == KS.Press) {
-            playerMain.audio.button_press.Play();
+        if (keys?[F1] == KS.Press) {
+            //playerMain.audio.button_press.Play();
             //playerMain.dialog = new IdentityScreen(playerMain);
             //playerMain.OnIntermission();
         }
@@ -179,7 +180,8 @@ public class PlayerControls {
     public void UpdateInput(KB info) {
         keys = info;
         input.Read(playerMain.Settings.controls, info);
-    }
+		Debug.WriteLine("controls");
+	}
 }
 public class PlayerInput {
     public bool Shift;
@@ -192,9 +194,18 @@ public class PlayerInput {
     public bool UsingMouse;
     public PlayerInput() { }
     public void Read(Dictionary<Control, KC> controls, KB kb) {
-        var p = (Control c) => kb[controls[c]] == KS.Press;
-        var d = (Control c) => kb[controls[c], 1];
+        var p = (Control c) => kb.IsPress(controls[c]);
+        var d = (Control c) => {
+            bool b = kb.IsDown(controls[c]);
+            if(b) {
+                int a = 0;
+            }
+            return b;
+        };
         Shift = kb[LeftShift, 1] || kb[RightShift, 1];
+
+        Debug.WriteLine($"controls: {controls}");
+
         Thrust =        d(Control.Thrust);
         TurnLeft =      d(Control.TurnLeft);
         TurnRight =     d(Control.TurnRight);

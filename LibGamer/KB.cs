@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,25 +45,35 @@ public class KB {
 		foreach(var k in Released) this[k] = KS.Release;
 	}
 	public void Update (HashSet<KC> nextDown) {
-		foreach(var code in Release) {
-			state[(byte)code] = KS.Up;
+		Press = [];
+		Release = [];
+		void AddPress(KC code) {
+			state[(byte)code] = KS.Press;
+			Press.Add(code);
+			Debug.WriteLine($"pressed: {(byte)code}");
 		}
-		Release.Clear();
-		Press.Clear();
-		foreach(var code in nextDown) {
-			this[code] = KS.Down;
-			var prevDown = Down.Contains(code);
-			if(!prevDown) {
-				this[code] = KS.Press;
-				Press.Add(code);
-			}
-			Down.Remove(code);
-		}
-		foreach(var code in Down) {
-			this[code] = KS.Release;
+		void AddRelease (KC code) {
+			state[(byte)code] = KS.Release;
 			Release.Add(code);
 		}
-		Down = nextDown;
+		void AddUp (KC code) {
+			state[(byte)code] = KS.Up;
+		}
+		void AddDown (KC code) {
+			state[(byte)code] = KS.Down;
+			//Debug.WriteLine($"down: {(byte)code}");
+		}
+		foreach(var code in Down.Union(nextDown)) {
+
+			//Debug.WriteLine($"{string.Join(' ', Down)} | {string.Join(' ', nextDown)}");
+
+			switch(Down.Contains(code), nextDown.Contains(code)) {
+				case (true, true):AddDown(code);break;
+				case (true, false):AddRelease(code);break;
+				case (false, true):AddPress(code);break;
+			}
+		}
+		Down = [..nextDown];
 	}
 }
 

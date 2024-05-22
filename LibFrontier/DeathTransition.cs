@@ -1,11 +1,14 @@
-﻿using SadRogue.Primitives;
-using SadConsole.Input;
-using LibGamer;
+﻿using LibGamer;
+using System;
+using System.Collections.Generic;
 
 namespace RogueFrontier;
 
 public class DeathPause : IScene {
-    Mainframe prev;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Mainframe prev;
     DeathTransition next;
     Sf sf;
     int Width => sf.Width;
@@ -14,9 +17,6 @@ public class DeathPause : IScene {
     public bool done;
     Viewport view;
 
-	public Action<IScene> Go { get; set; }
-    public Action<Sf> Draw { get; set; }
-	public Action<SoundCtx> PlaySound { get; set; }
 
 	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
@@ -37,15 +37,15 @@ public class DeathPause : IScene {
     }
 }
 public class DeathTransition : IScene {
-    Sf sf;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Sf sf;
     Sf sf_prev;
 	IScene prev, next;
     int Width => sf.Width;
     int Height => sf.Height;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
-	public Action<SoundCtx> PlaySound { get; set; }
 
 	public class Particle {
         public int x, destY;
@@ -80,8 +80,8 @@ public class DeathTransition : IScene {
             }
         }
     }
-    public void HandleKey(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void HandleKey(KB keyboard) {
+        if (keyboard.IsPress(KC.Enter)) {
             Transition();
         }
     }
@@ -119,8 +119,8 @@ public class DeathTransition : IScene {
             d = Math.Pow(d, 1.4);
             byte alpha = (byte)(255 - 255 * d);
             var c = ABGR.SetA(borderColor, alpha);
-            var screenPerimeter = new Rectangle(i, i, Width - i * 2, Height - i * 2);
-            foreach (var point in screenPerimeter.PerimeterPositions()) {
+            var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
+            foreach (var point in screenPerimeter.Perimeter) {
                 //var back = this.GetBackground(point.X, point.Y).Premultiply();
                 var (x, y) = point;
                 sf.SetBack(x, y, c);

@@ -1,11 +1,8 @@
-﻿using SadConsole.Input;
-using SadRogue.Primitives;
-using Common;
-using SadConsole;
-using Console = SadConsole.Console;
-using static SadConsole.Input.Keys;
-using LibSadConsole;
+﻿using Common;
 using LibGamer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RogueFrontier;
 

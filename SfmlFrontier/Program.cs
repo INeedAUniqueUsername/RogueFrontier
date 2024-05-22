@@ -83,7 +83,7 @@ partial class Program {
 #endif
 
         ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
-        ConcurrentDictionary<SoundCtx, Sound> sounds = new();
+        ConcurrentDictionary<byte[], Sound> sounds = new();
 		IScene current = null;
 		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
 		void Go (IScene next) {
@@ -105,6 +105,7 @@ partial class Program {
             var c = consoles.GetOrAdd(sf, sf =>
                 new SadConsole.Console(sf.Width, sf.Height) {  Position = new(sf.pos.xi, sf.pos.yi) }
                 );
+            c.Clear();
             foreach(var ((x,y),t) in sf.Active) {
 				c.SetCellAppearance(x, y, t.ToCG());
             }
@@ -112,10 +113,15 @@ partial class Program {
             return;
         }
         void PlaySound(SoundCtx s) {
-            var snd = sounds.GetOrAdd(s, s => new Sound(new SoundBuffer(s.data)) { Volume = s.volume });
+            var snd = sounds.GetOrAdd(s.data, _ => {
+
+                var snd = new Sound(new SoundBuffer(s.data)) { Volume = s.volume };
+                return snd;
+			});
             if(snd.Status == SoundStatus.Playing) {
                 snd.Stop();
             }
+            snd.Volume = s.volume;
             snd.Play();
         }
         var kb = new KB();

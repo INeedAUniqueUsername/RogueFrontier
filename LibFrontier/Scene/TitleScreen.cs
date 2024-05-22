@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System;
-using System.Drawing;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 namespace RogueFrontier;
 public class TitleScreen : IScene {
 	public Action<IScene> Go { set; get; }
@@ -24,10 +26,11 @@ public class TitleScreen : IScene {
 	public XY camera;
 	public Dictionary<(int, int), Tile> tiles;
 	public byte[] titleMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Title.wav");
+	public byte[] crawlMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav");
 	public int Width => sf.Width;
 	public int Height => sf.Height;
 	public Sf sf;
-	private List<SfButton> buttons = [];
+	private List<SfLink> buttons = [];
 	public TitleScreen(int Width, int Height, System World) {
 		this.sf = new Sf(Width, Height);
 		this.World = World;
@@ -44,24 +47,27 @@ public class TitleScreen : IScene {
 		int y = 9;
 		//var fs = FontSize * 1;
 
-		Button("[Enter]   Play Story Mode", null);
-		Button("[Shift-A] Arena Mode", null);
-		Button("[Shift-C] Controls", null);
-		Button("[Shift-L] Load Game", null);
-		Button("[Shift-Z] Credits", null);
-		Button("[Escape]  Exit", Exit);
-		void Button (string s, Action a) {
-			var b = new SfButton((x, y++), s, a);
+
+
+		foreach (var (s,a) in new Dictionary<string, Action>{
+			["[Enter]   New Adventure"] = null,
+			["[Shift-L] Load Adventure"] = null,
+			["[Shift-A] Arena Mode"] = StartArena,
+			["[Shift-C] Controls"] = null,
+			["[Shift-Z] Credits"] = null,
+			["[Escape]  Exit"] = Exit
+		}) {
+			var b = new SfLink(sf, (x, y++), s, a);
 			b.Draw += sf => Draw?.Invoke(sf);
 			buttons.Add(b);
-		}
+		};
 		var f = "Settings.json";
 		if (File.Exists(f)) {
 			settings = SaveGame.Deserialize<ShipControls>(File.ReadAllText(f));
 		} else {
 			settings = ShipControls.standard;
 		}
-		config = new(settings);
+		config = new(sf, settings);
 		//load = new(profile);
 #if false
 		credits = new(48, 64) { Position = new(0, 30), FontSize = fs };
@@ -78,121 +84,105 @@ public class TitleScreen : IScene {
 		credits.Children.Add(new Label("Transcendence is a trademark of Kronosaur Productions") { Position = new(0, y++) });
 #endif
 	}
-
-
-
-
-#if false
-
 	public void StartArena () =>
 		Go(new ArenaScreen(this, settings, World) {
-			IsFocused = true,
 			camera = camera,
 			pov = pov
 		});
-	private void StartGame() {
+	private void StartGame () {
 		//Tones.pressed.Play();
-		SadConsole.Game.Instance.Screen = new TitleSlideIn(this, new PlayerCreator(this, World, settings, StartCrawl)) { IsFocused = true };
-
-		void StartCrawl(ShipSelectorModel context) {
+		var pc = new PlayerCreator(this, sf, World, settings, StartCrawl);
+		Go(new TitleSlideIn((sf, this), (pc.sf, pc)));
+		void StartCrawl (ShipSelectorModel context) {
 			var loc = $"{AppDomain.CurrentDomain.BaseDirectory}/save/{context.playerName}";
 			string file;
 			do { file = $"{loc}-{new Rand().NextInteger(9999)}.sav"; }
-			while (File.Exists(file));
+			while(File.Exists(file));
 			var player = new Player() {
 				file = file,
 				name = context.playerName,
 				Genome = context.playerGenome,
 				money = 2000
 			};
-
 			var (playable, index) = (context.playable, context.shipIndex);
 			var playerClass = playable[index];
+			Scene1();
+			void Scene1() {
+				IntroCrawl crawl = null;
+				Go(crawl = new(sf.Width, sf.Height, () => { }));
 
-			IntroCrawl crawl = null;
-			crawl = new(sf, () => null) { IsFocused = true };
-			SadConsole.Game.Instance.Screen = crawl;
+				PlaySound(new SoundCtx(File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav"), 33));
+				Task.Run(CreateWorld);
 
-			var crawlMusic = new Sound(new SoundBuffer("Assets/music/Crawl.wav")) {
-				Volume = 33
-			};
-			crawlMusic.Play();
-			Task.Run(CreateWorld);
+				void CreateWorld () {
+					var universeDesc = new UniverseDesc(World.types, XElement.Parse(
+						File.ReadAllText($"{Assets.ROOT}/scripts/Universe.xml")
+						));
+					//Name is seed
+					var seed = player.name.GetHashCode();
+					var u = new Universe(universeDesc, World.types, new(seed));
 
+					var start = u.GetAllEntities().OfType<FixedMarker>().First(m => m.Name == "Start");
+					var w = start.world;
+					start.active = false;
+					var playerStart = start.position;
+					var playerSovereign = w.types.Lookup<Sovereign>("sovereign_player");
+					var playerShip = new PlayerShip(player, new(w, playerClass, playerStart), playerSovereign);
+					playerShip.AddMessage(new Message("Welcome to the Rogue Frontier!"));
 
-			void CreateWorld() {
+					w.AddEffect(new Heading(playerShip));
+					w.AddEntity(playerShip);
 
-				var universeDesc = new UniverseDesc(World.types, XElement.Parse(
-					File.ReadAllText("Assets/scripts/Universe.xml")
-					));
-
-				//Name is seed
-				var seed = player.name.GetHashCode();
-				var u = new Universe(universeDesc, World.types, new(seed));
-
-				var start = u.GetAllEntities().OfType<FixedMarker>().First(m => m.Name == "Start");
-				var w = start.world;
-				start.active = false;
-				var playerStart = start.position;
-				var playerSovereign = w.types.Lookup<Sovereign>("sovereign_player");
-				var playerShip = new PlayerShip(player, new(w, playerClass, playerStart), playerSovereign);
-				playerShip.AddMessage(new Message("Welcome to the Rogue Frontier!"));
-
-				w.AddEffect(new Heading(playerShip));
-				w.AddEntity(playerShip);
-
-				AddStarterKit(playerShip);
-
-				/*
-				File.WriteAllText(file, JsonConvert.SerializeObject(new LiveGame() {
-					player = player,
-					world = World,
-					playerShip = playerShip
-				}, SaveGame.settings));
-				*/
-
-				var playerMain = new Mainframe(Width, Height, profile, playerShip);
-				playerMain.music = crawlMusic;
-				playerMain.HideUI();
-				playerShip.onDestroyed += playerMain;
-
-				playerMain.Update(new());
-				playerMain.PlaceTiles(new());
-
-
-				MinimalCrawlScreen crawl2 = null;
-				crawl.next = () => (new FlashTransition(Width, Height, crawl, Transition));
-
-				void Transition() {
-					GameHost.Instance.Screen = new Pause((ScreenSurface)GameHost.Instance.Screen, Transition2, 1);
-				}
-
-
-				void Transition2() {
-					GameHost.Instance.Screen = crawl2 = new MinimalCrawlScreen("Today has been a long time in the making.    \n\n" + ((new Random(seed).Next(5) + new Random().Next(2)) switch {
-						1 => "Maybe history will remember.",
-						2 => "Tomorrow will be forever.",
-						3 => "The future will not be so far.",
-						_ => "Maybe all of it will have been for something.",
-					}), Transition3a) { Position = new Point(Width / 4, 8), IsFocused = true };
-				}
-				void Transition3a() {
-					GameHost.Instance.Screen = new Pause(crawl2, Transition3, 2);
-				}
-				void Transition3() {
-
-					playerMain.RenderWorld(new());
-					GameHost.Instance.Screen = new FadeIn(new Pause(playerMain, Transition4, 1)) { IsFocused = true };
-
-				}
-				void Transition4() {
-					GameHost.Instance.Screen = playerMain;
-					playerMain.IsFocused = true;
-					playerMain.ShowUI();
+					AddStarterKit(playerShip);
+					/*
+					File.WriteAllText(file, JsonConvert.SerializeObject(new LiveGame() {
+						player = player,
+						world = World,
+						playerShip = playerShip
+					}, SaveGame.settings));
+					*/
+					crawl.next = Transition0;
+					void Transition0 () {
+						FlashTransition ft = null;
+						ft = new FlashTransition(Width, Height, crawl.sf, Transition);
+						Go(ft);
+						void Transition () {
+							Go(new Pause(ft.sf, Transition2, 1));
+							void Transition2 () {
+								PlainCrawlScreen crawl2 = null;
+								crawl2 = new PlainCrawlScreen((Width / 4, 8), "Today has been a long time in the making.    \n\n" + ((new Random(seed).Next(5) + new Random().Next(2)) switch {
+									1 => "Maybe history will remember.",
+									2 => "Tomorrow will be forever.",
+									3 => "The future will not be so far.",
+									_ => "Maybe all of it will have been for something.",
+								}), Transition3a);
+								Go(crawl2);
+								void Transition3a () {
+									Go(new Pause(crawl2.sf, Transition3, 2));
+									void Transition3 () {
+										var playerMain = new Mainframe(Width, Height, profile, playerShip);
+										playerMain.music = new SoundCtx(crawlMusic, 50);
+										playerMain.HideUI();
+										playerShip.onDestroyed += playerMain;
+										playerMain.Update(new());
+										playerMain.PlaceTiles(new());
+										playerMain.RenderWorld(new());
+										var p = new Pause(playerMain.sf, Transition4, 1);
+										Go(new FadeIn(p, p.prev));
+										void Transition4 () {
+											Go(playerMain);
+											playerMain.ShowUI();
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+#if false
 
 	private void ClearMenu() {
 		foreach (var c in new Console[] { config, load, credits }) {
@@ -290,7 +280,7 @@ public class TitleScreen : IScene {
 			camera += step;
 		}
 	}
-	public void Render(TimeSpan drawTime) {
+	public void Render(TimeSpan delta) {
 		sf.Clear();
 		//Wait until we are focused to print the POV desc
 		//This will happen when TitleSlide transition finishes
@@ -299,7 +289,7 @@ public class TitleScreen : IScene {
 			int descY = Height * 3 / 4;
 			bool indent = false;
 			foreach (var line in povDesc) {
-				line.Update(drawTime.TotalSeconds);
+				line.Update(delta.TotalSeconds);
 				var lineX = descX + (indent ? 8 : 0);
 				sf.Print(lineX, descY, line.Draw());
 				indent = true;
@@ -340,19 +330,19 @@ public class TitleScreen : IScene {
 			titleY++;
 
 		}
-		config.Render(sf);
+		config.Render(delta);
 		Draw(sf);
 
-		buttons.ForEach(b => b.Render());
+		buttons.ForEach(b => b.Render(delta));
 	}
 	Hand mouse = new();
 	public void HandleMouse(HandState state) {
 		mouse.Update(state.OnRect(sf.rect));
 		if(mouse.nowOn) {
-            foreach (var item in buttons){
+			foreach (var item in buttons){
 				item.HandleMouse(state);
-            }
-        }
+			}
+		}
 		return;
 	}
 	public void HandleKey (KB info) {
@@ -471,14 +461,17 @@ public class TitleScreen : IScene {
 	class ConfigPane {
 		ShipControls settings;
 		Control? currentSet;
-		Dictionary<Control, SfButton> buttons;
+		Dictionary<Control, SfLink> buttons;
+
+		Sf on;
 
 		public bool visible;
-		public ConfigPane (ShipControls settings) {
+		public ConfigPane (Sf on, ShipControls settings) {
+			this.on = on;
 			this.settings = settings;
 
 			currentSet = null;
-			buttons = new Dictionary<Control, SfButton>();
+			buttons = new Dictionary<Control, SfLink>();
 
 			Init();
 		}
@@ -493,8 +486,8 @@ public class TitleScreen : IScene {
 			foreach(var control in controls.Keys) {
 				var c = control;
 				string label = GetLabel(c);
-				SfButton b = null;
-				b = new SfButton((x, y++), label, () => {
+				SfLink b = null;
+				b = new SfLink(on, (x, y++), label, () => {
 
 					if(currentSet.HasValue) {
 						ResetLabel(currentSet.Value);
@@ -527,10 +520,10 @@ public class TitleScreen : IScene {
 		public void HandleMouse(HandState state) {
 			
 		}
-		public void Render(Sf on) {
+		public void Render(TimeSpan delta) {
 			if(visible) {
 				foreach(var (_, button) in buttons) {
-					button.Render();
+					button.Render(delta);
 				}
 			}
 		}

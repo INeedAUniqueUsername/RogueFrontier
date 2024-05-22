@@ -1,12 +1,7 @@
-﻿
-using SadConsole;
-using Console = SadConsole.Console;
-using SadRogue.Primitives;
-using Common;
-using SadConsole.Input;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using LibGamer;
-using SfmlFrontier;
-
 namespace RogueFrontier;
 public class TitleSlideOpening : IScene {
 	public Action<IScene> Go { get; set; }
@@ -58,7 +53,7 @@ public class TitleSlideOpening : IScene {
     public void Render(TimeSpan delta) {
         next.Render(delta);
         sf.Clear();
-        var blank = new ColoredGlyph(Color.Black, Color.Black);
+        var blank = new Tile(ABGR.Black, ABGR.Black, ' ');
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < this.x; x++) {
                 sf.SetTile(x, y, new Tile(0, 0, 0));
@@ -154,8 +149,8 @@ public class TitleSlideIn : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-	public Console prev;
-    public Console next;
+	public (Sf sf, IScene scene) prev;
+    public (Sf sf, IScene scene) next;
     int x = -16;
 
     Sf sf;
@@ -163,21 +158,21 @@ public class TitleSlideIn : IScene {
     int Height => sf.Height;
 
 
-	public TitleSlideIn(Console prev, Console next) {
-        sf = new Sf(prev.Width, prev.Height);
+	public TitleSlideIn((Sf sf, IScene scene) prev, (Sf sf, IScene scene) next) {
+        sf = new Sf(prev.sf.Width, prev.sf.Height);
         this.prev = prev;
         this.next = next;
         //Draw one frame now so that we don't cut out for one frame
         Render(new TimeSpan());
     }
-    public void ProcessKey(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void ProcessKey(KB keyboard) {
+        if (keyboard.IsPress(KC.Enter)) {
             //Tones.pressed.Play();
             Next();
         }
     }
     public void Update(TimeSpan delta) {
-        prev.Update(delta);
+        prev.scene.Update(delta);
         if (x < Width + 16) {
             x += (int)(Width * delta.TotalSeconds);
         } else {
@@ -185,31 +180,32 @@ public class TitleSlideIn : IScene {
         }
     }
     public void Next() {
-        SadConsole.Game.Instance.Screen = next;
-        next.IsFocused = true;
+        Go(next.scene);
     }
     public void Render(TimeSpan delta) {
-        next.Render(delta);
-        prev.Render(delta);
-        var blank = new ColoredGlyph(Color.Black, Color.Black);
+
+        Draw(next.sf);
+        Draw(prev.sf);
+
+        var blank = new Tile(ABGR.Black, ABGR.Black, ' ');
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Math.Min(Width, this.x); x++) {
                 //this.SetCellAppearance(x, y, blank);
-                sf.SetTile(x, y, next.GetCellAppearance(x, y).ToTile());
+                sf.SetTile(x, y, next.sf.GetTile(x, y));
             }
             //Fading opacity edge
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
 
-                var glyph = prev.GetGlyph(x, y);
+                var glyph = prev.sf.GetGlyph(x, y);
                 var value = 255 - 255 / 16 * (x - this.x);
 
-                var fore = prev.GetForeground(x, y);
-                fore = fore.Premultiply().Blend(next.GetForeground(x, y).Premultiply().WithValues(alpha: value));
+                var fore = prev.sf.GetFront(x, y);
+                fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Premultiply(next.sf.GetFront(x, y)), (byte)value));
 
-                var back = prev.GetBackground(x, y);
-                back = back.Premultiply().Blend(next.GetBackground(x, y).Premultiply().WithValues(alpha: value));
+                var back = prev.sf.GetBack(x, y);
+                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(next.sf.GetBack(x, y)), (byte)value));
 
-                sf.SetTile(x, y, new Tile(fore.PackedValue, back.PackedValue, glyph));
+                sf.SetTile(x, y, new Tile(fore, back, glyph));
             }
         }
     }
@@ -249,36 +245,42 @@ public class FadeIn : IScene {
     }
 }
 
-public class FadeOut : Console {
-    Console prev;
+public class FadeOut : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Sf prev;
     Action next;
     float alpha;
     int time;
-    public FadeOut(Console prev, Action next, int time = 4) : base(prev.Width, prev.Height) {
-        FontSize = prev.FontSize;
+
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+    public FadeOut(Sf prev, Action next, int time = 4) {
         this.prev = prev;
+        this.sf = new Sf(prev.Width, prev.Height);
         this.next = next;
         this.time = time;
         Render(new TimeSpan());
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
         if (alpha < 1) {
             alpha += (float)(delta.TotalSeconds / time);
         } else {
             next();
         }
     }
-    public override void Render(TimeSpan delta) {
-        this.Clear();
-        var g = new ColoredGlyph(Color.Black, new Color(0, 0, 0, alpha));
+    public void Render(TimeSpan delta) {
+        sf.Clear();
+        var g = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)alpha), ' ');
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
-                this.SetCellAppearance(x, y, g);
+                sf.SetTile(x, y, g);
             }
         }
-        prev.Render(delta);
-        base.Render(delta);
+        Draw(prev);
+        Draw(sf);
     }
 }
 
@@ -287,16 +289,16 @@ public class Pause : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Action next;
-    Sf background;
+    public Sf prev;
     double time;
-	public Pause(Sf background, Action next, double time = 5) {
-        this.background = background;
+	public Pause(Sf prev, Action next, double time = 5) {
+        this.prev = prev;
         this.time = time;
         this.next = next;
         Render(new TimeSpan());
     }
-    public void ProcessKeyboard(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void ProcessKeyboard(KB keyboard) {
+        if (keyboard.IsPress(KC.Enter)) {
             //Tones.pressed.Play();
             time = 0;
         }
@@ -311,27 +313,27 @@ public class Pause : IScene {
     public void Render(TimeSpan delta) {
     }
 }
-public class PauseTransition : Console {
-    Console prev;
+public class PauseTransition : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Sf prev;
     Action next;
     double time;
-    public PauseTransition(int Width, int Height, double time, Console prev, Action next) : base(Width, Height) {
-        this.FontSize = prev.FontSize;
-
+    public PauseTransition(int Width, int Height, double time, Sf prev, Action next) {
         this.time = time;
         this.prev = prev;
         this.next = next;
         Render(new TimeSpan());
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
         if (time > 0) {
             time -= delta.TotalSeconds;
         } else {
             next();
         }
     }
-    public override void Render(TimeSpan delta) {
-        prev.Render(delta);
+    public void Render(TimeSpan delta) {
+        Draw(prev);
     }
 }

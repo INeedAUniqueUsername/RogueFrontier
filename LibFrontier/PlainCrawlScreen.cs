@@ -1,9 +1,11 @@
-﻿using SadConsole.Input;
-using LibGamer;
+﻿using LibGamer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RogueFrontier;
 
-class MinimalCrawlScreen : IScene {
+class PlainCrawlScreen : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
@@ -13,7 +15,10 @@ class MinimalCrawlScreen : IScene {
     bool speedUp;
     int index;
     int tick;
-	public MinimalCrawlScreen(Sf prev, string text, Action next) {
+
+    (int x, int y) pos;
+	public PlainCrawlScreen((int x,int y) pos, string text, Action next) {
+        this.pos = pos;
         this.sf = new Sf(text.Split('\n').Max(l => l.Length), text.Split('\n').Length);
         this.next = next;
         this.text = text;
@@ -34,8 +39,7 @@ class MinimalCrawlScreen : IScene {
     }
     public void Render(TimeSpan drawTime) {
         sf.Clear();
-        int x = 0;
-        int y = 0;
+        var (x, y) = pos;
         for (int i = 0; i < index; i++) {
             if (text[i] == '\n') {
                 x = 0;
@@ -47,8 +51,8 @@ class MinimalCrawlScreen : IScene {
         }
         Draw(sf);
     }
-    public void HandleKey(Keyboard info) {
-        if (info.IsKeyPressed(SadConsole.Input.Keys.Enter)) {
+    public void HandleKey(KB info) {
+        if (info.IsPress(KC.Enter)) {
             if (speedUp) {
                 index = text.Length;
             } else {

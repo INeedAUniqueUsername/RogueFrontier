@@ -1,38 +1,42 @@
-﻿
-using Common;
-using SadConsole;
-using SadConsole.Input;
-using SadRogue.Primitives;
-using Console = SadConsole.Console;
-
+﻿using LibGamer;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 namespace RogueFrontier;
-
 class GlyphParticle {
-    public Color foregound;
+    public uint foregound;
     public char glyph;
-    public Point pos;
+    public (int x, int y) pos;
 }
 enum Stage {
     Brighten, Darken
 }
-public class FlashTransition : Console {
-    Action next;
+public class FlashTransition : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Action next;
     HashSet<GlyphParticle> glyphs = new HashSet<GlyphParticle>();
-    Color[,] background;
+    uint[,] background;
     double delay = 0;
     Stage stage;
     int tick = 0;
-    public FlashTransition(int Width, int Height, Console prev, Action next) : base(Width, Height) {
-        this.next = next;
-        background = new Color[Width, Height];
+    public Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
+    public FlashTransition(int Width, int Height, Sf prev, Action next) {
+        this.sf = new Sf(Width, Height);
+
+		this.next = next;
+        background = new uint[Width, Height];
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                var cg = prev.GetCellAppearance(x, y);
+                var cg = prev.GetTile(x, y);
                 if (cg.Glyph != ' ') {
                     glyphs.Add(new GlyphParticle() {
                         foregound = cg.Foreground,
-                        glyph = cg.GlyphCharacter,
-                        pos = new Point(x, y)
+                        glyph = (char)cg.Glyph,
+                        pos = (x, y)
                     });
                 }
                 background[x, y] = cg.Background;
@@ -43,13 +47,12 @@ public class FlashTransition : Console {
         //Draw one frame now so that we don't cut out for one frame
         Render(new TimeSpan());
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void HandleKey(KB keyboard) {
+        if (keyboard.IsPress(KC.Enter)) {
             next();
         }
-        return base.ProcessKeyboard(keyboard);
     }
-    public override void Update(TimeSpan delta) {
+    public void Update(TimeSpan delta) {
         if (delay > 0) {
             delay -= delta.TotalSeconds;
         } else {
@@ -59,15 +62,24 @@ public class FlashTransition : Console {
                         for (int x = 1; x < Width; x++) {
                             for (int y = 1; y < Height - 1; y++) {
                                 var b = background[x, y];
-                                int rAdjacent = Math.Min((int)1, (int)Math.Max(background[x - 1, y].R, Math.Max(background[x - 1, y - 1].R, background[x - 1, y + 1].R)));
-                                int gAdjacent = Math.Min((int)1, (int)Math.Max(background[x - 1, y].G, Math.Max(background[x - 1, y - 1].G, background[x - 1, y + 1].G)));
-                                int bAdjacent = Math.Min((int)1, (int)Math.Max(background[x - 1, y].B, Math.Max(background[x - 1, y - 1].B, background[x - 1, y + 1].B)));
-                                background[x, y] = new Color(Math.Min(255, b.R + rAdjacent), Math.Min(255, b.G + gAdjacent), Math.Min(255, b.B + bAdjacent));
+                                var w = background[x - 1, y];
+                                var sw = background[x - 1, y - 1];
+
+                                var nw = background[x - 1, y + 1];
+
+								var R = ABGR.R;
+                                var G = ABGR.G;
+                                var B = ABGR.B;
+
+								int rAdjacent = Math.Min((int)1, (int)Math.Max(R(w), Math.Max(R(sw), R(nw))));
+                                int gAdjacent = Math.Min((int)1, (int)Math.Max(G(w), Math.Max(G(sw), G(nw))));
+                                int bAdjacent = Math.Min((int)1, (int)Math.Max(B(w), Math.Max(B(sw), B(nw))));
+                                background[x, y] = ABGR.RGB((byte)Math.Min(255, R(b) + rAdjacent), (byte)Math.Min(255, G(b) + gAdjacent), (byte)Math.Min(255, B(b) + bAdjacent));
                             }
                         }
 
                         foreach (var glyph in glyphs) {
-                            glyph.foregound = glyph.foregound.WithValues(alpha: glyph.foregound.A - 2);
+                            glyph.foregound = ABGR.SetA(glyph.foregound, (byte)(ABGR.A(glyph.foregound) - 2));
                         }
 
                         if (tick > 192) {
@@ -82,9 +94,9 @@ public class FlashTransition : Console {
                         for (int x = 0; x < Width; x++) {
                             for (int y = 0; y < Height; y++) {
                                 var b = background[x, y];
-                                background[x, y] = new Color(Math.Max(0, b.R - 2), Math.Max(0, b.G - 2), Math.Max(0, b.B - 2));
+                                background[x, y] = ABGR.RGB((byte)Math.Max(0, ABGR.R(b) - 2), (byte)Math.Max(0, ABGR.G(b) - 2), (byte)Math.Max(0, ABGR.B(b) - 2));
 
-                                if (background[x, y].GetBrightness() > 0) {
+                                if (ABGR.GetLightness(background[x, y]) > 0) {
                                     done = false;
                                 }
                             }
@@ -96,23 +108,21 @@ public class FlashTransition : Console {
                     }
             }
         }
-        base.Update(delta);
     }
-    public override void Render(TimeSpan delta) {
-        base.Render(delta);
+    public void Render(TimeSpan delta) {
         foreach (var glyph in glyphs) {
             var (x, y) = glyph.pos;
-            this.SetForeground(x, y, glyph.foregound);
-            this.SetGlyph(x, y, glyph.glyph);
+            sf.SetFront(x, y, glyph.foregound);
+            sf.SetGlyph(x, y, glyph.glyph);
         }
-
         //To do: Simplify this so we just draw next with some alpha background
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
                 //var b = next.GetBackground(x, y);
                 var b = background[x, y];
-                this.SetBackground(x, y, b);
+                sf.SetBack(x, y, b);
             }
         }
+        Draw(sf);
     }
 }

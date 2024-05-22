@@ -1,7 +1,6 @@
 ﻿using LibGamer;
-using SadConsole.Input;
+using System;
 namespace RogueFrontier;
-
 public class ScanTransition : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
@@ -16,8 +15,8 @@ public class ScanTransition : IScene {
         this.next = next;
         next.Render(new TimeSpan());
     }
-    public void HandleKey(Keyboard keyboard) {
-        if (keyboard.KeysPressed.Count > 0) {
+    public void HandleKey(KB keyboard) {
+        if (keyboard.Press.Count > 0) {
             Transition();
             //next.ProcessKeyboard(keyboard);
         }

@@ -1,7 +1,10 @@
 ﻿using Common;
 using LibGamer;
+using System;
+using System.Collections.Generic;
 namespace RogueFrontier;
 public class Viewport {
+    public Action<Sf> Draw { get; set; }
     public int Width => sf.Width;
     public int Height => sf.Height;
     public Camera camera;
@@ -33,11 +36,12 @@ public class Viewport {
                 XY location = camera.position + new XY(x, y).Rotate(camera.rotation);
                 if (tiles.TryGetValue(location.roundDown, out var tile)) {
                     var xScreen = x + HalfViewWidth;
-                    var yScreen = HalfViewHeight - y;
+                    var yScreen = HalfViewHeight - y - 1;
                     sf.Tile[xScreen, yScreen] = tile;
                 }
             }
         }
+        Draw?.Invoke(sf);
     }
     public Tile GetTile(int x, int y) {
         XY location = camera.position + new XY(x - Width / 2, y - Height / 2).Rotate(camera.rotation);

@@ -1,13 +1,10 @@
-﻿using LibSadConsole;
-using SadConsole;
-using SadConsole.Input;
-using SadRogue.Primitives;
-using Common;
+﻿using Common;
 using LibGamer;
-
-using LabelButton = LibSadConsole.LabelButton;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 namespace RogueFrontier;
-
 public class PauseScreen : IScene {
     public Mainframe playerMain;
     public SparkleFilter sparkle;
@@ -25,7 +22,7 @@ public class PauseScreen : IScene {
         this.sparkle = new SparkleFilter(Width, Height);
         int x = 2;
         int y = 2;
-        var fs = sf.Scale * 3;
+        var fs = 3;
 #if false
         Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
         y++;
@@ -88,7 +85,7 @@ public class PauseScreen : IScene {
     public void SaveContinue() {
         //Temporarily PlayerMain events before saving
         var ps = playerMain.playerShip;
-        var endgame = ps.onDestroyed.set.Where(c => c is IScreenObject).ToList();
+        var endgame = ps.onDestroyed.set.Where(c => c is IScene).ToList();
         ps.onDestroyed.set.ExceptWith(endgame);
         Save();
         ps.onDestroyed.set.UnionWith(endgame);
@@ -96,13 +93,13 @@ public class PauseScreen : IScene {
     }
     public void SaveQuit() {
         //Remove PlayerMain events
-        playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScreenObject);
+        playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScene);
         Save();
         Quit();
     }
     public void DeleteQuit() {
         //Remove PlayerMain events
-        playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScreenObject);
+        playerMain.playerShip.onDestroyed.set.RemoveWhere(d => d is IScene);
         Delete();
         Quit();
     }

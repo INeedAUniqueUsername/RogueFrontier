@@ -16,11 +16,11 @@ public record Rect(int x, int y, int width, int height) {
 	public static Rect Sides (int left, int top, int right, int bottom) => new(left, top, right - left, bottom - top);
 	public Rect Union (Rect r) =>
 		Sides(Math.Min(x, r.x), Math.Min(y, r.y), Math.Max(right, r.right), Math.Max(bottom, r.bottom));
-	public IEnumerable<(int x, int y)> Perimeter () => [
+	public IEnumerable<(int x, int y)> Perimeter => [
 		..(left..right).Select(x => (x, top)),
-		..(left..right).Select(x => (x, bottom)),
-		..((top+1)..(bottom-1)).Select(y => (y, left)),
-		..((top+1)..(bottom-1)).Select(y => (y, right))
+		..(left..right).Select(x => (x, bottom-1)),
+		..((top+1)..(bottom-1)).Select(y => (left, y)),
+		..((top+1)..(bottom-1)).Select(y => (right-1, y))
 	];
 	public bool Contains (XY p) => ((p.x - left) * (right - 1 - p.x), (p.y - top) * (bottom - 1 - p.y)) is (>=0, >=0);
 }

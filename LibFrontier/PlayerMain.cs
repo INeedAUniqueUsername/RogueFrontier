@@ -1,27 +1,20 @@
 ﻿using Common;
-using SadRogue.Primitives;
-using static SadConsole.Input.Keys;
-using SadConsole;
-using SadConsole.Input;
-using Console = SadConsole.Console;
-using LibSadConsole;
 using static RogueFrontier.PlayerShip;
-using SFML.Audio;
-using static Common.ColorCommand;
 using System.Reflection;
 using LibGamer;
 using System.Xml.Linq;
 using SfmlFrontier;
 using System.Data;
-using LabelButton = LibSadConsole.LabelButton;
+using LabelButton = LibGamer.SfLink;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 namespace RogueFrontier;
-public record Monitor (System world, PlayerShip playerShip, Camera camera) {
+public record Monitor (int Width, int Height, System world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
-}
-interface ISadSurface{
-    public ScreenSurface Surface { get; }
-    public bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
-    public Point Position { get => Surface.Position; set => Surface.Position = value; }
 }
 //SadConsole-specific code
 public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
@@ -47,8 +40,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Noisemaker audio;
     public XY mouseWorldPos;
     public bool sleepMouse = true;
-    public BackdropConsole back;
-    public Viewport viewport;
+    public BackdropConsole uiBack;
+    public Viewport uiViewport;
     public GateTransition transition;
     public Megamap uiMegamap;
     public Vignette vignette;
@@ -66,7 +59,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     //public bool frameRendered = true;
     public int updatesSinceRender = 0;
     private ListTracker<System> systems;
-    public Sound music;
+    public SoundCtx music;
     public System silenceSystem;
     public Monitor monitor;
     public Hand mouse = new();
@@ -87,6 +80,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         this.story = new(playerShip);
         this.playerShip = playerShip;
         this.playerControls = new(playerShip, this);
+        Settings = ShipControls.standard;
         silenceSystem = new System(world.universe);
         var tc = silenceSystem.types;
         silenceSystem.AddEntity(playerShip);
@@ -104,26 +98,31 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         }
         silenceListener.Register(playerShip);
 
-		monitor = new(world, playerShip, camera);
+		monitor = new(Width, Height, world, playerShip, camera);
 
 		audio = new(playerShip);
         audio.Register(playerShip.world.universe);
 
-        back = new(monitor);
-        viewport = new(Width, Height, monitor);
+        uiBack = new(monitor);
+        uiViewport = new(Width, Height, monitor);
         uiMegamap = new(monitor, world.backdrop.layers.Last());
         vignette = new(this);
         uiMain = new(monitor);
         uiEdge = new(monitor);
         uiMinimap = new(monitor);
-        powerWidget = new(31, 16, this);
-        powerWidget.Surface.IsVisible = false;
-        powerWidget.Surface.Position = new(3, 32);
+
+		void DrawPar (Sf sf) {
+			Draw?.Invoke(sf);
+		}
+		powerWidget = new(31, 16, this);
+        powerWidget.visible = false;
+        powerWidget.sf.pos = new(3, 32);
 
 		pauseScreen = new(this) { visible = false };
         networkMap = new(this) { visible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
         systems = new(new List<System>(playerShip.world.universe.systems.Values));
+
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {
@@ -136,7 +135,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         //Force exit any scenes
         dialog = null;
         //Force exit power menu
-        powerWidget.Surface.IsVisible = false;
+        powerWidget.visible = false;
         uiMain.visible = false;
 
         //Pretty sure this can't happen but make sure
@@ -146,8 +145,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var prevViewport = new Viewport(Width, Height, monitor with { camera = new(playerShip.position)});
         var nextViewport = new Viewport(Width, Height, monitor);
 
-        back = new(nextViewport);
-        viewport = nextViewport;
+        uiBack = new(nextViewport);
+        uiViewport = nextViewport;
         transition = new GateTransition(prevViewport, nextViewport, () => {
             transition = null;
             if (playerShip.mortalTime <= 0) {
@@ -178,8 +177,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         nextWorld.effects.Add(new Heading(playerShip));
         var nextViewport = new Viewport(Width, Height, monitor with { world = nextWorld });
 
-        back = new(nextViewport);
-        viewport = nextViewport;
+        uiBack = new(nextViewport);
+        uiViewport = nextViewport;
         transition = new GateTransition(prevViewport, nextViewport, () => {
             transition = null;
         });
@@ -187,8 +186,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public void OnIntermission() {
         HideAll();
         Go(new ExitTransition(this, this.sf, () => {
-			MinimalCrawlScreen ds = null;
-			ds = new(sf, "Intermission\n\n", EndPause);
+			PlainCrawlScreen ds = null;
+			ds = new PlainCrawlScreen((Width/2-8, 8), "Intermission\n\n", EndPause);
 			void EndPause () {
 				Go(new Pause(ds.sf, EndGame, 3));
 				void EndGame () {
@@ -230,7 +229,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             var back = world.backdrop.GetTile(xy, camera.position);
             //Round down to ensure we don't get duplicated tiles along the origin
 
-            if (viewport.tiles.TryGetValue(xy.roundDown, out var g)) {
+            if (uiViewport.tiles.TryGetValue(xy.roundDown, out var g)) {
                 g = g with { Background = ABGR.Blend(ABGR.Premultiply(back.Background), g.Background) };
                 return g;
             } else {
@@ -287,7 +286,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             story.Update(playerShip);
         }
         if (true) {
-            back.Update(delta);
+            uiBack.Update(delta);
             lock (world) {
                 UpdateUniverse();
                 PlaceTiles(delta);
@@ -347,11 +346,11 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         }
 
         if (gameDelta > 0) {
-            back.Update(delta);
+            uiBack.Update(delta);
             lock (world) {
 
                 //Need to fix this for silence system
-                if (dialog != null) {
+                if (dialog == null) {
                     playerControls.ProcessAll();
                     playerControls.input = new();
                 }
@@ -421,16 +420,16 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 uiMegamap.Update(delta);
                 vignette.Update(delta);
             }
-            if (powerWidget.Surface.IsVisible) {
+            if (powerWidget.visible) {
                 powerWidget.Update(delta);
             }
         }
     }
     public void PlaceTiles(TimeSpan delta) {
         if (playerShip.ship.blindTicks > 0) {
-            viewport.UpdateBlind(delta, playerShip.GetVisibleDistanceLeft);
+            uiViewport.UpdateBlind(delta, playerShip.GetVisibleDistanceLeft);
         } else {
-            viewport.UpdateVisible(delta, playerShip.GetVisibleDistanceLeft);
+            uiViewport.UpdateVisible(delta, playerShip.GetVisibleDistanceLeft);
         }
         /*
         foreach((var key, var value) in viewport.tiles) {
@@ -439,22 +438,21 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         */
     }
     public void RenderWorld(TimeSpan delta) {
-        viewport.Render(delta);
+        uiViewport.Render(delta);
     }
-    public void Render(TimeSpan drawTime) {
+    public void Render(TimeSpan delta) {
         if (pauseScreen.visible) {
-            back.Render(drawTime);
-            viewport.Render(drawTime);
-
-            vignette.Render(drawTime);
-            pauseScreen.Render(drawTime);
+            uiBack.Render(delta);       Draw(uiBack.sf);
+            uiViewport.Render(delta);   Draw(uiViewport.sf);
+            vignette.Render(delta);     Draw(vignette.sf);
+            pauseScreen.Render(delta);  Draw(pauseScreen.sf);
         } else if (networkMap.visible) {
-            networkMap.Render(drawTime);
+            networkMap.Render(delta);   Draw(networkMap.sf);
         } else if (dialog != null) {
-            back.Render(drawTime);
-            viewport.Render(drawTime);
-            vignette.Render(drawTime);
-            dialog.Render(drawTime);
+            uiBack.Render(delta);       Draw(uiBack.sf);
+            uiViewport.Render(delta);   Draw(uiViewport.sf);
+            vignette.Render(delta);     Draw(vignette.sf);
+            dialog.Render(delta);
         } else if(playerShip.active) {
             //viewport.UsePixelPositioning = true;
             //viewport.Position = (playerShip.position - playerShip.position.roundDown) * 8 * new XY(1, -1) * -1;
@@ -462,23 +460,23 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 //If the megamap is completely visible, then skip main render so we can fast travel
                 if (uiMegamap.alpha < 255) {
                     if (transition != null) {
-                        transition.Render(drawTime);
+                        transition.Render(delta);
                     } else {
-                        back.Render(drawTime);
-                        viewport.Render(drawTime);
+                        uiBack.Render(delta);           Draw(uiBack.sf);
+                        uiViewport.Render(delta);       Draw(uiViewport.sf);
                     }
-                    uiMegamap.Render(drawTime);
+                    uiMegamap.Render(delta);    Draw(uiMegamap.sf);
 
-                    vignette.Render(drawTime);
+                    vignette.Render(delta);     Draw(vignette.sf);
 
-                    uiMain.Render(drawTime);
-                    uiEdge.Render(drawTime);
-                    uiMinimap.Render(drawTime);
+                    uiMain.Render(delta);       Draw(uiMain.sf);
+                    uiEdge.Render(delta);       Draw(uiEdge.sf);
+                    //uiMinimap.Render(delta);    Draw(uiMinimap.sf);
                 } else {
-                    uiMegamap.Render(drawTime);
-                    vignette.Render(drawTime);
-                    uiMain.Render(drawTime);
-                    uiEdge.Render(drawTime);
+                    uiMegamap.Render(delta);    Draw(uiMegamap.sf);
+                    vignette.Render(delta);     Draw(vignette.sf);
+                    uiMain.Render(delta);       Draw(uiMain.sf);
+                    uiEdge.Render(delta);       Draw(uiEdge.sf);
                 }
             } else {
                 /*
@@ -494,24 +492,24 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 //If the megamap is completely visible, then skip main render so we can fast travel
                 if (uiMegamap.alpha < 255) {
                     if (transition != null) {
-                        transition.Render(drawTime);
+                        transition.Render(delta);
                     } else {
-                        back.Render(drawTime);
-                        viewport.Render(drawTime);
+                        uiBack.Render(delta);       Draw(uiBack.sf);
+                        uiViewport.Render(delta);   Draw(uiViewport.sf);
                     }
-                    uiMegamap.Render(drawTime);
-                    vignette.Render(drawTime);
+                    uiMegamap.Render(delta);        Draw(uiMain.sf);
+                    vignette.Render(delta);         Draw(vignette.sf);
                 } else {
-                    uiMegamap.Render(drawTime);
-                    vignette.Render(drawTime);
+                    uiMegamap.Render(delta);        Draw(uiMegamap.sf);
+                    vignette.Render(delta);         Draw(vignette.sf);
                 }
             }
-            if (powerWidget.Surface.IsVisible) {
-                powerWidget.Render(drawTime);
+            if (powerWidget.visible) {
+                powerWidget.Render(delta);      Draw(powerWidget.sf);
             }
         } else {
-            back.Render(drawTime);
-            viewport.Render(drawTime);
+            uiBack.Render(delta);           Draw(uiBack.sf);
+            uiViewport.Render(delta);       Draw(uiViewport.sf);
         }
         //frameRendered = true;
         updatesSinceRender = 0;
@@ -537,7 +535,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             pauseScreen.HandleKey(kb);
         } else if (networkMap.visible) {
             networkMap.HandleKey(kb);
-        } else if (powerWidget.Surface.IsVisible) {
+        } else if (powerWidget.visible) {
             playerControls.UpdateInput(kb);
             powerWidget.HandleKey(kb);
         } else {
@@ -571,7 +569,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             networkMap.HandleMouse(state);
         } else if (dialog != null) {
             dialog.HandleMouse(state);
-        } else if (powerWidget.Surface.IsVisible
+        } else if (powerWidget.visible
             && powerWidget.blockMouse) {
             powerWidget.HandleMouse(state);
         } else if (state.on) {
@@ -687,6 +685,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 	}
 }
 public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener, IWeaponListener, Ob<Projectile.Detonated> {
+
+    Action<SoundCtx> PlaySound { get; set; }
     private class AutoLoad : Attribute {}
     [AutoLoad]
     public static readonly byte[]
@@ -703,7 +703,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         dock_start,
         dock_end,
         power_charge, power_release;
-    public static byte[] Load(string file) => File.ReadAllBytes($"Assets/Sounds/{file}.wav");
+    public static byte[] Load(string file) => File.ReadAllBytes($"{Assets.ROOT}/Sounds/{file}.wav");
     static Noisemaker() {
         var props = typeof(Noisemaker)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -715,65 +715,63 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     PlayerShip player;
     List<IShip> exhaustList = new();
     const float distScale = 1 / 16f;
-    public Sound button_press = new(new SoundBuffer("Assets/sounds/button_press.wav")) {
-        Volume = 33
-    };
-    private ListTracker<Sound>
-        exhaust = new(new List<Sound>(Enumerable.Range(0, 16).Select(i => new Sound() { Volume = 10 }))),
-        gunfire = new(new List<Sound>(Enumerable.Range(0, 8).Select(i => new Sound() { Volume = 50 }))),
-        damage = new(new List<Sound>(Enumerable.Range(0, 8).Select(i => new Sound() { Volume = 50 }))),
-        explosion = new(new List<Sound>(Enumerable.Range(0, 4).Select(i => new Sound() { Volume = 75 }))),
-        discovery = new(new List<Sound>(Enumerable.Range(0, 8).Select(i => new Sound() { Volume = 20 })));
+    public SoundCtx button_press = new(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
+    private ListTracker<SoundCtx>
+        exhaust = new(new List<SoundCtx>(Enumerable.Range(0, 16).Select(i => new SoundCtx([], 10)))),
+        gunfire = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
+        damage = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
+        explosion = new(new List<SoundCtx>(Enumerable.Range(0, 4).Select(i => new SoundCtx([], 75)))),
+        discovery = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 25))));
     private class Vol : Attribute {}
     [Vol]
-    public Sound targeting, autopilot, dock, powerCharge;
-    private Dictionary<Sound, float> regular_volumes = new();
+    public SoundCtx targeting, autopilot, dock, powerCharge;
+    private Dictionary<SoundCtx, float> regular_volumes = new();
     public Noisemaker(PlayerShip player) {
 
         var props = typeof(Noisemaker)
             .GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
             .Where(p => p.GetCustomAttributes(true).OfType<Vol>().Any()).ToList();
         foreach (var p in props) {
-            p.SetValue(this, new Sound() { Volume = 50});
+            p.SetValue(this, new SoundCtx([], 50));
         }
         var sounds = new[] { exhaust.list, gunfire.list, damage.list, explosion.list, discovery.list }.SelectMany(l => l)
             //.Concat(new[] { targeting, autopilot, dock, powerCharge })
             ;
         foreach(var s in sounds) {
-            regular_volumes[s] = s.Volume;
+            regular_volumes[s] = s.volume;
         }
         this.player = player;
 
         player.onTargetChanged += new Container<TargetChanged>(pl => {
-            targeting.SoundBuffer = new(pl.targetIndex == -1 ? target_clear : target_set);
-            targeting.Play();
+            targeting.data = pl.targetIndex == -1 ? target_clear : target_set;
+            PlaySound(targeting);
         });
     }
-    public void PlayDiscoverySound(SoundBuffer sb) {
-        if(discovery.list.Any(s => s.SoundBuffer == sb)) {
+    public void PlayDiscoverySound(SoundCtx sb) {
+        if(discovery.list.Any(s => s.data == sb.data)) {
             return;
         }
-        PlayWorldSound(GetNextChannel(discovery), sb);
+        PlayWorldSound(GetNextChannel(discovery), sb.data);
     }
     public void PlayPowerCharge() {
-        powerCharge.SoundBuffer = new(power_charge);
-        powerCharge.Play();
+        powerCharge.data = power_charge;
+        PlaySound(powerCharge);
     }
     public void PlayPowerRelease() {
-        powerCharge.SoundBuffer = new(power_release);
-        powerCharge.Play();
+        powerCharge.data = power_release;
+        PlaySound(powerCharge);
     }
     public void PlayAutopilot(bool active) {
-        autopilot.SoundBuffer = new(active ? autopilot_on : autopilot_off);
-        autopilot.Play();
+        autopilot.data = (active ? autopilot_on : autopilot_off);
+        PlaySound?.Invoke(autopilot);
     }
     public void PlayError() {
-        targeting.SoundBuffer = new(target_clear);
-        targeting.Play();
+        targeting.data = target_clear;
+        PlaySound(targeting);
     }
     public void PlayDocking(bool start) {
-        dock.SoundBuffer = new(start ? dock_start : dock_end);
-        dock.Play();
+        dock.data = (start ? dock_start : dock_end);
+        PlaySound(dock);
     }
     double time;
     public void Update(double delta) {
@@ -785,16 +783,17 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
                 .OrderBy(sh => player.position.Dist(sh.position))
                 .Zip(exhaust.list);
             foreach((var ship, var sound) in exhaustList.Zip(exhaust.list)) {
-                sound.Stop();
+                //sound.Stop();
             }
             exhaustList.Clear();
             foreach ((var ship, var sound) in s) {
-                PlayWorldSound(sound, ship, new(generic_exhaust));
+                PlayWorldSound(sound, ship, generic_exhaust);
                 exhaustList.Add(ship);
             }
         } else {
+            var c = new SoundCtx(null, 0);
             foreach((var ship, var sound) in exhaustList.Zip(exhaust.list)) {
-                sound.Position = SadGamer.ToV3f(player.position.To(ship.position).Scale(distScale));
+                sound.pos = player.position.To(ship.position).Scale(distScale);
             }
         }
     }
@@ -812,7 +811,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             ((IWeaponListener)this).Register(a);
         }
     }
-    public Sound GetNextChannel(ListTracker<Sound> i) => i.GetFirstOrNext(s => s.Status == SoundStatus.Stopped);
+    public SoundCtx GetNextChannel(ListTracker<SoundCtx> i) => i.GetFirstOrNext(s => !s.playing);
     public void Observe(EntityAdded ev) {
         Register(ev.e);
     }
@@ -821,14 +820,14 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         if(e.world != player.world) {
             return;
         }
-        PlayWorldSound(explosion, e, new(generic_explosion));
+        PlayWorldSound(explosion, e, generic_explosion);
     }
     public void Observe(IDamagedListener.Damaged ev) {
         var (e, p) = ev;
         if (e.world != player.world) {
             return;
         }
-        PlayWorldSound(damage, e, new(p.hitHull ? generic_damage : generic_shield_damage));
+        PlayWorldSound(damage, e, p.hitHull ? generic_damage : generic_shield_damage);
     }
     public void Observe(IWeaponListener.WeaponFired ev) {
         var (e, w, pr, sound) = ev;
@@ -839,8 +838,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             p.onDetonated += this;
         }
         if (sound) {
-            PlayWorldSound(gunfire, e,
-                new(w.desc?.sound ?? generic_fire));
+            PlayWorldSound(gunfire, e, (w.desc?.sound ?? generic_fire));
         }
     }
     public void Observe(Projectile.Detonated d) {
@@ -850,34 +848,36 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         }
         PlayWorldSound(gunfire,
             d.source,
-            new(sb));
+            sb);
     }
-    private void PlayWorldSound(ListTracker<Sound> s, Entity e, SoundBuffer sb) =>
-        PlayWorldSound(GetNextChannel(s), e, sb);
-    private void PlayWorldSound(Sound s, Entity e, SoundBuffer sb) {
-        s.Position = SadGamer.ToV3f(player.position.To(e.position).Scale(distScale));
-        PlayWorldSound(s, sb);
+    private void PlayWorldSound(ListTracker<SoundCtx> s, Entity e, byte[] data) =>
+        PlayWorldSound(GetNextChannel(s), e, data);
+    private void PlayWorldSound(SoundCtx s, Entity e, byte[] data) {
+        s.pos = player.position.To(e.position).Scale(distScale);
+        PlayWorldSound(s, data);
     }
-    private void PlayWorldSound(Sound s, SoundBuffer sb) {
-        s.SoundBuffer = sb;
-        s.Volume = regular_volumes[s] * (float)Math.Max(0, 1 - player.ship.silence);
-        s.Play();
+    private void PlayWorldSound(SoundCtx s, byte[] sb) {
+        s.data = sb;
+        s.volume = regular_volumes[s] * (float)Math.Max(0, 1 - player.ship.silence);
+        PlaySound?.Invoke(s);
     }
 }
 public class BackdropConsole {
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+    public Action<Sf> Draw { set; get; }
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     public Camera camera;
     private readonly XY screenCenter;
     private Backdrop backdrop;
-    public Sf Surface;
+    public Sf sf;
 	public BackdropConsole(Viewport view) {
+        sf = new Sf(view.Width, view.Height);
 		this.camera = view.camera;
         this.backdrop = view.world.backdrop;
         screenCenter = new(Width / 2f, Height / 2f);
     }
     public BackdropConsole(Monitor m) {
-        this.Surface = Surface;
+        this.sf = new Sf(m.Width, m.Height);
         this.camera = m.camera;
         this.backdrop = m.world.backdrop;
         screenCenter = new XY(Width / 2f, Height / 2f);
@@ -885,15 +885,16 @@ public class BackdropConsole {
     public void Update(TimeSpan delta) {
     }
     public void Render(TimeSpan drawTime) {
-        Surface.Clear();
+        sf.Clear();
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
                 //var g = this.GetGlyph(x, y);
                 var offset = new XY(x, Height - y) - screenCenter;
                 var location = camera.position + offset.Rotate(camera.rotation);
-                Surface.Tile[x, y] = backdrop.GetTile(location, camera.position);
+                sf.Tile[x, y] = backdrop.GetTile(location, camera.position);
             }
         }
+        Draw?.Invoke(sf);
     }
     public Tile GetTile(int x, int y) {
         var offset = new XY(x, Height - y) - screenCenter;
@@ -902,8 +903,9 @@ public class BackdropConsole {
     }
 }
 public class Megamap {
-    int Width => Surface.Width;
-    int Height => Surface.Height;
+	public Action<Sf> Draw { set; get; }
+	int Width => sf.Width;
+    int Height => sf.Height;
     Camera camera;
     PlayerShip player;
     GeneratedLayer background;
@@ -912,9 +914,9 @@ public class Megamap {
     Dictionary<(int, int), List<(Entity entity, double distance)?>> scaledEntities;
     XY screenSize, screenCenter;
     public byte alpha;
-    public Sf Surface;
+    public Sf sf;
     public Megamap(Monitor m, GeneratedLayer back) {
-        this.Surface = Surface;
+        this.sf = new Sf(m.Width, m.Height);
         this.camera = m.camera;
         this.player = m.playerShip;
         this.background = back;
@@ -980,7 +982,7 @@ public class Megamap {
             );
     }
     public void Render(TimeSpan delta) {
-        Surface.Clear();
+        sf.Clear();
         var alpha = this.alpha;
         if (alpha > 0) {
             if(alpha < 128) {
@@ -994,7 +996,7 @@ public class Megamap {
                         var glyph = t.Glyph;
                         var background = ABGR.PremultiplySet(t.Background, alpha);
                         var foreground = ABGR.PremultiplySet(t.Foreground, alpha);
-                        Surface.Tile[x, Height - y] = new Tile(foreground, background, glyph);
+                        sf.SetTile(x, Height - y, new Tile(foreground, background, glyph));
                     }
                     var environment = player.world.backdrop.planets.GetTile(pos.Snap(viewScale), XY.Zero);
                     if (environment.IsVisible) {
@@ -1019,13 +1021,16 @@ public class Megamap {
                     var glyph = cg.Glyph;
                     var background = ABGR.BlendPremultiply(cg.Background, starlight, alpha);
                     var foreground = ABGR.PremultiplySet(cg.Foreground, alpha);
-                    Surface.Tile[x, Height - y - 1] = new Tile(foreground, background, glyph);
+                    sf.SetTile(x, Height - y - 1, new Tile(foreground, background, glyph));
                 }
             }
-            var visiblePerimeter = new Rectangle(new(Width / 2, Height / 2), (int)(Width / (viewScale * 2) - 1), (int)(Height / (viewScale * 2) - 1));
-            foreach (var point in visiblePerimeter.PerimeterPositions()) {
-                var b = Surface.Back[point.X, point.Y];
-                Surface.Back[point.X, point.Y] = ABGR.BlendPremultiply(b, ABGR.RGBA(255, 255, 255, (byte)(128/viewScale)));
+            int w = (int)(Width / (viewScale * 2) - 1);
+            int h = (int)(Height / (viewScale * 2) - 1);
+
+			var visiblePerimeter = new Rect(Width / 2 - w/2, Height/2 - h/2, w, h);
+            foreach (var (x,y) in visiblePerimeter.Perimeter) {
+                var b = sf.Back[x, y];
+                sf.Back[x, y] = ABGR.BlendPremultiply(b, ABGR.RGBA(255, 255, 255, (byte)(128/viewScale)));
             }
             
             foreach ((var offset, var visible) in scaledEntities) {
@@ -1038,8 +1043,8 @@ public class Megamap {
                 if (distance < threshold) {
                     f = ABGR.MA(f) * 0 + (byte)(255 * distance / threshold);
                 }
-                t = new(f, ABGR.Blend(Surface.Back[x, y], t.Background), t.Glyph);
-                Surface.Tile[x, y] = t;
+                t = new(f, ABGR.Blend(sf.Back[x, y], t.Background), t.Glyph);
+                sf.Tile[x, y] = t;
             }
             /*
             Parallel.ForEach(scaledEntities.space, pair => {
@@ -1067,12 +1072,14 @@ public class Megamap {
             }
             */
         }
+        Draw?.Invoke(sf);
     }
 }
 public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
-    public Sf Surface;
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+	public Action<Sf> Draw { set; get; }
+	public Sf sf;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     PlayerShip player;
     public float glowAlpha;
     public bool armorDecay;
@@ -1109,7 +1116,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
     }
     public Vignette(Mainframe main) {
         player = main.playerShip;
-        this.Surface = Surface;
+        this.sf = new Sf(main.Width, main.Height);
         player.onDamaged += this;
         player.onDestroyed += this;
         glowAlpha = 0;
@@ -1161,13 +1168,13 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         ticks++;
         if (ticks % 5 == 0 && player.ship.disruption?.ticksLeft > 30) {
             int i = 0;
-            var screenPerimeter = new Rectangle(i, i, Width - i * 2, Height - i * 2);
-            foreach (var p in screenPerimeter.PerimeterPositions().Select(p => new XY(p))) {
+            var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
+            foreach (var p in screenPerimeter.Perimeter.Select(p => new XY(p))) {
                 if (r.Next(0, 10) == 0) {
                     int speed = 15;
                     int lifetime = 60;
-                    var v = new XY(p.xi == 0 ? speed : p.xi == screenPerimeter.Width - 1 ? -speed : 0,
-                                    p.yi == 0 ? speed : p.yi == screenPerimeter.Height - 1 ? -speed : 0);
+                    var v = new XY(p.xi == 0 ? speed : p.xi == screenPerimeter.width - 1 ? -speed : 0,
+                                    p.yi == 0 ? speed : p.yi == screenPerimeter.height - 1 ? -speed : 0);
                     particles.Add(new EffectParticle(p, (ABGR.Cyan, ABGR.Transparent, '#'), lifetime) { Velocity = v });
                 }
             }
@@ -1184,7 +1191,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         flash--;
     }
     public void Render(TimeSpan delta) {
-        Surface.Clear();
+        sf.Clear();
 
         if (!player.active) {
             return;
@@ -1228,14 +1235,14 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                 var d = 1d * i / borderSize;
                 d = Math.Pow(d, 1.4);
                 byte alpha = (byte)(255 - d * 255 / 2);
-                var screenPerimeter = new Rectangle(i, i, Width - i * 2, Height - i * 2);
-                foreach (var point in screenPerimeter.PerimeterPositions()) {
+                var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
+                foreach (var point in screenPerimeter.Perimeter) {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
                     var (x, y) = point;
 
                     var inc = (byte)r.Next(102);
                     var c = ABGR.SetA(ABGR.ToGray(ABGR.IncRGB(borderColor, inc)), alpha);
-                    Surface.Back[x, y] = c;
+                    sf.Back[x, y] = c;
                 }
             }
         } else {
@@ -1244,35 +1251,35 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                 d = Math.Pow(d, 1.4);
                 byte alpha = (byte)(255 - 255 * d);
                 var c = ABGR.SetA(borderColor, alpha);
-                var screenPerimeter = new Rectangle(i, i, Width - i * 2, Height - i * 2);
-                foreach (var point in screenPerimeter.PerimeterPositions()) {
+                var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
+                foreach (var point in screenPerimeter.Perimeter) {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
                     var (x, y) = point;
-                    Surface.Back[x, y] = c;
+                    sf.Back[x, y] = c;
                 }
             }
         }
         if (lightningHit > 0) {
             var i = 1;
             var c = ABGR.RGBA(255, 0, 0, (byte)(153 * lightningHit/5));
-            foreach(var p in new Rectangle(i, i, Width - i * 2, Height - i * 2).PerimeterPositions()) {
+            foreach(var p in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
                 var (x, y) = p;
-                Surface.Back[x, y] = ABGR.Blend(Surface.Back[x, y], c);
+                sf.Back[x, y] = ABGR.Blend(sf.Back[x, y], c);
                 //Surface.SetBackground(x, y, c);
             }
         }
         if (armorDecay) {
             var i = 2;
             var c = ABGR.RGBA(255, 255, 0, (byte)(255 - 48 + (int)(Math.Sin(ticks / 5f) * 24)));
-            foreach (var p in new Rectangle(i, i, Width - i * 2, Height - i * 2).PerimeterPositions()) {
+            foreach (var p in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
                 var (x, y) = p;
-                Surface.Back[x, y] = c;
+                sf.Back[x, y] = c;
             }
         }
         foreach (var p in particles) {
             var (x, y) = p.position;
             var (fore, glyph) = (p.tile.Foreground, p.tile.Glyph);
-            Surface.Tile[x, y] = new(fore, Surface.Back[x, y], glyph);
+            sf.Tile[x, y] = new(fore, sf.Back[x, y], glyph);
         }
 
         silence += (player.ship.silence - silence) * delta.TotalSeconds * 10;
@@ -1284,34 +1291,37 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
                         continue;
                     }
                     var t = silenceViewport.GetTile(x, y);
-                    Surface.Tile[x, Height - y - 1] = (ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), (int)t.Glyph);
+                    sf.Tile[x, Height - y - 1] = (ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), (int)t.Glyph);
                 }
             }
         }
+        Draw?.Invoke(sf);
     }
 }
 public class Readout {
-    /*
+	public Action<Sf> Draw { set; get; }
+	/*
     struct Snow {
         public char c;
         public double factor;
     }
     Snow[,] snow;
     */
-    public bool visible = true;
+	public bool visible = true;
     Camera camera;
     PlayerShip player;
     public double viewScale;
 
     public int arrowDistance;
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+    public int Width => sf.Width;
+    public int Height => sf.Height;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
-    public Sf Surface;
+    public Sf sf;
     public Readout(Monitor m) {
         camera = m.camera;
         player = m.playerShip;
+        sf = new Sf(m.Width, m.Height);
 
         //arrowDistance = Math.Min(Width, Height)/2 - 6;
         arrowDistance = 24;
@@ -1367,7 +1377,7 @@ public class Readout {
         }
     }
     public void Render(TimeSpan drawTime) {
-        Surface.Clear();
+        sf.Clear();
         var messageY = Height * 3 / 5;
         int targetX = 48, targetY = 1;
         int tick = player.world.tick;
@@ -1375,7 +1385,7 @@ public class Readout {
             var message = player.messages[i];
             var line = message.Draw();
             var x = Width * 3 / 4 - line.Count();
-            Surface.Print(x, messageY, line);
+            sf.Print(x, messageY, line);
             if (message is Transmission t) {
                 //Draw a line from message to source
 
@@ -1398,7 +1408,7 @@ public class Readout {
 
                 screenX++;
                 messagePos.x++;
-                Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                     e = Line.Single,
                     //n = Line.Single,
                     //s = Line.Single
@@ -1409,7 +1419,7 @@ public class Readout {
 
 
                 for (int j = 0; j < i; j++) {
-                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         e = lineWidth,
                         w = lineWidth
                     }]);
@@ -1436,7 +1446,7 @@ public class Readout {
                 int screenLineY = offset.yi + (offset.yi < 0 ? 0 : 1);
                 int screenLineX = offset.xi;
                 if (screenLineY != 0) {
-                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y > 0 ? lineWidth : Line.None,
                         s = offset.y < 0 ? lineWidth : Line.None,
                         w = lineWidth,
@@ -1446,7 +1456,7 @@ public class Readout {
                     screenLineY -= Math.Sign(screenLineY);
 
                     while (screenLineY != 0) {
-                        Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                        sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             n = lineWidth,
                             s = lineWidth
                         }]);
@@ -1455,7 +1465,7 @@ public class Readout {
                     }
                 }
                 if (screenLineX != 0) {
-                    Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y < 0 ? lineWidth : offset.y > 0 ? Line.None : Line.Single,
                         s = offset.y > 0 ? lineWidth : offset.y < 0 ? Line.None : Line.Single,
 
@@ -1466,7 +1476,7 @@ public class Readout {
                     screenLineX -= Math.Sign(screenLineX);
 
                     while (screenLineX != 0) {
-                        Surface.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                        sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             e = lineWidth,
                             w = lineWidth
                         }]);
@@ -1487,14 +1497,14 @@ public class Readout {
 
         ActiveObject target;
         if (player.GetTarget(out target)) {
-            Surface.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
+            sf.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
         } else if(player.primary.item?.target is ActiveObject found) {
             target = found;
-            Surface.Print(targetX, targetY++, Tile.Arr("[Auto]", ABGR.White, ABGR.Black));
+            sf.Print(targetX, targetY++, Tile.Arr("[Auto]", ABGR.White, ABGR.Black));
         } else {
             goto SkipTarget;
         }
-        Surface.Print(targetX, targetY++, Tile.Arr(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
+        sf.Print(targetX, targetY++, Tile.Arr(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
         PrintTarget(targetX, targetY, target);
     SkipTarget:
         
@@ -1533,7 +1543,7 @@ public class Readout {
                     int l = (int)Math.Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
                     Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
 
-                    Surface.Print(x, y, [
+                    sf.Print(x, y, [
                         ..Tile.Arr("[", ABGR.White, b),
                         ..bar,
                         ..Tile.Arr("]", ABGR.White, b),
@@ -1557,7 +1567,7 @@ public class Readout {
                             bar[i].Foreground = Color.Yellow;
                         }
                         */
-                        Surface.Print(x, y, [
+                        sf.Print(x, y, [
                             ..Tile.Arr("[", ABGR.White, b),
                             ..bar,
                             ..Tile.Arr("]", ABGR.White, b),
@@ -1583,7 +1593,7 @@ public class Readout {
                             w.firing || w.delay > 0 ?
                                 ABGR.Yellow :
                             ABGR.White;
-                        Surface.Print(x, y,[
+                        sf.Print(x, y,[
                             ..Tile.Arr("[", ABGR.White, b),
                             ..w.GetBar(BAR),
                             ..Tile.Arr($"] {w.source.type.name} {enhancement}", foreground, b)]);
@@ -1596,7 +1606,7 @@ public class Readout {
                     foreach (var m in misc) {
                         string tag = m.source.type.name;
                         var f = ABGR.White;
-                        Surface.Print(x, y, Tile.Arr($"{tag}", f, b));
+                        sf.Print(x, y, Tile.Arr($"{tag}", f, b));
                         y++;
                     }
                     y++;
@@ -1613,10 +1623,10 @@ public class Readout {
 								ABGR.Cyan :
 							ABGR.White;
                         int l = BAR * s.hp / s.desc.maxHP;
-                        Surface.Print(x, y, Tile.Arr("[", f, b));
-                        Surface.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
-                        Surface.Print(x + 1, y, Tile.Arr(new('=', l), f, b));
-                        Surface.Print(x + 1 + BAR, y, Tile.Arr($"] {name}", f, b));
+                        sf.Print(x, y, Tile.Arr("[", f, b));
+                        sf.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                        sf.Print(x + 1, y, Tile.Arr(new('=', l), f, b));
+                        sf.Print(x + 1 + BAR, y, Tile.Arr($"] {name}", f, b));
                         y++;
                     }
                     y++;
@@ -1646,7 +1656,7 @@ public class Readout {
 
                                 int active = available * Math.Min(armor.hp, armor.maxHP) / Math.Max(1, armor.maxHP);
                                 
-                                Surface.Print(x, y, [
+                                sf.Print(x, y, [
                                     ..Tile.Arr("[", f, b),
 									..Tile.Arr(new('=', active), f, b),
 									..Tile.Arr(new('=', available - active), ABGR.Gray, b),
@@ -1660,10 +1670,10 @@ public class Readout {
                         }
                     case HP hp: {
                             var f = ABGR.White;
-                            Surface.Print(x, y, Tile.Arr("[", f, b));
-                            Surface.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
-                            Surface.Print(x + 1, y, Tile.Arr(new('=', BAR * hp.hp / hp.maxHP), f, b));
-                            Surface.Print(x + 1 + BAR, y, Tile.Arr($"] HP: {hp.hp}", f, b));
+                            sf.Print(x, y, Tile.Arr("[", f, b));
+                            sf.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                            sf.Print(x + 1, y, Tile.Arr(new('=', BAR * hp.hp / hp.maxHP), f, b));
+                            sf.Print(x + 1 + BAR, y, Tile.Arr($"] HP: {hp.hp}", f, b));
                             break;
                         }
                 }
@@ -1704,13 +1714,13 @@ public class Readout {
                 int totalUsed = player.energy.totalOutputUsed,
                     totalMax = player.energy.totalOutputMax;
                 int l;
-                l = (int)Math.Ceiling(BAR * (double)totalUsed / totalMax);
+                l = (int)Math.Ceiling(BAR * (double)totalUsed / Math.Max(1, totalMax));
 
                 Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
-                l = (int)Math.Ceiling(BAR * (double)totalSolar / totalMax);
+                l = (int)Math.Ceiling(BAR * (double)totalSolar / Math.Max(1, totalMax));
 
 				Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkCyan }).ToArray(), bar, l);
-                Surface.Print(x, y++, [
+                sf.Print(x, y++, [
                     ..Tile.Arr("[", 0xFFFFFFFF, b),
                     ..bar,
                     ..Tile.Arr("]", 0xFFFFFFFF, b),
@@ -1749,7 +1759,7 @@ public class Readout {
                         ref var e = ref entry[i + 1];
                         e = e with { Background = ABGR.DarkKhaki };
                     }
-                    Surface.Print(x, y, entry);
+                    sf.Print(x, y, entry);
                     y++;
                 }
                 y++;
@@ -1770,7 +1780,7 @@ public class Readout {
                         Tile.empty,
                         ..Tile.Arr(s.source.type.name, f, b)
 						];
-                    Surface.Print(x, y, line);
+                    sf.Print(x, y, line);
                     y++;
                 }
                 y++;
@@ -1793,7 +1803,7 @@ public class Readout {
                         w.firing || w.delay > 0 ?
 							ABGR.Yellow :
 						ABGR.White;
-                    Surface.Print(x, y, [..Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), ..Tile.Arr(tag, foreground, b)]);
+                    sf.Print(x, y, [..Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), ..Tile.Arr(tag, foreground, b)]);
                     y++;
                     i++;
                 }
@@ -1803,7 +1813,7 @@ public class Readout {
                 foreach (var m in misc) {
                     var tag = m.source.type.name;
                     var f = ABGR.White;
-                    Surface.Print(x, y, Tile.Arr($"[{Repeat("-", BAR)}] {tag}", f, b));
+                    sf.Print(x, y, Tile.Arr($"[{new string('-', BAR)}] {tag}", f, b));
                     y++;
                 }
                 y++;
@@ -1835,7 +1845,7 @@ public class Readout {
                     }
                     var counter = Tile.Arr($"{s.hp,3}/{s.desc.maxHP,3}", f, b);
 					var name = Tile.Arr(s.source.type.name, f, b);
-					Surface.Print(x, y, [
+					sf.Print(x, y, [
                         ..bar,
                         Tile.empty,
                         ..counter,
@@ -1885,7 +1895,7 @@ public class Readout {
                                 ];
                             var counter = $"{(bonus > 0 ? $"{bonus}+{hp}" : $"{hp}"),3}/{armor.maxHP,3}";
                             var name =      armor.source.type.name;
-                            Surface.Print(x, y, [..bar, Tile.empty, ..Tile.Arr($"{counter} {name}", f, bb)]);
+                            sf.Print(x, y, [..bar, Tile.empty, ..Tile.Arr($"{counter} {name}", f, bb)]);
                             y++;
                         }
                         break;
@@ -1895,7 +1905,7 @@ public class Readout {
                         var l = BAR * hp.hp / hp.maxHP;
 
                         
-                        Surface.Print(x, y, Tile.ArrFrom(XElement.Parse(@$"
+                        sf.Print(x, y, Tile.ArrFrom(XElement.Parse(@$"
 <S f=""{f}"" b=""{b}"">[{new string('=', l)}<S b=""{ABGR.Gray}"">{new string('=', BAR - l)}</S>] HP: {hp.hp}</S>"""))
 );
                         y++;
@@ -1905,21 +1915,23 @@ public class Readout {
             y++;
 
             var (_f, _b) = (ABGR.White, ABGR.Black);
-            Surface.Print(x, y++, Tile.Arr($"Stealth: {ship.stealth:0.00}", _f, _b));
-            Surface.Print(x, y++, Tile.Arr($"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}", _f, _b));
-            Surface.Print(x, y++, Tile.Arr($"Darkness: {player.ship.silence:0.00}", _f, _b));
+            sf.Print(x, y++, Tile.Arr($"Stealth: {ship.stealth:0.00}", _f, _b));
+            sf.Print(x, y++, Tile.Arr($"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}", _f, _b));
+            sf.Print(x, y++, Tile.Arr($"Darkness: {player.ship.silence:0.00}", _f, _b));
         }
+        Draw?.Invoke(sf);
     }
 }
 public class Edgemap {
-    public int Width => Surface.Width;
-    public int Height => Surface.Height;
+	public Action<Sf> Draw { set; get; }
+	public int Width => sf.Width;
+    public int Height => sf.Height;
     Camera camera;
     PlayerShip player;
     public double viewScale;
-    public Sf Surface;
+    public Sf sf;
     public Edgemap(Monitor m){
-        this.Surface = Surface;
+        this.sf = new Sf(m.Width, m.Height);
         this.camera = m.camera;
         this.player = m.playerShip;
         viewScale = 1;
@@ -1927,7 +1939,7 @@ public class Edgemap {
     public void Update(TimeSpan delta) {
     }
     public void Render(TimeSpan drawTime) {
-        Surface.Clear();
+        sf.Clear();
         var screenSize = new XY(Width - 1, Height - 1);
         var screenCenter = screenSize / 2;
         var halfWidth = Width / 2;
@@ -1942,18 +1954,18 @@ public class Edgemap {
                 (var entity, var dist) = pair.Value;
                 var offset = (entity.position - player.position).Rotate(-camera.rotation);
                 var (x, y) = (offset / viewScale).abs;
-                if (x > halfWidth || y > halfHeight) {
+                if (x >= halfWidth || y >= halfHeight) {
                     (x, y) = Main.GetBoundaryPoint(screenSize, offset.angleRad);
                     PrintTile(x, y, dist, entity);
                 } else if (x > halfWidth - 4 || y > halfHeight - 4) {
-                    (x, y) = screenCenter + offset + new XY(1, 1);
+                    (x, y) = screenCenter + offset / viewScale;// + new XY(1, 1);
                     PrintTile(x, y, dist, entity);
                 }
             });
 
         if(player.active) {
             var (x, y) = Main.GetBoundaryPoint(screenSize, player.rotationRad);
-            Surface.Tile[x, Height - y - 1] = new Tile(ABGR.White, ABGR.Transparent, 7);
+            sf.Tile[x, Height - y - 1] = new Tile(ABGR.White, ABGR.Transparent, 7);
         }
         void PrintTile(int x, int y, double distance, Entity e) {
             switch(e) {
@@ -1963,31 +1975,34 @@ public class Edgemap {
                     var c = e.tile.Foreground;
                     const int threshold = 16;
                     if (distance < threshold) {
-                        c = ABGR.SetA(c, (byte)(255 * distance / threshold));
+                        var a = (byte)(255 * distance / threshold);
+						c = ABGR.SetA(c, a);
                     }
-                    Surface.Tile[x, Height - y - 1] = new Tile(c, ABGR.Transparent, 254);
+                    sf.Tile[x, Height - y - 1] = new Tile(c, ABGR.Transparent, 254);
                     break;
                 default: return;
             }
         }
+        Draw?.Invoke(sf);
     }
 }
 public class Minimap {
-    PlayerShip player;
+	public Action<Sf> Draw { set; get; }
+	PlayerShip player;
     public int size;
     Camera camera;
     public double time;
     public byte alpha;
     List<(int x, int y)> area = new();
-    Sf Surface;
+    public Sf sf;
 	int Width,Height;
 	XY screenSize, screenCenter;
     public Minimap(Monitor m) {
-        this.Surface = Surface;
+        this.sf = new Sf(m.Width, m.Height);
         this.player = m.playerShip;
-        this.size = size;
+        this.size = 48;
         this.camera = m.camera;
-        Width = Surface.Width; Height = Surface.Height;
+        Width = sf.Width; Height = sf.Height;
 		screenSize = new(Width, Height);
         screenCenter = screenSize / 2;
 
@@ -2025,15 +2040,16 @@ public class Minimap {
                     f = ABGR.SetA(f, (byte)(255 * distance / threshold));
                 }
 
-                Surface.Tile[x, y] = new Tile(f, b, g).PremultiplySet(alpha);
+                sf.Tile[x, y] = new Tile(f, b, g).PremultiplySet(alpha);
             } else {
                 var foreground = ABGR.SetA(ABGR.White, (byte)(51 + ((x + y) % 2 == 0 ? 0 : 12)));
-                Surface.Tile[x, y] =
+                sf.Tile[x, y] =
                     new Tile(foreground, b, '#')
                         .PremultiplySet(alpha);
 
             }
         }
+        Draw?.Invoke(sf);
     }
 }
 public class CommunicationsWidget {
@@ -2041,7 +2057,7 @@ public class CommunicationsWidget {
 	PlayerShip playerShip;
     int ticks;
     CommandMenu? menu;
-    public Sf Surface;
+    public Sf sf;
     public CommunicationsWidget(Sf Surface, PlayerShip playerShip) {
 		this.playerShip = playerShip;
         menu = null;
@@ -2056,14 +2072,14 @@ public class CommunicationsWidget {
         }
         ticks++;
     }
-    public void ProcessKeyboard(Keyboard info) {
+    public void ProcessKeyboard(KB info) {
         if (menu?.visible == true) {
             return;
         }
-        foreach (var k in info.KeysPressed) {
-            int index = SMenu.keyToIndex(k.Character);
+        foreach (var k in info.Press) {
+            int index = SMenu.keyToIndex((char)k);
             if (index > -1 && index < 10 && index < playerShip.wingmates.Count) {
-                menu = new(Surface, playerShip, playerShip.wingmates[index]);
+                menu = new(sf, playerShip, playerShip.wingmates[index]);
                 //menu.Surface.Position = Surface.Position;
 			}
         }
@@ -2076,16 +2092,16 @@ public class CommunicationsWidget {
         int x = 0;
         int y = 0;
 
-        Surface.Clear();
+        sf.Clear();
 
         var f = ABGR.White;
         if (ticks % 60 < 30) {
             f = ABGR.Yellow;
         }
         var b = ABGR.Black;
-        Surface.Print(x, y++, Tile.Arr("[Communications]", f, b));
+        sf.Print(x, y++, Tile.Arr("[Communications]", f, b));
         //this.Print(x, y++, "[Ship control locked]", foreground, back);
-        Surface.Print(x, y++, Tile.Arr("[ESC     -> cancel]", f, b));
+        sf.Print(x, y++, Tile.Arr("[ESC     -> cancel]", f, b));
         y++;
         /*
         if (playerShip.wingmates.Count(w => w.active) == 0) {
@@ -2099,7 +2115,7 @@ public class CommunicationsWidget {
         int index = 0;
         foreach (var w in playerShip.wingmates.Take(10)) {
             char key = SMenu.indexToKey(index++);
-            Surface.Print(x, y++, Tile.Arr($"[{key}] {w.name}: {w.behavior.GetOrderName()}", ABGR.White, ABGR.Black));
+            sf.Print(x, y++, Tile.Arr($"[{key}] {w.name}: {w.behavior.GetOrderName()}", ABGR.White, ABGR.Black));
         }
     }
     public class CommandMenu {
@@ -2177,14 +2193,14 @@ public class CommunicationsWidget {
         public void Update(TimeSpan delta) {
             ticks++;
         }
-        public void ProcessKeyboard(Keyboard info) {
-            foreach (var k in info.KeysPressed) {
-                int index = SMenu.keyToIndex(k.Character);
+        public void ProcessKeyboard(KB info) {
+            foreach (var k in info.Press) {
+                int index = SMenu.keyToIndex((char)k);
                 if (index > -1 && index < commands.Count) {
                     commands.Values.ElementAt(index)();
                 }
             }
-            if (info.IsKeyPressed(Keys.Escape)) {
+            if (info.IsPress(KC.Escape)) {
                 visible = false;
             }
         }
@@ -2214,36 +2230,33 @@ public class CommunicationsWidget {
     }
 }
 public class PowerWidget {
+    public Action<Sf> Draw { get; set; }
+
     public bool visible = true;
     PlayerShip playerShip;
     Mainframe main;
     int ticks;
     private bool _blockMouse;
-    public ScreenSurface Surface;
+    public Sf sf;
     public bool blockMouse {
         set {
             _blockMouse = value;
-            Surface.Surface.DefaultBackground = value ? new Color(0, 0, 0, 127) : Color.Transparent;
         }
         get => _blockMouse;
     }
     public PowerWidget(int width, int height, Mainframe main) {
         this.playerShip = main.playerShip;
-        Surface = new(width, height);
+        sf = new(width, height);
 		this.main = main;
-        Surface.FocusOnMouseClick = false;
         InitButtons();
-		Surface.IsVisibleChanged += (s, e) => {
-            if (Surface.IsVisible) InitButtons();
-        };
     }
+    List<LabelButton> buttons = [];
     public void InitButtons() {
         int x = 4;
         int y = 6;
-        Surface.Children.Clear();
+        sf.Clear();
         foreach (var p in playerShip.powers) {
-            Surface.Children.Add(new LabelButton(p.type.name) {
-                Position = new Point(x, y++),
+            buttons.Add(new LabelButton(sf, (x, y++), p.type.name) {
                 leftHold = () => {
                     if (p.ready) {
                         //Enable charging
@@ -2296,11 +2309,10 @@ public class PowerWidget {
         }
 
         if(charging) {
-            if (main.audio.powerCharge.Status == SoundStatus.Stopped) {
+            if (!main.audio.powerCharge.playing) {
                 main.audio.PlayPowerCharge();
             }
         }
-        Surface.Update(delta);
     }
     public void HandleKey(KB kb) {
         foreach (var k in kb.Down) {
@@ -2344,59 +2356,59 @@ public class PowerWidget {
         int x = 0;
         int y = 0;
         int index = 0;
-        Surface.Clear();
-        var foreground = Color.White;
+        sf.Clear();
+        var foreground = ABGR.White;
         if (ticks % 60 < 30) {
-            foreground = Color.Yellow;
+            foreground = ABGR.Yellow;
         }
-        var back = Color.Black;
-        Surface.Print(x, y++, "[Powers]", foreground, back);
+        var back = ABGR.Black;
+        sf.Print(x, y++, "[Powers]", foreground, back);
         //this.Print(x, y++, "[Ship control locked]", foreground, back);
-        Surface.Print(x, y++, "[ESC     -> cancel]", foreground, back);
-        Surface.Print(x, y++, "[P       -> close ]", foreground, back);
-        Surface.Print(x, y++, "[Hold    -> charge]", foreground, back);
-        Surface.Print(x, y++, "[Release -> invoke]", foreground, back);
+        sf.Print(x, y++, "[ESC     -> cancel]", foreground, back);
+        sf.Print(x, y++, "[P       -> close ]", foreground, back);
+        sf.Print(x, y++, "[Hold    -> charge]", foreground, back);
+        sf.Print(x, y++, "[Release -> invoke]", foreground, back);
         y++;
 
-        var bl = Color.Black;
-        var gr = Color.Gray;
-        var wh = Color.White;
+        var bl = ABGR.Black;
+        var gr = ABGR.Gray;
+        var wh = ABGR.White;
         foreach (var p in playerShip.powers) {
             char key = SMenu.indexToKey(index);
             if (p.cooldownLeft > 0) {
                 int chargeBar = (int)(16 * p.cooldownLeft / p.cooldownPeriod);
-                Surface.Print(x, y++,
-                    new ColoredString($"[{key}] {p.type.name,-8} ", gr, bl) +
-                    new ColoredString("[", wh, bl) +
-                    new ColoredString(new string('>', 16 - chargeBar), wh, bl) +
-                    new ColoredString(new string('>', chargeBar), gr, bl) +
-                    new ColoredString("]", wh, bl)
-                    );
+                sf.Print(x, y++, [
+                    ..Tile.Arr($"[{key}] {p.type.name,-8} ", gr, bl),
+					..Tile.Arr("[", wh, bl),
+					..Tile.Arr(new string('>', 16 - chargeBar), wh, bl),
+					..Tile.Arr(new string('>', chargeBar), gr, bl),
+					..Tile.Arr("]", wh, bl)
+                    ]);
             } else if (p.invokeCharge > 0) {
                 var chargeMeter = (int)Math.Min(16, 16 * p.invokeCharge / p.invokeDelay);
 
-                var c = Color.Yellow;
+                var c = ABGR.Yellow;
                 if (p.invokeCharge >= p.invokeDelay && ticks % 30 < 15) {
-                    c = Color.Orange;
+                    c = ABGR.Orange;
                 }
-                Surface.Print(x, y++,
-                    new ColoredString($"[{key}] {p.type.name,-8} ", c, bl) +
-                    new ColoredString("[", c, bl) +
-                    new ColoredString(new string('>', chargeMeter), c, bl) +
-                    new ColoredString(new string('>', 16 - chargeMeter), wh, bl) +
-                    new ColoredString("]", c, bl)
-                    );
+                sf.Print(x, y++, [
+					..Tile.Arr($"[{key}] {p.type.name,-8} ", c, bl),
+                    ..Tile.Arr("[", c, bl),
+                    ..Tile.Arr(new string('>', chargeMeter), c, bl),
+                    ..Tile.Arr(new string('>', 16 - chargeMeter), wh, bl),
+                    ..Tile.Arr("]", c, bl)
+                    ]);
             } else {
-                Surface.Print(x, y++,
-                    new ColoredString($"[{key}] {p.type.name,-8} ", wh, bl) +
-                    new ColoredString($"[{new string('>', 16)}]", wh, bl));
+                sf.Print(x, y++, [
+					..Tile.Arr($"[{key}] {p.type.name,-8} ", wh, bl),
+					..Tile.Arr($"[{new string('>', 16)}]", wh, bl)]);
             }
             index++;
         }
 
         //this.SetCellAppearance(Width/2, Height/2, new ColoredGlyph(Color.White, Color.White, 'X'));
 
-        Surface.Render(delta);
+        Draw(sf);
     }
 
 }

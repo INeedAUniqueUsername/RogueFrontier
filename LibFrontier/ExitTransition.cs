@@ -1,9 +1,15 @@
-﻿using LibGamer;
-
+﻿
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using LibGamer;
 namespace RogueFrontier;
 
 public class ExitTransition : IScene {
-    IScene prev;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	IScene prev;
     Action next;
     Sf sf_prev;
     Sf sf;
@@ -14,9 +20,6 @@ public class ExitTransition : IScene {
     HashSet<Particle> particles;
     double time;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
-	public Action<SoundCtx> PlaySound { get; set; }
 
 	public ExitTransition(IScene prev, Sf sf_prev, Action next) {
         this.prev = prev;

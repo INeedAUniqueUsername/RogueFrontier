@@ -1,15 +1,16 @@
 ﻿using LibGamer;
+using System;
 
 namespace RogueFrontier;
 
 public class EpitaphScreen : IScene {
-    Mainframe playerMain;
+	public Action<IScene> Go { set; get; }
+	public Action<Sf> Draw { set; get; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	Mainframe playerMain;
     Epitaph epitaph;
 
     Sf Surface;
-    public Action<IScene> Go { set; get; }
-    public Action<Sf> Draw { set; get; }
-    public Action<SoundCtx> PlaySound { get; set; }
 
 	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
@@ -172,8 +173,8 @@ public class IdentityScreen : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 	Sf Surface;
     Mainframe playerMain;
-	public IdentityScreen(Mainframe playerMain) {
-        this.Surface = new Sf(Program.WIDTH, Program.HEIGHT);
+	public IdentityScreen(int Width, int Height, Mainframe playerMain) {
+        this.Surface = new Sf(Width, Height);
         this.playerMain = playerMain;
 #if false
         Children.Add(new LabelButton("Continue", Continue) {

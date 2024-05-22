@@ -590,9 +590,9 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_orion_skewer = 2700,
         item_hunterscale_plate = 250,
         item_skullhelm_plate = 600,
-        item_dark_cannon = 3000,
-        item_thorn_missile = 16,
-        item_thorn_missile_system = 3200,
+        //item_dark_cannon = 3000,
+        //item_thorn_missile = 16,
+        //item_thorn_missile_system = 3200,
         item_simple_fuel_rod = 50,
         item_armor_repair_patch = 200,
         item_amethyst_repair_kit_i = 400,
@@ -646,7 +646,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_cloaking_shield = 2400,
         item_darkened_knightsteel_plate = 7500,
 
-
         item_magic_bomb = 15,
         item_magic_bomb_launcher = 2500,
 
@@ -698,8 +697,10 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_specrom_magic_blaster_i = 8400,
 
         item_debug_missile = 0,
-        item_debug_missile_launcher = 0
-    }.ToDict<int>();
+		item_debug_missile_launcher = 0,
+
+		item_spec_amethyst_laser_i = 0
+	}.ToDict<int>();
     public Timeline(PlayerShip playerShip) {
         var i = playerShip.world.types.GetDict<ItemType>();
         stdPrice = stdPriceTable.ToDictionary(pair => i[pair.Key], pair => pair.Value);

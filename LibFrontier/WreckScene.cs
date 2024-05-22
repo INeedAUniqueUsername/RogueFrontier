@@ -25,7 +25,7 @@ public class WreckScene : IScene {
     }
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
         this.prev = prev;
-        this.sf = new Sf(64, 96, 1);
+        this.sf = new Sf(64, 96);
         this.player = playerShip.person;
 
         descPane = new DescPanel<Item>();
@@ -77,5 +77,6 @@ public class WreckScene : IScene {
         var f = ABGR.White;
         var b = ABGR.Black;
         sf.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
+        Draw(sf);
     }
 }

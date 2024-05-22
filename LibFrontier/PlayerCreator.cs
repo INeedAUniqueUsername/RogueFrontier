@@ -1,9 +1,8 @@
 ﻿using Common;
-using SadRogue.Primitives;
-using Label = LibSadConsole.Label;
-using LibSadConsole;
 using LibGamer;
-using LabelButton = LibSadConsole.LabelButton;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 namespace RogueFrontier;
 
 class ShipSelectorModel {
@@ -31,15 +30,18 @@ class PlayerCreator : IScene {
     private ref List<GenomeType> genomes => ref context.genomes;
     private ref int genomeIndex => ref context.genomeIndex;
     private ref GenomeType playerGenome => ref context.playerGenome;
-    public List<object> Children = new();
-    Sf sf; int Width => sf.Width; int Height => sf.Height;
+    public Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
     private IScene prev;
     private Sf sf_prev;
     private ShipSelectorModel context;
     private ShipControls settings;
     private Action<ShipSelectorModel> next;
-    private LabelButton leftArrow, rightArrow;
+    private SfLink leftArrow, rightArrow;
     double time = 0;
+
+    public List<SfControl> controls = [];
     public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
         sf = new Sf(sf_prev.Width, sf_prev.Height);
         this.prev = prev;
@@ -61,22 +63,22 @@ class PlayerCreator : IScene {
         int x = 2;
         int y = 2;
 
-        Children.Add(new TextPainter(context.portrait) { Position = (x, y) });
+        //controls.Add(new TextPainter(context.portrait) { Position = (x, y) });
 
         x = 10;
 
-        var nameField = new LabeledField("Name           ", context.playerName, (e, text) => context.playerName = text) { Position = (x, y) };
-        this.Children.Add(nameField);
+        var nameField = new LabeledField(sf, (x, y), "Name           ", context.playerName, (e, text) => context.playerName = text);
+        controls.Add(nameField);
 
         y++;
 
-        Label identityLabel = new Label("Identity       ") { Position = (x, y) };
-        this.Children.Add(identityLabel);
+        var identityLabel = new SfText(sf, (x,y),"Identity       ");
+        controls.Add(identityLabel);
 
-        LabelButton identityButton = null;
+        SfLink identityButton = null;
         double lastClick = 0;
         int fastClickCount = 0;
-        identityButton = new LabelButton(playerGenome.name, () => {
+        identityButton = new SfLink(sf, (x+16,y),playerGenome.name, () => {
 
             //Tones.pressed.Play();
 
@@ -88,8 +90,8 @@ class PlayerCreator : IScene {
             } else {
                 fastClickCount++;
                 if (fastClickCount == 2) {
-                    this.Children.Remove(identityLabel);
-                    this.Children.Remove(identityButton);
+                    controls.Remove(identityLabel);
+                    controls.Remove(identityButton);
 
                     context.playerGenome = new GenomeType() {
                         name = "Human Variant",
@@ -101,29 +103,30 @@ class PlayerCreator : IScene {
                         possessiveNoun = "theirs",
                         reflexive = "theirself"
                     };
-                    this.Children.Add(new LabeledField("Identity       ", playerGenome.name, (e, s) => playerGenome.name = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Species        ", playerGenome.species, (e, s) => playerGenome.species = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Gender         ", playerGenome.gender, (e, s) => playerGenome.gender = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Subjective     ", playerGenome.subjective, (e, s) => playerGenome.subjective = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Objective      ", playerGenome.objective, (e, s) => playerGenome.objective = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Possessive Adj.", playerGenome.possessiveAdj, (e, s) => playerGenome.possessiveAdj = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Possessive Noun", playerGenome.possessiveNoun, (e, s) => playerGenome.possessiveNoun = s) { Position = (x, y++) });
-                    this.Children.Add(new LabeledField("Reflexive      ", playerGenome.reflexive, (e, s) => playerGenome.reflexive = s) { Position = (x, y++) });
+                    Enumerable.ToList<(string key, string val, Action<string> set)>([
+						("Identity       ", playerGenome.name, (s) => playerGenome.name = s),
+						("Species        ", playerGenome.species, (s) => playerGenome.species = s),
+						("Gender         ", playerGenome.gender, s => playerGenome.gender = s),
+						("Subjective     ", playerGenome.subjective, (s) => playerGenome.subjective = s),
+						("Objective      ", playerGenome.objective, (s) => playerGenome.objective = s),
+						("Possessive Adj.", playerGenome.possessiveAdj, (s) => playerGenome.possessiveAdj = s),
+						("Possessive Noun", playerGenome.possessiveNoun, (s) => playerGenome.possessiveNoun = s),
+						("Reflexive      ", playerGenome.reflexive, (s) => playerGenome.reflexive = s)
+
+						]).ForEach(t => {
+                            controls.Add(new LabeledField(sf, (x, y++), t.key, t.val, (e, s) => t.set(s)));
+                        });
                 }
             }
             lastClick = time;
-        }) { Position = new Point(x + 16, y) };
-        Children.Add(identityButton);
+        });
+        controls.Add(identityButton);
 
         string back = "[Escape] Back";
-        Children.Add(new LabelButton(back, Back) {
-            Position = new Point(Width - back.Length, 1)
-        });
+        controls.Add(new SfLink(sf, (Width - back.Length, 1), back, Back));
 
         string start = "[Enter] Start";
-        Children.Add(new LabelButton(start, Start) {
-            Position = new Point(Width - start.Length, Height - 1)
-        });
+        controls.Add(new SfLink(sf, (Width - start.Length, Height - 1), start, Start));
         PlaceArrows();
     }
     public void Update(TimeSpan delta) {
@@ -220,10 +223,10 @@ class PlayerCreator : IScene {
     }
     public void UpdateArrows() {
         if (leftArrow != null) {
-            Children.Remove(leftArrow);
+            controls.Remove(leftArrow);
         }
         if (rightArrow != null) {
-            Children.Remove(rightArrow);
+            controls.Remove(rightArrow);
         }
         PlaceArrows();
     }
@@ -233,17 +236,13 @@ class PlayerCreator : IScene {
         string left = "<===  [Left Arrow]";
         if (showLeft) {
             int x = Width / 4 - left.Length - 1;
-            Children.Add(leftArrow = new LabelButton(left, SelectLeft) {
-                Position = new Point(x, shipDescY)
-            });
+            controls.Add(leftArrow = new SfLink(sf, (x, shipDescY), left, SelectLeft));
         }
 
         string right = "[Right Arrow] ===>";
         if (showRight) {
             var x = Width * 3 / 4 + 1;
-            Children.Add(rightArrow = new LabelButton(right, SelectRight) {
-                Position = new Point(x, shipDescY)
-            });
+            controls.Add(rightArrow = new SfLink(sf, (x, shipDescY), right, SelectRight));
         }
     }
 

@@ -1,8 +1,14 @@
 ﻿using Common;
 using CloudJumper;
 using LibGamer;
+
 using TileTuple = (uint Foreground, uint Background, int Glyph);
+using System.Collections.Generic;
+using System;
+using System.Linq;
+using System.IO;
 namespace RogueFrontier;
+
 class IntroCrawl : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
@@ -40,10 +46,10 @@ where the galaxies revolve.""",
 @"At last, there is my mission
 to walk about the divine halls.
 And it seems to me, this vision
-Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArray();
+Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).ToArray();
     //to do: portraits
     //to do: crawl images
-    public Func<IScene> next;
+    public Action next;
     private int lines;
     int sectionNumber;
     int sectionIndex;
@@ -63,10 +69,10 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
 
     Random random = new Random();
 
-    Sf sf;
+    public Sf sf;
 
 
-	public IntroCrawl(int Width, int Height, Func<IScene> next) {
+	public IntroCrawl(int Width, int Height, Action next) {
         this.sf = new Sf(Width, Height);
         this.Width = Width;
         this.Height = Height;
@@ -131,7 +137,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
                 backgroundSlideX = 0;
             }
         } else {
-            Go(next());
+            next();
         }
 
         void UpdateClouds() {

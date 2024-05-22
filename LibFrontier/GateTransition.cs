@@ -1,7 +1,8 @@
 ﻿using LibGamer;
 using RogueFrontier;
-using SadConsole.Input;
-using SadRogue.Primitives;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 namespace SfmlFrontier;
 
 public class GateTransition : IScene {
@@ -11,15 +12,15 @@ public class GateTransition : IScene {
 
 	Viewport back, front;
     double amount;
-    Rectangle rect;
+    Rect rect;
     public Action next;
 
     Sf sf;int Width => sf.Width;int Height => sf.Height;
 
     class Particle {
         public int lifetime;
-        public Point pos;
-        public Particle(int lifetime, Point pos) {
+        public (int X, int Y) pos;
+        public Particle(int lifetime, (int X, int Y) pos) {
             this.lifetime = lifetime;
             this.pos = pos;
         }
@@ -29,11 +30,11 @@ public class GateTransition : IScene {
 	public GateTransition(Viewport back, Viewport front, Action next) {
         this.back = back;
         this.front = front;
-        rect = new(new(Width / 2, Height / 2), 0, 0);
+        rect = new Rect(Width / 2, Height / 2, 0, 0);
         this.next = next;
     }
-    public void HandleKey(Keyboard keyboard) {
-        if (keyboard.IsKeyPressed(Keys.Enter)) {
+    public void HandleKey(KB kb) {
+        if (kb.IsPress(KC.Enter)) {
             next();
         }
     }
@@ -42,8 +43,8 @@ public class GateTransition : IScene {
         amount += delta.TotalSeconds * 1;
 
         if (amount < 1) {
-            rect = new Rectangle(new(Width / 2, Height / 2), (int)(amount * Width / 2), (int)(amount * Height / 2));
-            particles.AddRange(rect.PerimeterPositions().Select(p => new Particle(15, p)));
+            rect = new Rect(Width / 2, Height / 2, (int)(amount * Width / 2), (int)(amount * Height / 2));
+            particles.AddRange(rect.Perimeter.Select(p => new Particle(15, p)));
             particles.ForEach(p => p.lifetime--);
             particles.RemoveAll(p => p.lifetime < 1);
         } else if(particles.Any()) {
@@ -66,7 +67,7 @@ public class GateTransition : IScene {
             BackdropConsole nextBack = new(front);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
-                    Point p = new(x, y);
+                    var p = (x, y);
                     (var v, var b) = rect.Contains(p) ? (front, nextBack) : (back, prevBack);
                     _back.SetTile(x, y, b.GetTile(x, y));
                     var g = v.GetTile(x, y);
@@ -78,7 +79,7 @@ public class GateTransition : IScene {
             var prevBack = new BackdropConsole(back);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
-                    var p = new Point(x, y);
+                    var p = (x, y);
                     if (rect.Contains(p)) {
                         sf.SetTile(x, Height - y, new Tile(ABGR.Black, ABGR.Black, 0));
                     } else {

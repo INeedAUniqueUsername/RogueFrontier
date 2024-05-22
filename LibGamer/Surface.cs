@@ -8,6 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace LibGamer;
+
+
+public interface SfContainer {
+	Sf sf { get; set; }
+	int Width => sf.Width;
+	int Height => sf.Height;
+}
 /// <summary>
 /// Surface of Tiles. Wrapper for array of tiles.
 /// </summary>
@@ -18,19 +25,17 @@ public class Sf {
 	public int fontWidth = 8;
 	public Rect rect => new Rect(fontWidth * pos.xi, fontWidth * pos.yi, fontWidth * Width, fontWidth * Height);
 
-	public Sf(int Width, int Height, int Scale = 1) {
+	public Sf(int Width, int Height) {
 		this.Width = Width;
 		this.Height = Height;
-		this.Scale = Scale;
 		Data = (Tile[])Array.CreateInstance(typeof(Tile), Width * Height);
 		Front = new(GetFront, SetFront);
 		Back = new(GetBack, SetBack);
 		Tile = new(GetTile, SetTile);
 	}
-	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height, sf.Scale);
+	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height);
 	public int Width { get; }
 	public int Height { get; }
-	public int Scale { get; }
 	public Tile[] Data;
 
 	public Dictionary<(int x,int y), Tile> Active = new();

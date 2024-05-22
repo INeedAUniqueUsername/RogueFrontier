@@ -8,12 +8,10 @@ class ShipMenu : IScene {
 	public IScene prev;
     public PlayerShip playerShip;
     public Timeline story;
-
     public Sf sf;
-
 	//Idea: Show an ASCII-art map of the ship where the player can walk around
 	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {
-        this.sf = new Sf(sf_prev.Width, sf_prev.Height, 1);
+        this.sf = new Sf(sf_prev.Width, sf_prev.Height);
         this.prev = prev;
         this.playerShip = playerShip;
         this.story = story;

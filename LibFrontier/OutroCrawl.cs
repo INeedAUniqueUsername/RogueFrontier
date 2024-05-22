@@ -1,11 +1,7 @@
-﻿
-using SadConsole;
-using SadConsole.Input;
-using SadRogue.Primitives;
-using Console = SadConsole.Console;
-using CloudJumper;
-using SFML.Audio;
+﻿using CloudJumper;
 using LibGamer;
+using System;
+using System.Collections.Generic;
 
 namespace RogueFrontier;
 
@@ -14,14 +10,14 @@ class OutroCrawl : IScene {
 	public Action<Sf> Draw { set; get; }
 	public Action<SoundCtx> PlaySound { get; set; }
 
-	public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
-    public Sound bgm = new Sound() { Volume = 50, SoundBuffer = music };
+	//public static readonly SoundBuffer music = new SoundBuffer("Assets/music/IntroductionToTheSnow.wav");
+    //public Sound bgm = new Sound() { Volume = 50, SoundBuffer = music };
     
     int tick;
     double time;
     //LoadingSymbol spinner;
 
-    ColoredString[] effect;
+    //ColoredString[] effect;
 
     List<CloudParticle> clouds;
 
@@ -189,42 +185,45 @@ class OutroCrawl : IScene {
             cloudLayer.SetGlyph(x, top - y, cloud.symbol.Glyph);
         }
     }
-    public void HandleKey(Keyboard info) {
-    }
 }
 
 
-public class Slide : Console {
-    public Console prev, next;
+public class Slide : IScene {
+    public Action<IScene> Go { get; set; }
+    public Action<Sf> Draw { set; get; }
+    public Action<SoundCtx> PlaySound {set; get;}
+    public Sf prev, next;
+    Sf sf;
+    int Width => sf.Width;
+    int Height => sf.Height;
     public Action done;
     int x = 0;
-    public Slide(Console prev, Console next, Action done) : base((prev??next).Width, (prev??next).Height) {
+    public Slide(Sf prev, Sf next, Action done) {
         this.prev = prev;
         this.next = next;
+        this.sf = new Sf((prev ?? next).Width, (prev ?? next).Height);
         this.done = done;
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
-
+    public void Update(TimeSpan delta) {
         if (x < Width) {
             x += (int)(Width * delta.TotalSeconds);
         } else {
             done();
         }
     }
-    public override void Render(TimeSpan delta) {
-        base.Render(delta);
-        this.Clear();
+    public void Render(TimeSpan delta) {
+        sf.Clear();
 
-        var blank = new ColoredGlyph(Color.Black, Color.Black);
+        var blank = new Tile(ABGR.Black, ABGR.Black, ' ');
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
                 var cell =
                     x < this.x ?
-                        next?.GetCellAppearance(x, y) ?? blank :
-                        prev?.GetCellAppearance(x, y) ?? blank;
-                this.SetCellAppearance(x, y, cell);
+                        next?.GetTile(x, y) ?? blank :
+                        prev?.GetTile(x, y) ?? blank;
+                sf.SetTile(x, y, cell);
             }
         }
+        Draw(sf);
     }
 }

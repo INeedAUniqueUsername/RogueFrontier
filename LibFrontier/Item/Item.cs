@@ -839,13 +839,14 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         } else {
             bar = Tile.Arr(new('>', BAR), ABGR.Gray, ABGR.Black);
         }
-        Array.Copy(bar.Take(fireBar).Select(t => t with { Foreground = ABGR.White }).ToArray(), bar, fireBar);
+        var l = Math.Min(fireBar, bar.Length);
+
+		Array.Copy(Enumerable.ToArray(from t in bar[..l] select t with { Foreground = ABGR.White }), bar, l);
 
         if (capacitor != null) {
             var n = BAR * capacitor.charge / capacitor.desc.maxCharge;
             var c = bar.Take((int)n + 1).ToArray();
-
-            Array.Copy(c.Select(t => t with { Foreground = ABGR.Blend(t.Foreground, ABGR.SetA(ABGR.Cyan, 128)) }).ToArray(), bar, c.Length);
+            Array.Copy(Enumerable.ToArray(from t in c select t with { Foreground = ABGR.Blend(t.Foreground, ABGR.SetA(ABGR.Cyan, 128)) }), bar, c.Length);
         }
         return bar;
     }
