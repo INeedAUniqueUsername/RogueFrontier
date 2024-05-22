@@ -56,12 +56,12 @@ public class GateTransition : IScene {
     }
     public void Render(TimeSpan delta) {
         sf.Clear();
-        var particleLayer = new Sf(Width, Height);
+        var particleLayer = new Sf(Width, Height, Fonts.FONT_8x8);
         particles.ForEach(p => {
             var pos = p.pos;
             particleLayer.SetBack(pos.X, pos.Y, ABGR.RGBA(255, 255, 255, (byte)(p.lifetime * 255 / 15)));
         });
-        var _back = new Sf(Width, Height);
+        var _back = new Sf(Width, Height, Fonts.FONT_8x8);
         if (front != null) {
             BackdropConsole prevBack = new(back);
             BackdropConsole nextBack = new(front);

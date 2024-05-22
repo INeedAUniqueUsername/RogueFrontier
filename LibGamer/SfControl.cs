@@ -10,6 +10,10 @@ namespace LibGamer;
 public interface SfControl {
 	public Action<Sf> Draw { set; get; }
 	void Render (TimeSpan delta);
+	void HandleMouse (HandState state) { }
+	void HandleKey (KB kb) { }
+
+	bool IsFocused => false;
 }
 public class SfText : SfControl {
 	public Action<Sf> Draw { set; get; }
@@ -45,7 +49,7 @@ public class SfLink : SfControl{
 	public bool enabled;
 	public Sf on;
 
-	public Rect rect => new Rect(pos.x * 8, pos.y * 8, text.Length * 8, 1 * 8);
+	public Rect rect => new Rect(pos.x * on.GlyphWidth, pos.y * on.font.GlyphHeight, text.Length * on.GlyphWidth, 1 * on.font.GlyphHeight);
 	public SfLink (Sf on, (int,int) pos, string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
 		this.on = on;
 		this.pos = pos;
@@ -97,7 +101,6 @@ public class SfLink : SfControl{
 			(f, b) = (ABGR.White, mouse.nowOn ? ABGR.Gray : ABGR.Black);
 		}
 		on.Print(pos.x, pos.y, text, f, b);
-		Draw?.Invoke(on);
 	}
 }
 public class SfLinkGroup {
@@ -156,7 +159,11 @@ public class SfField : SfControl {
 	public int Width;
 	public (int x, int y) pos;
 
-	bool IsFocused = false;
+	bool IsFocused { get; set; } = false;
+
+
+	public Rect rect => new Rect(pos.x * 8, pos.y * 8, Width * 8, 1 * 8);
+
 	public SfField (Sf on, (int x, int y) pos, int width, string text = "") {
 		this.on = on;
 		this.Width = width;
@@ -175,7 +182,6 @@ public class SfField : SfControl {
 		time += delta.TotalSeconds;
 	}
 	public void Render (TimeSpan delta) {
-		on.Clear();
 		var text = this.text;
 		var showPlaceholder = this.text.Length == 0 && !IsFocused;
 		if(showPlaceholder) {
@@ -211,6 +217,10 @@ public class SfField : SfControl {
 		}
 	}
 	public void HandleKey (KB keyboard) {
+		if(!IsFocused) {
+			return;
+		}
+		
 		if(keyboard.Press.Any()) {
 			//bool moved = false;
 			foreach(var key in keyboard.Press) {
@@ -302,13 +312,17 @@ public class SfField : SfControl {
 						break;
 				}
 			}
+			keyboard.Handled = true;
 		}
 	}
 	public void HandleMouse (HandState state) {
-		mouse.Update(state);
+		mouse.Update(state.OnRect(rect));
 		if(mouse.nowOn && mouse.nowLeft && mouse.leftPress.on) {
+			IsFocused = true;
 			_index = Math.Min(mouse.nowPos.x, text.Length);
 			time = 0;
+		} else if(!mouse.nowOn && mouse.left == Pressing.Pressed) {
+			IsFocused = false;
 		}
 	}
 }

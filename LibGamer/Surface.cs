@@ -22,18 +22,27 @@ public class Sf {
 	public bool redraw = false;
 	public XY pos = (0, 0);
 
-	public int fontWidth = 8;
-	public Rect rect => new Rect(fontWidth * pos.xi, fontWidth * pos.yi, fontWidth * Width, fontWidth * Height);
 
-	public Sf(int Width, int Height) {
+	public int scale = 1;
+	public Tf font;
+
+	public int GlyphWidth => font.GlyphWidth;
+	public int GlyphHeight => font.GlyphHeight;
+
+	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * Width, GlyphHeight * Height);
+
+	public Sf(int Width, int Height, Tf font) {
 		this.Width = Width;
 		this.Height = Height;
+		this.font = font;
 		Data = (Tile[])Array.CreateInstance(typeof(Tile), Width * Height);
 		Front = new(GetFront, SetFront);
 		Back = new(GetBack, SetBack);
 		Tile = new(GetTile, SetTile);
 	}
-	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height);
+	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height, sf.font);
+
+	public Sf Clone => Sf.From(this);
 	public int Width { get; }
 	public int Height { get; }
 	public Tile[] Data;
@@ -54,27 +63,27 @@ public class Sf {
 
 		var i = GetIndex(x, y);
 		ref var t = ref Data[i];
-		if(t.Foreground == color) return;
+		if(t?.Foreground == color) return;
 		redraw = true;
-		t = t with { Foreground = color };
+		t = (t ?? new Tile()) with { Foreground = color };
 		Active[(x, y)] = t;
 	}
 	public uint GetBack (int x, int y) => Data[GetIndex(x, y)].Background;
 	public void SetBack (int x, int y, uint color) {
 		var i = GetIndex(x, y);
 		ref var t = ref Data[i];
-		if(t.Background == color) return;
+		if(t?.Background == color) return;
 		redraw = true;
-		t = t with { Background = color };
+		t = (t ?? new Tile()) with { Background = color };
 		Active[(x, y)] = t;
 	}
 	public uint GetGlyph (int x, int y) => Data[GetIndex(x, y)].Glyph;
 	public void SetGlyph (int x, int y, uint g) {
 		var i = GetIndex(x, y);
 		ref var t = ref Data[i];
-		if(t.Glyph == g) return;
+		if(t?.Glyph == g) return;
 		redraw = true;
-		t = t with { Glyph = g };
+		t = (t ?? new Tile()) with { Glyph = g };
 		Active[(x, y)] = t;
 	}
 	public Tile GetTile (int x, int y) => Data[GetIndex(x, y)];
@@ -83,7 +92,7 @@ public class Sf {
 		ref var t = ref Data[i];
 		if(t == g) return;
 		redraw = true;
-		Data[i] = g;
+		t = g;
 		Active[(x, y)] = t;
 	}
 	public void Print (int x, int y, params Tile[] str) {
@@ -107,5 +116,4 @@ public class Sf {
 	}
 }
 
-public record Tf(string path, int GlyphWidth, int GlyphHeight) {
-}
+public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {}

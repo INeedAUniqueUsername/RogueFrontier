@@ -18,7 +18,7 @@ class LoadPane : IScene {
 	public List<object> Children = new();
 
 	public LoadPane(int Width, int Height, Profile profile) {
-        sf = new Sf(Width, Height);
+        sf = new Sf(Width, Height, Fonts.FONT_6x8);
         this.profile = profile;
         Init();
     }

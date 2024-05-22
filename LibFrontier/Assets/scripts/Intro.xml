@@ -3,8 +3,8 @@
 				name=		"Intro"
 		>
 		<SystemGroup>
-			<Star	 radius="50"/>
-			<Orbital radius="350" angle="0">
+			<Star	 radius="75"/>
+			<Orbital radius="150" angle="0">
 				<Station codename="station_constellation_shipyard"/>
 
 				<Orbital radius="50" angle="0" increment="equidistant" count="4">

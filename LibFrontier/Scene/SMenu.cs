@@ -8,10 +8,8 @@ using Color = LibGamer.ABGR;
 using ColoredString = LibGamer.Tile[];
 using System.IO;
 using System.Xml.Linq;
-
 namespace RogueFrontier;
 public static partial class SMenu {
-
 	public static void RenderBackground (this Sf c) {
 		c.Clear(ABGR.Black, ABGR.SetA(ABGR.Black, 128));
 		/*
@@ -1267,15 +1265,18 @@ public class ListMenu<T> : IScene {
         this.escape = escape;
     }
     public void ProcessKeyboard(KB keyboard) {
-        if (keyboard[KC.Escape] == KS.Press) {
+        if (keyboard.IsPress(KC.Escape)) {
             escape?.Invoke();
         } else {
             list.ProcessKeyboard(keyboard);
         }
     }
-    public void Render(Sf Surface, TimeSpan delta) {
-        Surface.Clear();
-        Surface.RenderBackground();
+    public void Render(TimeSpan delta) {
+        /*
+        sf.Clear();
+        sf.RenderBackground();
+        Draw(sf);
+        */
     }
 }
 

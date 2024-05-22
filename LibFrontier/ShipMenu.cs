@@ -1,6 +1,8 @@
-﻿using SadConsole.Input;
-using LibGamer;
+﻿using LibGamer;
+using System;
+using System.Linq;
 namespace RogueFrontier;
+using Keys = KC;
 class ShipMenu : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
@@ -11,7 +13,7 @@ class ShipMenu : IScene {
     public Sf sf;
 	//Idea: Show an ASCII-art map of the ship where the player can walk around
 	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {
-        this.sf = new Sf(sf_prev.Width, sf_prev.Height);
+        this.sf = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_6x8);
         this.prev = prev;
         this.playerShip = playerShip;
         this.story = story;
@@ -114,28 +116,28 @@ class ShipMenu : IScene {
             }
             y++;
         }
-        
+        Draw(sf);
     }
-    public void HandleKey(Keyboard info) {
-        Predicate<Keys> pr = info.IsKeyPressed;
-        if (pr(Keys.S) || pr(Keys.Escape)) {
+    public void HandleKey(KB info) {
+        var pr = info.IsPress;
+        if (pr(KC.S) || pr(KC.Escape)) {
 #if false
             Tones.pressed.Play();
 #endif
             Go(prev);
-        } else if (pr(Keys.A)) {
+        } else if (pr(KC.A)) {
             ShowPower();
-        } else if (pr(Keys.C)) {
+        } else if (pr(KC.C)) {
             ShowCargo();
-        } else if (pr(Keys.D)) {
+        } else if (pr(KC.D)) {
             ShowLoadout();
-        } else if (pr(Keys.I)) {
+        } else if (pr(KC.I)) {
             ShowInvokable();
-        } else if (pr(Keys.L)) {
+        } else if (pr(KC.L)) {
             ShowLogs();
-        } else if (pr(Keys.M)) {
+        } else if (pr(KC.M)) {
             ShowMissions();
-        } else if (pr(Keys.R)) {
+        } else if (pr(KC.R)) {
             ShowRefuel();
         }
     }

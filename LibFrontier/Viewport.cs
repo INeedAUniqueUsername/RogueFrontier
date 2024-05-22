@@ -12,7 +12,7 @@ public class Viewport {
     public Dictionary<(int, int), Tile> tiles=new();
     public Sf sf;
     public Viewport(int Width, int Height, Monitor m) {
-        this.sf = new Sf(Width, Height);
+        this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
         camera = m.camera;
         world = m.world;
     }
@@ -37,7 +37,7 @@ public class Viewport {
                 if (tiles.TryGetValue(location.roundDown, out var tile)) {
                     var xScreen = x + HalfViewWidth;
                     var yScreen = HalfViewHeight - y - 1;
-                    sf.Tile[xScreen, yScreen] = tile;
+                    sf.SetTile(xScreen, yScreen, tile);
                 }
             }
         }

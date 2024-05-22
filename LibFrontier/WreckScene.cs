@@ -25,7 +25,7 @@ public class WreckScene : IScene {
     }
     public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
         this.prev = prev;
-        this.sf = new Sf(64, 96);
+        this.sf = new Sf(64, 96, Fonts.FONT_8x8);
         this.player = playerShip.person;
 
         descPane = new DescPanel<Item>();

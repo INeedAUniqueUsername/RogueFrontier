@@ -15,6 +15,8 @@ public enum KS : byte {
 	Press =	0b11,
 }
 public class KB {
+	public bool Handled = false;
+
 	public KS[] state = new KS[255];
 	public HashSet<KC> Press = [], Release = [], Down = [];
 
@@ -45,6 +47,7 @@ public class KB {
 		foreach(var k in Released) this[k] = KS.Release;
 	}
 	public void Update (HashSet<KC> nextDown) {
+		Handled = false;
 		Press = [];
 		Release = [];
 		void AddPress(KC code) {

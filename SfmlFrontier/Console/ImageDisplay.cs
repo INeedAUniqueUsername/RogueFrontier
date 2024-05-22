@@ -11,7 +11,7 @@ public class ImageDisplay {
     public ImageDisplay(int width, int height, TileImage image, Point adjust) {
         this.image = image;
         this.adjust = adjust;
-        sf = new Sf(width, height);
+        sf = new Sf(width, height, Fonts.FONT_8x8);
         Draw();
     }
     public void Draw() {

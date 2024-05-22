@@ -22,7 +22,7 @@ namespace LibGamer;
         Off
     }
 public record HandState((int x, int y) pos, int wheelValue, bool leftDown, bool middleDown, bool rightDown, bool on) {
-
+    public bool Handled = false;
     public HandState OnRect (Rect r) => this with { pos = (pos.x - r.x, pos.y - r.y), on = r.Contains(pos) };
 }
 public record Hand {

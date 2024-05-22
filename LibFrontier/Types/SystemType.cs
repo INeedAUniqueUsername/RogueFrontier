@@ -417,7 +417,7 @@ public record LightGenerator() : IGridGenerator<uint> {
     }
     public uint Generate ((long, long) p) {
         //var xy = new XY(p);
-        return ABGR.RGBA(255, 255, 204, Math.Min((byte)255, (byte)(radius * 255 / ((lc.pos - p).magnitude + 1))));
+        return ABGR.RGBA(255, 255, 204, (byte)Math.Clamp(radius * 255 / ((lc.pos - p).magnitude + 1), 0, 255));
     }
 }
 public record SystemStar() : SystemElement {

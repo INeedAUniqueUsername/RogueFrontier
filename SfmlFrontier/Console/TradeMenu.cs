@@ -1,38 +1,39 @@
-﻿using SadConsole;
+﻿using LibGamer;
+using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier;
-public class TradeMenu : Console {
-    ScreenSurface prev;
+public class TradeMenu : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+
+	IScene prev;
     Player player;
     GetPrice GetBuyPrice, GetSellPrice;
 
-    public TradeMenu(ScreenSurface prev, PlayerShip playerShip, ITrader docked, GetPrice GetBuyPrice, GetPrice GetSellPrice) : base(prev.Surface.Width, prev.Surface.Height) {
-        this.prev = prev;
+    public Sf sf;
+
+
+	public TradeMenu((IScene scene, Sf sf) prev, PlayerShip playerShip, ITrader docked, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
+        this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_6x8);
+		this.prev = prev.scene;
         this.player = playerShip.person;
         
         this.GetBuyPrice = GetBuyPrice;
         this.GetSellPrice = GetSellPrice;
     }
     public void Transact() {
+
     }
     public void Exit() {
-        var p = Parent;
-        p.Children.Remove(this);
-        if (prev != null) {
-            p.Children.Add(prev);
-            prev.IsFocused = true;
-        } else {
-            p.IsFocused = true;
-        }
+        prev.Show();
     }
-    public override bool ProcessKeyboard(Keyboard keyboard) {
-        return base.ProcessKeyboard(keyboard);
+    public void HandleKey(KB keyboard) {
     }
-    public override void Update(TimeSpan delta) {
-        base.Update(delta);
+    public void Update(TimeSpan delta) {
     }
-    public override void Render(TimeSpan delta) {
+    public void Render(TimeSpan delta) {
     }
 }

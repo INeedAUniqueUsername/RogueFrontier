@@ -25,7 +25,7 @@ public class FlashTransition : IScene {
     int Width => sf.Width;
     int Height => sf.Height;
     public FlashTransition(int Width, int Height, Sf prev, Action next) {
-        this.sf = new Sf(Width, Height);
+        this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
 
 		this.next = next;
         background = new uint[Width, Height];

@@ -121,7 +121,7 @@ public class PlayerControls {
         if (input.ShipMenu) {
             //playerMain.audio.button_press.Play();
             playerShip.DisengageAutopilot();
-            //playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
+            playerMain.dialog = new ShipMenu(playerMain, playerMain.sf, playerShip, playerMain.story);
         }
     }
     public void ProcessWithMenu() {

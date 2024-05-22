@@ -65,16 +65,33 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Hand mouse = new();
 
 
-    public IScene dialog;
-    private void SetDialog(IScene dialog) {
-        if(this.dialog is { } prev) prev.Go -= SetDialog;
-        this.dialog = dialog;
-        dialog.Go += SetDialog;
-    }
+    public IScene dialog {
+        get => _dialog;
+        set {
 
+            if(dialog is { } _d) {
+                dialog.Go -= SubGo;
+                dialog.Draw -= SubDraw;
+                dialog.PlaySound -= SubPlaySound;
+			}
+            if(value == this) {
+                _dialog = null;
+                return;
+            }
+            _dialog = value;
+            value.Go += SubGo;
+            value.Draw += SubDraw;
+            value.PlaySound += SubPlaySound;
+        }
+    }
+	private void SubGo (IScene s) => dialog = s;
+    private void SubDraw (Sf s) => Draw?.Invoke(s);
+    private void SubPlaySound (SoundCtx s) => PlaySound?.Invoke(s);
+
+	private IScene _dialog;
 
     public Mainframe(int Width, int Height, Profile profile, PlayerShip playerShip) {
-        sf = new(Width, Height);
+        sf = new(Width, Height, Fonts.FONT_8x8);
         camera = new();
         this.profile = profile;
         this.story = new(playerShip);
@@ -300,7 +317,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    SetDialog(new ScanTransition(scene));
+                    SubGo(new ScanTransition(scene));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -378,7 +395,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    SetDialog(new ScanTransition(scene));
+                    SubGo(new ScanTransition(scene));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -744,7 +761,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
 
         player.onTargetChanged += new Container<TargetChanged>(pl => {
             targeting.data = pl.targetIndex == -1 ? target_clear : target_set;
-            PlaySound(targeting);
+            PlaySound?.Invoke(targeting);
         });
     }
     public void PlayDiscoverySound(SoundCtx sb) {
@@ -871,13 +888,13 @@ public class BackdropConsole {
     private Backdrop backdrop;
     public Sf sf;
 	public BackdropConsole(Viewport view) {
-        sf = new Sf(view.Width, view.Height);
+        sf = new Sf(view.Width, view.Height, Fonts.FONT_8x8);
 		this.camera = view.camera;
         this.backdrop = view.world.backdrop;
         screenCenter = new(Width / 2f, Height / 2f);
     }
     public BackdropConsole(Monitor m) {
-        this.sf = new Sf(m.Width, m.Height);
+        this.sf = new Sf(m.Width, m.Height, Fonts.FONT_8x8);
         this.camera = m.camera;
         this.backdrop = m.world.backdrop;
         screenCenter = new XY(Width / 2f, Height / 2f);
@@ -916,7 +933,7 @@ public class Megamap {
     public byte alpha;
     public Sf sf;
     public Megamap(Monitor m, GeneratedLayer back) {
-        this.sf = new Sf(m.Width, m.Height);
+        this.sf = new Sf(m.Width, m.Height, Fonts.FONT_8x8);
         this.camera = m.camera;
         this.player = m.playerShip;
         this.background = back;
@@ -1016,6 +1033,11 @@ public class Megamap {
                         continue;
                     }
                     var starlight = ABGR.PremultiplySet(player.world.backdrop.starlight.GetBackgroundFixed(pos), 255);
+                    string str = starlight.ToString("X");
+                    if(starlight != 0xFF000000) {
+                        int i = 0;
+                    }
+
                     var cg = this.background.GetTileFixed(new XY(x, y));
                     //Make sure to clone this so that we don't apply alpha changes to the original
                     var glyph = cg.Glyph;
@@ -1024,15 +1046,18 @@ public class Megamap {
                     sf.SetTile(x, Height - y - 1, new Tile(foreground, background, glyph));
                 }
             }
-            int w = (int)(Width / (viewScale * 2) - 1);
-            int h = (int)(Height / (viewScale * 2) - 1);
-
+            int w = (int)(Width / (viewScale) - 1);
+            int h = (int)(Height / (viewScale) - 1);
 			var visiblePerimeter = new Rect(Width / 2 - w/2, Height/2 - h/2, w, h);
             foreach (var (x,y) in visiblePerimeter.Perimeter) {
                 var b = sf.Back[x, y];
                 sf.Back[x, y] = ABGR.BlendPremultiply(b, ABGR.RGBA(255, 255, 255, (byte)(128/viewScale)));
             }
-            
+            /*
+            sf.DrawRect(Width / 2 - w / 2, Height / 2 - h / 2, w, h, new SMenu.RectOptions() {
+                b = ABGR.Transparent,
+            });
+            */
             foreach ((var offset, var visible) in scaledEntities) {
                 var (x, y) = offset;
                 (var entity, var distance) = visible[(int)time % visible.Count].Value;
@@ -1116,7 +1141,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
     }
     public Vignette(Mainframe main) {
         player = main.playerShip;
-        this.sf = new Sf(main.Width, main.Height);
+        this.sf = new Sf(main.Width, main.Height, Fonts.FONT_8x8);
         player.onDamaged += this;
         player.onDestroyed += this;
         glowAlpha = 0;
@@ -1321,7 +1346,7 @@ public class Readout {
     public Readout(Monitor m) {
         camera = m.camera;
         player = m.playerShip;
-        sf = new Sf(m.Width, m.Height);
+        sf = new Sf(m.Width, m.Height, Fonts.FONT_6x8);
 
         //arrowDistance = Math.Min(Width, Height)/2 - 6;
         arrowDistance = 24;
@@ -1752,9 +1777,15 @@ public class Readout {
                     }
 
                     var name = Tile.Arr($"{delta,3}/{reactor.maxOutput,3} {reactor.source.type.name}", reactor.energy > 0 ? ABGR.White : ABGR.Gray, b);
-                    var entry = Tile.Arr($"[{bar}] ", ABGR.White, b);
+                    Tile[] entry = [
+                        .. Tile.Arr($"[", ABGR.White, b),
+                        ..bar,
+                        .. Tile.Arr($"] ", ABGR.White, b),
+                        .. name
+                    ];
 
-                    int l = (int)Math.Ceiling(BAR * (double)-reactor.energyDelta / reactor.maxOutput);
+
+					int l = (int)Math.Ceiling(BAR * (double)-reactor.energyDelta / reactor.maxOutput);
                     for (int i = 0; i < l; i++) {
                         ref var e = ref entry[i + 1];
                         e = e with { Background = ABGR.DarkKhaki };
@@ -1931,7 +1962,7 @@ public class Edgemap {
     public double viewScale;
     public Sf sf;
     public Edgemap(Monitor m){
-        this.sf = new Sf(m.Width, m.Height);
+        this.sf = new Sf(m.Width, m.Height, Fonts.FONT_8x8);
         this.camera = m.camera;
         this.player = m.playerShip;
         viewScale = 1;
@@ -1998,7 +2029,7 @@ public class Minimap {
 	int Width,Height;
 	XY screenSize, screenCenter;
     public Minimap(Monitor m) {
-        this.sf = new Sf(m.Width, m.Height);
+        this.sf = new Sf(m.Width, m.Height, Fonts.FONT_8x8);
         this.player = m.playerShip;
         this.size = 48;
         this.camera = m.camera;
@@ -2246,7 +2277,7 @@ public class PowerWidget {
     }
     public PowerWidget(int width, int height, Mainframe main) {
         this.playerShip = main.playerShip;
-        sf = new(width, height);
+        sf = new(width, height, Fonts.FONT_6x8);
 		this.main = main;
         InitButtons();
     }
@@ -2408,7 +2439,7 @@ public class PowerWidget {
 
         //this.SetCellAppearance(Width/2, Height/2, new ColoredGlyph(Color.White, Color.White, 'X'));
 
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
 
 }

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddabo3w1myfg"
-path="res://.godot/imported/IBMCGA.png-07f8c53f269875b5159123ba130e771d.ctex"
+uid="uid://wp1mno1h37h0"
+path="res://.godot/imported/IBMCGA+_6x8.png-d7248ee5b6c9d447ba0828dd040bf54c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/LibFrontier/Assets/sprites/IBMCGA.png"
-dest_files=["res://.godot/imported/IBMCGA.png-07f8c53f269875b5159123ba130e771d.ctex"]
+source_file="res://Lib/LibFrontier/Assets/font/IBMCGA+_6x8.png"
+dest_files=["res://.godot/imported/IBMCGA+_6x8.png-d7248ee5b6c9d447ba0828dd040bf54c.ctex"]
 
 [params]
 

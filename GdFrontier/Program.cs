@@ -86,10 +86,22 @@ public partial class Program : Node{
 	public override void _Input (InputEvent ev) {
 		switch(ev) {
 			case InputEventKey k: {
+					var kc = k.Keycode;
+					KC c = kc switch {
+						Key.Left => KC.Left,
+						Key.Up => KC.Up,
+						Key.Right => KC.Right,
+						Key.Down => KC.Down,
+						Key.Minus => KC.OemMinus,
+						Key.Equal => KC.OemPlus,
+						Key.Shift => KC.LeftShift,
+						Key.Ctrl => KC.LeftControl,
+						_ => (KC)kc
+					};
 					if(k.IsPressed()) {
-						down.Add((KC)k.Keycode);
+						down.Add(c);
 					} else {
-						down.Remove((KC)k.Keycode);
+						down.Remove(c);
 					}
 					//Debug.WriteLine(string.Join(' ', down));
 					break;

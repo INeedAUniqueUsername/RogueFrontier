@@ -201,7 +201,7 @@ public class Slide : IScene {
     public Slide(Sf prev, Sf next, Action done) {
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf((prev ?? next).Width, (prev ?? next).Height);
+        this.sf = new Sf((prev ?? next).Width, (prev ?? next).Height, Fonts.FONT_8x8);
         this.done = done;
     }
     public void Update(TimeSpan delta) {

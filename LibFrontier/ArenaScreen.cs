@@ -30,15 +30,17 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	public Mainframe mainframe;
 
 	bool passTime = true;
-	Sf sf;
-	int Width => sf.Width;
-	int Height => sf.Height;
+	Sf sf_world;
+	Sf sf_ui;
+	int Width => sf_world.Width;
+	int Height => sf_world.Height;
 
 	public List<SfControl> controls = new();
 
 	public ArenaScreen(TitleScreen prev, ShipControls settings, System World) {
 		this.prev = prev;
-		this.sf = new Sf(prev.Width, prev.Height);
+		this.sf_world = new Sf(prev.Width, prev.Height, Fonts.FONT_8x8);
+		this.sf_ui = new Sf(prev.Width, prev.Height, Fonts.FONT_6x8);
 		this.settings = settings;
 		this.World = World;
 		this.camera = (0.1, 0.1);
@@ -53,7 +55,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				"[K] Kill nearest ship",
 				"[Tab] Show/Hide Menus",
 				"[Hold left] Move camera"
-			]).ForEach((string s) => controls.Add(new SfText(sf, (x, y++), s)));
+			]).ForEach((string s) => controls.Add(new SfText(sf_ui, (x, y++), s)));
 		}
 		InitControls();
 		void InitControls() {
@@ -68,9 +70,9 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			void AddSovereignField() {
 				var x = 1;
 				var y = 7;
-				var label = new SfText(sf, (x,y++), "Sovereign");
-				var sovereignField = new SfField(sf, (x, y++), 24);
-				var buttons = new SfLinkGroup(controls, (x, y++), sf);
+				var label = new SfText(sf_ui, (x,y++), "Sovereign");
+				var sovereignField = new SfField(sf_ui, (x, y++), 24);
+				var buttons = new SfLinkGroup(controls, (x, y++), sf_ui);
 				sovereignField.TextChanged += _ => UpdateSovereignListing();
 				controls.Add(label);
 				controls.Add(sovereignField);
@@ -97,9 +99,9 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			void AddStationField() {
 				var x = 1 + 32;
 				var y = 7;
-				controls.Add(new SfText(sf, (x,y++), "Spawn Station"));
-				var stationField = new SfField(sf, (x, y++), 24);
-				var buttons = new SfLinkGroup(controls, (x,y++), sf);
+				controls.Add(new SfText(sf_ui, (x,y++), "Spawn Station"));
+				var stationField = new SfField(sf_ui, (x, y++), 24);
+				var buttons = new SfLinkGroup(controls, (x,y++), sf_ui);
 				stationField.TextChanged += _ => UpdateStationListing();
 				controls.Add(stationField);
 				UpdateStationListing();
@@ -143,9 +145,9 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1 + 32 + 32;
 				var y = 7;
 
-				controls.Add(new SfText(sf, (x, y++), "Spawn Ship"));
-				var shipField = new SfField(sf, (x, y++), 24);
-				var buttons = new SfLinkGroup(controls, (x, y++), sf);
+				controls.Add(new SfText(sf_ui, (x, y++), "Spawn Ship"));
+				var shipField = new SfField(sf_ui, (x, y++), 24);
+				var buttons = new SfLinkGroup(controls, (x, y++), sf_ui);
 				shipField.TextChanged += _ => UpdateShipListing();
 				controls.Add(shipField);
 				UpdateShipListing();
@@ -196,10 +198,10 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1;
 				var y = 7 + 18;
 
-				controls.Add(new SfText(sf, (x, y++), "Cargo"));
-				var cargoField = new SfField(sf, (x, y++) , 24);
-				var addButtons = new SfLinkGroup(controls, (x,y++), sf);
-				var removeButtons = new SfLinkGroup(controls, (x, y + 18), sf);
+				controls.Add(new SfText(sf_ui, (x, y++), "Cargo"));
+				var cargoField = new SfField(sf_ui, (x, y++) , 24);
+				var addButtons = new SfLinkGroup(controls, (x,y++), sf_ui);
+				var removeButtons = new SfLinkGroup(controls, (x, y + 18), sf_ui);
 
 				cargoField.TextChanged += _ => UpdateAddListing();
 				controls.Add(cargoField);
@@ -249,10 +251,10 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1 + 32;
 				var y = 7 + 18;
 
-				controls.Add(new SfText(sf, (x,y++), "Devices"));
-				var deviceField = new SfField(sf, (x, y++), 24);
-				var addButtons = new SfLinkGroup(controls,(x,y++),sf);
-				var removeButtons = new SfLinkGroup(controls, (x, y+18), sf);
+				controls.Add(new SfText(sf_ui, (x,y++), "Devices"));
+				var deviceField = new SfField(sf_ui, (x, y++), 24);
+				var addButtons = new SfLinkGroup(controls,(x,y++),sf_ui);
+				var removeButtons = new SfLinkGroup(controls, (x, y+18), sf_ui);
 
 				deviceField.TextChanged += _ => UpdateAddListing();
 				controls.Add(deviceField);
@@ -310,12 +312,9 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 		}
 #endif
 	}
+	bool showUI = true;
 	public void ToggleArena() {
-#if false
-		foreach (var c in Children) {
-			c.IsVisible = !c.IsVisible;
-		}
-#endif
+		showUI = !showUI;
 	}
 	public void Reset() => Reset(mainframe.camera.position);
 	public void Reset(XY camera) {
@@ -389,21 +388,22 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			Heading.Crosshair(World, nearest.position, ABGR.Yellow);
 		}
 	}
-	public void Render(TimeSpan drawTime) {
+	public void Render(TimeSpan delta) {
 		if (mainframe != null) {
-			mainframe.Render(drawTime);
+			mainframe.Render(delta);
 			return;
 		}
 
-		sf.Clear();
+
+		sf_world.Clear();
 		for (int x = 0; x < Width; x++) {
 			for (int y = 0; y < Height; y++) {
-				var g = sf.GetGlyph(x, y);
+				var g = sf_world.GetGlyph(x, y);
 
 				var offset = new XY(x, Height - y) - screenCenter;
 				var location = camera + offset;
 				Tile t;
-				if (g == 0 || g == ' ' || ABGR.A(sf.GetFront(x, y)) == 0) {
+				if (g == 0 || g == ' ' || ABGR.A(sf_world.GetFront(x, y)) == 0) {
 					if (tiles.TryGetValue(location.roundDown, out t)) {
 						if (t.Background == ABGR.Transparent) {
 							t = t with { Background = World.backdrop.GetBackground(location, camera) };
@@ -411,16 +411,26 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 					} else {
 						t = World.backdrop.GetTile(location, camera);
 					}
-					sf.SetTile(x, y, t);
+					sf_world.SetTile(x, y, t);
 				} else {
-					sf.SetBack(x, y, World.backdrop.GetBackground(location, camera));
+					sf_world.SetBack(x, y, World.backdrop.GetBackground(location, camera));
 				}
 			}
 		}
-		Draw(sf);
+		Draw(sf_world);
+		if(showUI) {
+			controls.ForEach(c => c.Render(delta));
+			Draw(sf_ui);
+		}
 	}
 	public void HandleKey(KB kb) {
-
+		if(showUI)
+			foreach(var c in controls.ToList()) {
+				c.HandleKey(kb);
+				if(kb.Handled) {
+					return;
+				}
+			}
 		if (kb.IsPress(KC.Escape)) {
 			if (mainframe != null) {
 
@@ -509,14 +519,25 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			}
 		}
 	}
+	XY prevPos = (0, 0);
 	public void HandleMouse (HandState state) {
 		if (mainframe != null) {
 			mainframe.HandleMouse(state);
 			return;
 		}
+
+		if(showUI) {
+			foreach(var c in controls.ToList()) {
+				c.HandleMouse(state);
+				if(state.Handled) {
+					return;
+				}
+			}
+		}
+
 		mouse.Update(state with { pos = (state.pos.x, Height - state.pos.y) });
 		if (mouse.left == Pressing.Down) {
-			camera += (XY)mouse.prevPos - (XY)mouse.nowPos;
+			camera += -((XY)mouse.deltaPos)/8;
 		}
 	}
 }

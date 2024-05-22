@@ -15,7 +15,7 @@ public class EpitaphScreen : IScene {
 	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
         this.epitaph = epitaph;
-        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height);
+        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_8x8);
 #if false
         this.Children.Add(new LabelButton("Resurrect", Resurrect) {
             Position = new Point(1, Height / 2 - 4), FontSize = playerMain.FontSize * 2
@@ -129,7 +129,7 @@ public class IntermissionScreen : IScene {
 	Sf Surface;
 
 	public IntermissionScreen(Mainframe playerMain, LiveGame game, string desc) {
-        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height);
+        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_8x8);
         this.playerMain = playerMain;
         this.game = game;
         this.desc = desc;
@@ -174,7 +174,7 @@ public class IdentityScreen : IScene {
 	Sf Surface;
     Mainframe playerMain;
 	public IdentityScreen(int Width, int Height, Mainframe playerMain) {
-        this.Surface = new Sf(Width, Height);
+        this.Surface = new Sf(Width, Height, Fonts.FONT_8x8);
         this.playerMain = playerMain;
 #if false
         Children.Add(new LabelButton("Continue", Continue) {

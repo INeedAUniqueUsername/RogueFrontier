@@ -19,7 +19,7 @@ public class SplashScreen : IScene {
 
 	public SplashScreen(Action next) {
         this.next = next;
-        sf = new Sf(Program.WIDTH/2, Program.HEIGHT/2);
+        sf = new Sf(Program.WIDTH/2, Program.HEIGHT/2, Fonts.FONT_8x8);
         var r = new Random(3);
         this.World = new();
         tiles = new();

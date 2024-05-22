@@ -32,7 +32,7 @@ public class TitleScreen : IScene {
 	public Sf sf;
 	private List<SfLink> buttons = [];
 	public TitleScreen(int Width, int Height, System World) {
-		this.sf = new Sf(Width, Height);
+		this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
 		this.World = World;
 
 		profile = Profile.Load(out var p) ? p : new Profile();
@@ -331,9 +331,11 @@ public class TitleScreen : IScene {
 
 		}
 		config.Render(delta);
-		Draw(sf);
 
 		buttons.ForEach(b => b.Render(delta));
+
+		Draw(sf);
+
 	}
 	Hand mouse = new();
 	public void HandleMouse(HandState state) {

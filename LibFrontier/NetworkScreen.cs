@@ -20,7 +20,7 @@ public class GalaxyMap {
     public GalaxyMap(Mainframe prev) {
         univ = prev.world.universe;
         center = new XY(prev.Width, prev.Height) / 2;
-        sf = new Sf(prev.Width, prev.Height);
+        sf = new Sf(prev.Width, prev.Height, Fonts.FONT_8x8);
     }
     public void Render(TimeSpan drawTime) {
         if(!visible) {

@@ -63,8 +63,8 @@ public class FadingTile : Effect {
     private Tile _Tile;
     public Tile tile => new Tile(
 
-        ABGR.MA(_Tile.Foreground) * Math.Min(1, 1f * Lifetime / 10),
-        ABGR.MA(_Tile.Background) * Math.Min(1, 1f * Lifetime / 10),
+        ABGR.SetA(_Tile.Foreground, (byte) Math.Min(255, 255f * Lifetime / 10)),
+        ABGR.SetA(_Tile.Background, (byte)Math.Min(255, 255f * Lifetime / 10)),
         _Tile.Glyph);
 
     public void Update(double delta) {

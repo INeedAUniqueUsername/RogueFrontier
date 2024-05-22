@@ -614,14 +614,15 @@ public record FragmentDesc {
 }
 public record TrailDesc : ITrail {
 	[Req] public int lifetime;
-	[Req] public char glyph;
+	[Req(parse = false)] public char glyph;
 	[Req(parse = false)] public uint foreground;
 	[Req(parse = false)] public uint background;
 	public TrailDesc() { }
 	public TrailDesc(XElement e) {
-		e.Initialize(this, transform: new(){
+		e.Initialize(this, transform: new() {
 			["foreground"] = (string s) => ABGR.Parse(s),
-			["background"] = (string s) => ABGR.Parse(s)
+			["background"] = (string s) => ABGR.Parse(s),
+			["glyph"] = (string s) => s.Length == 1 ? s[0] : (char)uint.Parse(s[1..])
 		});
 	}
 	public Effect GetParticle(XY Position, XY Velocity = null) => new FadingTile(Position, new(foreground, background, glyph), lifetime);

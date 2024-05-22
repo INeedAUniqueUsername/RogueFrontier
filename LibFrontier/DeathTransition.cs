@@ -21,7 +21,7 @@ public class DeathPause : IScene {
 	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf(prev.sf.Width, prev.sf.Height);
+        this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
         view = new Viewport(Width, Height, prev.monitor);
         view.Update(new());
     }

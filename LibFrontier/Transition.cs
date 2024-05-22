@@ -21,7 +21,7 @@ public class TitleSlideOpening : IScene {
 
 
     public TitleSlideOpening(IScene next, Sf nextSf, bool updateNext = true) {
-        this.sf = new Sf(nextSf.Width, nextSf.Height);
+        this.sf = new Sf(nextSf.Width, nextSf.Height, Fonts.FONT_8x8);
         x = nextSf.Width;
         this.next = next;
         this.nextSf = nextSf;
@@ -98,7 +98,7 @@ public class TitleSlideOut : IScene {
         
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf(sf_next.Width, sf_next.Height);
+        this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
 		x = Width;
 		interval = 4f / Width;
 
@@ -159,7 +159,7 @@ public class TitleSlideIn : IScene {
 
 
 	public TitleSlideIn((Sf sf, IScene scene) prev, (Sf sf, IScene scene) next) {
-        sf = new Sf(prev.sf.Width, prev.sf.Height);
+        sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
         this.prev = prev;
         this.next = next;
         //Draw one frame now so that we don't cut out for one frame
@@ -222,7 +222,7 @@ public class FadeIn : IScene {
 	public FadeIn(IScene next, Sf sf_next) {
         this.next = next;
         this.sf_next = sf_next;
-        this.sf = new Sf(sf_next.Width, sf_next.Height);
+        this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
         Render(new TimeSpan());
     }
     public void Update(TimeSpan delta) {
@@ -259,7 +259,7 @@ public class FadeOut : IScene {
     int Height => sf.Height;
     public FadeOut(Sf prev, Action next, int time = 4) {
         this.prev = prev;
-        this.sf = new Sf(prev.Width, prev.Height);
+        this.sf = new Sf(prev.Width, prev.Height, Fonts.FONT_8x8);
         this.next = next;
         this.time = time;
         Render(new TimeSpan());

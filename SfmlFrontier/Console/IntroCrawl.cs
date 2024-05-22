@@ -67,7 +67,7 @@ Was more than a dream after all." }.Select(line => line.Replace("\r", "")).ToArr
 
 
 	public IntroCrawl(int Width, int Height, Func<IScene> next) {
-        this.sf = new Sf(Width, Height);
+        this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
         this.Width = Width;
         this.Height = Height;
         this.next = next;

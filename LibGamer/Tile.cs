@@ -21,7 +21,7 @@ public record ABGR(uint packed) {
 
 	public static uint Parse (string name) =>
 		(uint?)(typeof(ABGR).GetField(name)?.GetValue(null))
-		?? uint.Parse(name, System.Globalization.NumberStyles.HexNumber);
+		?? FromRGBA(uint.Parse(name, System.Globalization.NumberStyles.HexNumber));
 	public uint SetR (byte a) => SetR(this, a);
 	public uint SetG (byte a) => SetG(this, a);
 	public uint SetB (byte a) => SetB(this, a);
@@ -53,14 +53,14 @@ public record ABGR(uint packed) {
 		}
 		public static implicit operator uint (Mut left) => left.packed;
 	}
-	public static uint BlendPremultiply (uint b, uint f, byte a = 0xff) {
+	public static uint BlendPremultiply (uint back, uint front, byte a = 0xff) {
 
-		var alpha = A(f);
-		var inv_alpha = (byte)(255 - A(f));
+		var alpha = A(front);
+		var inv_alpha = (byte)(255 - alpha);
 		return RGBA(
-			r: (byte)((alpha * R(f) + inv_alpha * R(b) * A(b) / 255) >> 8),
-			g: (byte)((alpha * G(f) + inv_alpha * G(b) * A(b) / 255) >> 8),
-			b: (byte)((alpha * B(f) + inv_alpha * B(b) * A(b) / 255) >> 8),
+			r: (byte)((alpha * R(front) + inv_alpha * R(back) * A(back) / 255) >> 8),
+			g: (byte)((alpha * G(front) + inv_alpha * G(back) * A(back) / 255) >> 8),
+			b: (byte)((alpha * B(front) + inv_alpha * B(back) * A(back) / 255) >> 8),
 			a: a
 			);
 	}
@@ -70,7 +70,8 @@ public record ABGR(uint packed) {
 		return RGBA((byte)(r * a / 255f), (byte)(g * a / 255f), (byte)(b * a / 255f), a);
 	}
 	//Premultiply and also set the alpha
-	public static uint PremultiplySet (ABGR c, byte alpha) => ABGR.RGBA((byte)(c.r * c.a / 255), (byte)(c.g * c.a / 255), (byte)(c.b * c.a / 255), alpha);
+	public static uint PremultiplySet (ABGR c, byte alpha) =>
+		ABGR.RGBA((byte)(c.r * c.a / 255), (byte)(c.g * c.a / 255), (byte)(c.b * c.a / 255), alpha);
 	public static uint Blend (uint back, uint front, byte setAlpha = 255) {
 		//Background should be premultiplied because we ignore its alpha value
 		var alpha = ABGR.A(front);
@@ -89,18 +90,23 @@ public record ABGR(uint packed) {
 		(A(abgr), G(abgr), B(abgr), R(abgr));
 
 	public static Mut MA (uint abgr) => new(abgr, 0);
-	public static byte A (uint abgr) => (byte)(abgr & 0xFF000000);
-	public static byte B (uint abgr) => (byte)(abgr & 0x00FF0000);
-	public static byte G (uint abgr) => (byte)(abgr & 0x0000FF00);
-	public static byte R (uint abgr) => (byte)(abgr & 0x000000FF);
+	public static byte A (uint abgr) => (byte)((abgr >> 24) & 255);
+	public static byte B (uint abgr) => (byte)((abgr >> 16) & 255);
+	public static byte G (uint abgr) => (byte)((abgr >> 08) & 255);
+	public static byte R (uint abgr) => (byte)((abgr >> 00) & 255);
 	public static uint RGB (byte r, byte g, byte b) => RGBA(r, g, b, 255);
 	public static uint RGBA (byte r, byte g, byte b, byte a) => (uint)(
-	((uint)a << 24) +
-	((uint)b << 16) +
-	((uint)g << 08) +
-	((uint)r << 00)
+	(a << 24) +
+	(b << 16) +
+	(g << 08) +
+	(r << 00)
 	);
-
+	public static uint FromRGBA (uint rgba) => (uint)(
+		((rgba << 24) & 0xFF000000) +
+		((rgba << 08) & 0x00FF0000) +
+		((rgba >> 08) & 0x0000FF00) +
+		((rgba >> 24) & 0x000000FF)
+	);
 	public static uint ToRGBA (uint abgr) => (uint)(
 		((abgr & 0x000000FF) << 24) +
 		((abgr & 0x0000FF00) << 08) +
@@ -221,7 +227,7 @@ public record ABGR(uint packed) {
 	public static uint SetR (uint abgr, byte r) => (abgr & 0xFFFFFF00) + r >> 24;
 	public static uint SetG (uint abgr, byte g) => (abgr & 0xFFFF00FF) + g >> 16;
 	public static uint SetB (uint abgr, byte b) => (abgr & 0xFF00FFFF) + b >> 8;
-	public static uint SetA (uint abgr, byte a) => (abgr & 0x00FFFFFF) + a;
+	public static uint SetA (uint abgr, byte a) => (abgr & 0x00FFFFFF) + (uint)(a << 24);
 	public const uint TransparentBlack = 0,
 	Transparent = 0,
 	AliceBlue = 0xfffff8f0,
@@ -367,6 +373,10 @@ public record ABGR(uint packed) {
 	YellowGreen = 0xff32cd9a;
 }
 public record Tile (uint Foreground, uint Background, uint Glyph) {
+
+	public string FrontStr => Foreground.ToString("X");
+	public string BackStr => Foreground.ToString("X");
+
 	public static implicit operator Tile (TileTuple t) => new(t.Foreground, t.Background, t.Glyph);
 	public static Tile From(XElement e) {
 		var f = ABGR.Parse(e.TryAtt(["f", "foreground"], "White"));
@@ -443,7 +453,7 @@ public record StaticTile () : ITile {
 		e.Initialize(this, transform:new() {
 			[nameof(foreground)] = (string s) => ABGR.Parse(s),
 			[nameof(background)] = (string s) => ABGR.Parse(s),
-			[nameof(glyph)] = (string s) => (uint)s[0],
+			[nameof(glyph)] = (string s) => (uint)(s.Length == 1 ? s[0] : uint.Parse(s[1..])),
 		});
 	}
 	public StaticTile (Tile cg) : this() =>

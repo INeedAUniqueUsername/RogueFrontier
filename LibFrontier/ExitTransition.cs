@@ -25,7 +25,7 @@ public class ExitTransition : IScene {
         this.prev = prev;
         this.sf_prev = sf_prev;
         this.next = next;
-        this.sf = new Sf(sf_prev.Width, sf_prev.Height);
+        this.sf = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
         InitParticles();
     }
     public void InitParticles() {

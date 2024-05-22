@@ -13,11 +13,11 @@ partial class Program {
         WIDTH = HEIGHT * 5 / 3; //100
     }
     public static int WIDTH, HEIGHT;
-    public static string FONT_8X8 = ExpectFile("Assets/sprites/IBMCGA+.font");
-    public static string main = ExpectFile("Assets/scripts/Main.xml");
-    public static string cover = ExpectFile("Assets/sprites/RogueFrontierPosterV2.dat");
-    public static string splash = ExpectFile("Assets/sprites/SplashBackgroundV2.dat");
-    static void OutputSchema() {
+	public static string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
+    public static string cover = ExpectFile($"{Assets.ROOT}/sprites/RogueFrontierPosterV2.dat");
+    public static string splash = ExpectFile($"{Assets.ROOT}/sprites/SplashBackgroundV2.dat");
+
+	static void OutputSchema() {
         var d = new Dictionary<Type, XElement>();
         WriteSchema(typeof(ItemType), d);
         var module = new XElement("Schema");
@@ -63,8 +63,11 @@ partial class Program {
         if (!Directory.Exists("save"))
             Directory.CreateDirectory("save");
         //SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;
-        Game.Create(WIDTH, HEIGHT, FONT_8X8, (o, gh) => { });
-        Game.Instance.Started += (o, gh)=>OnStart(gh);
+        Game.Create(WIDTH, HEIGHT, Fonts.IBMCGA_8X8_FONT, (o, gh) => { });
+        SadConsole.Host.Settings.SFMLScreenBlendMode = SFML.Graphics.BlendMode.Alpha;
+        SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Alpha;
+
+		Game.Instance.Started += (o, gh)=>OnStart(gh);
         Game.Instance.Run();
         Game.Instance.Dispose();
     }
@@ -81,9 +84,8 @@ partial class Program {
             GameHost.Instance.Screen = new BackdropConsole(Width, Height, new Backdrop(), () => new Common.XY(0.5, 0.5));
 			return;
 #endif
-
         ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
-        ConcurrentDictionary<byte[], Sound> sounds = new();
+        ConcurrentDictionary<byte[], Sound> sounds = new();  
 		IScene current = null;
 		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
 		void Go (IScene next) {
@@ -101,10 +103,21 @@ partial class Program {
             current.PlaySound += PlaySound;
 		};
 		void Draw(Sf sf) {
-            
-            var c = consoles.GetOrAdd(sf, sf =>
-                new SadConsole.Console(sf.Width, sf.Height) {  Position = new(sf.pos.xi, sf.pos.yi) }
-                );
+            var c = consoles.GetOrAdd(sf, sf => {
+                var f = sf.font;
+                IFont font = null;
+				if(!GameHost.Instance.Fonts.TryGetValue(f.name, out font)) {
+					var t = GameHost.Instance.GetTexture(new MemoryStream(f.data));
+					font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
+					GameHost.Instance.Fonts[f.name] = font;
+				}
+				var c = new SadConsole.Console(sf.Width, sf.Height) {
+                    Position = new(sf.pos.xi, sf.pos.yi),
+                    Font = font,
+                };
+                //c.FontSize *= sf.scale;
+                return c;
+            });
             c.Clear();
             foreach(var ((x,y),t) in sf.Active) {
 				c.SetCellAppearance(x, y, t.ToCG());
