@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g3yfma0ubmpi"
-path="res://.godot/imported/IBMCGA+.png-a49cf162003736074e45d6474d2886bb.ctex"
+uid="uid://74st4e8conpv"
+path="res://.godot/imported/ship_iron_gunboat.png-e43ed7610111f52a02fd740f4253244a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/ASECII/Content/IBMCGA+.png"
-dest_files=["res://.godot/imported/IBMCGA+.png-a49cf162003736074e45d6474d2886bb.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/ship_iron_gunboat.png"
+dest_files=["res://.godot/imported/ship_iron_gunboat.png-e43ed7610111f52a02fd740f4253244a.ctex"]
 
 [params]
 

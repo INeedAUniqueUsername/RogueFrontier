@@ -1792,6 +1792,7 @@ namespace ASECII {
             this.model = model;
         }
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver, bool shift, bool ctrl, bool alt) {
+            mouse ??= new MouseWatch();
             mouse.Update(state, IsMouseOver);
             if (state.IsOnScreenObject) {
                 if (mouse.leftPressedOnScreen && mouse.left == ClickState.Released) {
@@ -1857,15 +1858,16 @@ namespace ASECII {
             this.model = model;
         }
         public void ProcessMouse(MouseScreenObjectState state) {
-            mouse.Update(state, state.IsOnScreenObject);
-            if (mouse.left == ClickState.Pressed) {
+            mouse ??= new MouseWatch();
+            mouse?.Update(state, state.IsOnScreenObject);
+            if (mouse?.left == ClickState.Pressed) {
                 if (mouse.leftPressedOnScreen) {
                     //Start moving with the mouse
                     start = model.cursor;
                 }
-            } else if(mouse.left == ClickState.Held) {
+            } else if(mouse?.left == ClickState.Held) {
                 end = model.cursor;
-            } else if (mouse.prevLeft) {
+            } else if (mouse?.prevLeft == true) {
                 end = model.cursor;
                 if(start == end) {
                     model.AddAction(new SingleEdit(model.cursor, model.sprite.layers[model.currentLayerIndex], model.brushTile));
@@ -1940,6 +1942,7 @@ namespace ASECII {
             this.model = model;
         }
         public void ProcessMouse(MouseScreenObjectState state, bool IsMouseOver) {
+            mouse ??= new MouseWatch();
             mouse.Update(state, IsMouseOver);
             if (state.IsOnScreenObject) {
                 if (state.Mouse.LeftButtonDown && mouse.leftPressedOnScreen) {
@@ -2024,7 +2027,7 @@ namespace ASECII {
                         var e = new SingleEdit(p, layer, tile);
                         Add(e);
                         ticks = typewriter ? 0 : 15;
-                        keyCursor = keyCursor.Value + new Point(1, 0);
+                        keyCursor = keyCursor ?? (0,0) + new Point(1, 0);
                     }
                 }
             } else if (info.IsKeyPressed(Back)) {

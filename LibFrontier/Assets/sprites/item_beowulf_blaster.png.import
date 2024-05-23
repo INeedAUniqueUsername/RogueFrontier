@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsgwg2p0nxsjq"
-path="res://.godot/imported/IBMCGA.png-27d2219168b5d7465bf9545f9d4ce15a.ctex"
+uid="uid://boifdbn5u8ftm"
+path="res://.godot/imported/item_beowulf_blaster.png-4787b3b10c0989da563b8fbaa22e4099.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Lib/ASECII/Content/IBMCGA.png"
-dest_files=["res://.godot/imported/IBMCGA.png-27d2219168b5d7465bf9545f9d4ce15a.ctex"]
+source_file="res://Lib/LibFrontier/Assets/sprites/item_beowulf_blaster.png"
+dest_files=["res://.godot/imported/item_beowulf_blaster.png-4787b3b10c0989da563b8fbaa22e4099.ctex"]
 
 [params]
 

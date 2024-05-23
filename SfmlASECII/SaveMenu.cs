@@ -231,7 +231,6 @@ namespace ASECII {
                         ShowPreview(file);
                     };
                     folderListing.Add(b);
-
                     void Load() {
                         EnterFile(file);
                     }
@@ -274,7 +273,6 @@ namespace ASECII {
                 preloaded[file] = new LoadNonexistent();
                 return;
             }
-
             preloaded[file] = new LoadBusy();
             await Task.Run(StartLoad);
             void StartLoad() {
@@ -302,7 +300,6 @@ namespace ASECII {
         public override void Render(TimeSpan delta) {
             base.Render(delta);
             this.Clear();
-
             var c1 = new Color(25, 25, 25);
             var c2 = new Color(51, 51, 51);
             for (int x = 0; x < Width; x++) {
@@ -311,11 +308,10 @@ namespace ASECII {
                 }
             }
             if (hoveredFile != null && hoveredFile.sprite != null) {
-                var s = hoveredFile.sprite;
+				var s = hoveredFile.sprite;
                 var previewX = (Width - (s.end - s.origin).X) < 64 ? 0 : 64;
                 var previewY = 0;
                 var origin = hoveredFile.sprite.origin;
-                
                 var previewStart = new Point(previewX, previewY);
                 for (int x = previewX; x < Width; x++) {
                     for (int y = previewY; y < Height; y++) {
