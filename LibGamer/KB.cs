@@ -53,7 +53,7 @@ public class KB {
 		void AddPress(KC code) {
 			state[(byte)code] = KS.Press;
 			Press.Add(code);
-			Debug.WriteLine($"pressed: {(byte)code}");
+			//Debug.WriteLine($"pressed: {(byte)code}");
 		}
 		void AddRelease (KC code) {
 			state[(byte)code] = KS.Release;

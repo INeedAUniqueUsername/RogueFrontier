@@ -144,12 +144,12 @@ public partial class Program : Node2D {
 						MouseButton.Right => hand with { rightDown = p },
 						_ => hand
 					};
-					Debug.WriteLine(hand);
+					//Debug.WriteLine(hand);
 					break;
 				}
 			case InputEventMouseMotion m: {
 					hand = hand with { pos = ((int)m.Position.X, (int)m.Position.Y) };
-					Debug.WriteLine($"{hand.pos.x}, {hand.pos.y}");
+					//Debug.WriteLine($"{hand.pos.x}, {hand.pos.y}");
 					break;
 				}
 		}

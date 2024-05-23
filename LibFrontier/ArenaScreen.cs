@@ -463,7 +463,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 		if (kb.IsPress(KC.Space)) {
 			passTime = !passTime;
 		}
-		Dbg.WriteLine($"Press: {string.Join(' ', kb.Press)}");
+		//Dbg.WriteLine($"Press: {string.Join(' ', kb.Press)}");
 		if (kb.IsPress(KC.A)) {
 			if (nearest is AIShip a) {
 				a.ship.active = false;

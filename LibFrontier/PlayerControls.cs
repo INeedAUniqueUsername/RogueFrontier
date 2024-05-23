@@ -180,7 +180,7 @@ public class PlayerControls {
     public void UpdateInput(KB info) {
         keys = info;
         input.Read(playerMain.Settings.controls, info);
-		Debug.WriteLine("controls");
+		//Debug.WriteLine("controls");
 	}
 }
 public class PlayerInput {
@@ -204,7 +204,7 @@ public class PlayerInput {
         };
         Shift = kb[LeftShift, 1] || kb[RightShift, 1];
 
-        Debug.WriteLine($"controls: {controls}");
+        //Debug.WriteLine($"controls: {controls}");
 
         Thrust =        d(Control.Thrust);
         TurnLeft =      d(Control.TurnLeft);

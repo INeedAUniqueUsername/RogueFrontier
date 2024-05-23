@@ -44,72 +44,53 @@ public static partial class SMenu {
 		var width = op.width;
 		var aboveWidth = op.connectAbove ? width : Line.None;
 		var belowWidth = op.connectBelow ? width : Line.None;
-		IEnumerable<string> GetLines () {
-
 			var vert = Box(n: width, s: width);
 			var hori = Box(e: width, w: width);
 
-			if(dx == 1) {
-				var n = Box(e: Line.Single, w: Line.Single, s: width, n: aboveWidth);
-				var s = Box(e: Line.Single, w: Line.Single, n: width, s: belowWidth);
+		void c (int x, int y, char c) =>
+				surf.Print(x, y, new Tile(op.f, op.b, c));
+        void l (int x, int y, string line) =>
+                surf.Print(x, y, Tile.Arr(line, op.f, op.b));
 
-				yield return $"{n}";
-				for(int i = 0; i < dy - 2; i++) {
-					yield return $"{vert}";
-				}
-				yield return $"{s}";
-				yield break;
-			} else if(dy == 1) {
-				var e = Box(n: aboveWidth, s: belowWidth, w: width);
-				var w = Box(n: aboveWidth, s: belowWidth, e: width);
-
-				yield return $"{w}{new string(hori, dx - 2)}{e}";
-				yield break;
-			} else {
-				var nw = Box(e: width, s: width, n: aboveWidth);
-				var ne = Box(w: width, s: width, n: aboveWidth);
-				var sw = Box(e: width, n: width, s: belowWidth);
-				var se = Box(w: width, n: width, s: belowWidth);
-				yield return $"{nw}{new string(hori, dx - 2)}{ne}";
-				for(int i = 0; i < dy - 2; i++) {
-					yield return $"{vert}{new string(' ', dx - 2)}{vert}";
-				}
-				yield return $"{sw}{new string(hori, dx - 2)}{se}";
-			}
-		}
-        
 		int y = yStart;
-		/* */
-        foreach(var line in GetLines()) {
-			int x = xStart;
-			foreach(var c in line) {
 
-                var b = surf.Back[x, y];
-
-				surf.Print(x, y, new Tile(op.f, ABGR.Blend(b, op.b), c));
-				x++;
-			}
-			y++;
-		}
-        /* */
-        /* 
-		if(ABGR.A(op.b) == 0) {
-			foreach(var line in GetLines()) {
-                int x = xStart;
-                foreach(var c in line) {
-                    if(c != ' ') {
-						surf.Print(x, y, new Tile(op.f, op.b, c));
-					}
-                    x++;
-                }
-				y++;
-			}
-		} else {
-			foreach(var line in GetLines()) {
+		void p (string line) =>
 				surf.Print(xStart, y++, Tile.Arr(line, op.f, op.b));
-			}
-		}
-        /* */
+		bool fill = ABGR.A(op.b) != 0;
+        if(dx == 0 || dy == 0)
+            return;
+        if(dx == 1) {
+			var n = Box(e: Line.Single, w: Line.Single, s: width, n: aboveWidth);
+			var s = Box(e: Line.Single, w: Line.Single, n: width, s: belowWidth);
+			p($"{n}");
+            foreach(var i in 0..Math.Max(0, dy - 1))
+				p($"{vert}");
+            p($"{s}");
+        } else if(dy == 1) {
+            var e = Box(n: Line.Single, s: Line.Single, w: width);
+            var w = Box(n: Line.Single, s: Line.Single, e: width);
+            p($"{w}{new string(hori, dx - 2)}{e}");
+        } else {
+            var nw = Box(e: width, s: width, n: aboveWidth);
+            var ne = Box(w: width, s: width, n: aboveWidth);
+            var sw = Box(e: width, n: width, s: belowWidth);
+            var se = Box(w: width, n: width, s: belowWidth);
+
+            if(fill) {
+
+				p($"{nw}{new string(hori, dx - 2)}{ne}");
+				foreach(var i in 0..Math.Max(0,dy - 1))
+					p($"{vert}{new string(' ', dx - 2)}{vert}");
+				p($"{sw}{new string(hori, dx - 2)}{se}");
+			} else {
+                var x = xStart;
+                l(x, y, $"{nw}{new string(hori, dx - 2)}{ne}"); y++;
+                foreach(var i in 0..Math.Max(0, dy - 1)) {
+                    c(x, y, vert); c(x + dx - 1, y, vert); y++;
+                }
+                l(x, y, $"{sw}{new string(hori, dx - 2)}{se}"); y++;
+            }
+        }
 	}
 
 
