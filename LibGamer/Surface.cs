@@ -6,10 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace LibGamer;
-
-
 public interface SfContainer {
 	Sf sf { get; set; }
 	int Width => sf.Width;
@@ -21,16 +18,11 @@ public interface SfContainer {
 public class Sf {
 	public bool redraw = false;
 	public XY pos = (0, 0);
-
-
 	public int scale = 1;
 	public Tf font;
-
 	public int GlyphWidth => font.GlyphWidth;
 	public int GlyphHeight => font.GlyphHeight;
-
 	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * Width, GlyphHeight * Height);
-
 	public Sf(int Width, int Height, Tf font) {
 		this.Width = Width;
 		this.Height = Height;
@@ -41,12 +33,10 @@ public class Sf {
 		Tile = new(GetTile, SetTile);
 	}
 	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height, sf.font);
-
 	public Sf Clone => Sf.From(this);
 	public int Width { get; }
 	public int Height { get; }
 	public Tile[] Data;
-
 	public Dictionary<(int x,int y), Tile> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
@@ -54,18 +44,16 @@ public class Sf {
 	public int GetIndex (int x, int y) => y * Width + x;
 	public void Clear (uint front = 0, uint back = 0, uint glyph = 0) {
 		redraw = true;
-
 		Active.Clear();
 		Array.Fill(Data, LibGamer.Tile.empty);
 	}
 	public uint GetFront (int x, int y) => Data[GetIndex(x, y)].Foreground;
 	public void SetFront (int x, int y, uint color) {
-
 		var i = GetIndex(x, y);
 		ref var t = ref Data[i];
 		if(t?.Foreground == color) return;
 		redraw = true;
-		t = (t ?? new Tile()) with { Foreground = color };
+		t = (t ?? LibGamer.Tile.empty) with { Foreground = color };
 		Active[(x, y)] = t;
 	}
 	public uint GetBack (int x, int y) => Data[GetIndex(x, y)].Background;
@@ -74,7 +62,7 @@ public class Sf {
 		ref var t = ref Data[i];
 		if(t?.Background == color) return;
 		redraw = true;
-		t = (t ?? new Tile()) with { Background = color };
+		t = (t ?? LibGamer.Tile.empty) with { Background = color };
 		Active[(x, y)] = t;
 	}
 	public uint GetGlyph (int x, int y) => Data[GetIndex(x, y)].Glyph;
@@ -83,7 +71,7 @@ public class Sf {
 		ref var t = ref Data[i];
 		if(t?.Glyph == g) return;
 		redraw = true;
-		t = (t ?? new Tile()) with { Glyph = g };
+		t = (t ?? LibGamer.Tile.empty) with { Glyph = g };
 		Active[(x, y)] = t;
 	}
 	public Tile GetTile (int x, int y) => Data[GetIndex(x, y)];
@@ -115,10 +103,8 @@ public class Sf {
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
 }
-
 public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
-
 	public int Width => GlyphWidth * cols;
 	public int Height=>GlyphHeight * rows;
 }

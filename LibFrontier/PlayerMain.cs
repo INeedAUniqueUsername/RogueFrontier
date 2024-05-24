@@ -21,7 +21,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Action<IScene> Go { set; get; }
     public Action<Sf> Draw { set; get; }
     public Action<SoundCtx> PlaySound { set; get; }
-
     public Action SetFocus = () => { };
 	public void Observe(PlayerShip.Destroyed ev) {
         var (p, d, w) = ev;
@@ -63,12 +62,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public System silenceSystem;
     public Monitor monitor;
     public Hand mouse = new();
-
-
     public IScene dialog {
         get => _dialog;
         set {
-
             if(dialog is { } _d) {
                 dialog.Go -= SubGo;
                 dialog.Draw -= SubDraw;
@@ -87,9 +83,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 	private void SubGo (IScene s) => dialog = s;
     private void SubDraw (Sf s) => Draw?.Invoke(s);
     private void SubPlaySound (SoundCtx s) => PlaySound?.Invoke(s);
-
 	private IScene _dialog;
-
     public Mainframe(int Width, int Height, Profile profile, PlayerShip playerShip) {
         sf = new(Width, Height, Fonts.FONT_8x8);
         camera = new();
@@ -119,6 +113,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
 		audio = new(playerShip);
         audio.Register(playerShip.world.universe);
+        audio.PlaySound += SubPlaySound;
 
         uiBack = new(monitor);
         uiViewport = new(Width, Height, monitor);
@@ -139,7 +134,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         networkMap = new(this) { visible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
         systems = new(new List<System>(playerShip.world.universe.systems.Values));
-
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {
@@ -172,9 +166,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         });
     }
     public void Gate() {
-        if (!playerShip.CheckGate(out Stargate gate)) {
+        if (!playerShip.CheckGate(out Stargate gate))
             return;
-        }
         var destGate = gate.destGate;
         if (destGate == null) {
             world.entities.Remove(playerShip);
@@ -346,14 +339,12 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         }
         void UpdateUniverse() {
             //playerShip.updated = false;
-
             world.UpdatePresent();
             world.UpdateActive(gameDelta);
             
             silenceSystem.UpdatePresent();
             silenceSystem.UpdateActive(delta.TotalSeconds * Math.Min(1, playerShip.ship.silence));
             
-
             systems.GetNext(1).ForEach(s => {
                 if (s != world) {
                     s.UpdateActive(gameDelta);
@@ -361,34 +352,26 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 }
             });
         }
-
         if (gameDelta > 0) {
             uiBack.Update(delta);
             lock (world) {
-
                 //Need to fix this for silence system
                 if (dialog == null) {
                     playerControls.ProcessAll();
                     playerControls.input = new();
                 }
-
                 audio.Update(delta.TotalSeconds);
-
                 AddCrosshair();
                 UpdateUniverse();
-
                 playerShip.ResetActiveControls();
-
                 PlaceTiles(delta);
                 transition?.Update(delta);
-
                 void AddCrosshair() {
                     if (playerShip.GetTarget(out var t) && t == crosshair) {
                         Heading.Crosshair(world, crosshair.position, ABGR.Yellow);
                     }
                 }
             }
-
             if (playerShip.dock is {  justDocked:true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
                 var scene = story.GetScene(this, playerShip, d) ?? d.GetDockScene(this, playerShip);
@@ -403,10 +386,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         }
         UpdateUI(delta);
         camera.position = playerShip.position;
-
-
         playerControls.input = new();
-
         //frameRendered = false;
         //Required to update children
     }
@@ -595,7 +575,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             }
             //bool moved = mouseScreenPos != state.SurfaceCellPosition;
             //var mouseScreenPos = state.SurfaceCellPosition;
-            var mouseScreenPos = new XY(state.pos.x / 8, state.pos.y / 8) - new XY(0.5, 0.75);
+            var mouseScreenPos = new XY(state.pos.x / 8, state.pos.y / 8) + (0, 1);
             
             //(var a, var b) = (state.SurfaceCellPosition, state.SurfacePixelPosition);
             //Placeholder for mouse wheel-based weapon selection
@@ -645,15 +625,11 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                     var radius = playerOffset.magnitude;
                     var facing = XY.Polar(playerShip.rotationRad, radius);
                     var aim = playerShip.position + facing;
-
                     var off = (mouseWorldPos - aim).magnitude;
                     var tolerance = Math.Sqrt(radius) / 3;
                     uint c = off < tolerance ? ABGR.White : ABGR.SetA(ABGR.White, 255 * 3 / 5);
-
                     EffectParticle.DrawArrow(world, mouseWorldPos, playerOffset, c);
-
                     //EffectParticle.DrawArrow(World, aim, facing, Color.Yellow);
-
                     var mouseRads = playerOffset.angleRad;
                     playerShip.SetRotatingToFace(mouseRads);
                     playerControls.input.TurnRight = playerShip.ship.rotating == Rotating.CW;
@@ -682,7 +658,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 					.OrderBy(e => (e.position - mouseWorldPos).magnitude)
 					.Distinct()
 					);
-
 		//Set target to object closest to mouse cursor
 		//If there is no target closer to the cursor than the playership, then we toggle aiming by crosshair
 		//Using the crosshair, we can effectively force any omnidirectional weapons to point at the crosshair
@@ -702,8 +677,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 	}
 }
 public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener, IWeaponListener, Ob<Projectile.Detonated> {
-
-    Action<SoundCtx> PlaySound { get; set; }
+    public Action<SoundCtx> PlaySound { get; set; }
     private class AutoLoad : Attribute {}
     [AutoLoad]
     public static readonly byte[]

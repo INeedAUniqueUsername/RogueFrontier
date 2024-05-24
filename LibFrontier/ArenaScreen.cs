@@ -473,6 +473,8 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var playerShip = new PlayerShip(p, new BaseShip(a.ship), a.sovereign);
 
 				mainframe = new Mainframe(Width, Height, new Profile(), playerShip);
+
+				mainframe.PlaySound += snd => PlaySound?.Invoke(snd);
 				mainframe.Draw += sf => Draw?.Invoke(sf);
 
 
