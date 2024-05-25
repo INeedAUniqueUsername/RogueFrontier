@@ -162,7 +162,7 @@ public class SfField : SfControl {
 	bool IsFocused { get; set; } = false;
 
 
-	public Rect rect => new Rect(pos.x * 8, pos.y * 8, Width * 8, 1 * 8);
+	public Rect rect => new Rect(pos.x * on.GlyphWidth, pos.y * on.GlyphHeight, Width * on.GlyphWidth, 1 * on.GlyphHeight);
 
 	public SfField (Sf on, (int x, int y) pos, int width, string text = "") {
 		this.on = on;
@@ -287,9 +287,11 @@ public class SfField : SfControl {
 						EnterPressed?.Invoke(this);
 						break;
 					default:
-
 						var kc = key switch {
-							>= KC.A and <= KC.Z => (char)key,
+							>= KC.A and <= KC.Z => ((Func<char,char>)(
+								keyboard.IsDown(KC.LeftShift) ?
+									char.ToUpper :
+									char.ToLower))((char)key),
 							>= KC.D0 and <= KC.D9 => (char)key,
 							_ => '\0',
 						};

@@ -123,8 +123,8 @@ partial class Program {
         }
         void PlaySound(SoundCtx s) {
             var snd = sounds.GetOrAdd(s.data, _ => {
-
                 var snd = new Sound(new SoundBuffer(s.data)) { Volume = s.volume };
+                //s.IsPlaying = () => snd.Status == SoundStatus.Playing;
                 return snd;
 			});
             if(snd.Status == SoundStatus.Playing) {

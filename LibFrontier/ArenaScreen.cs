@@ -420,6 +420,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 		}
 		Draw(sf_world);
 		if(showUI) {
+			sf_ui.Clear();
 			controls.ForEach(c => c.Render(delta));
 			Draw(sf_ui);
 		}

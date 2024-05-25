@@ -694,7 +694,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         dock_start,
         dock_end,
         power_charge, power_release;
-    public static byte[] Load(string file) => File.ReadAllBytes($"{Assets.ROOT}/Sounds/{file}.wav");
+    public static byte[] Load(string file) => File.ReadAllBytes($"{Assets.ROOT}/sounds/{file}.wav");
     static Noisemaker() {
         var props = typeof(Noisemaker)
             .GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -708,11 +708,11 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     const float distScale = 1 / 16f;
     public SoundCtx button_press = new(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
     private ListTracker<SoundCtx>
-        exhaust = new(new List<SoundCtx>(Enumerable.Range(0, 16).Select(i => new SoundCtx([], 10)))),
-        gunfire = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
-        damage = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
-        explosion = new(new List<SoundCtx>(Enumerable.Range(0, 4).Select(i => new SoundCtx([], 75)))),
-        discovery = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 25))));
+        _exhaust = new(new List<SoundCtx>(Enumerable.Range(0, 16).Select(i => new SoundCtx([], 10)))),
+        _gunfire = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
+        _damage = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
+        _explosion = new(new List<SoundCtx>(Enumerable.Range(0, 4).Select(i => new SoundCtx([], 75)))),
+        _discovery = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 25))));
     private class Vol : Attribute {}
     [Vol]
     public SoundCtx targeting, autopilot, dock, powerCharge;
@@ -725,7 +725,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         foreach (var p in props) {
             p.SetValue(this, new SoundCtx([], 50));
         }
-        var sounds = new[] { exhaust.list, gunfire.list, damage.list, explosion.list, discovery.list }.SelectMany(l => l)
+        var sounds = new[] { _exhaust.list, _gunfire.list, _damage.list, _explosion.list, _discovery.list }.SelectMany(l => l)
             //.Concat(new[] { targeting, autopilot, dock, powerCharge })
             ;
         foreach(var s in sounds) {
@@ -739,10 +739,10 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         });
     }
     public void PlayDiscoverySound(SoundCtx sb) {
-        if(discovery.list.Any(s => s.data == sb.data)) {
+        if(_discovery.list.Any(s => s.data == sb.data)) {
             return;
         }
-        PlayWorldSound(GetNextChannel(discovery), sb.data);
+        PlayWorldSound(GetNextChannel(_discovery), sb.data);
     }
     public void PlayPowerCharge() {
         powerCharge.data = power_charge;
@@ -772,8 +772,8 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             var s = player.world.entities.all.OfType<IShip>()
                 .Where(s => s.thrusting)
                 .OrderBy(sh => player.position.Dist(sh.position))
-                .Zip(exhaust.list);
-            foreach((var ship, var sound) in exhaustList.Zip(exhaust.list)) {
+                .Zip(_exhaust.list);
+            foreach((var ship, var sound) in exhaustList.Zip(_exhaust.list)) {
                 //sound.Stop();
             }
             exhaustList.Clear();
@@ -783,7 +783,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             }
         } else {
             var c = new SoundCtx(null, 0);
-            foreach((var ship, var sound) in exhaustList.Zip(exhaust.list)) {
+            foreach((var ship, var sound) in exhaustList.Zip(_exhaust.list)) {
                 sound.pos = player.position.To(ship.position).Scale(distScale);
             }
         }
@@ -811,14 +811,14 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         if(e.world != player.world) {
             return;
         }
-        PlayWorldSound(explosion, e, generic_explosion);
+        PlayWorldSound(_explosion, e, generic_explosion);
     }
     public void Observe(IDamagedListener.Damaged ev) {
         var (e, p) = ev;
         if (e.world != player.world) {
             return;
         }
-        PlayWorldSound(damage, e, p.hitHull ? generic_damage : generic_shield_damage);
+        PlayWorldSound(_damage, e, p.hitHull ? generic_damage : generic_shield_damage);
     }
     public void Observe(IWeaponListener.WeaponFired ev) {
         var (e, w, pr, sound) = ev;
@@ -829,7 +829,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             p.onDetonated += this;
         }
         if (sound) {
-            PlayWorldSound(gunfire, e, (w.desc?.sound ?? generic_fire));
+            PlayWorldSound(_gunfire, e, (w.desc?.sound ?? generic_fire));
         }
     }
     public void Observe(Projectile.Detonated d) {
@@ -837,7 +837,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
         if (sb == null) {
             return;
         }
-        PlayWorldSound(gunfire,
+        PlayWorldSound(_gunfire,
             d.source,
             sb);
     }
