@@ -254,7 +254,7 @@
 				glyph=			"*"
 				foreground=		"FFB655FF"
 				>
-				<Decay lifetime="120" rate="1/60"/>
+				<Corrode lifetime="120" rate="1/60"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"v"

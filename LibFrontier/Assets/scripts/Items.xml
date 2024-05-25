@@ -303,7 +303,7 @@
 						glyph=			"m"
 						foreground=		"White"
 				>
-				<Decay lifetime="30" damageRate="1/60" degradeFactor="2.5" lethal="true" descend="true"/>
+				<Corrode lifetime="30" damageRate="1/60" degradeFactor="2.5" lethal="true" descend="true"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"*"

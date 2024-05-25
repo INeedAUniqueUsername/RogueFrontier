@@ -98,7 +98,7 @@
 				glyph=			"*"
 				foreground=		"FF55FFFF"
 				>
-				<Decay lifetime="10" damageRate="1/60"/>
+				<Corrode lifetime="10" damageRate="1/60"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"*"
@@ -128,7 +128,7 @@
 				glyph=			"+"
 				foreground=		"Orange"
 				>
-				<Decay lifetime="5" damageRate="4/60" degradeFactor="10" lethal="true" />
+				<Corrode lifetime="5" damageRate="4/60" degradeFactor="10" lethal="true" />
 				<Trail
 					lifetime=	"10"
 					glyph=		"*"
@@ -196,7 +196,7 @@
 					glyph=			"*"
 					foreground=		"FF55FFFF"
 				>
-					<Decay lifetime="10" damageRate="1/60"/>
+					<Corrode lifetime="10" damageRate="1/60"/>
 					<Trail
 						lifetime=	"10"
 						glyph=		"*"

@@ -286,9 +286,12 @@ public record ItemType : IDesignType {
 public record ArmorDesc() {
 	[Req] public int maxHP;
 	[Opt] public int initialHP = -1;
+	[Opt] public double radioRegenRate;
+	[Opt] public double radioDegradeRate;
 	[Opt] public double recoveryFactor;
 	[Opt] public double recoveryRate;
-	[Opt] public double regenRate;
+	[Opt(alias = "regenRate")]
+	public double freeRegenRate;
 	[Opt] public int killHP;
 	[Opt] public double stealth;
 	/// <summary>For every damage HP taken, the maxHP decreases by this amount.</summary>
@@ -498,7 +501,7 @@ public record FragmentDesc {
 	/// <summary>Inflicts silence on the target</summary>
 	[Opt] public double silenceInflict;
 	[Sub] public FlashDesc Flash;
-	[Sub] public Decay Decay;
+	[Sub] public CorrodeDesc Decay;
 	[Sub] public DisruptorDesc Disruptor;
 
 

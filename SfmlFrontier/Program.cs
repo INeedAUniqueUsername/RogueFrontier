@@ -131,6 +131,7 @@ partial class Program {
                 snd.Stop();
             }
             snd.Volume = s.volume;
+            snd.Position = new SFML.System.Vector3f(s.pos.x, s.pos.y, 0);
             snd.Play();
         }
         var kb = new KB();

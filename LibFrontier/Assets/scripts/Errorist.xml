@@ -47,7 +47,7 @@
 		mass=		"5000"
 		level=		"3"
 
-		desc=		"This cannon shoots radioactive sludge that sticks onto armor and weakens it."
+		desc=		"This cannon shoots corrosive sludge that sticks onto armor."
 		>
 		<Weapon	powerUse=		"30"
 				fireCooldown=	"60"
@@ -64,7 +64,7 @@
 				foreground=		"FF7777FF"
 				background=		"Transparent"
 				>
-				<Decay lifetime="20" damageRate="1/60" degradeFactor="5"/>
+				<Corrode lifetime="20" damageRate="1/60" degradeFactor="5"/>
 			</Projectile>
 		</Weapon>
 	</ItemType>
@@ -176,7 +176,7 @@
 					foreground=		"FF7777FF"
 					background=		"Transparent"
 					>
-					<Decay lifetime="20" damageRate="1/60" degradeFactor="5"/>
+					<Corrode lifetime="20" damageRate="1/60" degradeFactor="5"/>
 				</Fragment>
 			</Projectile>
 		</Weapon>
@@ -220,16 +220,13 @@
 					foreground=		"Cyan"
 					background=		"Transparent"
 					>
-					<Decay lifetime="300" damageRate="0" fixedDegradeRate="1/2" descend="true"/>
+					<Corrode lifetime="300" damageRate="0" fixedDegradeRate="1/2" descend="true"/>
 				</Fragment>
 			</Projectile>
 		</Weapon>
 	</ItemType>
-	
-	
-	
 	<ShipClass	codename=	"ship_toxin"
-		name=				"Toxin-class raider"
+		name=				"Nauseating raider"
 		thrust=				"0.3"
 		maxSpeed=			"15"
 		rotationAccel=		"3"
@@ -246,9 +243,8 @@
 			<Armor	codename="item_radiant_plate"/>
 		</LayeredArmorSystem>
 	</ShipClass>
-
-	<ShipClass	codename=			"ship_mutant"
-		name=				"Mutant-class destroyer"
+	<ShipClass	codename=	"ship_mutant"
+		name=				"Noxious destroyer"
 		thrust=				"0.25"
 		maxSpeed=			"12"
 		rotationAccel=		"3"

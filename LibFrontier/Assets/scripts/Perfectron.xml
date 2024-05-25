@@ -13,7 +13,7 @@
 		<Service interval="30" type="grind" powerUse="5"/>
 	</ItemType>
 	<ItemType	codename=	"item_deflect_device"
-		name=		"Deflect device"
+		name=		"Hiqhjack device"
 		attributes=	"Perfectrons"
 		level=		"3"
 		mass=		"4000"
@@ -22,7 +22,7 @@
 		<Service interval="10" type="missileJack" powerUse="5"/>
 	</ItemType>
 	<ItemType	codename=	"item_lightning_cannon"
-		name=		"Lightning cannon"
+		name=		"Liqhtning cannon"
 		attributes=	"Perfectrons"
 		level=		"5"
 		mass=		"4000"
@@ -56,7 +56,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_flashbang_cannon"
-				name=		"Flashbang cannon"
+				name=		"Liqhtburst cannon"
 				attributes=	"Perfectrons"
 				level=		"6"
 				mass=		"2000"
@@ -99,7 +99,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_lightning_vent"
-		name=		"Lightning vent"
+		name=		"Liqhtning vent"
 		attributes=	"Perfectrons"
 		level=		"3"
 		mass=		"4000"
@@ -132,7 +132,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_shining_armor"
-		name=		"Shining armor"
+		name=		"Prodiqy armor"
 		attribute=	"Perfectrons"
 		mass=		"8000"
 		level=		"6"
@@ -146,7 +146,7 @@
 				/>
 	</ItemType>
 	<ShipClass	codename=	"ship_flawless"
-		name=				"Flawless-class fighter"
+		name=				"Flawless-class fiqhter"
 		thrust=				"0.2"
 		maxSpeed=			"15"
 		rotationAccel=		"3"

@@ -143,7 +143,7 @@
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
-				<Decay lifetime="10" damageRate="1/60" degradeFactor="2.5"/>
+				<Corrode lifetime="10" damageRate="1/60" degradeFactor="2.5"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"\7"
@@ -208,7 +208,7 @@
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
-				<Decay lifetime="20" damageRate="2/60" degradeFactor="2.5"/>
+				<Corrode lifetime="20" damageRate="2/60" degradeFactor="2.5"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"\7"

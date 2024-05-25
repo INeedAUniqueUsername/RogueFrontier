@@ -44,15 +44,15 @@ public record FlashDesc(){
         public Center parent;
         public XY position { get; set; }
         public double distance;
-        public int brightness => (int)(parent.brightness / distance);
-        public bool active => brightness> 128;
-        public Tile tile => delay > 0 ? null : (ABGR.Transparent, ABGR.RGBA(255, 255, 255, (byte)brightness), ' ');
+        public byte brightness => (byte)Math.Min(255, parent.brightness / distance);
+        public bool active => brightness > 128;
+        public Tile tile => delay > 0 ? null : (ABGR.Transparent, ABGR.RGBA(255, 255, 255, brightness), ' ');
 
         public double delay;
         public Particle(Center parent, XY position) {
             this.parent = parent;
             this.position = position;
-            distance = (parent.position - position).magnitude;
+            distance = Math.Max(1, (parent.position - position).magnitude);
             delay = distance / 64;
         }
         public void Update(double delta) {

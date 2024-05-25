@@ -92,7 +92,7 @@
 				silenceFactor=	"1.0"
 				silenceInflict=	"1/100"
 				>
-				<Decay lifetime="30" damageRate="2/60" degradeFactor="5"/>
+				<Corrode lifetime="30" damageRate="2/60" degradeFactor="5"/>
 				<Trail
 					lifetime=	"10"
 					glyph=		"*"

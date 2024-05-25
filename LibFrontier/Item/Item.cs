@@ -85,7 +85,7 @@ public interface PowerSource {
     double energyDelta { get; set; }
     int maxOutput { get; }
 }
-public class Decay {
+public class CorrodeDesc {
     [Req] public double lifetime;
     [Req] public double damageRate = 0;
     [Opt] public bool lethal = false;
@@ -94,9 +94,9 @@ public class Decay {
     [Opt] public bool descend = false;
     public double silenceFactor;
     public ActiveObject source;
-    public Decay() { }
-    public Decay(XElement e) => e.Initialize(this);
-    public Decay(Decay from, Projectile p) {
+    public CorrodeDesc() { }
+    public CorrodeDesc(XElement e) => e.Initialize(this);
+    public CorrodeDesc(CorrodeDesc from, Projectile p) {
         this.lifetime = from.lifetime;
         this.damageRate = from.damageRate;
         this.lethal = from.lethal;
@@ -118,17 +118,17 @@ public class Armor : Device {
     public double hpToRecover;
     public double recoveryHP;
     public double regenHP;
-    public double decayHP;
+    public double corrodeHP;
     public int killHP;
     public double damageDelay;
     public double stealth => desc.stealth == 0 ? 0 : desc.stealth * hp / desc.maxHP;
     public double lifetimeDamageAbsorbed;
     public int lastDamageTick = -1000;
     public int lastRegenTick = -1000;
-    public HashSet<Decay> decay=new();
+    public HashSet<CorrodeDesc> decay=new();
     public int powerUse { get; private set; }
     public bool allowRecovery;
-    public bool hasRecovery => allowRecovery && Math.Max(hpToRecover, Math.Max(desc.regenRate, killHP)) >= 1;
+    public bool hasRecovery => allowRecovery && Math.Max(hpToRecover, Math.Max(desc.freeRegenRate, killHP)) >= 1;
     public int maxHP => Math.Max(0, desc.maxHP - (int)(desc.lifetimeDegrade * lifetimeDamageAbsorbed) + (int)titanHP);
     public bool canAbsorb => hp > 0 || Math.Min(maxHP, desc.minAbsorb) > 0;
 
@@ -158,7 +158,7 @@ public class Armor : Device {
                 PlayerShip { ship: { silence: { }s } } => s,
                 _ => 0
             };
-            var expired = new HashSet<Decay>();
+            var expired = new HashSet<CorrodeDesc>();
             //If the armor is down, then degrade it faster
             if (hp == 0) {
                 if (hull.GetHP() == 0 && decay.FirstOrDefault(d => d.lethal) is { } kill) {
@@ -189,20 +189,20 @@ public class Armor : Device {
                     var degrade = delta * 60 * d.fixedDegradeRate * silenceMatch;
                     totalDegrade += degrade;
 
-                    decayHP += d.damageRate * delta * 60 * silenceMatch;
+                    corrodeHP += d.damageRate * delta * 60 * silenceMatch;
                     d.lifetime -= delta;
                     if (d.lifetime <= 0) {
                         expired.Add(d);
                     }
                 }
-                if (decayHP >= 1) {
-                    var deltaHP = Math.Min(hp, (int)decayHP);
+                if (corrodeHP >= 1) {
+                    var deltaHP = Math.Min(hp, (int)corrodeHP);
                     hp -= deltaHP;
                     lastDamageTick = owner.world.tick;
 
                     OnAbsorb(deltaHP);
 
-                    decayHP = 0;
+                    corrodeHP = 0;
                 }
                 if (totalDegrade > 0) {
                     lifetimeDamageAbsorbed += totalDegrade;
@@ -245,10 +245,10 @@ public class Armor : Device {
                 }
             }
         }
-        if (desc.regenRate > 0) {
+        if (desc.freeRegenRate > 0) {
             lastRegenTick = owner.world.tick;
             powerUse = desc.powerUse;
-            regenHP += desc.regenRate * delta * Constants.TICKS_PER_SECOND;
+            regenHP += desc.freeRegenRate * delta * Constants.TICKS_PER_SECOND;
             while (regenHP >= 1) {
                 if (hp < maxHP) {
                     hp++;
