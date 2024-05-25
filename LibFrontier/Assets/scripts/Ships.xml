@@ -59,7 +59,7 @@
     </ShipClass>
 	
     <ShipClass  codename="ship_amethyst_ii"
-                name="Amethyst-class yacht"
+                name="Ammolite-class yacht"
 				attributes="Amethyst"
                 thrust="0.5"
                 maxSpeed="25"

@@ -349,10 +349,8 @@
 				/>
 		</Weapon>
 	</ItemType>
-	
-
 	<ItemType	codename=	"item_musket_turret"
-				name=		"Musket turret"
+				name=		"Shotgun turret"
 				level=		"2"
 				mass=		"2000"
 
@@ -360,21 +358,26 @@
 
 				invoke=		"installWeapon"
 
-				desc=		"This kinetic gun is mounted on an omnidirectional turret for automatic aiming. It has limited ammo and easy installation."
+				desc=		"This kinetic gun is mounted on an omnidirectional turret for automatic aiming."
 		>
 		<Weapon
 			initialCharges=	"500"
 			powerUse=		"20"
-			fireCooldown=	"25"
+			fireCooldown=	"45"
 			omnidirectional="true"
+			sound=			"shotgun_3.wav"
 			>
 			<Projectile
-				missileSpeed=	"40"
+				count=			"8"
+				spreadAngle=	"20"
+				missileSpeed=	"30"
 				damageType=		"2"
 				damageHP=		"12"
 				lifetime=		"120"
+				
 				glyph=			"\249"
-				foreground=		"White"
+				foreground=		"Gray"
+				background=		"Black"
 				/>
 		</Weapon>
 	</ItemType>
@@ -497,11 +500,12 @@
 		mass=		"9000"
 		level=		"2"
 		value=		"4500"
-		desc=		"This heavy armor lets you 'bump into' things such as powerful missiles without dying, which is useful for large ships like the Clark-class transport."
+		desc=		"This heavy armor lets you 'bump into' things such as powerful missiles without blowing up, which is useful for large ships like the Clark-class transport."
 		>
 		<Armor
 			reflectFactor=	"0.75"
 			maxHP=			"90"
+			killHP=			"3"
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_bandit_plate"
@@ -523,12 +527,12 @@
 		desc=		"This cheap explosive bomb is capable of blowing apart a civilian starship (with some difficulty)."
 		/>
 	<ItemType	codename=	"item_dynamite_cannon"
-		name=		"Dynamite cannon"
+		name=		"Dynamite launcher"
 		level=		"1"
 		mass=		"2000"
 		value=		"2000"
 		invoke=		"installWeapon"
-		desc=		"This civilian-grade bomb launcher packs a small but powerful explosion. It requires Dynamite charges. Time and technology have not made it any less unwieldy as a weapon."
+		desc=		"This civilian-grade bomb launcher packs a small but powerful explosion. Time and technology have not improved this weapon whatsoever."
 		>
 		<Weapon	
 			powerUse=		"10"
@@ -589,7 +593,7 @@
 		>
 	</ItemType>
 	<ItemType	codename=	"item_book_founders"
-		name=		"digital copy of Founders, World Leaders, and Other Assholes to Avoid"
+		name=		"Orion Warlord handbook"
 		mass=		"1"
 		level=		"2"
 		value=		"3000"

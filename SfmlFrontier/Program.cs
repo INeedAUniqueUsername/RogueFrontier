@@ -81,7 +81,9 @@ partial class Program {
 			return;
 #endif
         ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
-        ConcurrentDictionary<byte[], Sound> sounds = new();  
+        ConcurrentDictionary<SoundCtx, Sound> sounds = new();
+
+        ConcurrentDictionary<byte[], SoundBuffer> soundBuffers = [];
 		IScene current = null;
 		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
 		void Go (IScene next) {
@@ -122,14 +124,16 @@ partial class Program {
             return;
         }
         void PlaySound(SoundCtx s) {
-            var snd = sounds.GetOrAdd(s.data, _ => {
+            var snd = sounds.GetOrAdd(s, s => {
                 var snd = new Sound(new SoundBuffer(s.data)) { Volume = s.volume };
-                //s.IsPlaying = () => snd.Status == SoundStatus.Playing;
+                s.IsPlaying = () => snd.Status == SoundStatus.Playing;
+                s.Stop = snd.Stop;
                 return snd;
 			});
             if(snd.Status == SoundStatus.Playing) {
                 snd.Stop();
             }
+            snd.SoundBuffer = soundBuffers.GetOrAdd(s.data, d => new SoundBuffer(d));
             snd.Volume = s.volume;
             snd.Position = new SFML.System.Vector3f(s.pos.x, s.pos.y, 0);
             snd.Play();

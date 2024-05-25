@@ -774,7 +774,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
                 .OrderBy(sh => player.position.Dist(sh.position))
                 .Zip(_exhaust.list);
             foreach((var ship, var sound) in exhaustList.Zip(_exhaust.list)) {
-                //sound.Stop();
+                sound.Stop?.Invoke();
             }
             exhaustList.Clear();
             foreach ((var ship, var sound) in s) {
@@ -782,7 +782,6 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
                 exhaustList.Add(ship);
             }
         } else {
-            var c = new SoundCtx(null, 0);
             foreach((var ship, var sound) in exhaustList.Zip(_exhaust.list)) {
                 sound.pos = player.position.To(ship.position).Scale(distScale);
             }
@@ -1020,9 +1019,7 @@ public class Megamap {
                     sf.SetTile(x, Height - y - 1, new Tile(foreground, background, glyph));
                 }
             }
-            int w = (int)(Width / (viewScale) - 1);
-            int h = (int)(Height / (viewScale) - 1);
-
+            
 #if false
             var visiblePerimeter = new Rect(Width / 2 - w/2, Height/2 - h/2, w, h);
             foreach (var (x,y) in visiblePerimeter.Perimeter) {
@@ -1030,9 +1027,14 @@ public class Megamap {
                 sf.Back[x, y] = ABGR.BlendPremultiply(b, ABGR.RGBA(255, 255, 255, (byte)(128/viewScale)));
             }
 #else
-            sf.DrawRect(Width / 2 - w / 2, Height / 2 - h / 2, w, h, new SMenu.RectOptions() {
-                b = ABGR.Transparent,
-            });
+
+            if(viewScale > 1) {
+				int w = (int)(Width / (viewScale) - 1);
+				int h = (int)(Height / (viewScale) - 1);
+				sf.DrawRect(Width / 2 - w / 2, Height / 2 - h / 2, w, h, new SMenu.RectOptions() {
+                    b = ABGR.Transparent,
+                });
+            }
 #endif            
             foreach ((var offset, var visible) in scaledEntities) {
                 var (x, y) = offset;
@@ -1723,7 +1725,7 @@ public class Readout {
                 l = (int)Math.Ceiling(BAR * (double)totalUsed / Math.Max(1, totalMax));
 
                 Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
-                l = (int)Math.Ceiling(BAR * (double)totalSolar / Math.Max(1, totalMax));
+                l = (int)Math.Min(bar.Length, Math.Ceiling(BAR * (double)totalSolar / Math.Max(1, totalMax)));
 
 				Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkCyan }).ToArray(), bar, l);
                 sf.Print(x, y++, [

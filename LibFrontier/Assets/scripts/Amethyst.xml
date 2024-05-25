@@ -248,14 +248,14 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_light_launcher_i"
-		name=		"Light Launcher I"
+		name=		"Luminous Launcher I"
 		level=		"1"
 		mass=		"1000"
 		value=		"7200"
 				
 		attributes= "Amethyst"
 
-		desc=		"The Light launcher by Amethyst, Inc fires multiple independent high-speed missiles that deal extra damage to shields."
+		desc=		"The Luminous Launcher by Amethyst, Inc fires multiple independent high-speed missiles that deal extra damage to shields."
 		>
 		<Weapon
 			powerUse=		"30"

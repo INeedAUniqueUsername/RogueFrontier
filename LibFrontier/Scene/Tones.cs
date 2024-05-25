@@ -8,5 +8,5 @@ using LibGamer;
 using RogueFrontier;
 namespace RogueFrontier;
 public static class Tones {
-	public static SoundCtx pressed = new SoundCtx(File.ReadAllBytes("Assets/sounds/button_press.wav"), 33);
+	public static SoundCtx pressed = new SoundCtx(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
 }
