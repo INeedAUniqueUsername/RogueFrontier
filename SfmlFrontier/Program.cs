@@ -7,8 +7,86 @@ using SfmlFrontier;
 using System.Collections.Concurrent;
 using SFML.Audio;
 namespace RogueFrontier;
-partial class Program {
-    public static int WIDTH = 100, HEIGHT = 60;
+partial class Program : IProgram {
+	ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
+	ConcurrentDictionary<SoundCtx, Sound> sounds = new();
+	ConcurrentDictionary<byte[], SoundBuffer> soundBuffers = [];
+	IScene current = null;
+    public Program(GameHost host) {
+		var kb = new KB();
+		host.FrameUpdate += (o, gh) => {
+			kb.Update([.. gh.Keyboard.KeysDown.Select(k => (KC)k.Key)]);
+			if(current is { } c) {
+				c.Update(gh.UpdateFrameDelta);
+				c.HandleKey(kb);
+				var m = gh.Mouse;
+				c.HandleMouse(new HandState(m.ScreenPosition, m.ScrollWheelValue, m.LeftButtonDown, m.MiddleButtonDown, m.RightButtonDown, m.IsOnScreen));
+			}
+		};
+		host.FrameRender += (o, gh) => {
+			current.Render(gh.DrawFrameDelta);
+		};
+		Go(new TitleScreen(WIDTH, HEIGHT, new Lazy<System>(() => {
+			var w = new System();
+			w.types.LoadFile(main);
+			if(w.types.TryLookup<SystemType>("system_intro", out var s)) {
+				s.Generate(w);
+			}
+			return w;
+		}).Value));
+	}
+	public void Go (IScene next) {
+		if(current is { } prev) {
+			prev.Go -= Go;
+			prev.Draw -= Draw;
+			prev.PlaySound -= PlaySound;
+		}
+		if(next == null)
+			throw new Exception("Main scene cannot be null");
+		current = next;
+
+		current.Go += Go;
+		current.Draw += Draw;
+		current.PlaySound += PlaySound;
+	}
+	public void Draw (Sf sf) {
+		var c = consoles.GetOrAdd(sf, sf => {
+			var f = sf.font;
+			if(!GameHost.Instance.Fonts.TryGetValue(f.name, out var font)) {
+				var t = GameHost.Instance.GetTexture(new MemoryStream(f.data));
+				font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
+				GameHost.Instance.Fonts[f.name] = font;
+			}
+			var c = new SadConsole.Console(sf.Width, sf.Height) {
+				Position = new(sf.pos.xi, sf.pos.yi),
+				Font = font,
+			};
+			//c.FontSize *= sf.scale;
+			return c;
+		});
+		c.Clear();
+		foreach(var ((x, y), t) in sf.Active) {
+			c.SetCellAppearance(x, y, t.ToCG());
+		}
+		c.Render(new TimeSpan());
+		return;
+	}
+	public void PlaySound (SoundCtx s) {
+		var snd = sounds.GetOrAdd(s, s => {
+			var snd = new Sound(new SoundBuffer(s.data)) { Volume = s.volume };
+			s.IsPlaying = () => snd.Status == SoundStatus.Playing;
+			s.Stop = snd.Stop;
+			return snd;
+		});
+		if(snd.Status == SoundStatus.Playing) {
+			snd.Stop();
+		}
+		snd.SoundBuffer = soundBuffers.GetOrAdd(s.data, d => new SoundBuffer(d));
+		snd.Volume = s.volume;
+		snd.Position = new SFML.System.Vector3f(s.pos.x, s.pos.y, 0);
+		snd.Play();
+	}
+	public static int WIDTH = 100, HEIGHT = 60;
 	public static string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
     public static string cover = ExpectFile($"{Assets.ROOT}/sprites/game_title.dat");
     public static string splash = ExpectFile($"{Assets.ROOT}/sprites/game_splash_background.dat");
@@ -23,136 +101,21 @@ partial class Program {
         File.WriteAllText("RogueFrontierSchema.xml", module.ToString());
     }
     static void Main(string[] args) {
-#if false
-        XSave x = null;
-
-        var o = GenerateIntroSystem();
-        var map = new XMap(typeof(SoundBufferPort));
-        var d = new XSave() { map = map };
-        d.SavePointer(o);
-        var s1 = d.root.ToString();
-
-        var o2 = d.root.Load();
-        d = new XSave() { map = map };
-        d.SavePointer(o2);
-        var s2 = d.root.ToString();
-        var diff = s1.Length - s2.Length;
-
-		Console.WriteLine($"{diff}");
-
-        if (true) return;
-#endif
         //OutputSchema();
         SadConsole.Settings.WindowTitle = $"Rogue Frontier v{Assembly.GetExecutingAssembly().GetName().Version}";
-        /*
-        var w = new System();
-        w.types.LoadFile(main);
-        string s = "";
-        foreach(var type in w.types.Get<ItemType>()) {
-            s += (@$"{'\n'}{{""{type.codename}"", {type.value}}}");
-        }
-        */
-        StartGame(StartRegular);
-    }
+		if(!Directory.Exists("save"))
+			Directory.CreateDirectory("save");
+		//SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;
+		Game.Create(WIDTH, HEIGHT, Fonts.IBMCGA_8X8_FONT, (o, gh) => { });
+		SadConsole.Host.Settings.SFMLScreenBlendMode = SFML.Graphics.BlendMode.Alpha;
+		SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Alpha;
 
-	public static void StartGame(Action<GameHost> OnStart) {
-        if (!Directory.Exists("save"))
-            Directory.CreateDirectory("save");
-        //SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;
-        Game.Create(WIDTH, HEIGHT, Fonts.IBMCGA_8X8_FONT, (o, gh) => { });
-        SadConsole.Host.Settings.SFMLScreenBlendMode = SFML.Graphics.BlendMode.Alpha;
-        SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Alpha;
+		Game.Instance.Started += (o, gh) => new Program(gh);
+		Game.Instance.Run();
+		Game.Instance.Dispose();
 
-		Game.Instance.Started += (o, gh)=>OnStart(gh);
-        Game.Instance.Run();
-        Game.Instance.Dispose();
-    }
-    public static System GenerateIntroSystem() {
-        var w = new System();
-        w.types.LoadFile(main);
-        if(w.types.TryLookup<SystemType>("system_intro", out var s)) {
-            s.Generate(w);
-        }
-        return w;
-    }
+	}
     public static void StartRegular(GameHost host) {
-#if false
-            GameHost.Instance.Screen = new BackdropConsole(Width, Height, new Backdrop(), () => new Common.XY(0.5, 0.5));
-			return;
-#endif
-        ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
-        ConcurrentDictionary<SoundCtx, Sound> sounds = new();
-
-        ConcurrentDictionary<byte[], SoundBuffer> soundBuffers = [];
-		IScene current = null;
-		Go(new TitleScreen(WIDTH, HEIGHT, GenerateIntroSystem()));
-		void Go (IScene next) {
-			if(current is { } prev) {
-				prev.Go -= Go;
-				prev.Draw -= Draw;
-                prev.PlaySound -= PlaySound;
-			}
-			if(next == null)
-				throw new Exception("Main scene cannot be null");
-			current = next;
-			
-            current.Go += Go;
-			current.Draw += Draw;
-            current.PlaySound += PlaySound;
-		};
-		void Draw(Sf sf) {
-            var c = consoles.GetOrAdd(sf, sf => {
-                var f = sf.font;
-                IFont font = null;
-				if(!GameHost.Instance.Fonts.TryGetValue(f.name, out font)) {
-					var t = GameHost.Instance.GetTexture(new MemoryStream(f.data));
-					font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
-					GameHost.Instance.Fonts[f.name] = font;
-				}
-				var c = new SadConsole.Console(sf.Width, sf.Height) {
-                    Position = new(sf.pos.xi, sf.pos.yi),
-                    Font = font,
-                };
-                //c.FontSize *= sf.scale;
-                return c;
-            });
-            c.Clear();
-            foreach(var ((x,y),t) in sf.Active) {
-				c.SetCellAppearance(x, y, t.ToCG());
-            }
-            c.Render(new TimeSpan());
-            return;
-        }
-        void PlaySound(SoundCtx s) {
-            var snd = sounds.GetOrAdd(s, s => {
-                var snd = new Sound(new SoundBuffer(s.data)) { Volume = s.volume };
-                s.IsPlaying = () => snd.Status == SoundStatus.Playing;
-                s.Stop = snd.Stop;
-                return snd;
-			});
-            if(snd.Status == SoundStatus.Playing) {
-                snd.Stop();
-            }
-            snd.SoundBuffer = soundBuffers.GetOrAdd(s.data, d => new SoundBuffer(d));
-            snd.Volume = s.volume;
-            snd.Position = new SFML.System.Vector3f(s.pos.x, s.pos.y, 0);
-            snd.Play();
-        }
-        var kb = new KB();
-        host.FrameUpdate += (o, gh) => {
-
-			kb.Update([.. gh.Keyboard.KeysDown.Select(k => (KC)k.Key)]);
-			var m = gh.Mouse;
-
-            if(current is { } c) {
-                c.Update(gh.UpdateFrameDelta);
-                c.HandleKey(kb);
-                c.HandleMouse(new HandState(m.ScreenPosition, m.ScrollWheelValue, m.LeftButtonDown, m.MiddleButtonDown, m.RightButtonDown, m.IsOnScreen));
-            }
-        };
-        host.FrameRender += (o, gh) => {
-            current.Render(gh.DrawFrameDelta);
-        };
 
 #if false
         //var files = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}save", "*.trl");

@@ -61,6 +61,7 @@ public static class SScene {
 	}
 }
 public interface IScene {
+	//IProgram Program { get; set; }
 	Action<IScene> Go { get; set; }
 	Action<Sf> Draw { get; set; }
 	Action<SoundCtx> PlaySound { get; set; }
