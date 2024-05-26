@@ -790,8 +790,8 @@ public static partial class SMenu {
         RepairEffect job = null;
 
         byte[]
-            start = File.ReadAllBytes("Assets/sounds/repair_start.wav"),
-            stop = File.ReadAllBytes("Assets/sounds/repair_stop.wav");
+            start = File.ReadAllBytes($"{Assets.ROOT}/sounds/repair_start.wav"),
+            stop = File.ReadAllBytes($"{Assets.ROOT}/sounds/repair_stop.wav");
 
 
         return screen = new(

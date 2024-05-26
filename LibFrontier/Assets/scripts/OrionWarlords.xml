@@ -8,7 +8,7 @@
 				mass=		"3000"
 				level=		"2"
 				value=		"400"
-				desc=		"The Orion bolter is a crossbow designed to accomodate both close-range fighters and long-range snipers. While idle, it charges up power for the next shot. The shells from this weapon can fly scary fast when fully charged."
+				desc=		"The Bronze bolter is a crossbow designed to accomodate both close-range fighters and long-range snipers. While idle, it charges up power for the next shot. The shells from this weapon can fly scary fast when fully charged."
 				invoke=		"installWeapon"
 		>
 		<Weapon
@@ -16,7 +16,7 @@
 			fireCooldown=	"30"
 			initialCharges=	"200"
 			
-			sound=			"Assets/sounds/crossbow_light.wav"
+			sound=			"crossbow_light.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -37,7 +37,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_orion_longbow"
-				name=		"Bronze longbow"
+				name=		"Bronze crossbow"
 				attributes=	"OrionWarlords"
 				mass=		"5000"
 				level=		"3"
@@ -50,7 +50,7 @@
 			fireCooldown=	"30"
 			initialCharges=	"200"
 			
-			sound=			"Assets/sounds/crossbow_medium.wav"
+			sound=			"crossbow_medium.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -120,7 +120,7 @@
 			fireCooldown=	"60"
 			initialCharges=	"200"
 			
-			sound=			"Assets/sounds/crossbow_heavy.wav"
+			sound=			"crossbow_heavy.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -183,6 +183,7 @@
 		value=		"400"
 		desc=		"Bronze rice is a bioengineered rice designed to provide high protein."
 		>
+		<!--Armor paste-->
 	</ItemType>
 	<ShipClass	codename=			"ship_orion_raider"
 				name=				"Orion raider"
@@ -292,7 +293,7 @@
 		mass=		"8000"
 		level=		"2"
 		value=		"800"
-		desc=		"The Orion Warlords deploy this turret near enemy stations to catch passing travelers off-guard."
+		desc=		"The Orion Warlords deploy this turret near civilian stations to catch unsuspecting stragglers."
 		>
 	</ItemType>
 	<StationType	codename="station_orion_turret"

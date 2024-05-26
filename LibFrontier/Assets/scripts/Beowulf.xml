@@ -173,7 +173,7 @@
 		<Weapon	initialCharges="400"
 				powerUse=		"30"
 				fireCooldown=	"90"
-				sound=			"Assets/sounds/flashbang_cannon.wav"
+				sound=			"flashbang_cannon.wav"
 			>
 			<Projectile
 				missileSpeed=	"40"
@@ -186,7 +186,7 @@
 				background=		"Black"
 				
 				detonateRadius=	"5"
-				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
+				detonateSound=	"flashbang_explosion.wav"
 				>
 				<Flash intensity="20"/>
 				<Fragment

@@ -45,7 +45,7 @@
 		>
 	</ItemType>
 	<ItemType	codename=	"item_bomb_launcher"
-				name=		"Shapnel bomb launcher"
+				name=		"Shrapnel bomb launcher"
 				attributes=	"DarkStar"
 				level=		"2"
 				mass=		"2000"
@@ -56,7 +56,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"90"
 				ammoType=		"item_shrapnel_bomb"
-				sound=			"Assets/sounds/generic_missile.wav"
+				sound=			"generic_missile.wav"
 			>
 			<Projectile
 				missileSpeed=	"50"
@@ -69,7 +69,7 @@
 				
 				detonateRadius="5"
 				
-				detonateSound=	"Assets/sounds/dynamite.wav"
+				detonateSound=	"dynamite.wav"
 				>
 				<Fragment
 					count=			"18"
@@ -143,7 +143,7 @@
 		level=		"2"
 		mass=		"200"
 		
-		desc=		"Basic shield generator"
+		desc=		""
 		>
 		<Shield
 			powerUse=		"30"

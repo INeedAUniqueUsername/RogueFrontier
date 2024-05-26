@@ -115,7 +115,7 @@
 			spray=			"true"
 			structural=		"true"
 			
-			sound=			"Assets/sounds/vent_fire.wav"
+			sound=			"vent_fire.wav"
 			>
 			<Projectile
 				omnidirectional="true"
@@ -191,7 +191,7 @@
 		<Weapon	initialCharges="400"
 				powerUse=		"30"
 				fireCooldown=	"90"
-				sound=			"Assets/sounds/flashbang_cannon.wav"
+				sound=			"flashbang_cannon.wav"
 			>
 			<Projectile
 				missileSpeed=	"50"
@@ -203,7 +203,7 @@
 				background=		"Black"
 				
 				detonateRadius="5"
-				detonateSound=	"Assets/sounds/flashbang_explosion.wav"
+				detonateSound=	"flashbang_explosion.wav"
 				>
 				<Flash intensity="30"/>
 				<Fragment

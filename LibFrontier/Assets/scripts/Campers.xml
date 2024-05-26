@@ -168,7 +168,7 @@
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"90"
 				ammoType=		"item_magic_bomb"
-				sound=			"Assets/sounds/generic_missile.wav"
+				sound=			"generic_missile.wav"
 			>
 			<Projectile
 				missileSpeed=	"40"

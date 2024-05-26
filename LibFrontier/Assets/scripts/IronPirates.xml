@@ -14,7 +14,7 @@
 		<Weapon		powerUse=		"50"
 					fireCooldown=	"60"
 					initialCharges=	"100"
-					sound=		"Assets/sounds/iron_cannon.wav"
+					sound=		"iron_cannon.wav"
 			>
 			<Projectile	missileSpeed=	"30"
 						damageType=		"2"
@@ -37,10 +37,10 @@
 			desc=		"The Iron Driver is a makeshift kinetic mass driver with rapid-fire capabilities."
 			>
 		<Weapon		powerUse=		"15"
-					fireCooldown=	"20"
+					fireCooldown=	"15"
 					initialCharges=	"300"
 					armorDrill=		"0.1"
-					sound=			"Assets/sounds/iron_driver.wav"
+					sound=			"iron_driver.wav"
 			>
 			<Projectile	missileSpeed=	"60"
 						damageType=		"2"

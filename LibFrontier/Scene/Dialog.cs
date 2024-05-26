@@ -124,8 +124,6 @@ public class Dialog : IScene {
 	int escapeIndex;
 	int lineCount;
 	public static double maxCharge = 0.5;
-
-	public SoundCtx button_press = new SoundCtx(File.ReadAllBytes("Assets/sounds/button_press.wav"), 33) {};
 	public Dialog (string descStr, List<NavChoice> navigation){
 		this.descStr = descStr;
 		
@@ -261,7 +259,7 @@ public class Dialog : IScene {
 		charging = false;
 		if(kb[KC.Escape] == KS.Press || prevEscape && kb[KC.Escape, 1]) {
 			if(!prevEscape) {
-				PlaySound(button_press);
+				PlaySound(Tones.pressed);
 			}
 			navIndex = escapeIndex;
 			charging = true;
@@ -272,7 +270,7 @@ public class Dialog : IScene {
 			enter = kb[KC.Enter, 1];
 			if(enter) {
 				if(!prevEnter) {
-					PlaySound(button_press);
+					PlaySound(Tones.pressed);
 				}
 
 				if(descIndex < desc.Length - 1) {
@@ -292,7 +290,7 @@ public class Dialog : IScene {
 			foreach(var c in kb.Down.Where(c => char.IsLetterOrDigit((char)c)).Select(c => char.ToUpper((char)c))) {
 				if(keyMap.TryGetValue(c, out int index)) {
 					if(!prevEnter) {
-						PlaySound(button_press);
+						PlaySound(Tones.pressed);
 					}
 
 					navIndex = index;
@@ -301,11 +299,11 @@ public class Dialog : IScene {
 				}
 			}
 			if(kb[KC.Up] == KS.Press) {
-				PlaySound(button_press);
+				PlaySound(Tones.pressed);
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
 			if(kb[KC.Down] == KS.Down) {
-				PlaySound(button_press);
+				PlaySound(Tones.pressed);
 				navIndex = (navIndex + 1) % navigation.Count;
 			}
 		}

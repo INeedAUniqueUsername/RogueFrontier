@@ -8,8 +8,8 @@ class IntroCrawl : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	private readonly TileImage[] images = {
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/NewEra.cg"))),
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText("Assets/sprites/PillarsOfCreation.cg")))
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/NewEra.cg"))),
+            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/PillarsOfCreation.cg")))
         };
     private readonly string[] text = new[] {
 @"In a vision I could see
