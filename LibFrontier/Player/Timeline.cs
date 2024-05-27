@@ -595,8 +595,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         //item_thorn_missile_system = 3200,
         item_simple_fuel_rod = 50,
         item_armor_repair_patch = 200,
-        item_amethyst_repair_kit_i = 400,
-        item_amethyst_repair_kit_ii = 800,
         item_orator_charm_silence = 3000,
         item_dictator_charm_silence = 3000,
         item_emp_cannon = 2400,

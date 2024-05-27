@@ -1,5 +1,5 @@
 ﻿<Module>
-	<!--Physics-->
+	<!--Biology-->
 	<Module file="Genomes.xml"/>
 
 	<!--Enemy Combatants-->
@@ -9,23 +9,35 @@
 	<Module file="Perfectron.xml"/>
 	<Module file="DarkStar.xml"/>
 	<Module file="Murmurs.xml"/>
-
-	<!--Three Paths-->
+	<!--Three Paths
+		Amethyst:
+			Amethyst upgrade plan (buy each item in sequence)
+			Long-range
+		Beowulf:
+			Long-lasting weapons
+			Medium-range
+		Clark:
+			Modular weapon
+			Low-range
+	-->
+	
 	<Module file="Amethyst.xml"/>
 	<Module file="Beowulf.xml"/>
 	<Module file="Campers.xml"/>
 	
-	<!---->
+	<!--Occult-->
 	<Module file="ISETI.xml"/>
 	<Module file="Daughters.xml"/>
-	
-	<!--Law & Order-->
+
+	<!--Military Gateway-->
 	<Module file="Constellation.xml"/>
 	<Module file="ConstellationFleet.xml"/>
 	<Module file="Antioch.xml"/>
 	<Debug>
 		<Module file="Debug.xml"/>
 	</Debug>
+	
+	<!--Common-->
 	<Module file="Player.xml"/>
 	<Module file="Items.xml"/>
 	<Module file="Powers.xml"/>

@@ -127,7 +127,7 @@
 			desc=		"The first-generation Magic Blaster fires a burst of corrosive energy. Its directed-energy technology is sufficiently proprietary as to be indistinguishable from magic."
 		>
 		<Weapon
-			initialCharges=	"240"
+			initialCharges=	"250"
 			powerUse=		"10"
 			fireCooldown=	"20"
 			sound=			"magic_blaster.wav"
@@ -189,10 +189,10 @@
 				
 		attributes= "Amethyst"
 
-		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is sufficiently incomprehensible as to be indistinguishable from magic."
+		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is sufficiently magical as to be indistinguishable from technology."
 		>
 		<Weapon
-			initialCharges=	"240"
+			initialCharges=	"500"
 			powerUse=		"10"
 			fireCooldown=	"20"
 			sound=			"magic_blaster.wav"
@@ -328,37 +328,8 @@
 		</Shield>
 	</ItemType>
 	
-	
-	<ItemType	codename=	"item_amethyst_repair_kit_i"
-				name=		"Amethyst Armor Repair Kit"
-				level=		"1"
-				mass=		"1000"
-				value=		"500"
-				
-				attributes=	"Amethyst"
-
-				invoke=		"repairArmor"
-				repairHP=	"75"
-
-				desc=		"Gemsteel plate is ONLY repairable using the patented Amethyst armor repair kit. This kit repairs 75 hp."
-		>
-	</ItemType>
-	<ItemType	codename=	"item_amethyst_repair_kit_ii"
-				name=		"Amethyst Armor Repair Kit"
-				level=		"2"
-				mass=		"1000"
-				value=		"1000"
-				
-				attributes=	"Amethyst"
-
-				invoke=		"repairArmor"
-				repairHP=	"150"
-
-				desc=		"Gemsteel plate is ONLY repairable using the patented Amethyst armor repair kit. This kit repairs 150 hp."
-		>
-	</ItemType>
 	<ItemType	codename=	"item_gemsteel_plate_i"
-		name=		"Gemsteel plate"
+		name=		"Amethyst armor I"
 		mass=		"4000"
 		level=		"1"
 		value=		"1500"
@@ -367,8 +338,8 @@
 				
 		desc=		"Designed for the Amethyst-class yacht, this semicrystalline armor maintains its aesthetic beauty at any condition. It glows brightly when exposed to starlight, so it's not good for stealth ships."
 		>
-		<Armor	initialHP=	"100"
-				maxHP=		"75"
+		<Armor	
+				maxHP=		"60"
 				stealth=	"-2"
 				lifetimeDegrade="1 / 750"
 			>
@@ -376,23 +347,36 @@
 		</Armor>
 	</ItemType>
 	<ItemType	codename=	"item_gemsteel_plate_ii"
-		name=		"Gemsteel plate"
+		name=		"Amethyst armor II"
 		mass=		"4000"
 		level=		"1"
 		value=		"4000"
-				
 		attributes= "Amethyst"
-				
 		desc=		"Second-generation Gemsteel armor has improved durability."
 		>
-		<Armor	initialHP=	"200"
-				maxHP=		"150"
+		<Armor
+				maxHP=		"120"
 				stealth=	"-2"
-				lifetimeDegrade="1 / 1500"
+				lifetimeDegrade="1 / 1000"
 			>
 			<RestrictRepair require="Amethyst"/>
 		</Armor>
 	</ItemType>
+	
+	
+	<ItemType	codename=	"item_amethyst_armor_polish"
+		name=		"Amethyst armor polish"
+		mass=		"4000"
+		level=		"1"
+		value=		"4000"
+		attributes= "Amethyst"
+		desc=		""
+		>
+		<Mod>
+			
+		</Mod>
+	</ItemType>
+	
 	<ItemType	codename=	"item_prescience_book"
 			name=		"Prospering With Prescience: The Ultimate Guide - Hardcover Edition"
 			level=		"1"

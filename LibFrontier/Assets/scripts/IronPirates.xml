@@ -124,7 +124,10 @@
 				level=		"1"
 				desc=		"This armor is made of iron, which would rust if the Iron Pirates ever visited a planet known as Earth."
 		>
-		<Armor	maxHP=		"60"/>
+		<Armor	maxHP=		"60"
+				damageWall=	"12"
+				killHP=		"3"
+				/>
 	</ItemType>
 	<ItemType	codename=	"item_ironside_plate"
 				name=		"Ironside plate"
@@ -133,6 +136,7 @@
 				desc=		"When this armor is on its last HP, nothing will take it down except for a very strong hit (likely) or very severe rusting (unlikely)."
 		>
 		<Armor	maxHP=		"90"
+				damageWall=	"9"
 				killHP=		"6"/>
 	</ItemType>
 	<ShipClass	codename=			"ship_iron_gunboat"

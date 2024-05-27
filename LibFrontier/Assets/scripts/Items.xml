@@ -516,7 +516,8 @@
 		desc=		"This modified Bumpersteel plate is coated with a stealthing agent."
 		>
 		<Armor	maxHP=		"120"
-				stealth=	"6"/>
+				stealth=	"6"
+				damageWall=	"10"/>
 	</ItemType>
 	<ItemType	codename=	"item_dynamite_charge"
 		name=		"Dynamite charge"
