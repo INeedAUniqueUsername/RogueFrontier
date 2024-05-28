@@ -199,7 +199,7 @@ public record UnlockPrescience() : ItemUse {
 	}
 }
 public record ApplyMod() : ItemUse {
-	[Par] Modifier mod;
+	[Par] FragmentMod mod;
 	public ApplyMod(XElement e) : this() {
 		e.Initialize(this);
 	}
@@ -338,7 +338,7 @@ public record EngineDesc {
 }
 public record EnhancerDesc {
 	[Req] public int powerUse;
-	[Par] public Modifier mod;
+	[Par] public FragmentMod mod;
 	public Enhancer GetEnhancer(Item i) => new(i, this);
 	public EnhancerDesc() { }
 	public EnhancerDesc(XElement e) {

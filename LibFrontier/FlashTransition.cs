@@ -123,6 +123,6 @@ public class FlashTransition : IScene {
                 sf.SetBack(x, y, b);
             }
         }
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
 }

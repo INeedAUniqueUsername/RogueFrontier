@@ -41,7 +41,22 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public bool sleepMouse = true;
     public BackdropConsole uiBack;
     public Viewport uiViewport;
-    public GateTransition transition;
+    public GateTransition gate {
+        get => _gate;
+        set {
+            if(_gate is { } prev) {
+                prev.Draw -= SubDraw;
+            }
+            _gate = value;
+            if(value is { } next) {
+                next.Draw += SubDraw;
+            }
+
+		}
+    }
+
+
+    private GateTransition _gate;
     public Megamap uiMegamap;
     public Vignette vignette;
     public Readout uiMain;  //If this is visible, then all other ui Consoles are visible
@@ -75,9 +90,12 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 return;
             }
             _dialog = value;
-            value.Go += SubGo;
-            value.Draw += SubDraw;
-            value.PlaySound += SubPlaySound;
+            if(value is { }) {
+
+				value.Go += SubGo;
+				value.Draw += SubDraw;
+				value.PlaySound += SubPlaySound;
+			}
         }
     }
 	private void SubGo (IScene s) => dialog = s;
@@ -158,8 +176,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
         uiBack = new(nextViewport);
         uiViewport = nextViewport;
-        transition = new GateTransition(prevViewport, nextViewport, () => {
-            transition = null;
+        gate = new GateTransition(prevViewport, nextViewport, () => {
+            gate = null;
             if (playerShip.mortalTime <= 0) {
                 vignette.glowAlpha = 0f;
             }
@@ -171,9 +189,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var destGate = gate.destGate;
         if (destGate == null) {
             world.entities.Remove(playerShip);
-            transition = new GateTransition(new Viewport(Width, Height, monitor.FreezeCamera), null, () => {
-                transition = null;
-                OnPlayerLeft();
+            this.gate = new GateTransition(new Viewport(Width, Height, monitor.FreezeCamera), null, () => {
+                this.gate = null;
+				OnPlayerLeft();
             });
             return;
         }
@@ -189,8 +207,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
         uiBack = new(nextViewport);
         uiViewport = nextViewport;
-        transition = new GateTransition(prevViewport, nextViewport, () => {
-            transition = null;
+        this.gate = new GateTransition(prevViewport, nextViewport, () => {
+            this.gate = null;
         });
     }
     public void OnIntermission() {
@@ -300,7 +318,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             lock (world) {
                 UpdateUniverse();
                 PlaceTiles(delta);
-                transition?.Update(delta);
+                gate?.Update(delta);
             }
             if (playerShip.dock is { justDocked: true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
@@ -365,7 +383,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 UpdateUniverse();
                 playerShip.ResetActiveControls();
                 PlaceTiles(delta);
-                transition?.Update(delta);
+                gate?.Update(delta);
                 void AddCrosshair() {
                     if (playerShip.GetTarget(out var t) && t == crosshair) {
                         Heading.Crosshair(world, crosshair.position, ABGR.Yellow);
@@ -456,8 +474,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             if (uiMain.visible) {
                 //If the megamap is completely visible, then skip main render so we can fast travel
                 if (uiMegamap.alpha < 255) {
-                    if (transition != null) {
-                        transition.Render(delta);
+                    if (gate != null) {
+                        gate.Render(delta);
                     } else {
                         uiBack.Render(delta);           Draw(uiBack.sf);
                         uiViewport.Render(delta);       Draw(uiViewport.sf);
@@ -488,25 +506,25 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
                 //If the megamap is completely visible, then skip main render so we can fast travel
                 if (uiMegamap.alpha < 255) {
-                    if (transition != null) {
-                        transition.Render(delta);
+                    if (gate != null) {
+                        gate.Render(delta);
                     } else {
-                        uiBack.Render(delta);       Draw(uiBack.sf);
-                        uiViewport.Render(delta);   Draw(uiViewport.sf);
+                        uiBack.Render(delta);       Draw?.Invoke(uiBack.sf);
+                        uiViewport.Render(delta);   Draw?.Invoke(uiViewport.sf);
                     }
-                    uiMegamap.Render(delta);        Draw(uiMain.sf);
-                    vignette.Render(delta);         Draw(vignette.sf);
+                    uiMegamap.Render(delta);        Draw?.Invoke(uiMain.sf);
+                    vignette.Render(delta);         Draw?.Invoke(vignette.sf);
                 } else {
-                    uiMegamap.Render(delta);        Draw(uiMegamap.sf);
-                    vignette.Render(delta);         Draw(vignette.sf);
+                    uiMegamap.Render(delta);        Draw?.Invoke(uiMegamap.sf);
+                    vignette.Render(delta);         Draw?.Invoke(vignette.sf);
                 }
             }
             if (powerWidget.visible) {
-                powerWidget.Render(delta);      Draw(powerWidget.sf);
+                powerWidget.Render(delta);      Draw?.Invoke(powerWidget.sf);
             }
         } else {
-            uiBack.Render(delta);           Draw(uiBack.sf);
-            uiViewport.Render(delta);       Draw(uiViewport.sf);
+            uiBack.Render(delta);           Draw?.Invoke(uiBack.sf);
+            uiViewport.Render(delta);       Draw?.Invoke(uiViewport.sf);
         }
         //frameRendered = true;
         updatesSinceRender = 0;
@@ -986,7 +1004,7 @@ public class Megamap {
                         var glyph = t.Glyph;
                         var background = ABGR.PremultiplySet(t.Background, alpha);
                         var foreground = ABGR.PremultiplySet(t.Foreground, alpha);
-                        sf.SetTile(x, Height - y, new Tile(foreground, background, glyph));
+                        sf.SetTile(x, Height - y - 1, new Tile(foreground, background, glyph));
                     }
                     var environment = player.world.backdrop.planets.GetTile(pos.Snap(viewScale), XY.Zero);
                     if (environment.IsVisible) {
@@ -1209,14 +1227,13 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             borderColor = ABGR.Premultiply(ABGR.Blend(borderColor, v));
             borderSize += 12 * glowAlpha;
         }
-        Mortal();
-        void Mortal() {
-            if (player.mortalTime > 0) {
-                borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Red, (byte)(Math.Min(1, player.mortalTime / 4.5) * 255)));
-                var fraction = player.mortalTime - Math.Truncate(player.mortalTime);
-                borderSize += 6 * fraction;
-            }
-        }
+
+		if(player.mortalTime > 0) {
+			borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Red, (byte)(Math.Min(1, player.mortalTime / 4.5) * 255)));
+			var fraction = player.mortalTime - Math.Truncate(player.mortalTime);
+			borderSize += 6 * fraction;
+		}
+		
         if (flash > 0) {
             borderSize += Math.Min(8, 8 * flash / 30f);
             borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Gray,(byte)Math.Min(255, 255 * flash / 30)));
@@ -1585,8 +1602,8 @@ public class Readout {
                     int i = 0;
                     foreach (var w in weapons) {
                         string enhancement;
-                        if (w.source.mod?.empty == false) {
-                            enhancement = "[+]";
+                        if (w.mod != FragmentMod.EMPTY) {
+                            enhancement = "+";
                         } else {
                             enhancement = "";
                         }
@@ -1809,7 +1826,7 @@ public class Readout {
                             "=>" :
                             "  ";
                     var name = w.GetReadoutName();
-                    string enhancement = w.source.mod is { empty:false } ? "[+]" : "";
+                    string enhancement = w.mod != FragmentMod.EMPTY ? "+" : "";
                     var tag = $"{arrow} {name} {enhancement}";
                     var foreground =
                         player.energy.off.Contains(w) ?

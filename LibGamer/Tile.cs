@@ -86,8 +86,8 @@ public record ABGR(uint packed) {
 
 	//public static (byte R, byte G, byte B, byte A) RGBA(uint abgr) => (R(abgr), G(abgr), B(abgr), A(abgr));
 
-	public static (byte R, byte G, byte B, byte A) Data (uint abgr) =>
-		(A(abgr), G(abgr), B(abgr), R(abgr));
+	public static (byte A, byte B, byte G, byte R) Data (uint abgr) =>
+		(A(abgr), B(abgr), G (abgr), R(abgr));
 
 	public static Mut MA (uint abgr) => new(abgr, 0);
 	public static byte A (uint abgr) => (byte)((abgr >> 24) & 255);
@@ -219,10 +219,10 @@ public record ABGR(uint packed) {
 	public static uint IncB (uint abgr, byte inc) => (abgr & 0xFF00FFFF) + (abgr + inc) & ~0xFF00FFFF;
 	public static uint IncA (uint abgr, byte inc) => (abgr & 0x00FFFFFF) + (abgr + inc) & 0xFF000000;
 	public static uint IncRGB (uint abgr, byte inc) => (byte)(
-		(abgr & 0xFF000000) +
-		(inc >> 24) +
-		(inc >> 16) +
-		(inc >> 08)
+		(abgr & 0xFFFFFFFF) +
+		(inc << 16) +
+		(inc << 08) +
+		(inc << 00)
 		);
 	public static uint SetR (uint abgr, byte r) => (abgr & 0xFFFFFF00) + r >> 24;
 	public static uint SetG (uint abgr, byte g) => (abgr & 0xFFFF00FF) + g >> 16;

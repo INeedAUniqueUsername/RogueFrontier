@@ -41,7 +41,6 @@ public class DeathTransition : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Sf sf;
-    Sf sf_prev;
 	IScene prev, next;
     int Width => sf.Width;
     int Height => sf.Height;
@@ -56,8 +55,11 @@ public class DeathTransition : IScene {
     public DeathTransition(IScene prev, Sf sf_prev, IScene next) {
 
         this.prev = prev;
-        this.sf_prev = sf_prev;
         this.next = next;
+
+        prev.Draw += sf => Draw?.Invoke(sf);
+
+        this.sf = Sf.From(sf_prev);
         particles = new HashSet<Particle>();
         for (int y = 0; y < Height / 2; y++) {
             for (int x = 0; x < Width; x++) {
@@ -107,7 +109,6 @@ public class DeathTransition : IScene {
         }
     }
     public void Render(TimeSpan delta) {
-        Draw(sf_prev);
         sf.Clear();
 
         var borderSize = Math.Max((time - 1) * 4, 0);
@@ -129,8 +130,12 @@ public class DeathTransition : IScene {
         byte l = 0;
         //int brightness = (int)Math.Min(255, 255 * Math.Max(0, time - 6) / 2);
         foreach (var p in particles) {
-            sf.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.RGBA(l, l, l, 255), ' '));
+
+            if(sf.IsValid(p.x, (int)p.y)) {
+                sf.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.RGBA(l, l, l, 255), ' '));
+            }
         }
-        Draw(sf);
+		prev.Render(delta);
+		Draw(sf);
     }
 }

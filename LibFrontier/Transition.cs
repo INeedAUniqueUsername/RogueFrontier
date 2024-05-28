@@ -95,7 +95,10 @@ public class TitleSlideOut : IScene {
     double interval;
     bool fast;
     public TitleSlideOut(IScene prev, Sf sf_prev, IScene next, Sf sf_next) {
-        
+
+        this.sf_prev = sf_prev;
+        this.sf_next = sf_next;
+
         this.prev = prev;
         this.next = next;
         this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
@@ -162,6 +165,7 @@ public class TitleSlideIn : IScene {
         sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
         this.prev = prev;
         this.next = next;
+        next.scene.Render(new TimeSpan());
         //Draw one frame now so that we don't cut out for one frame
         Render(new TimeSpan());
     }
@@ -173,6 +177,7 @@ public class TitleSlideIn : IScene {
     }
     public void Update(TimeSpan delta) {
         prev.scene.Update(delta);
+        next.scene.Update(delta);
         if (x < Width + 16) {
             x += (int)(Width * delta.TotalSeconds);
         } else {
@@ -183,10 +188,9 @@ public class TitleSlideIn : IScene {
         Go(next.scene);
     }
     public void Render(TimeSpan delta) {
-
-        Draw(next.sf);
-        Draw(prev.sf);
-
+        prev.scene.Render(delta);
+        next.scene.Render(delta);
+        Draw?.Invoke(prev.sf);
         var blank = new Tile(ABGR.Black, ABGR.Black, ' ');
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Math.Min(Width, this.x); x++) {
@@ -194,20 +198,21 @@ public class TitleSlideIn : IScene {
                 sf.SetTile(x, y, next.sf.GetTile(x, y));
             }
             //Fading opacity edge
-            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
+            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 2); x++) {
 
                 var glyph = prev.sf.GetGlyph(x, y);
-                var value = 255 - 255 / 16 * (x - this.x);
+                var value = (byte)(255 - 255 / 2 * (x - this.x));
 
-                var fore = prev.sf.GetFront(x, y);
-                fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Premultiply(next.sf.GetFront(x, y)), (byte)value));
+                var fore = prev.sf.Front[x, y];
+                fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Premultiply(next.sf.Front[x, y]), value));
 
-                var back = prev.sf.GetBack(x, y);
-                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(next.sf.GetBack(x, y)), (byte)value));
+                var back = prev.sf.Back[x, y];
+                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(next.sf.Back[x, y]), value));
 
                 sf.SetTile(x, y, new Tile(fore, back, glyph));
             }
         }
+        Draw?.Invoke(sf);
     }
 }
 public class FadeIn : IScene {

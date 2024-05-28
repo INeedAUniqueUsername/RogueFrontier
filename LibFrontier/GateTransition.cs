@@ -30,7 +30,8 @@ public class GateTransition : IScene {
 	public GateTransition(Viewport back, Viewport front, Action next) {
         this.back = back;
         this.front = front;
-        rect = new Rect(Width / 2, Height / 2, 0, 0);
+        this.sf = Sf.From(back.sf);
+        rect = new Rect(Width, Height, 0, 0);
         this.next = next;
     }
     public void HandleKey(KB kb) {
@@ -43,10 +44,12 @@ public class GateTransition : IScene {
         amount += delta.TotalSeconds * 1;
 
         if (amount < 1) {
-            rect = new Rect(Width / 2, Height / 2, (int)(amount * Width / 2), (int)(amount * Height / 2));
-            particles.AddRange(rect.Perimeter.Select(p => new Particle(15, p)));
-            particles.ForEach(p => p.lifetime--);
-            particles.RemoveAll(p => p.lifetime < 1);
+            var w = (int)(amount * Width);
+            var h = (int)(amount * Height);
+			rect = new Rect(Width / 2 - w/2, Height / 2 - h/2, w, h);
+            //particles.AddRange(rect.Perimeter.Select(p => new Particle(0, p)));
+            //particles.ForEach(p => p.lifetime--);
+            //particles.RemoveAll(p => p.lifetime < 1);
         } else if(particles.Any()) {
             particles.ForEach(p => p.lifetime--);
             particles.RemoveAll(p => p.lifetime < 1);
@@ -72,7 +75,7 @@ public class GateTransition : IScene {
                     _back.SetTile(x, y, b.GetTile(x, y));
                     var g = v.GetTile(x, y);
                     //var g = (rect.Contains(p) ? next : prev).GetCellAppearance(x, y);
-                    sf.SetTile(x, Height - y, g);
+                    sf.Tile[x, Height - y - 1] = g;
                 }
             }
         } else {
@@ -91,8 +94,8 @@ public class GateTransition : IScene {
                 }
             }
         }
-        Draw(_back);
-        Draw(sf);
-        Draw(particleLayer);
+        Draw?.Invoke(_back);
+        Draw?.Invoke(sf);
+        Draw?.Invoke(particleLayer);
     }
 }

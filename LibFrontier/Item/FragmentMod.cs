@@ -7,24 +7,28 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace RogueFrontier;
-public record Modifier() {
-    [Opt] public bool
-        curse = false;
-
-    public IntMod damageHP, missileSpeed, lifetime, maxHP;
-    public Modifier(XElement e) : this() {
+public record FragmentMod {
+    public static FragmentMod EMPTY = new FragmentMod();
+    [Opt] public bool curse = false;
+    public IntMod
+        damageHP = IntMod.EMPTY,
+        missileSpeed = IntMod.EMPTY,
+        lifetime = IntMod.EMPTY,
+        maxHP = IntMod.EMPTY;
+    public FragmentMod () { }
+    public FragmentMod(XElement e) {
         e.Initialize(this);
         damageHP = new(e, nameof(damageHP));
         missileSpeed = new(e, nameof(missileSpeed));
         lifetime = new(e, nameof(lifetime));
         maxHP = new(e, nameof(maxHP));
     }
-    public static Modifier Sum(params Modifier[] mods) {
-        Modifier result = new();
+    public static FragmentMod Sum(params FragmentMod[] mods) {
+        FragmentMod result = new();
         foreach (var m in mods) result += m;
         return result;
     }
-    public static Modifier operator +(Modifier x, Modifier y) =>
+    public static FragmentMod operator +(FragmentMod x, FragmentMod y) =>
         y == null ? x : 
         new() {
             curse = y.curse,
@@ -33,23 +37,12 @@ public record Modifier() {
             lifetime = x.lifetime + y.lifetime,
             maxHP=x.maxHP + y.maxHP
         };
-    public static FragmentDesc operator *(Modifier x, FragmentDesc y) =>
+    public static FragmentDesc operator *(FragmentMod x, FragmentDesc y) =>
         y with {
-            damageHP = x.damageHP?.Modify(y.damageHP) ?? y.damageHP,
-            missileSpeed = x.missileSpeed?.Modify(y.missileSpeed) ?? y.missileSpeed,
-            lifetime = x.lifetime?.Modify(y.lifetime) ?? y.lifetime,
+            damageHP = x.damageHP.Modify(y.damageHP),
+            missileSpeed = x.missileSpeed.Modify(y.missileSpeed),
+            lifetime = x.lifetime.Modify(y.lifetime),
         };
-    public static ArmorDesc operator *(Modifier x, ArmorDesc y) =>
-        y with {
-            maxHP = x.maxHP.Modify(y.maxHP),
-        };
-    public bool empty => this is Modifier {
-        curse: false,
-        damageHP: { factor:1, inc: 0},
-        missileSpeed: { factor:1, inc: 0},
-        lifetime: { factor:1, inc: 0},
-        maxHP: { factor:1, inc: 0},
-    };
     public void ModifyRemoval(ref bool removable) {
         if (curse) {
             removable = false;
@@ -57,6 +50,7 @@ public record Modifier() {
     }
 }
 public record IntMod(int inc = 0, double factor = 1) {
+    public static IntMod EMPTY = new IntMod();
     public IntMod(XElement e, string name) : this(
         e.TryAttInt($"{name}Inc", 0),
         e.TryAttDouble($"{name}Factor", 1)

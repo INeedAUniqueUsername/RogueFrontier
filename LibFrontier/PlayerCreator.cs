@@ -157,10 +157,6 @@ class PlayerCreator : IScene {
                 sf.SetTile(mapX + i, y, new Tile(ABGR.RGBA(255, 255, 255, (byte)(230 + Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), ABGR.Black, line[i]));
             }
             y++;
-            for (int i = 0; i < line.Length; i++) {
-                sf.SetTile(mapX + i, y, new Tile(ABGR.RGBA(255, 255, 255, (byte)(230 + Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), ABGR.Black, line[i]));
-            }
-            y++;
         }
 
         string s = "[Image is for promotional use only]";
@@ -193,14 +189,12 @@ class PlayerCreator : IScene {
 
                 var g = sf.GetGlyph(x, y);
                 if (g == 0 || g == ' ') {
-                    sf.SetTile(x, y, new Tile(
-                        ABGR.RGBA(255, 255, 255, (byte)(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5))),
-                        ABGR.Black,
-                        '='));
+                    var a = (byte)Math.Clamp(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5), 0, 255);
+					sf.SetTile(x, y, new Tile(ABGR.SetA(ABGR.White, a), ABGR.Black, '='));
                 }
             }
         }
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
 
     public bool showRight => index < playable.Count - 1;

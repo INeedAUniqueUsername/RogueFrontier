@@ -112,10 +112,11 @@ public class EpitaphScreen : IScene {
             var size = epitaph.deathFrame.GetLength(0);
             for (y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
-                    Surface.Tile[Surface.Width - x - 2, y + 1] = epitaph.deathFrame[x, y];
+                    Surface.Tile[Surface.Width - x - 2, y] = epitaph.deathFrame[x, y];
                 }
             }
         }
+        Draw(Surface);
     }
 }
 public class IntermissionScreen : IScene {

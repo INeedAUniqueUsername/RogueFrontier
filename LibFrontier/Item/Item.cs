@@ -18,7 +18,6 @@ public class Item {
     public Shield shield;
     public Solar solar;
     public Weapon weapon;
-    public Modifier mod;
     public bool HasAtt(string att) => type.attributes.Contains(att);
     public Item() { }
     public Item(Item copy) {
@@ -29,11 +28,9 @@ public class Item {
         reactor = copy.reactor?.Copy(this);
         solar = copy.solar?.Copy(this);
         service = copy.service?.Copy(this);
-        mod = copy.mod is Modifier m ? (m with { }) : null;
     }
-    public Item(ItemType type, Modifier mod = null) {
+    public Item(ItemType type) {
         this.type = type;
-        this.mod = mod;
         weapon = type.Weapon?.GetWeapon(this);
         armor = type.Armor?.GetArmor(this);
         shield = type.Shield?.GetShield(this);
@@ -757,7 +754,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
     public Targeting targeting;
     public Capacitor capacitor;
     public IAmmo ammo;
-    public Modifier mod;
+    public FragmentMod mod = FragmentMod.EMPTY;
     public FragmentDesc projectileDesc;
     public bool structural;
     public double delay;
@@ -856,7 +853,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         }
     }
     public void UpdateProjectileDesc() {
-        projectileDesc = Modifier.Sum(capacitor?.mod, source.mod, mod) * desc.Projectile;
+        projectileDesc = FragmentMod.Sum(capacitor?.mod, mod) * desc.Projectile;
     }
     public void Update(double delta, Station owner) {
         if (!blind) {
@@ -1162,7 +1159,7 @@ public class Capacitor {
     public bool AllowFire => desc.minChargeToFire <= charge;
     public void Update() =>
         charge = Math.Min(desc.maxCharge, charge + desc.rechargePerTick);
-    public Modifier mod => new() {
+    public FragmentMod mod => new() {
         damageHP =      new(inc: (int)(charge * desc.bonusDamagePerCharge)),
         missileSpeed =  new(inc: (int)(charge * desc.bonusSpeedPerCharge)),
         lifetime =      new(inc: (int)(charge * desc.bonusLifetimePerCharge))

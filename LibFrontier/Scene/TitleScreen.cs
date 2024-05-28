@@ -50,7 +50,7 @@ public class TitleScreen : IScene {
 
 
 		foreach (var (s,a) in new Dictionary<string, Action>{
-			["[Enter]   New Adventure"] = null,
+			["[Enter]   New Adventure"] = StartGame,
 			["[Shift-L] Load Adventure"] = null,
 			["[Shift-A] Arena Mode"] = StartArena,
 			["[Shift-C] Controls"] = null,
@@ -91,7 +91,8 @@ public class TitleScreen : IScene {
 		});
 	private void StartGame () {
 		//Tones.pressed.Play();
-		var pc = new PlayerCreator(this, sf, World, settings, StartCrawl);
+		PlayerCreator pc = null;
+		pc = new PlayerCreator(this, sf, World, settings, StartCrawl);
 		Go(new TitleSlideIn((sf, this), (pc.sf, pc)));
 		void StartCrawl (ShipSelectorModel context) {
 			var loc = $"{AppDomain.CurrentDomain.BaseDirectory}/save/{context.playerName}";
@@ -108,13 +109,15 @@ public class TitleScreen : IScene {
 			var playerClass = playable[index];
 			Scene1();
 			void Scene1() {
-				IntroCrawl crawl = null;
-				Go(crawl = new(sf.Width, sf.Height, () => { }));
+				RogueFrontier.IntroCrawl crawl = null;
 
-				PlaySound(new SoundCtx(File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav"), 33));
-				Task.Run(CreateWorld);
+				var next = CreateWorld();
+				pc.Go?.Invoke(crawl = new(sf.Width, sf.Height, next));
 
-				void CreateWorld () {
+				pc.PlaySound?.Invoke(new SoundCtx(File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav"), 33));
+				//Task.Run(CreateWorld);
+
+				Action CreateWorld () {
 					var universeDesc = new UniverseDesc(World.types, XElement.Parse(
 						File.ReadAllText($"{Assets.ROOT}/scripts/Universe.xml")
 						));
@@ -141,13 +144,14 @@ public class TitleScreen : IScene {
 						playerShip = playerShip
 					}, SaveGame.settings));
 					*/
-					crawl.next = Transition0;
+					return Transition0;
 					void Transition0 () {
 						FlashTransition ft = null;
 						ft = new FlashTransition(Width, Height, crawl.sf, Transition);
-						Go(ft);
+						crawl.Go(ft);
 						void Transition () {
-							Go(new Pause(ft.sf, Transition2, 1));
+							Pause p = null;
+							ft.Go(p = new Pause(ft.sf, Transition2, 1));
 							void Transition2 () {
 								PlainCrawlScreen crawl2 = null;
 								crawl2 = new PlainCrawlScreen((Width / 4, 8), "Today has been a long time in the making.    \n\n" + ((new Random(seed).Next(5) + new Random().Next(2)) switch {
@@ -156,9 +160,10 @@ public class TitleScreen : IScene {
 									3 => "The future will not be so far.",
 									_ => "Maybe all of it will have been for something.",
 								}), Transition3a);
-								Go(crawl2);
+								p.Go(crawl2);
 								void Transition3a () {
-									Go(new Pause(crawl2.sf, Transition3, 2));
+									Pause pause = null;
+									crawl2.Go(pause = new Pause(crawl2.sf, Transition3, 2));
 									void Transition3 () {
 										var playerMain = new Mainframe(Width, Height, profile, playerShip);
 										playerMain.music = new SoundCtx(crawlMusic, 50);
@@ -167,10 +172,13 @@ public class TitleScreen : IScene {
 										playerMain.Update(new());
 										playerMain.PlaceTiles(new());
 										playerMain.RenderWorld(new());
-										var p = new Pause(playerMain.sf, Transition4, 1);
-										Go(new FadeIn(p, p.prev));
+										
+										Pause p = null;
+										p = new Pause(playerMain.sf, Transition4, 1);
+
+										pause.Go(new FadeIn(p, p.prev));
 										void Transition4 () {
-											Go(playerMain);
+											p.Go(playerMain);
 											playerMain.ShowUI();
 										}
 									}
@@ -334,7 +342,7 @@ public class TitleScreen : IScene {
 
 		buttons.ForEach(b => b.Render(delta));
 
-		Draw(sf);
+		Draw?.Invoke(sf);
 
 	}
 	Hand mouse = new();
@@ -355,7 +363,7 @@ public class TitleScreen : IScene {
 		}
 		if (info.IsPress(KC.Enter)) {
 			PlaySound(Tones.pressed);
-			//StartGame();
+			StartGame();
 		}
 
 		if(info.IsDown(KC.LeftShift)) {
@@ -375,7 +383,7 @@ public class TitleScreen : IScene {
 				//StartCredits();
 			}
 			if(info.IsPress(KC.G)) {
-				//QuickStart();
+				QuickStart();
 			}
 		}
 #if false
@@ -390,13 +398,13 @@ public class TitleScreen : IScene {
 		}
 #endif
 	}
-#if false
+#if true
 	public void QuickStart() {
 
-		if (true) {
-			Game.Instance.Screen = new OutroCrawl(Width, Height, () => {
-				Game.Instance.Screen = new TitleScreen(Width, Height, World);
-			});
+		if (false) {
+			Go(new OutroCrawl(Width, Height, () => {
+				Go(new TitleScreen(Width, Height, World));
+			}));
 			return;
 		}
 
@@ -405,7 +413,7 @@ public class TitleScreen : IScene {
 		do { file = $"{loc}-{new Random().Next(9999)}.sav"; }
 		while (File.Exists(file));
 		Player player = new Player() {
-			Settings = settings,
+			//Settings = settings,
 			file = file,
 			name = "Player",
 			Genome = World.types.Get<GenomeType>().First()
@@ -445,8 +453,7 @@ public class TitleScreen : IScene {
 		*/
 		var playerMain = new Mainframe(Width, Height, profile, playerShip);
 		playerShip.onDestroyed += playerMain;
-		playerMain.IsFocused = true;
-		SadConsole.Game.Instance.Screen = playerMain;
+		Go(playerMain);
 	}
 #endif
 	void AddStarterKit(PlayerShip playerShip) {

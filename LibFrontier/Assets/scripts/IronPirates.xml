@@ -246,12 +246,11 @@
 		</LayeredArmorSystem>
 	</ShipClass>
 	<StationType	codename=	"station_iron_pirates_hideout"
-					name=		"Iron Pirates hideout"
+					name=		"Iron Pirate cache"
 					sovereign=	"sovereign_iron_pirates"
 					behavior=	"pirate"
 					structure=	"station_iron_pirates_hideout.dat"
 		>
-
 		<HP	maxHP="250"/>
 		<Ships>
 			<Ship	count="10"	codename="ship_iron_gunboat"/>
@@ -262,7 +261,7 @@
 		</Weapons>
 	</StationType>
 	<StationType	codename="station_iron_pirates_foundry"
-		name=		"Iron Pirates foundry"
+		name=		"Iron Pirate foundry"
 		sovereign=	"sovereign_iron_pirates"
 		behavior=	"pirate"
 		structure=	"station_iron_pirates_foundry.dat"

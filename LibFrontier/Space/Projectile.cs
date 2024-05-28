@@ -53,6 +53,9 @@ public class Projectile : MovingObject {
     public List<Projectile> salvo = new();
     public record OnHitActive(Projectile p, ActiveObject other);
     public Vi<OnHitActive> onHitActive=new();
+
+    public Vi<Effect> emitEffect = new();
+
     public bool active { get; set; } = true;
     public Projectile() { }
     public Projectile(ActiveObject source, FragmentDesc desc, XY position, XY velocity, double? direction = null, Maneuver maneuver = null, HashSet<Entity> exclude = null) {

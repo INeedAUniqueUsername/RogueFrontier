@@ -183,7 +183,7 @@ namespace ASECII {
             */
 
             int rows = Font.TotalGlyphs / 16;
-            var glyphMenu = new GlyphMenu(16, rows, model, () => {
+            var glyphMenu = new GlyphMenu(32, rows, model, () => {
                 tileModel.UpdateIndexes(model);
                 UpdateTileSetButtons();
             }) {
@@ -1657,7 +1657,7 @@ namespace ASECII {
             UpdateOffset();
         }
         public void UpdateOffset() {
-            offsetPan = model.cursor - (Point)startPan;
+            offsetPan = model.cursor - startPan;
         }
     }
     [JsonObject(MemberSerialization.Fields)]
@@ -1726,12 +1726,12 @@ namespace ASECII {
                 model.brushChanged?.Invoke();
 			}
 			if(info.IsKeyPressed(Up)) {
-				model.brush.glyph -= 16;
+				model.brush.glyph -= 32;
 				model.brushChanged?.Invoke();
 
 			}
 			if(info.IsKeyPressed(Down)) {
-				model.brush.glyph += 16;
+				model.brush.glyph += 32;
 				model.brushChanged?.Invoke();
 			}
 		}

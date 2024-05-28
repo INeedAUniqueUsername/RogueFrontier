@@ -7,10 +7,10 @@ class IntroCrawl : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-	private readonly TileImage[] images = {
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/NewEra.cg"))),
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/PillarsOfCreation.cg")))
-        };
+	private readonly TileImage[] images = [
+        new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/crawl_new_era.dat"))),
+        new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText($"{Assets.ROOT}/sprites/crawl_pillars_of_creation.dat")))
+    ];
     private readonly string[] text = new[] {
 @"In a vision I could see
 the words of someone speaking

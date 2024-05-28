@@ -697,7 +697,9 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_debug_missile = 0,
 		item_debug_missile_launcher = 0,
 
-		item_spec_amethyst_laser_i = 0
+		item_spec_amethyst_laser_i = 0,
+
+		item_amethyst_armor_polish = 0,
 	}.ToDict<int>();
     public Timeline(PlayerShip playerShip) {
         var i = playerShip.world.types.GetDict<ItemType>();

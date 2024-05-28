@@ -28,6 +28,7 @@ public class Sf {
 		this.Height = Height;
 		this.font = font;
 		Data = (Tile[])Array.CreateInstance(typeof(Tile), Width * Height);
+		Array.Fill(Data, LibGamer.Tile.empty);
 		Front = new(GetFront, SetFront);
 		Back = new(GetBack, SetBack);
 		Tile = new(GetTile, SetTile);
@@ -36,11 +37,13 @@ public class Sf {
 	public Sf Clone => Sf.From(this);
 	public int Width { get; }
 	public int Height { get; }
+	public int Count => Width * Height;
 	public Tile[] Data;
 	public Dictionary<(int x,int y), Tile> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
+	public bool IsValid (int x, int y) => GetIndex(x, y) is > -1 and { } i && i < Count;
 	public int GetIndex (int x, int y) => y * Width + x;
 	public void Clear (uint front = 0, uint back = 0, uint glyph = 0) {
 		redraw = true;

@@ -14,19 +14,18 @@
 			Amethyst upgrade plan (buy each item in sequence)
 			Long-range
 		Beowulf:
-			Long-lasting weapons
+			Reloadable weapons
 			Medium-range
 		Clark:
 			Modular weapon
 			Low-range
 	-->
-	
+	<Module file="ISETI.xml"/>
+
 	<Module file="Amethyst.xml"/>
 	<Module file="Beowulf.xml"/>
 	<Module file="Campers.xml"/>
 	
-	<!--Occult-->
-	<Module file="ISETI.xml"/>
 	<Module file="Daughters.xml"/>
 
 	<!--Military Gateway-->

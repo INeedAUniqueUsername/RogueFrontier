@@ -959,7 +959,7 @@ public static partial class SMenu {
         ListMenu<Device> screen = null;
         var cargo = player.cargo.Select(i =>
             i.engine ?? i.reactor ?? i.service ?? i.shield ?? (Device)i.solar ?? i.weapon)
-            .Except(new Device[] { null });
+            .Except([null]);
         return screen = new(
             player,
             $"Device Install",
@@ -1133,7 +1133,7 @@ public static partial class SMenu {
             prev.Show();
         }
     }
-    public static ListMenu<Item> SetMod(IScene prev, PlayerShip player, Item source, Modifier mod, Action callback) {
+    public static ListMenu<Item> SetMod(IScene prev, PlayerShip player, Item source, FragmentMod mod, Action callback) {
         ListMenu<Item> screen = null;
         IEnumerable<Item> cargo;
         IEnumerable<Item> installed;
@@ -1164,7 +1164,7 @@ public static partial class SMenu {
             return result;
         }
         void InvokeItem(Item i) {
-            i.mod = mod;
+            //i.mod = mod;
             player.cargo.Remove(source);
             player.AddMessage(new Message($"Applied {source.name} to {i.name}"));
             callback?.Invoke();

@@ -130,14 +130,12 @@ public class ShipEntry : ShipGenerator {
 }
 public record ModRoll() {
     [Opt] public double modifierChance = 1;
-    [Par] public Modifier modifier;
+    [Par] public FragmentMod modifier = FragmentMod.EMPTY;
     public ModRoll(XElement e) : this() {
         e.Initialize(this);
-        if (modifier.empty) {
-            modifier = null;
-        }
+        if(modifier == FragmentMod.EMPTY) { modifier = null; }
     }
-    public Modifier Generate() {
+    public FragmentMod Generate() {
         if (modifier == null) {
             return null;
         }
@@ -296,7 +294,7 @@ public record ItemEntry() : IGenerator<Item> {
         });
     }
     public List<Item> Generate(Assets tc) =>
-        new(Enumerable.Range(0, count.Roll()).Select(_ => new Item(type, mod.Generate())));
+        new(Enumerable.Range(0, count.Roll()).Select(_ => new Item(type)));
     //In case we want to make sure immediately that the type is valid
     public void ValidateEager(Assets tc) =>
         tc.Lookup<ItemType>(type.codename);
@@ -317,7 +315,7 @@ public record ArmorEntry() : IGenerator<Armor> {
 }
 public static class SDevice {
     private static T Install<T>(Assets tc, string codename, ModRoll mod) where T : class, Device =>
-        new Item(tc.Lookup<ItemType>(codename), mod.Generate()).Get<T>();
+        new Item(tc.Lookup<ItemType>(codename)).Get<T>();
     public static T Generate<T>(Assets tc, string codename, ModRoll mod) where T : class, Device =>
         Install<T>(tc, codename, mod) ??
             throw new Exception($"Expected <ItemType> type with <{typeof(T).Name}> desc: {codename}");

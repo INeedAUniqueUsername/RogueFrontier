@@ -13,10 +13,10 @@ class IntroCrawl : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-	private readonly TileImage[] images = {
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(Assets.GetSprite("crawl_new_era.dat")))),
-            new TileImage(ImageLoader.DeserializeObject<Dictionary<(int, int), TileTuple>>(File.ReadAllText(Assets.GetSprite("crawl_pillars_of_creation.dat"))))
-        };
+	private static readonly TileImage[] images = [
+        new TileImage(ImageLoader.ReadTile(Assets.GetSprite("crawl_new_era.dat"))),
+        new TileImage(ImageLoader.ReadTile(Assets.GetSprite("crawl_pillars_of_creation.dat")))
+    ];
     private readonly string[] text = new[] {
 @"In a vision I could see
 the words of someone speaking
@@ -165,7 +165,10 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
                     //Print background
                     int effectY = topEdge;
                     foreach (var line in effect) {
-                        sf.Print(0, effectY, line);
+						if(effectY == Height) {
+							break;
+						}
+						sf.Print(0, effectY, line);
                         effectY++;
                     }
                     break;
@@ -297,6 +300,7 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
             }
         }
         */
+        Draw?.Invoke(sf);
     }
     public void HandleKey (KB info) {
         if (info.IsPress(KC.Enter)) {
