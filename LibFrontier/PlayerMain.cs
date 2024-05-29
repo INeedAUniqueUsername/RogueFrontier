@@ -215,9 +215,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         HideAll();
         Go(new ExitTransition(this, this.sf, () => {
 			PlainCrawlScreen ds = null;
-			ds = new PlainCrawlScreen((Width/2-8, 8), "Intermission\n\n", EndPause);
+			ds = new PlainCrawlScreen(Width, Height, "Intermission\n\n", EndPause);
 			void EndPause () {
-				Go(new Pause(ds.sf, EndGame, 3));
+				Go(new PausePrev(ds, EndGame, 3));
 				void EndGame () {
 					Go(new IntermissionScreen(
 						this,
@@ -1248,7 +1248,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             borderSize += (0 * 5f * Math.Pow(br / 255, 1.4));
             borderColor = ABGR.Blend(borderColor, ABGR.SetA(b,(byte)(br)));
         }
-
+        borderSize = Math.Clamp(borderSize, 0, 16);
         //Cover the border in visual snow
         if (player.ship.blindTicks > 0) {
             for (int i = 0; i < borderSize; i++) {

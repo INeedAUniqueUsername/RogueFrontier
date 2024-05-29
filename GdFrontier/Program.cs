@@ -116,10 +116,23 @@ public partial class Program : Node2D {
 			c.Hide();
 		}
 		current?.Render(TimeSpan.FromSeconds(delta));
+
 	}
 	public override void _PhysicsProcess (double delta) {}
 	public override void _Draw () {
 		base._Draw();
+	}
+	public override void _Notification (int what) {
+
+		switch((long)what) {
+			case NotificationWMMouseEnter:
+				hand = hand with { on = true };
+				break;
+			case NotificationWMMouseExit:
+				hand = hand with { on = false };
+				break;
+		}
+		base._Notification(what);
 	}
 	public override void _Input (InputEvent ev) {
 		switch(ev) {
@@ -153,12 +166,12 @@ public partial class Program : Node2D {
 					MouseButton.Middle => hand with { middleDown = p },
 					MouseButton.Right => hand with { rightDown = p },
 					_ => hand
-				};
+				} with { on = true };
 				//Debug.WriteLine(hand);
 				break;
 			}
 			case InputEventMouseMotion m: {
-				hand = hand with { pos = ((int)m.Position.X, (int)m.Position.Y) };
+				hand = hand with { pos = ((int)m.Position.X, (int)m.Position.Y), on = true };
 				//Debug.WriteLine($"{hand.pos.x}, {hand.pos.y}");
 				break;
 			}

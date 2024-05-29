@@ -29,3 +29,7 @@ project/assembly_name="GdFrontier"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/glyphdot/plugin.cfg")
+
+[rendering]
+
+viewport/transparent_background=true

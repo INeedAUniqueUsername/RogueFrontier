@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System;
 using LibGamer;
+using System.Collections.Concurrent;
 
 namespace RogueFrontier;
 public interface ITrail {
@@ -20,7 +21,6 @@ public class Projectile : MovingObject {
     public XY position { get; set; }
     public XY velocity { get; set; }
     public double direction;
-
     public double fragmentRotation;
     public double lifetime { get; set; }
     public double age;
@@ -38,9 +38,7 @@ public class Projectile : MovingObject {
         public FragmentDesc desc;
         public double elapsed = 0;
     }
-
     List<IntervalFragment> intervalFragments;
-
     //Hit results
     public bool hitReflected;
     public bool hitBlocked;
@@ -50,12 +48,14 @@ public class Projectile : MovingObject {
     public double detonateRadius;
     public HashSet<Entity> exclude = new();
     //List of projectiles that were created from the same fragment
-    public List<Projectile> salvo = new();
+    public record Burst() {
+        public List<Projectile> projectiles = [];
+		public ConcurrentDictionary<Entity, int> hitCount = [];
+	}
+    public Burst burst;
     public record OnHitActive(Projectile p, ActiveObject other);
     public Vi<OnHitActive> onHitActive=new();
-
     public Vi<Effect> emitEffect = new();
-
     public bool active { get; set; } = true;
     public Projectile() { }
     public Projectile(ActiveObject source, FragmentDesc desc, XY position, XY velocity, double? direction = null, Maneuver maneuver = null, HashSet<Entity> exclude = null) {
@@ -74,9 +74,7 @@ public class Projectile : MovingObject {
         this.damageHP = desc.damageHP.Roll();
         this.armorSkip = desc.armorSkip;
         this.ricochet = desc.ricochet;
-
         this.detonateRadius = desc.detonateRadius;
-
         this.exclude = exclude;
         if(this.exclude == null) {
             this.exclude = desc.hitSource ?
@@ -162,7 +160,10 @@ public class Projectile : MovingObject {
                             lifetime = 0;
                             destroyed = true;
                             break;
-                        case ActiveObject { active: true } hit when !destroyed && (desc.hitNonTarget || new[] { null, hit }.Contains(maneuver?.target)):
+                        case ActiveObject { active: true } hit when
+                                !destroyed &&
+                                (desc.hitNonTarget || Enumerable.Contains([null, hit], maneuver?.target)) &&
+                                burst.hitCount.AddOrUpdate(hit, 1, (key,val) => val + 1) < desc.hitCap:
                             hitReflected |= world.karma.NextDouble() < desc.detonateFailChance;
                             var angle = (position - hit.position).angleRad;
 
@@ -262,7 +263,7 @@ public class Projectile : MovingObject {
         } else {
             exclude.Add(source);
         }
-        List<Projectile> salvo = new();
+        Burst burst = new();
         for (int i = 0; i < fragment.count; i++) {
             double angle = fragmentAngle + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1);
             var p = new Projectile(source,
@@ -272,8 +273,8 @@ public class Projectile : MovingObject {
                 angle,
                 fragment.GetManeuver(maneuver?.target),
                 exclude
-                ) { salvo = salvo };
-            salvo.Add(p);
+                ) { burst = burst };
+            burst.projectiles.Add(p);
             world.AddEntity(p);
         }
     }

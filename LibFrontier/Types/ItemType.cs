@@ -452,6 +452,8 @@ public record FragmentDesc {
 	[Req] public int damageType;
 	[Req] public IDice damageHP;
 	[Opt] public double antiReflect;
+	/// <summary>No more than this many projectiles from the same burst can hit the target</summary>
+	[Opt] public int hitCap = int.MaxValue;
 
 	[Opt] public double detonateFailChance;
 
@@ -589,7 +591,7 @@ public record FragmentDesc {
 		var position = owner.position + (offset ?? new(0, 0));
 		var i = 0;
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;
-		var projectiles = new List<Projectile>();
+		
 		Func<Maneuver> getManeuver = targets switch {
 			{ Count: 1 } => () => GetManeuver(targets.First()),
 			{ Count: > 1 } => () => GetManeuver(targets[i++ % targets.Count]),
@@ -601,16 +603,17 @@ public record FragmentDesc {
 			angles = angles.Take(projectilesPerTarget * targets.Count);
 		}
 		*/
-		projectiles.AddRange(angles.Select(angle =>
+		var burst = new Projectile.Burst();
+		burst.projectiles.AddRange(angles.Select(angle =>
 			new Projectile(owner, this,
 				position + XY.Polar(angle),
 				owner.velocity + XY.Polar(angle, missileSpeed),
 				angle,
 				getManeuver(),
 				exclude
-				) { salvo = projectiles }
+				) { burst = burst }
 		));
-		return projectiles;
+		return burst.projectiles;
 	}
 	public Maneuver GetManeuver(ActiveObject target) =>
 		(acquireTarget && target != null) ? new(target, maneuver, maneuverRadius) : null;

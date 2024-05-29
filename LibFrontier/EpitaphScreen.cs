@@ -1,5 +1,6 @@
 ﻿using LibGamer;
 using System;
+using System.Collections.Generic;
 
 namespace RogueFrontier;
 
@@ -9,35 +10,28 @@ public class EpitaphScreen : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 	Mainframe playerMain;
     Epitaph epitaph;
-
-    Sf Surface;
-
+    Sf sf_ui;
+    Sf sf_img;
+    public HashSet<SfControl> controls = [];
 	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
         this.epitaph = epitaph;
-        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_8x8);
-#if false
-        this.Children.Add(new LabelButton("Resurrect", Resurrect) {
-            Position = new Point(1, Height / 2 - 4), FontSize = playerMain.FontSize * 2
-        });
+        this.sf_ui = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_6x8);
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height / 4 - 4), "Resurrect", Resurrect));
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height / 4 - 2), "TitleScreen", Exit));
 
-        this.Children.Add(new LabelButton("Title Screen", Exit) { Position = new Point(1, Height / 2 - 2), FontSize = playerMain.FontSize * 2 });
-#endif
-    }
+		var size = epitaph.deathFrame.GetLength(0);
+        sf_img = new Sf(size, size, Fonts.FONT_8x8) { pos = (playerMain.sf.Width - size, 0) };
+	}
     public void Resurrect() {
         var playerShip = playerMain.playerShip;
         var world = playerShip.world;
-
         //Restore mortality chances
         playerShip.mortalChances = 3;
-        
         //To do: Restore player HP
         playerShip.ship.damageSystem.Restore();
-
-        playerShip.powers.ForEach(p=>p.cooldownLeft=0);
-
+        playerShip.powers.ForEach(p => p.cooldownLeft = 0);
         playerShip.devices.Reactor.ForEach(r => r.energy = r.desc.capacity);
-
         //Resurrect the player; remove wreck and restore ship + heading
         var wreck = epitaph.wreck;
         if (wreck != null) {
@@ -52,9 +46,11 @@ public class EpitaphScreen : IScene {
 
         playerMain.silenceSystem.AddEntity(playerShip);
 
-        Go(new FadeIn(new Pause(playerMain.sf, Resume, 2), playerMain.sf));
+        PausePrev p = null;
+        p = new PausePrev(playerMain, Resume, 2);
+		Go(new FadeIn(p, playerMain.sf));
         void Resume() {
-            Go(playerMain);
+            p.Go(playerMain);
             playerMain.ShowUI();
         }
     }
@@ -97,26 +93,32 @@ public class EpitaphScreen : IScene {
         */
         TitleScreen();
         void TitleScreen() {
-            var ts = new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe));
+            var ts = new TitleScreen(sf_ui.Width, sf_ui.Height, new System(playerMain.world.universe));
             Go(new TitleSlideOpening(ts, ts.sf));
         }
     }
     public void Render(TimeSpan delta) {
-        Surface.Clear();
+        sf_ui.Clear();
         var str = playerMain.playerShip.GetMemorial(epitaph.desc);
         int y = 2;
         foreach (var line in str.Replace("\r", "").Split('\n')) {
-            Surface.Print(2, y++, Tile.Arr(line));
-        }
-        if (epitaph.deathFrame != null) {
+            sf_ui.Print(2, y++, Tile.Arr(line));
+		}
+		foreach(var c in controls) c.Render(delta);
+		Draw(sf_ui);
+		if (epitaph.deathFrame != null) {
             var size = epitaph.deathFrame.GetLength(0);
             for (y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
-                    Surface.Tile[Surface.Width - x - 2, y] = epitaph.deathFrame[x, y];
+                    sf_img.Tile[x, y] = epitaph.deathFrame[x, y];
                 }
             }
         }
-        Draw(Surface);
+        Draw(sf_img);
+
+    }
+    void IScene.HandleMouse(LibGamer.HandState mouse) {
+        foreach(var c in controls) c.HandleMouse(mouse);
     }
 }
 public class IntermissionScreen : IScene {
@@ -147,7 +149,7 @@ public class IntermissionScreen : IScene {
         game.Save();
         //game.OnLoad(playerMain);
 
-        Go(new TitleSlideOpening(new Pause(playerMain.sf, Resume, 4), playerMain.sf));
+        Go(new TitleSlideOpening(new PausePrev(playerMain, Resume, 4), playerMain.sf));
         void Resume() {
             Go(playerMain);
             playerMain.ShowUI();

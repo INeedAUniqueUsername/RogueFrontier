@@ -10,9 +10,9 @@ public class DeathPause : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 	Mainframe prev;
     DeathTransition next;
-    Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    //Sf sf;
+    //int Width => sf.Width;
+    //int Height => sf.Height;
     public double time;
     public bool done;
     Viewport view;
@@ -21,9 +21,11 @@ public class DeathPause : IScene {
 	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
-        view = new Viewport(Width, Height, prev.monitor);
+        //this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
+        view = new Viewport(prev.sf.Width, prev.sf.Height, prev.monitor);
         view.Update(new());
+        view.Draw += sf => Draw?.Invoke(sf);
+
     }
     public void Update(TimeSpan delta) {
         time += delta.TotalSeconds / 4;
@@ -33,7 +35,7 @@ public class DeathPause : IScene {
         Go(next);
     }
     public void Render(TimeSpan delta) {
-        Draw(view.sf);
+        view.Render(delta);
     }
 }
 public class DeathTransition : IScene {

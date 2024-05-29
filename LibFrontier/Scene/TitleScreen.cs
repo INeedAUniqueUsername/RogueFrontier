@@ -150,11 +150,11 @@ public class TitleScreen : IScene {
 						ft = new FlashTransition(Width, Height, crawl.sf, Transition);
 						crawl.Go(ft);
 						void Transition () {
-							Pause p = null;
-							ft.Go(p = new Pause(ft.sf, Transition2, 1));
+							PausePrev p = null;
+							ft.Go(p = new PausePrev(ft, Transition2, 1));
 							void Transition2 () {
 								PlainCrawlScreen crawl2 = null;
-								crawl2 = new PlainCrawlScreen((Width / 4, 8), "Today has been a long time in the making.    \n\n" + ((new Random(seed).Next(5) + new Random().Next(2)) switch {
+								crawl2 = new PlainCrawlScreen(Width, Height, "Today has been a long time in the making.    \n\n" + ((new Random(seed).Next(5) + new Random().Next(2)) switch {
 									1 => "Maybe history will remember.",
 									2 => "Tomorrow will be forever.",
 									3 => "The future will not be so far.",
@@ -162,8 +162,8 @@ public class TitleScreen : IScene {
 								}), Transition3a);
 								p.Go(crawl2);
 								void Transition3a () {
-									Pause pause = null;
-									crawl2.Go(pause = new Pause(crawl2.sf, Transition3, 2));
+									PausePrev pause = null;
+									crawl2.Go(pause = new PausePrev(crawl2, Transition3, 2));
 									void Transition3 () {
 										var playerMain = new Mainframe(Width, Height, profile, playerShip);
 										playerMain.music = new SoundCtx(crawlMusic, 50);
@@ -173,10 +173,10 @@ public class TitleScreen : IScene {
 										playerMain.PlaceTiles(new());
 										playerMain.RenderWorld(new());
 										
-										Pause p = null;
-										p = new Pause(playerMain.sf, Transition4, 1);
+										PausePrev p = null;
+										p = new PausePrev(playerMain, Transition4, 1);
 
-										pause.Go(new FadeIn(p, p.prev));
+										pause.Go(new FadeIn(p, playerMain.sf));
 										void Transition4 () {
 											p.Go(playerMain);
 											playerMain.ShowUI();

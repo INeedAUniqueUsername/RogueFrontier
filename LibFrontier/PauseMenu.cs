@@ -62,7 +62,7 @@ public class PauseScreen : IScene {
                 sf.Print(x, y++, line.PadRight(Width - x - 4), ABGR.White, ABGR.Black);
             }
         }
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
     public void HandleKey(KB kb) {
         if (kb.IsPress(KC.Escape)) {

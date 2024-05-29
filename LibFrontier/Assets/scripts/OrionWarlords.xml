@@ -37,7 +37,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_orion_longbow"
-				name=		"Bronze crossbow"
+				name=		"Bronze longbow"
 				attributes=	"OrionWarlords"
 				mass=		"5000"
 				level=		"3"
@@ -303,15 +303,10 @@
 					glyph=		"T"
 					foreground="70AEFFFF"
 					background="Black"
+					structure=	"station_orion_sentry.dat"
 		>
 
 		<HP	maxHP="100"/>
-		<Segments>
-			<Point offsetX="1" offsetY="1"	glyph="/" foreground="LightBlue"/>
-			<Point offsetX="1" offsetY="-1"	glyph="\" foreground="LightBlue"/>
-			<Point offsetX="-1" offsetY="1"	glyph="\" foreground="LightBlue"/>
-			<Point offsetX="-1" offsetY="-1"	glyph="/" foreground="LightBlue"/>
-		</Segments>
 		<Weapons>
 			<Weapon	codename="item_orion_bolter"/>
 		</Weapons>

@@ -45,10 +45,10 @@ public class Sf {
 	public Grid<Tile> Tile { get; }
 	public bool IsValid (int x, int y) => GetIndex(x, y) is > -1 and { } i && i < Count;
 	public int GetIndex (int x, int y) => y * Width + x;
-	public void Clear (uint front = 0, uint back = 0, uint glyph = 0) {
+	public void Clear (Tile t = null) {
 		redraw = true;
 		Active.Clear();
-		Array.Fill(Data, LibGamer.Tile.empty);
+		Array.Fill(Data, t ?? LibGamer.Tile.empty);
 	}
 	public uint GetFront (int x, int y) => Data[GetIndex(x, y)].Foreground;
 	public void SetFront (int x, int y, uint color) {
@@ -102,6 +102,10 @@ public class Sf {
 		public T this[int x, int y] {
 			get => get(x, y);
 			set => set(x, y, value);
+		}
+		public T this[(int x, int y) p] {
+			get => this[p.x, p.y];
+			set => this[p.x, p.y] = value;
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}

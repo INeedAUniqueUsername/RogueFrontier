@@ -201,7 +201,7 @@ public class XYI {
     public XYI ((int x, int y) p) : this(p.x, p.y) { }
 
 	public XYI To (XYI dest) => dest - this;
-	public static XY operator + (XYI p, XYI other) => new(p.x + other.x, p.y + other.y);
+	public static XYI operator + (XYI p, XYI other) => new(p.x + other.x, p.y + other.y);
 	//public static XY operator +(XY p, Point other) => new(p.x + other.X, p.y + other.Y);
 	public static XYI operator + (XYI p, (int x, int y) other) => new(p.x + other.x, p.y + other.y);
 	public static XYI operator - (XYI p) => new(-p.x, -p.y);

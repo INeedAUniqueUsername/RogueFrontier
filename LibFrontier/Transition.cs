@@ -10,24 +10,19 @@ public class TitleSlideOpening : IScene {
 	public Sf sf { get; }
     public int Width => sf.Width;
     public int Height => sf.Height;
-
 	public IScene next;
-    public Sf nextSf;
     int x = 0;
     double time = 0;
     double interval;
     bool fast;
     bool updateNext;
-
-
     public TitleSlideOpening(IScene next, Sf nextSf, bool updateNext = true) {
         this.sf = new Sf(nextSf.Width, nextSf.Height, Fonts.FONT_8x8);
         x = nextSf.Width;
         this.next = next;
-        this.nextSf = nextSf;
+        this.next.Draw += sf => Draw?.Invoke(sf);
         this.updateNext = updateNext;
         interval = 4f / Width;
-
         //Draw one frame now so that we don't cut out for one frame
         next.Update(new TimeSpan());
         Render(new TimeSpan());
@@ -59,19 +54,11 @@ public class TitleSlideOpening : IScene {
                 sf.SetTile(x, y, new Tile(0, 0, 0));
             }
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
-
-                var glyph = nextSf.GetGlyph(x, y);
-                var value = (byte)(255 - 255 / 16 * (x - this.x));
-
-                var fore = nextSf.GetFront(x, y);
-                fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Black, value));
-
-                var back = nextSf.GetBack(x, y);
-                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Black, value));
-
-                sf.SetTile(x, y, new Tile(fore, back, glyph));
+				var value = (byte)(255 - 255 / 16 * (x - this.x));
+				sf.Tile[x, y] = new Tile(0, ABGR.SetA(0, value), ' ');
             }
         }
+        Draw(sf);
     }
     public void HandleKey(KB kb) {
         if (kb[[KC.Enter, KC.Escape]].Contains(KS.Press)) {
@@ -89,38 +76,33 @@ public class TitleSlideOut : IScene {
     public Sf sf;
     public int Width => sf.Width;
     public int Height => sf.Height;
-
 	int x = 0;
     double time = 0;
     double interval;
     bool fast;
     public TitleSlideOut(IScene prev, Sf sf_prev, IScene next, Sf sf_next) {
-
         this.sf_prev = sf_prev;
         this.sf_next = sf_next;
-
         this.prev = prev;
         this.next = next;
         this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
 		x = Width;
 		interval = 4f / Width;
-
         //Draw one frame now so that we don't cut out for one frame
         next.Update(new TimeSpan());
+
+        next.Draw += sf => Draw?.Invoke(sf);
         Render(new TimeSpan());
     }
     public void Update(TimeSpan delta) {
         next.Update(delta);
-
         if (fast) {
             x = -16;
         }
-
         if (x > -16) {
-            x -= (int)(Width * delta.TotalSeconds);
+            x -= (int)(Width * delta.TotalSeconds * 2);
         } else {
             Go(next);
-            
             return;
         }
     }
@@ -131,16 +113,13 @@ public class TitleSlideOut : IScene {
             for (int x = 0; x < this.x; x++) {
                 sf.SetTile(x, y, sf_prev.GetTile(x, y));
             }
-            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
+            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 2); x++) {
                 var glyph = sf_next.GetGlyph(x, y);
                 var value = (byte)(255 - 255 / 16 * (x - this.x));
-                var fore = sf_next.GetFront(x, y);
-                fore = ABGR.SetA(ABGR.Premultiply(ABGR.Blend(ABGR.Premultiply(fore), sf_prev.GetFront(x, y))), value);
-                var back = sf_next.GetBack(x, y);
-                back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(sf_prev.GetBack(x, y)), value));
-                sf.SetTile(x, y, new Tile(fore, back, glyph));
+                sf.SetTile(x, y, new Tile(0, ABGR.SetA(0, value), ' '));
             }
         }
+        Draw?.Invoke(sf);
     }
     public void HandleKey(KB keyboard) {
         if (keyboard.Press.Intersect([KC.Enter, KC.Escape]).Any()) {
@@ -155,12 +134,9 @@ public class TitleSlideIn : IScene {
 	public (Sf sf, IScene scene) prev;
     public (Sf sf, IScene scene) next;
     int x = -16;
-
     Sf sf;
     int Width => sf.Width;
     int Height => sf.Height;
-
-
 	public TitleSlideIn((Sf sf, IScene scene) prev, (Sf sf, IScene scene) next) {
         sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
         this.prev = prev;
@@ -169,7 +145,7 @@ public class TitleSlideIn : IScene {
         //Draw one frame now so that we don't cut out for one frame
         Render(new TimeSpan());
     }
-    public void ProcessKey(KB keyboard) {
+    public void HandleKey(KB keyboard) {
         if (keyboard.IsPress(KC.Enter)) {
             //Tones.pressed.Play();
             Next();
@@ -195,21 +171,17 @@ public class TitleSlideIn : IScene {
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Math.Min(Width, this.x); x++) {
                 //this.SetCellAppearance(x, y, blank);
-                sf.SetTile(x, y, next.sf.GetTile(x, y));
+                sf.Tile[x, y] = next.sf.Tile[(x, y)];
             }
             //Fading opacity edge
             for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 2); x++) {
-
                 var glyph = prev.sf.GetGlyph(x, y);
                 var value = (byte)(255 - 255 / 2 * (x - this.x));
-
                 var fore = prev.sf.Front[x, y];
                 fore = ABGR.Blend(ABGR.Premultiply(fore), ABGR.SetA(ABGR.Premultiply(next.sf.Front[x, y]), value));
-
                 var back = prev.sf.Back[x, y];
                 back = ABGR.Blend(ABGR.Premultiply(back), ABGR.SetA(ABGR.Premultiply(next.sf.Back[x, y]), value));
-
-                sf.SetTile(x, y, new Tile(fore, back, glyph));
+                sf.Tile[x, y]= new Tile(fore, back, glyph);
             }
         }
         Draw?.Invoke(sf);
@@ -220,14 +192,12 @@ public class FadeIn : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	IScene next;
-    Sf sf_next;
     Sf sf;
     float alpha;
-
 	public FadeIn(IScene next, Sf sf_next) {
         this.next = next;
-        this.sf_next = sf_next;
         this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
+        next.Draw += sf => Draw?.Invoke(sf);
         Render(new TimeSpan());
     }
     public void Update(TimeSpan delta) {
@@ -238,18 +208,16 @@ public class FadeIn : IScene {
         }
     }
     public void Render(TimeSpan delta) {
-        sf.Clear();
-        var g = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)(255 * (1 - alpha))), 0);
-        for (int y = 0; y < sf.Height; y++) {
-            for (int x = 0; x < sf.Width; x++) {
-                sf.SetTile(x, y, g);
-            }
+		next.Render(delta);
+        var t = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)(255 * (1 - alpha))), ' ');
+		foreach(var x in 0..sf.Width) {
+            foreach(var y in 0..sf.Height) {
+				sf.Print(x,y, t);
+			}
         }
-        Draw(sf_next);
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
 }
-
 public class FadeOut : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
@@ -289,20 +257,22 @@ public class FadeOut : IScene {
     }
 }
 
-public class Pause : IScene {
+public class PausePrev : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Action next;
-    public Sf prev;
+    public IScene prev;
     double time;
-	public Pause(Sf prev, Action next, double time = 5) {
+	public PausePrev(IScene prev, Action next, double time = 5) {
         this.prev = prev;
         this.time = time;
         this.next = next;
+
+        prev.Draw += sf => Draw?.Invoke(sf);
         Render(new TimeSpan());
     }
-    public void ProcessKeyboard(KB keyboard) {
+    public void HandleKey(KB keyboard) {
         if (keyboard.IsPress(KC.Enter)) {
             //Tones.pressed.Play();
             time = 0;
@@ -316,8 +286,44 @@ public class Pause : IScene {
         }
     }
     public void Render(TimeSpan delta) {
+        //next.Render(delta);
+        prev.Render(delta);
+        //Draw?.Invoke(prev);
     }
 }
+
+
+public class PauseNext : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	IScene next;
+	double time;
+	public PauseNext (IScene next, double time = 5) {
+		this.time = time;
+		this.next = next;
+
+		next.Draw += sf => Draw?.Invoke(sf);
+		Render(new TimeSpan());
+	}
+	public void HandleKey (KB keyboard) {
+		if(keyboard.IsPress(KC.Enter)) {
+			//Tones.pressed.Play();
+			time = 0;
+		}
+	}
+	public void Update (TimeSpan delta) {
+		if(time > 0) {
+			time -= delta.TotalSeconds;
+		} else {
+			Go(next);
+		}
+	}
+	public void Render (TimeSpan delta) {
+		next.Render(delta);
+	}
+}
+
 public class PauseTransition : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }

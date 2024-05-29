@@ -81,7 +81,7 @@ public class LightningRod : Entity, Ob<Weapon.OnFire>, Ob<Projectile.OnHitActive
         this.target = target;
         this.source = source;
         this.lifetime = 60;
-        this.salvoIndex = proj.salvo.IndexOf(proj);
+        this.salvoIndex = proj.burst.projectiles.IndexOf(proj);
         source.onFire += this;
     }
     public void Observe(Weapon.OnFire o) {

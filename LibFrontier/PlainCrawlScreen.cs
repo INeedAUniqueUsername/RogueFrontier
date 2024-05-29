@@ -17,9 +17,9 @@ class PlainCrawlScreen : IScene {
     int tick;
 
     (int x, int y) pos;
-	public PlainCrawlScreen((int x,int y) pos, string text, Action next) {
+	public PlainCrawlScreen(int Width, int Height, string text, Action next) {
         this.pos = pos;
-        this.sf = new Sf(text.Split('\n').Max(l => l.Length), text.Split('\n').Length, Fonts.FONT_8x8);
+        this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
         this.next = next;
         this.text = text;
     }

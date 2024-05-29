@@ -11,7 +11,7 @@ using System.Xml.Linq;
 namespace RogueFrontier;
 public static partial class SMenu {
 	public static void RenderBackground (this Sf c) {
-		c.Clear(ABGR.Black, ABGR.SetA(ABGR.Black, 128));
+		c.Clear(new Tile(ABGR.Black, ABGR.SetA(ABGR.Black, 128), ' '));
 		/*
         var back = new Console(c.Width, c.Height);
 
