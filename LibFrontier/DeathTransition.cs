@@ -16,8 +16,6 @@ public class DeathPause : IScene {
     public double time;
     public bool done;
     Viewport view;
-
-
 	public DeathPause(Mainframe prev, DeathTransition next) {
         this.prev = prev;
         this.next = next;
@@ -46,8 +44,6 @@ public class DeathTransition : IScene {
 	IScene prev, next;
     int Width => sf.Width;
     int Height => sf.Height;
-
-
 	public class Particle {
         public int x, destY;
         public double y, delay;
@@ -55,12 +51,9 @@ public class DeathTransition : IScene {
     HashSet<Particle> particles;
     double time;
     public DeathTransition(IScene prev, Sf sf_prev, IScene next) {
-
         this.prev = prev;
         this.next = next;
-
         prev.Draw += sf => Draw?.Invoke(sf);
-
         this.sf = Sf.From(sf_prev);
         particles = new HashSet<Particle>();
         for (int y = 0; y < Height / 2; y++) {
@@ -112,9 +105,7 @@ public class DeathTransition : IScene {
     }
     public void Render(TimeSpan delta) {
         sf.Clear();
-
         var borderSize = Math.Max((time - 1) * 4, 0);
-
         var br = (byte)Math.Clamp((time - 1) * 255f, 0, 255);
         var borderColor = ABGR.RGB(br, br, br);
         for (int i = 0; i < borderSize; i++) {
