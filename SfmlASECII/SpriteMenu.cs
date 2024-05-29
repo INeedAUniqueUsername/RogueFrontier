@@ -1123,23 +1123,17 @@ namespace ASECII {
         public SelectRectMode selectRect;
         public SelectWandMode selectWand;
         public PanMode pan;
-
         public int ticks = 0;
         public int ticksSelect = 0;
-
-        public Point camera = new Point();
-        public Point cursor = new Point();       //Position on the image; stored as offset from camera
+        public Point camera = (0,0);
+        public Point cursor = (0,0);       //Position on the image; stored as offset from camera
         public Point cursorScreen = new Point();
         public bool keyboardMode;
-
         public Point prevCell;
         public bool prevLeft;
-
         public Mode mode;
-
         public int currentLayerIndex = 0;
         public Layer currentLayer => sprite.layers[currentLayerIndex];
-
         public void RenderCursor(Console c) {
             (var x, var y) = cursorScreen;
             if(!c.IsValidCell(x, y)) {
@@ -1168,7 +1162,6 @@ namespace ASECII {
             Undo = new LinkedList<Edit>();
             Redo = new LinkedList<Edit>();
             mode = Mode.Brush;
-
         }
         public void Save() {
             var fileName = Path.GetFullPath(Path.GetDirectoryName(filepath) + "/" + Path.GetFileNameWithoutExtension(filepath));
