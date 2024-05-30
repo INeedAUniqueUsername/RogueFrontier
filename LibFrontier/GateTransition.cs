@@ -3,7 +3,7 @@ using RogueFrontier;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace SfmlFrontier;
+namespace RogueFrontier;
 
 public class GateTransition : IScene {
 	public Action<IScene> Go { get; set; }

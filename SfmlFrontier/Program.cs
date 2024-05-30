@@ -2,7 +2,6 @@
 using LibGamer;
 using static Common.Main;
 using System.Reflection;
-using SfmlFrontier;
 using System.Collections.Concurrent;
 using SFML.Audio;
 using LibSadConsole;

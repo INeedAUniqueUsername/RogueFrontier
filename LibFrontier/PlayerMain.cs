@@ -3,7 +3,7 @@ using static RogueFrontier.PlayerShip;
 using System.Reflection;
 using LibGamer;
 using System.Xml.Linq;
-using SfmlFrontier;
+using RogueFrontier;
 using System.Data;
 using LabelButton = LibGamer.SfLink;
 using System;

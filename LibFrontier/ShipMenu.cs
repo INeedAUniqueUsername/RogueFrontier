@@ -38,15 +38,7 @@ class ShipMenu : IScene {
         void Print2(int x, int y, string s) =>
             sf.Print(x, y, s, ABGR.White, ABGR.SetA(ABGR.Black, 102));
         Print(x, y, name);
-        var map = playerShip.shipClass.playerSettings?.map ?? new string[] { "" };
-        x = Math.Max(0, sf.Width / 4 - map.Select(line => line.Length).Max() / 2);
-        y = 2;
-        int width = map.Max(l => l.Length);
-        foreach (var line in map) {
-            var l = line.PadRight(width);
-            Print2(x, y++, l);
-            Print2(x, y++, l);
-        }
+        
         y++;
         x = 1;
         Print(x, y, $"{$"Thrust:    {playerShip.shipClass.thrust}",-16}{$"Rotate acceleration: {playerShip.shipClass.rotationAccel,3} deg/s^2"}");

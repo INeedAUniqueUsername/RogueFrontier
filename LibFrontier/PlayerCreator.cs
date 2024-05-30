@@ -30,9 +30,12 @@ class PlayerCreator : IScene {
     private ref List<GenomeType> genomes => ref context.genomes;
     private ref int genomeIndex => ref context.genomeIndex;
     private ref GenomeType playerGenome => ref context.playerGenome;
-    public Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    public Sf sf_img;
+
+    public Sf sf_tile;
+    int Width => sf_img.Width;
+    int Height => sf_img.Height;
+    public Sf sf_ui;
     private IScene prev;
     private Sf sf_prev;
     private ShipSelectorModel context;
@@ -43,7 +46,8 @@ class PlayerCreator : IScene {
 
     public List<SfControl> controls = [];
     public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
-        sf = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
+        sf_img = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
+        sf_ui = new Sf(Width * 4 / 3, Height, Fonts.FONT_6x8);
         this.prev = prev;
         this.sf_prev = sf_prev;
         this.next = next;
@@ -66,19 +70,16 @@ class PlayerCreator : IScene {
         //controls.Add(new TextPainter(context.portrait) { Position = (x, y) });
 
         x = 10;
-
-        var nameField = new LabeledField(sf, (x, y), "Name           ", context.playerName, (e, text) => context.playerName = text);
+        var nameField = new LabeledField(sf_ui, (x, y), "Name           ", context.playerName, (e, text) => context.playerName = text);
         controls.Add(nameField);
-
         y++;
-
-        var identityLabel = new SfText(sf, (x,y),"Identity       ");
+        var identityLabel = new SfText(sf_ui, (x,y),"Identity       ");
         controls.Add(identityLabel);
 
         SfLink identityButton = null;
         double lastClick = 0;
         int fastClickCount = 0;
-        identityButton = new SfLink(sf, (x+16,y),playerGenome.name, () => {
+        identityButton = new SfLink(sf_ui, (x+16,y),playerGenome.name, () => {
 
             //Tones.pressed.Play();
 
@@ -114,7 +115,7 @@ class PlayerCreator : IScene {
 						("Reflexive      ", playerGenome.reflexive, (s) => playerGenome.reflexive = s)
 
 						]).ForEach(t => {
-                            controls.Add(new LabeledField(sf, (x, y++), t.key, t.val, (e, s) => t.set(s)));
+                            controls.Add(new LabeledField(sf_ui, (x, y++), t.key, t.val, (e, s) => t.set(s)));
                         });
                 }
             }
@@ -123,17 +124,18 @@ class PlayerCreator : IScene {
         controls.Add(identityButton);
 
         string back = "[Escape] Back";
-        controls.Add(new SfLink(sf, (Width - back.Length, 1), back, Back));
+        controls.Add(new SfLink(sf_ui, (sf_ui.Width - back.Length, 1), back, Back));
 
         string start = "[Enter] Start";
-        controls.Add(new SfLink(sf, (Width - start.Length, Height - 1), start, Start));
+        controls.Add(new SfLink(sf_ui, (sf_ui.Width - start.Length, Height - 1), start, Start));
         PlaceArrows();
     }
     public void Update(TimeSpan delta) {
         time += delta.TotalSeconds;
     }
     public void Render(TimeSpan drawTime) {
-        sf.Clear();
+        sf_img.Clear();
+        sf_ui.Clear();
 
         var current = playable[index];
 
@@ -144,63 +146,65 @@ class PlayerCreator : IScene {
 
         var nameX = Width / 4 - current.name.Length / 2;
         var y = shipDescY;
-        sf.Print(nameX, y, current.name);
-
-        var map = current.playerSettings.map;
-        var mapWidth = map.Select(line => line.Length).Max();
-        var mapX = Width / 4 - mapWidth / 2;
-        y++;
+        sf_ui.Print(nameX, y, current.name);
         //We print each line twice since the art gets flattened by the square font
         //Ideally the art looks like the original with an added 3D effect
-        foreach (var line in current.playerSettings.map) {
-            for (int i = 0; i < line.Length; i++) {
-                sf.SetTile(mapX + i, y, new Tile(ABGR.RGBA(255, 255, 255, (byte)(230 + Math.Sin(time * 1.5 + Math.Sin(i) * 5 + Math.Sin(y) * 5) * 25)), ABGR.Black, line[i]));
-            }
-            y++;
+
+        sf_img.DrawRect(17, y + 2, 3, 3, new());
+        sf_img.Tile[18, y + 3] = current.tile;
+        foreach (var (p,t) in current.playerSettings.heroImage) {
+
+            var pos = (p.X + 2, -p.Y + Height - 36 - 2);
+            sf_img.Tile[pos] = t;
         }
 
-        string s = "[Image is for promotional use only]";
-        var strX = Width / 4 - s.Length / 2;
-        sf.Print(strX, y, s);
-
-        var descX = Width * 2 / 4;
+        var descX = 48;
         y = shipDescY;
         foreach (var line in current.playerSettings.description.Wrap(Width / 3)) {
-            sf.Print(descX, y, line);
+            sf_ui.Print(descX, y, line);
             y++;
         }
 
         y++;
 
         //Show installed devices on the right pane
-        sf.Print(descX, y, "[Devices]");
+        sf_ui.Print(descX, y, "[Devices]");
         y++;
         foreach (var device in current.devices.Generate(World.types)) {
-            sf.Print(descX + 4, y, device.source.type.name);
+            sf_ui.Print(descX + 4, y, device.source.type.name);
             y++;
         }
-        y += 2;
+
+        descX = 88;
+        y = shipDescY;
         foreach (var line in settings.GetString().Split('\n', '\r')) {
-            sf.Print(descX, y++, line);
+            sf_ui.Print(descX, y++, line);
         }
 
         for (y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
 
-                var g = sf.GetGlyph(x, y);
+                var g = sf_img.GetGlyph(x, y);
                 if (g == 0 || g == ' ') {
                     var a = (byte)Math.Clamp(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5), 0, 255);
-					sf.SetTile(x, y, new Tile(ABGR.SetA(ABGR.White, a), ABGR.Black, '='));
+					sf_img.SetTile(x, y, new Tile(ABGR.SetA(ABGR.White, a), ABGR.Black, '='));
                 }
             }
-        }
-        Draw?.Invoke(sf);
-    }
+		}
+
+        foreach(var c in controls) c.Render(drawTime);
+		Draw?.Invoke(sf_img);
+		Draw?.Invoke(sf_ui);
+	}
 
     public bool showRight => index < playable.Count - 1;
     public bool showLeft => index > 0;
 
-
+    public void HandleMouse(HandState state) {
+        foreach(var c in controls) {
+            c.HandleMouse(state);
+        }
+    }
 	public void HandleKey(KB kb) {
         if (kb[KC.Right] == KS.Press && showRight) {
             SelectRight();
@@ -229,14 +233,14 @@ class PlayerCreator : IScene {
 
         string left = "<===  [Left Arrow]";
         if (showLeft) {
-            int x = Width / 4 - left.Length - 1;
-            controls.Add(leftArrow = new SfLink(sf, (x, shipDescY), left, SelectLeft));
+            int x = sf_ui.Width / 4 - left.Length - 1;
+            controls.Add(leftArrow = new SfLink(sf_ui, (x, shipDescY), left, SelectLeft));
         }
 
         string right = "[Right Arrow] ===>";
         if (showRight) {
-            var x = Width * 3 / 4 + 1;
-            controls.Add(rightArrow = new SfLink(sf, (x, shipDescY), right, SelectRight));
+            var x = sf_ui.Width * 3 / 4 + 1;
+            controls.Add(rightArrow = new SfLink(sf_ui, (x, shipDescY), right, SelectRight));
         }
     }
 
@@ -253,7 +257,7 @@ class PlayerCreator : IScene {
 
     public void Back() {
         //Tones.pressed.Play();
-        Go(new TitleSlideOut(this, sf, prev, sf_prev));
+        Go(new TitleSlideOut(this, sf_img, prev, sf_prev));
     }
     public void Start() {
         //Tones.pressed.Play();

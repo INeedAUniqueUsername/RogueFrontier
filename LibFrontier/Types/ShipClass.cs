@@ -93,13 +93,20 @@ public record LayeredArmorDesc : HullSystemDesc {
     public HullSystem Create(Assets tc) =>
         new LayeredArmor(armorList.Generate(tc));
 }
-public record PlayerSettings() {
-    [Req] public bool startingClass;
-    [Req] public string description;
-    public string[] map;
-    public PlayerSettings(XElement e, PlayerSettings source = null) : this() {
-        e.Initialize(this, source);
-
-        map = source?.map ?? e.Element("Map")?.Value?.Replace("\r", "").Split('\n');
+public record PlayerSettings {
+    [Opt] public bool startingClass = false;
+    [Opt] public string description;
+    public Dictionary<(int X, int Y), Tile> heroImage = [];
+    public PlayerSettings () { }
+    public PlayerSettings (XElement e, PlayerSettings source = null) {
+        e.Initialize(this);
+        if(e.TryAtt("hero", out var hero)) {
+#if GODOT
+			hero = $"{structure}_gd";
+#endif
+            heroImage = ImageLoader.ReadTile(Assets.GetSprite(hero)).ToDictionary(
+                pair => (X: pair.Key.X, Y: -pair.Key.Y),
+                pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));
+        }
     }
 }

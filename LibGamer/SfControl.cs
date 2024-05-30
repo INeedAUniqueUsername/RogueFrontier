@@ -339,19 +339,22 @@ public class LabeledField : SfControl {
 	public (int x, int y) pos;
 	public LabeledField (Sf on, (int x, int y) pos, string label, string text = "", Action<SfField, string> TextChanged = null) {
 		this.on = on;
-
+		this.pos = pos;
 		this.label = label;
-		this.textBox = new SfField(on, ((label.Length / 8 + 1) * 8, 0), 16, text);
+		this.textBox = new SfField(on, (pos.x + (label.Length / 8 + 1) * 8, pos.y), 16, text);
 		if(TextChanged != null)
 			this.textBox.TextChanged += (e) => TextChanged?.Invoke(this.textBox, this.textBox.text);
 		controls.Add(textBox);
 	}
 	public void HandleKey(KB keyboard) {
-		if(keyboard.IsPress(KC.Enter)) {
-		}
+		textBox.HandleKey(keyboard);
+	}
+	public void HandleMouse(HandState state) {
+		textBox.HandleMouse(state);
 	}
 	public void Render (TimeSpan delta) {
 		on.Print(pos.x, pos.y, label, ABGR.White, ABGR.Black);
-		Draw(on);
+		textBox.Render(delta);
+		Draw?.Invoke(on);
 	}
 }

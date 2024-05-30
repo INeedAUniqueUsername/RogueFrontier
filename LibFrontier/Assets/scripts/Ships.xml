@@ -32,34 +32,12 @@
 			<Armor  codename="item_gemsteel_plate_i"/>
         </LayeredArmorSystem>
         <PlayerSettings
-            startingClass="true"
-            description="The Amethyst-class yacht (64 ton edition), more than just a symbol of middle-class conspicuous consumption, is a well-rounded multipurpose starship designed for the everyday pilot."
-            >
-            <Map>                                     
-                       __                       
-                      /%%\                      
-                     /%%%%\                     
-                    //.LL.\\                    
-                   ||......||                   
-                    \\....//                    
-                     |#..#|                     
-                 /--/##..##\--\                 
-               /++#####..#####++\               
-              /+/-----#..#-----\+\              
-             //#/  /###..###\  \#\\             
-            //#/   |--|--|--|   \#\\            
-           //=/    |--|--|--|    \=\\           
-          //#/    /|--|--|--|\    \#\\          
-         //#/    //\########/\\    \#\\         
-        //#/     //    ||    \\     \#\\        
-       /#/      //     ||     \\      \#\       
-     /#/        //     ||     \\        \#\     
-   /#/         //      ||      \\         \#\   
- /#/          //       ||       \\          \#\ 
-            </Map>
+            startingClass=	"true"
+            description=	"The Amethyst-class yacht (64 ton edition), more than just a symbol of middle-class conspicuous consumption, is a well-rounded multipurpose starship designed for the everyday pilot."
+            hero=			"ship_amethyst_yacht.dat"
+			>
         </PlayerSettings>
     </ShipClass>
-	
     <ShipClass  codename="ship_amethyst_ii"
                 name="Adamantine-class yacht"
 				attributes="Amethyst"
@@ -153,31 +131,10 @@
 			<Armor  codename="item_knightsteel_plate"/>
         </LayeredArmorSystem>
 		<PlayerSettings
-			startingClass="true"
-			description="A starship preferred by space-age bikers, self-protection enthusiasts, and folk heroes alike, a Beowulf-class gunship highlights the tougher and harder parts of one's personality."
-        >
-			<Map>
-      //                              \\      
-      ||              __              ||      
-     //              /()\              \\     
-    |||             /O..O\             |||    
-    |||             |....|             |||    
-   ///         //---|....|---\\         \\\   
-   |||     //--.....|....|......-\\     |||   
-   |||  //-.........\..../.........-\\  |||   
-   ||| /-........//--|..|--\\........-\ |||   
-  /// /......../-====|..|====-\........\ \\\  
-  |||/......../======\../======\........\|||  
-  |||........|========||========|........|||  
-  |||==\\\....\\_=====||=====_//....///==|||  
-  ||||OOOO\\....|\____||____/|....//OOOO||||  
-     |T||T|\\...| | | || | | |...//|T||T|     
-     |T||T|  |__|_|_|_||_|_|_|__|  |T||T|     
-     |T||T|  |_|_|_|T/TT\T|_|_|_|  |T||T|     
-     |T||T|        |T|TT|T|        |T||T|     
-     |T||T|        |T|TT|T|        |T||T|     
-     |/--\|        |/----\|        |/--\|     
-            </Map>
+			startingClass=	"true"
+			description=	"A starship preferred by space-age bikers, self-protection enthusiasts, and folk heroes alike, a Beowulf-class gunship highlights the tougher and harder aspects of one's character."
+			hero=			"ship_beowulf.dat"
+			>
 		</PlayerSettings>
 	</ShipClass>
 	<ShipClass  codename="ship_ulysses"
@@ -244,31 +201,8 @@
 		<PlayerSettings
             startingClass=  "true"
             description=    "Whether you used to be a banker, carpenter, or farmer before taking to the stars, a pioneer like you could use a fully stocked Clark-class transport to survive the galactic trail."
-            >
-            <Map>
-                        __                        
-                       /()\                       
-                      /O..O\                      
-                      |....|                      
-           _____------|....|------_____           
-          |     ______|....|______     |          
-       /--+----- |    |....|    | -----+--\       
-       |--\  | | |    |....|    | |  | /--|       
-       |===\-\ | |    |....|    | | /-/===|       
-       |======\-\|   _|....|_   |/-/======|       
-       |=========|  /  \__/  \  |=========|       
-       |=========|-|   (__)   |-|=========|       
-       |=========|  \_      _/  |=========|       
-       |======/-/|  | ------ |  |\-\======|       
-       |===/-/ | |  | |||||| |  | | \-\===|       
-     __|/-/  | | |  -- |||| --  | | |  \-\|__     
-    /-- _|_\ | | |-- -- || -- --| | | /_|_ --\    
-   /---- |   | | |--- | || | ---| | |   | ----\   
-  \     |    |----------------------|    |     /  
-   \    |    /----------------------\    |    /   
-    \___|___/                        \___|___/    
-     \-----/                          \-----/     
-            </Map>
+            hero=			"ship_clark.dat"
+			>
         </PlayerSettings>
     </ShipClass>
 	<ShipClass codename="ship_clark_merchant"

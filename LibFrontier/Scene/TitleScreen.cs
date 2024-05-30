@@ -93,7 +93,7 @@ public class TitleScreen : IScene {
 		//Tones.pressed.Play();
 		PlayerCreator pc = null;
 		pc = new PlayerCreator(this, sf, World, settings, StartCrawl);
-		Go(new TitleSlideIn((sf, this), (pc.sf, pc)));
+		Go(new TitleSlideIn((sf, this), (pc.sf_img, pc)));
 		void StartCrawl (ShipSelectorModel context) {
 			var loc = $"{AppDomain.CurrentDomain.BaseDirectory}/save/{context.playerName}";
 			string file;
