@@ -58,7 +58,7 @@ public class TitleSlideOpening : IScene {
 				sf.Tile[x, y] = new Tile(0, ABGR.SetA(0, value), ' ');
             }
         }
-        Draw(sf);
+        Draw?.Invoke(sf);
     }
     public void HandleKey(KB kb) {
         if (kb[[KC.Enter, KC.Escape]].Contains(KS.Press)) {

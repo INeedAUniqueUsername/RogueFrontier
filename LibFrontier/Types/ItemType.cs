@@ -687,6 +687,9 @@ public record ReactorDesc {
 	//public bool isBattery => maxInput > 0;
 	[Opt] public bool allowRefuel = true;
 
+	/// <summary> If true, always consumes full rate</summary>
+	[Opt] public bool fixedOutput = false;
+
 	/// <summary>
 	/// Recharge using power from other reactors when available
 	/// </summary>
@@ -694,7 +697,7 @@ public record ReactorDesc {
 	/// <summary>
 	/// Maximum input rate (if this Reactor is a battery). Default is maxOutput.
 	/// </summary>
-	[Opt] public int maxInput = -1;
+	[Opt] public int maxInput;
 
 	public Reactor GetReactor(Item i) => new(i, this);
 	public ReactorDesc() { }

@@ -1039,9 +1039,9 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         blind = false;
     }
     public void OnDisable() {
-        delay = desc.fireCooldown;
-        capacitor?.Clear();
-        targeting?.ClearTarget();
+        //delay = desc.fireCooldown;
+        //capacitor?.Clear();
+        //targeting?.ClearTarget();
     }
     public bool RangeCheck(ActiveObject user, ActiveObject target) =>
         (user.position - target.position).magnitude < projectileDesc.range;

@@ -6,11 +6,9 @@ using System.Xml.Linq;
 using static RogueFrontier.BasicAlignment;
 using static RogueFrontier.Disposition;
 namespace RogueFrontier;
-
 public enum BasicAlignment {
     ConstructiveOrder, ConstructiveChaos, Neutral, DestructiveOrder, DestructiveChaos
 }
-
 public record ComplexDisposition {
     bool canAttack;
     bool waitUntilAttacked;
@@ -32,7 +30,6 @@ public class Sovereign : IDesignType {
         [JsonIgnore]
         public AutoSovereign Value => s => Disposition.Neutral;
     }
-
     public static readonly Sovereign Inanimate = new Sovereign() {
         codename = "sovereign_inanimate",
         AutoSovereignDisposition = new AutoNeutral()
@@ -50,17 +47,12 @@ public class Sovereign : IDesignType {
             return s;
         }
     }
-
-
-
     public string codename;
     public BasicAlignment alignment;
     //private Sovereign parent;
-
     public Dict<string, Disposition> sovDispositions;
     public Dict<ulong, Disposition> entityDispositions;
     public Lis<AutoSovereign> AutoSovereignDisposition;
-
     public static readonly Dictionary<BasicAlignment, Dictionary<BasicAlignment, Disposition>> dispositionTable = new Dictionary<BasicAlignment, Dictionary<BasicAlignment, Disposition>> {
             { ConstructiveOrder, new Dictionary<BasicAlignment, Disposition>{
                 {ConstructiveOrder, Friend },
@@ -94,10 +86,8 @@ public class Sovereign : IDesignType {
                 {DestructiveChaos, Enemy },
             }},
         };
-
     public delegate Disposition AutoSovereign(Sovereign other);
     public delegate Disposition AutoSpaceObject(ActiveObject other);
-
     public Sovereign() {
         sovDispositions = new();
         entityDispositions = new();

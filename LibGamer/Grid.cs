@@ -281,9 +281,9 @@ public class XYI {
 	public override string ToString () => $"({x}, {y})";
 
 	[JsonIgnore]
-	public double maxCoord => Math.Max(Math.Abs(x), Math.Abs(y));
+	public int maxCoord => Math.Max(Math.Abs(x), Math.Abs(y));
 	[JsonIgnore]
-	public double manhattan => Math.Abs(x) + Math.Abs(y);
+	public int manhattan => Math.Abs(x) + Math.Abs(y);
 	[JsonIgnore]
 	public double length => magnitude;
 	[JsonIgnore]

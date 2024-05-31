@@ -65,7 +65,10 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
 
     Tile[,] effect;
 
-    List<CloudParticle> clouds;
+	int effectWidth => Width * 3/5;
+	int effectHeight => Height * 3 / 5;
+
+	List<CloudParticle> clouds;
 
     Random random = new Random();
 
@@ -81,25 +84,25 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
         lines = text.Sum(line => line.Count(c => c == '\n')) + text.Length * 2;
         sectionIndex = 0;
         tick = 0;
-        int effectWidth = Width * 3 / 5;
-        int effectHeight = Height * 3 / 5;
         effect = new Tile[effectWidth, effectHeight];
         for (int y = 0; y < effectHeight; y++) {
             for (int x = 0; x < effectWidth; x++) {
-                effect[x,y] = GetGlyph(x, y);
+                effect[x,y] = GetTile(x, y);
             }
         }
         //spinner = new LoadingSymbol(16);
         clouds = new List<CloudParticle>();
+
+        byte b (int value) => (byte)Math.Clamp(value, 0, 255);
         uint Front(int value) {
-            return ABGR.RGBA((byte)(255 - value / 2), (byte)(255 - value), 255, (byte)(255 - value / 4));
+            return ABGR.RGBA(b(255 - value / 2), b(255 - value), 255, b(255 - value / 4));
             //return new Color(128 + value / 2, 128 + value/4, 255);
         }
         uint Back(int value) {
             //return new Color(255 - value, 255 - value, 255 - value).Noise(r, 0.3).Round(17).Subtract(25);
-            return ABGR.RGB((byte)(204 - value), (byte)(204 - value), (byte)(255 - value));//.Noise(random, 0.3).Round(17).Subtract(25);
+            return ABGR.RGB(b(204 - value), b(204 - value), b(255 - value));//.Noise(random, 0.3).Round(17).Subtract(25);
         }
-        Tile GetGlyph(int x, int y) {
+        Tile GetTile(int x, int y) {
             uint front = Front(255 * x / effectWidth);
             uint back = Back(255 * x / effectWidth);
             char c;
@@ -163,15 +166,12 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
         switch (sectionNumber) {
             case 0: {
                     //Print background
-                    int effectY = topEdge;
-                    foreach (var line in effect) {
-						if(effectY == Height) {
-							break;
+					for(int y = 0; y < effectHeight; y++) {
+						for(int x = 0; x < effectWidth; x++) {
+                            sf.Tile[x, y + topEdge] = effect[x, y];
 						}
-						sf.Print(0, effectY, line);
-                        effectY++;
-                    }
-                    break;
+					}
+					break;
                 }
             case 1: {
                     foreach ((var p, var t) in images[0].Sprite

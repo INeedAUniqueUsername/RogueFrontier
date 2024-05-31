@@ -139,17 +139,18 @@
 
 
 	<ItemType	codename=	"item_beowulf_dual_laser_cannon"
-				name=		"Beowulf dual laser cannon"
+				name=		"Beowulf cannon"
 				level=		"1"
 				mass=		"2000"
 				value=		"3000"
 
-				desc=		"The Beowulf dual laser cannon allows you to strike with speed."
+				desc=		""
 		>
 		<Weapon	initialCharges=	"1800"
 				powerUse=		"20"
 				fireCooldown=	"15"
 				sweep=			"30"
+				sound=			"beowulf_blaster.wav"
 			>
 			<Projectile
 					count="2"
@@ -165,12 +166,12 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_beowulf_dual_laser_repeater"
-			name=		"Beowulf dual laser repeater"
+			name=		"Beowulf repeater"
 			level=		"2"
 			mass=		"2000"
 			value=		"3000"
 
-			desc=		"The Beowulf dual laser repeater allows you to strike with even more speed."
+			desc=		"The Beowulf repeater."
 		>
 		<Weapon	initialCharges=	"2700"
 				powerUse=		"30"
@@ -365,7 +366,7 @@
 			powerUse=		"20"
 			fireCooldown=	"45"
 			omnidirectional="true"
-			sound=			"shotgun_3.wav"
+			sound=			"shotgun_alt.wav"
 			>
 			<Projectile
 				count=			"8"

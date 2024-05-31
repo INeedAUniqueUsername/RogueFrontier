@@ -68,7 +68,7 @@ Game.Create(WIDTH, HEIGHT, Fonts.IBMCGA_8X8_FONT, (o, gh) => { });
 SadConsole.Host.Settings.SFMLScreenBlendMode = SFML.Graphics.BlendMode.Alpha;
 SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Alpha;
 Game.Instance.Started += (o, host) => {
-	Go(new PlayerMain(WIDTH, HEIGHT));
+	Go(new LibAtomics.Mainframe(WIDTH, HEIGHT));
 
 	var kb = new KB();
 	host.FrameUpdate += (o, gh) => {
