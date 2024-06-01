@@ -4,29 +4,53 @@ public class Body {
 	public BodyPart[] vision;
 	public BodyPart[] hearing;
 	public BodyPart[] grasping;
-	public HashSet<BodyPart> humanoid => new Lazy<HashSet<BodyPart>>(() => {
+
+
+	static BodyPart makeArm () {
+		var arm = new BodyPart("Arm");
+		var hand = new BodyPart("Hand");
+		BodyPart.Connect(arm, hand);
+		return arm;
+	}
+	static BodyPart makeLeg () {
+		var arm = new BodyPart("Leg");
+		var hand = new BodyPart("Foot");
+		BodyPart.Connect(arm, hand);
+		return arm;
+	}
+	public HashSet<BodyPart> human => new Lazy<HashSet<BodyPart>>(() => {
 		var b = (string s) => new BodyPart(s);
 		BodyPart
 			head		= b("Head"),
 			body		= b("Body"),
-			leftArm		= b("Left Arm"),
-			rightArm	= b("Right Arm"),
-			leftHand	= b("Left Hand"),
-			rightHand	= b("Right Hand"),
-			leftLeg		= b("Left Leg"),
-			leftFoot	= b("Left Foot"),
-			rightLeg	= b("Right Leg"),
-			rightFoot	= b("Right Foot")
+			arm_l		= makeArm(),
+			arm_r		= makeArm(),
+			leg_l		= makeLeg(),
+			leg_r		= makeLeg()
 			;
 		Dictionary<BodyPart, BodyPart[]> parts = new(){
 			[head] = [body],
-			[body] = [leftArm, rightArm, leftLeg, rightLeg],
-			[leftArm] = [leftHand],
-			[rightArm] = [rightHand],
-			[leftLeg] = [leftFoot],
-			[rightLeg] = [rightFoot],
+			[body] = [arm_l, arm_r, leg_l, leg_r],
 		};
-		return [head, body, leftArm, rightArm, leftHand, rightHand, leftLeg, rightLeg, leftFoot, rightFoot];
+		return head.GetGraph();
+	}).Value;
+	public HashSet<BodyPart> insect => new Lazy<HashSet<BodyPart>>(() => {
+		var b = (string s) => new BodyPart(s);
+		BodyPart
+			head = b("Head"),
+			body = b("Body"),
+			arm_l_i = makeArm(),
+			arm_r_i = makeArm(),
+			arm_l_ii = makeArm(),
+			arm_r_ii = makeArm(),
+			leg_l = makeLeg(),
+			leg_r = makeLeg()
+			;
+		Dictionary<BodyPart, BodyPart[]> parts = new() {
+			[head] = [body],
+			[body] = [arm_l_i, arm_r_i, arm_l_ii, arm_r_ii, leg_l, leg_r],
+		};
+		return head.GetGraph();
 	}).Value;
 }
 public class BodyPart {
@@ -63,6 +87,21 @@ public class BodyPart {
 		}
 		return Check(this);
 	}
+
+	public HashSet<BodyPart> GetGraph() {
+		HashSet<BodyPart> seen = [];
+		void Check (BodyPart start) {
+			if(seen.Contains(start)) {
+				return;
+			}
+			seen.Add(start);
+			foreach(var b in start.connected)
+				Check(b);
+		}
+		Check(this);
+		return seen;
+	}
+
 	string name;
 	public HashSet<BodyPart> connected = [];
 	public BodyPart(string name) {

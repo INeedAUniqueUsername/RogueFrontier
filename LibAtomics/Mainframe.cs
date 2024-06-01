@@ -33,19 +33,27 @@ public class Mainframe : IScene {
 	}
 
 	double delay = 0;
+	World.Subticks subticks = null;
 	void IScene.Update(System.TimeSpan delta) {
 		marker.time += delta.TotalSeconds;
-
 		level.UpdateReal(delta);
-
 		delay -= delta.TotalSeconds;
 		if(delay > 0) {
 			return;
 		}
-
+		if(subticks != null) {
+			subticks.Update();
+			if(!subticks.done) {
+				delay = 0.025;
+				return;
+			}
+			subticks = null;
+		}
 		if(!player.ready) {
-			level.UpdateStep();
-			delay = 0.05;
+			subticks = level.UpdateStep();
+			if(subticks.done) {
+				subticks = null;
+			}
 		}
 		if(player.ready) {
 			delay = 0;
@@ -68,29 +76,29 @@ public class Mainframe : IScene {
 		{
 			var x = 1;
 			var y = 1;
-			sf_ui.DrawRect(x, y, 24, 5, new() {
+			sf_ui.DrawRect(x, y, 32, 3, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});
 			x++;
 			y++;
-			sf_ui.Print(x,y,$"Tick: {player.tick / 10f}");
+			sf_ui.Print(x,y,$"Tick: {player.tick}");
 		}
 		{
 			var x = 1;
-			var y = 16;
-			sf_ui.DrawRect(x, y, 24, 5, new() {
+			var y = Height - 26 - 5;
+			sf_ui.DrawRect(x, y, 32, 5, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});
 			x++;
 			y++;
-			sf_ui.Print(x, y, "TERMINATE_ENEMY", tint, ABGR.Black);
+			sf_ui.Print(x, y, "Goal_Terminate_Enemy", tint, ABGR.Black);
 			y++;
-			sf_ui.Print(x, y, "CALIBRATE_AIM", tint, ABGR.Black);
+			sf_ui.Print(x, y, "Goal_Calibrate_Aim", tint, ABGR.Black);
 		}
 		{
-			var x = 1; var y = 32;
+			var x = 1; var y = Height - 26;
 			var _m = player.messages;
 			sf_ui.DrawRect(x, y, 32, 26, new() {
 				f = tint,
@@ -113,7 +121,13 @@ public class Mainframe : IScene {
 			}
 		}
 		if(level.entities.Contains(marker)){
-			int x = 0, y = 0;
+			int x = Width/2 - 16, y = 1;
+			sf_ui.DrawRect(x, y, 32, 5, new() {
+				f = tint,
+				b = ABGR.SetA(ABGR.Black, 128)
+			});
+			x++;
+			y++;
 			foreach(var e in level.entityMap.GetValueOrDefault(marker.pos, []).Except([marker])) {
 				sf_ui.Print(x, y, e.tile);
 				sf_ui.Print(x + 2, y, e switch {
@@ -154,7 +168,7 @@ public class Mainframe : IScene {
 		pos = player.pos + (pos.x, -pos.y) + (0, -1);
 
 		level.AddEntity(marker);
-		marker.pos = pos;
+		marker._pos = (pos.x, pos.y);
 		return;
 	}
 }

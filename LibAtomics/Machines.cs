@@ -15,15 +15,15 @@ public class Roach : IEntity, IActor {
 		this.pos = pos;
 	}
 	Player target;
-	void IActor.UpdateTick () {
+	Action[] IActor.UpdateTick () {
 		target = world.entities.OfType<Player>().FirstOrDefault();
 		var r = new Rand();
 		var nf = () => r.NextFloat();
 
 		var d = target.pos - pos;
 		if(d.manhattan < 2) {
-			target.AddMessage(new Player.Message(Tile.Arr($"Roach attacks you"), target.time, target.tick));
-			target.delay = 5;
+			target.AddMessage(new Player.Message(Tile.Arr($"Roachbot bites Player"), target.time, target.tick));
+			//target.delay = 5;
 		}
 		//var dest = target.pos + new XYI((int)(nf() * d.x - d.x / 2), (int)(nf() * d.y - d.y / 2));
 
@@ -35,13 +35,16 @@ public class Roach : IEntity, IActor {
 		}
 		var path = GetPath(pos, dest);
 
+
+		return [.. path.Take(Math.Min(3, path.Count)).Select<XYI, Action>(p => () => pos = p)];
+		/*
 		for(int i = 0; i < 1; i++) {
 			if(path.ElementAtOrDefault(i) is { } p) {
 				world.AddEntity(new AfterImage(pos, new Tile(tile.Foreground, tile.Background, '.')));
 				pos = p;
 			}
 		}
-		return;
+		*/
 		List<XYI> GetPath(XYI from, XYI to) {
 			Dictionary<(int, int), (int, int)> path = [];
 			path[from] = from;
@@ -88,8 +91,9 @@ public class AfterImage : IEntity, IActor {
 		this.pos = pos;
 		this.tile = tile;
 	}
-	void IActor.UpdateTick () {
+	Action[] IActor.UpdateTick () {
 		Removed?.Invoke();
+		return [];
 	}
 }
 

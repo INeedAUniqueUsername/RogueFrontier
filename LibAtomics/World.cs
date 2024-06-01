@@ -28,13 +28,31 @@ public class World {
 		entitiesRemove.Clear();
 		actors = [..entities.OfType<IActor>()];
 	}
-	public void UpdateStep() {
-		busy = true;
-		foreach(var e in actors) {
-			e.UpdateTick();
+	public record Subticks (Action[][] lines, Action update, Action end) {
+		public HashSet<Action[]> remaining => [..from line in lines where subtick < line.Length select line];
+		public int length => lines.Max(line => line.Length);
+		public bool done => remaining.Count == 0;
+		public int subtick = 0;
+		public void Update() {
+			remaining.RemoveWhere(line => subtick >= line.Length);
+			foreach(var line in remaining) {
+				line[subtick]();
+			}
+			subtick++;
+			update();
+			if(done) {
+				end();
+			}
 		}
+	}
+	public Subticks UpdateStep() {
+		busy = true;
+		var s = new Subticks([..from a in actors select a.UpdateTick()], () => {
+			UpdatePresent();
+		}, () => {
+		});
 		busy = false;
-		UpdatePresent();
+		return s;
 	}
 	public void UpdateReal(TimeSpan delta) {
 		foreach(var e in actors) e.UpdateReal(delta);

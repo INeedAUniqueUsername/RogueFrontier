@@ -22,7 +22,7 @@ namespace ASECII {
             SadConsole.Settings.UseDefaultExtendedFont = true;
             Settings.WindowTitle = "ASECII";
 
-            SadConsole.Game.Create(width, height, $"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/Assets/IBMCGA+_8x8.font", (args, k) => { });
+            SadConsole.Game.Create(width, height, $"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/Assets/RF_8x8.font", (args, k) => { });
             SadConsole.Game.Instance.Started +=
                 (a, k) => Init(args is [{ } path] ? path.Replace("\"", "") : null);
             SadConsole.Game.Instance.Run();

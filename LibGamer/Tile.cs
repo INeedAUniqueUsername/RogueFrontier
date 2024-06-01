@@ -83,12 +83,9 @@ public record ABGR(uint packed) {
 			a: setAlpha
 			);
 	}
-
 	//public static (byte R, byte G, byte B, byte A) RGBA(uint abgr) => (R(abgr), G(abgr), B(abgr), A(abgr));
-
 	public static (byte A, byte B, byte G, byte R) Data (uint abgr) =>
 		(A(abgr), B(abgr), G (abgr), R(abgr));
-
 	public static Mut MA (uint abgr) => new(abgr, 0);
 	public static byte A (uint abgr) => (byte)((abgr >> 24) & 255);
 	public static byte B (uint abgr) => (byte)((abgr >> 16) & 255);
@@ -113,8 +110,6 @@ public record ABGR(uint packed) {
 		((abgr & 0x00FF0000) >> 08) +
 		((abgr & 0xFF000000) >> 24)
 	);
-
-
 	public static float GetLightness (uint c) {
 		int r = R(c);
 		int g = G(c);
@@ -164,7 +159,7 @@ public record ABGR(uint packed) {
 		if(num > 255) {
 			num = 510 - max - min;
 		}
-		return (float)(max - min) / (float)num;
+		return (max - min) / (float)num;
 	}
 
 
@@ -367,6 +362,8 @@ public record ABGR(uint packed) {
 	Turquoise = 0xffd0e040,
 	Violet = 0xffee82ee,
 	Wheat = 0xffb3def5,
+
+	Blanca = uint.MaxValue,
 	White = uint.MaxValue,
 	WhiteSmoke = 0xfff5f5f5,
 	Yellow = 0xff00ffff,

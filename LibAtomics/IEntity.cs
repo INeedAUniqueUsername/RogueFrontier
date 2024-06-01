@@ -7,6 +7,6 @@ public interface IEntity {
 	Action Removed { get; set; }
 }
 public interface IActor {
-	void UpdateTick () { }
+	Action[] UpdateTick () { return []; }
 	void UpdateReal (TimeSpan delta) { }
 }

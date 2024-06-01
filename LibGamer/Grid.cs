@@ -106,7 +106,8 @@ public class XY {
     public XY round => new(Math.Round(x), Math.Round(y));
     [JsonIgnore]
     public XY roundDown => new(Math.Round(x, MidpointRounding.ToNegativeInfinity), Math.Round(y, MidpointRounding.ToNegativeInfinity));
-    [JsonIgnore]
+	public XYI roundDownI => new((int)Math.Round(x, MidpointRounding.ToNegativeInfinity), (int)Math.Round(y, MidpointRounding.ToNegativeInfinity));
+	[JsonIgnore]
     public XY roundAway => new(Math.Round(x, MidpointRounding.AwayFromZero), Math.Round(y, MidpointRounding.AwayFromZero));
     public XY Step(XY other, int length = 1) {
         XY offset = other - this;
