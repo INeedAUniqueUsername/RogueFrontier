@@ -35,7 +35,6 @@ public class Roach : IEntity, IActor {
 		}
 		var path = GetPath(pos, dest);
 
-
 		return [.. path.Take(Math.Min(3, path.Count)).Select<XYI, Action>(p => () => pos = p)];
 		/*
 		for(int i = 0; i < 1; i++) {
@@ -80,23 +79,6 @@ public class Roach : IEntity, IActor {
 	}
 
 }
-
-public class AfterImage : IEntity, IActor {
-	public XYI pos { get; set; }
-
-	public Tile tile { get; set; }
-
-	public Action Removed { get; set; }
-	public AfterImage(XYI pos, Tile tile) {
-		this.pos = pos;
-		this.tile = tile;
-	}
-	Action[] IActor.UpdateTick () {
-		Removed?.Invoke();
-		return [];
-	}
-}
-
 /// <summary>Ranged attacks.</summary>
 public class Sentry {
 

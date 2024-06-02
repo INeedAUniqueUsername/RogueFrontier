@@ -5,16 +5,24 @@ public class World {
 	public HashSet<IEntity> entitiesRemove = [];
 	public HashSet<IEntity> entities = [];
 	public IActor[] actors = [];
+
+
+	private ConcurrentDictionary<(int, int), IEntity[]> _entityMap;
 	public ConcurrentDictionary<(int, int), IEntity[]> entityMap =>
-		new(entities.GroupBy(e => (e.pos.x, e.pos.y)).Select(g => (g.Key, g.ToArray())).ToDictionary());
+		_entityMap = _entityMap ?? new(entities.GroupBy(e => (e.pos.x, e.pos.y)).Select(g => (g.Key, g.ToArray())).ToDictionary());
 	bool busy = false;
 	public void AddEntity(IEntity e) {
+		entitiesRemove.Remove(e);
+		if(entities.Contains(e))
+			return;
 		e.Removed += () => RemoveEntity(e);
 		entitiesAdd.Add(e);
 		PlaceEntity();
 	}
 	public void RemoveEntity(IEntity e) {
-			entitiesRemove.Add(e);
+		entitiesAdd.Remove(e);
+		if(!entities.Contains(e)) return;
+		entitiesRemove.Add(e);
 		PlaceEntity();
 	}
 	public void PlaceEntity () {
@@ -27,6 +35,7 @@ public class World {
 		entitiesAdd.Clear();
 		entitiesRemove.Clear();
 		actors = [..entities.OfType<IActor>()];
+		_entityMap = null;
 	}
 	public record Subticks (Action[][] lines, Action update, Action end) {
 		public HashSet<Action[]> remaining => [..from line in lines where subtick < line.Length select line];

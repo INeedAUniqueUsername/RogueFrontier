@@ -14,8 +14,6 @@ public class Player : IActor, IEntity {
 
 	public int delay = 0;
 
-	HashSet<(int x, int y)> visible = [];
-
 	public record Message (Tile[] msg, double time, int tick) {
 		public string text => new string([.. from t in msg select (char)t.Glyph]);
 	};
@@ -92,11 +90,64 @@ public class Player : IActor, IEntity {
 	void IActor.UpdateReal(System.TimeSpan delta) {
 		time += delta.TotalSeconds;
 	}
-	public ConcurrentDictionary<(int, int), Tile> vision = [];
+	public ConcurrentDictionary<(int, int), Tile> _visibleTiles = null;
+	public ConcurrentDictionary<(int, int), Tile> visibleTiles => _visibleTiles ??=
+		new(visibleAt.Select(pair => (pair.Key, pair.Value.Select(v => v.tile).Except([null]).LastOrDefault())).Where(pair => pair.Item2 != null).ToDictionary());
+	public ConcurrentDictionary<(int, int), HashSet<IEntity>> visibleAt = [];
+	HashSet<IEntity> visible = [];
+
+	int lastCheck = -1;
 	public void UpdateVision () {
-		vision.Clear();
-		foreach(var e in level.entities) {
-			vision[e.pos] = e.tile;
+		if(lastCheck == tick) {
+			return;
+		}
+		lastCheck = tick;
+		_visibleTiles = null;
+		visibleAt.Clear();
+		visible.Clear();
+		if(false) {
+			foreach(var e in level.entities) {
+				visibleTiles[e.pos] = e.tile;
+			}
+		} else {
+			foreach(var e in level.entities) {
+				if(visible.Contains(e)) {
+					continue;
+				}
+				var dest = e.pos;
+				bool add = new Lazy<bool>(() => {
+					if(level.entityMap.GetValueOrDefault(dest, []).Except([e]).OfType<Wall>().Any()) {
+						return false;
+					}
+					if(dest == pos) {
+						return true;
+					}
+					
+					IEnumerable<XYI> GetPath () {
+						var disp = dest - pos;
+						var dir = disp.Normalize(out var dist);
+						for(int i = 1; i < dist; i++) {
+							yield return pos + dir;
+						}
+					}
+					foreach(var p in GetPath()) {
+
+						var other = level.entityMap.GetValueOrDefault(p, []);
+						if(!other.Any()) {
+							return false;
+						}
+						if(level.entityMap[p].OfType<Floor>().Any()) {
+							continue;
+						}
+					}
+					return true;
+				}).Value;
+				if(add) {
+					visible.Add(e);
+					visibleAt.GetOrAdd(dest, []).Add(e);
+					//Additional effects
+				}
+			}
 		}
 	}
 }
@@ -123,7 +174,7 @@ public class Shoot {
 
 			p.Tell("Attack!");
 			var r = new Rand();
-			p.level.AddEntity(new AfterImage(reticle.pos + (r.NextInteger(-3, 4), r.NextInteger(-3, 4)), new Tile(ABGR.Blanca, ABGR.Black, '*')));
+			p.level.AddEntity(new Splat(reticle.pos + (r.NextInteger(-3, 4), r.NextInteger(-3, 4)), new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
 		};
 		return [
 			a,a,a,a,a,

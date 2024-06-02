@@ -29,9 +29,10 @@ public class Mainframe : IScene {
 		level.entities.Add(player = new Player(level, (0, 0)));
 		level.entities.Add(new Roach(level, (10, 10)));
 
-
+		level.PlaceEntity();
 	}
 
+	bool ready => player.ready && (subticks?.done ?? true);
 	double delay = 0;
 	World.Subticks subticks = null;
 	void IScene.Update(System.TimeSpan delta) {
@@ -41,13 +42,12 @@ public class Mainframe : IScene {
 		if(delay > 0) {
 			return;
 		}
-		if(subticks != null) {
+		if(subticks is { done:false }) {
 			subticks.Update();
 			if(!subticks.done) {
-				delay = 0.025;
+				//delay = 0.025;
 				return;
 			}
-			subticks = null;
 		}
 		if(!player.ready) {
 			subticks = level.UpdateStep();
@@ -66,7 +66,7 @@ public class Mainframe : IScene {
 		foreach(var x in 0..Width) {
 			foreach(var y in 0..Height) {
 				var loc = pov + (x, y) - center;
-				var t = player.vision.GetValueOrDefault(loc, new Tile(ABGR.SetA(ABGR.White, (byte)(r.NextFloat() * 5 + 51)), ABGR.Black, 'p' + 64));
+				var t = player.visibleTiles.GetValueOrDefault(loc, new Tile(ABGR.SetA(ABGR.White, (byte)(r.NextFloat() * 5 + 51)), ABGR.Black, 'p' + 64));
 				sf_main.Print(x, Height - y - 1, t);
 			}
 		}
@@ -143,7 +143,7 @@ public class Mainframe : IScene {
 		Draw?.Invoke(sf_ui);
 	}
 	void IScene.HandleKey(LibGamer.KB kb) {
-		if(!player.ready) {
+		if(!ready) {
 
 		} else {
 			var p = kb.IsPress;
@@ -167,7 +167,8 @@ public class Mainframe : IScene {
 		var pos = (XYI)mouse.pos / sf_main.font.GlyphSize - center;
 		pos = player.pos + (pos.x, -pos.y) + (0, -1);
 
-		level.AddEntity(marker);
+		if(!level.entities.Contains(marker))
+			level.AddEntity(marker);
 		marker._pos = (pos.x, pos.y);
 		return;
 	}

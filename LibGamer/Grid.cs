@@ -302,6 +302,15 @@ public class XYI {
 			}
 		}
 	}
+    public XY Normalize(out double magnitude) {
+		magnitude = this.magnitude;
+		if(magnitude > 0) {
+			return new(x / magnitude, y / magnitude);
+		} else {
+            magnitude = 0;
+			return new(0, 0);
+		}
+	}
 	[JsonIgnore]
 	public double angleRad => Math.Atan2(y, x);
 	public double angleDeg => angleRad * 180 / Math.PI;
