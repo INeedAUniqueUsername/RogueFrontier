@@ -60,6 +60,8 @@ public static class SScene {
 		return result;
 	}
 }
+
+public record SceneCtx(int Width, int Height, IScene prev, PlayerShip playerShip);
 public interface IScene {
 	//IProgram Program { get; set; }
 	Action<IScene> Go { get; set; }

@@ -9,8 +9,11 @@ namespace LibAtomics;
 public class Reticle : IEntity, IActor {
 	public XY _pos { get; set; } = (0, 0);
 	public XYI pos => _pos.roundDownI;
+	public bool visible = false;
 	public Tile tile =>
-		new Tile(Math.IEEERemainder(time, 0.2) < 0 ? ABGR.Yellow : ABGR.Transparent, ABGR.Black, '+');
+		visible ?
+			new Tile(Math.IEEERemainder(time, 0.2) < 0 ? ABGR.Yellow : ABGR.SetA(ABGR.Yellow, 128), ABGR.Black, '+') :
+			Tile.empty;
 	public Action Removed { get; set; }
 	double time = 0;
 	void IActor.UpdateReal(System.TimeSpan delta) {

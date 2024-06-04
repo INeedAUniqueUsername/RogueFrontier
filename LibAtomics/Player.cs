@@ -46,12 +46,9 @@ public class Player : IActor, IEntity {
 		pos = dest;
 		busy = true;
 		delay = 1;
-
-		shoot = shoot ?? new Shoot() { target = (10, 1) };
-		
 	}
 
-	Shoot shoot;
+	public Shoot shoot;
 	Action[] IActor.UpdateTick () {
 		tick++;
 		UpdateVision();
@@ -90,24 +87,30 @@ public class Player : IActor, IEntity {
 	void IActor.UpdateReal(System.TimeSpan delta) {
 		time += delta.TotalSeconds;
 	}
+
 	public ConcurrentDictionary<(int, int), Tile> _visibleTiles = null;
 	public ConcurrentDictionary<(int, int), Tile> visibleTiles => _visibleTiles ??=
 		new(visibleAt.Select(pair => (pair.Key, pair.Value.Select(v => v.tile).Except([null]).LastOrDefault())).Where(pair => pair.Item2 != null).ToDictionary());
+	
+	
 	public ConcurrentDictionary<(int, int), HashSet<IEntity>> visibleAt = [];
 	HashSet<IEntity> visible = [];
 
-	int lastCheck = -1;
+	double lastUpdate = -1;
 	public void UpdateVision () {
-		if(lastCheck == tick) {
+		/*
+		if(lastUpdate == level.lastUpdate) {
 			return;
 		}
-		lastCheck = tick;
+		*/
+		lastUpdate = level.lastUpdate;
 		_visibleTiles = null;
 		visibleAt.Clear();
 		visible.Clear();
-		if(false) {
+		if(true) {
+			_visibleTiles = [];
 			foreach(var e in level.entities) {
-				visibleTiles[e.pos] = e.tile;
+				_visibleTiles[e.pos] = e.tile;
 			}
 		} else {
 			foreach(var e in level.entities) {
@@ -154,25 +157,42 @@ public class Player : IActor, IEntity {
 
 public class Shoot {
 	public XY target;
-
 	Reticle reticle;
 	bool locked = false;
+	public bool done = false;
+
+	public void Init(Player p) {
+		reticle = new Reticle() { _pos = (XY)p.pos, visible = true };
+		p.level.AddEntity(reticle);
+		p.Tell("Attack_Select_Target");
+	}
 	public Action[] Act(Player p) {
 
+		if(done) return [];
+
 		if(!locked) {
-			reticle = new Reticle() { _pos = (p.pos.x, p.pos.y) };
-			p.level.AddEntity(reticle);
+			p.Tell("Attack_Calibrate_Aim");
+			var from = (XY)p.pos;
+			var to = target;
 			locked = true;
+			var disp = (to - from);
+			reticle.visible = true;
 			return [
-				..Enumerable.Range(0, 10).Select<int,Action>(i => () => {
-					reticle._pos += (target - reticle._pos) / 5f;
+				..Enumerable.Range(0, 30).Select<int,Action>(i => () => {
+					//reticle._pos = from + disp * i / 30f;
+					reticle._pos += (to - reticle._pos) / 10f;
 				}),
 			];
 		}
 
-		var a = () => {
 
-			p.Tell("Attack!");
+		done = true;
+		bool msg = true;
+		var a = () => {
+			if(msg) {
+				p.Tell("Attack_Fire_Weapon");
+				msg = false;
+			}
 			var r = new Rand();
 			p.level.AddEntity(new Splat(reticle.pos + (r.NextInteger(-3, 4), r.NextInteger(-3, 4)), new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
 		};
@@ -181,6 +201,7 @@ public class Shoot {
 			a,a,a,a,a,
 			a,a,a,a,a,
 			a,a,a,a,a,
+			() => p.level.RemoveEntity(reticle)
 			];
 	}
 }

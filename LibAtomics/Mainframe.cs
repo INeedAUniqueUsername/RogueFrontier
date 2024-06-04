@@ -170,6 +170,12 @@ public class Mainframe : IScene {
 		if(!level.entities.Contains(marker))
 			level.AddEntity(marker);
 		marker._pos = (pos.x, pos.y);
+
+		if(mouse.leftDown && player.shoot?.done != false) {
+			player.shoot = new Shoot() { target = (XY)pos };
+			player.shoot.Init(player);
+		}
+
 		return;
 	}
 }

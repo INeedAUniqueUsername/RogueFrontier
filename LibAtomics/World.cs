@@ -6,6 +6,8 @@ public class World {
 	public HashSet<IEntity> entities = [];
 	public IActor[] actors = [];
 
+	public double time;
+	public double lastUpdate;
 
 	private ConcurrentDictionary<(int, int), IEntity[]> _entityMap;
 	public ConcurrentDictionary<(int, int), IEntity[]> entityMap =>
@@ -36,6 +38,7 @@ public class World {
 		entitiesRemove.Clear();
 		actors = [..entities.OfType<IActor>()];
 		_entityMap = null;
+		lastUpdate = time;
 	}
 	public record Subticks (Action[][] lines, Action update, Action end) {
 		public HashSet<Action[]> remaining => [..from line in lines where subtick < line.Length select line];
@@ -64,6 +67,7 @@ public class World {
 		return s;
 	}
 	public void UpdateReal(TimeSpan delta) {
+		time += delta.TotalSeconds;
 		foreach(var e in actors) e.UpdateReal(delta);
 	}
 }

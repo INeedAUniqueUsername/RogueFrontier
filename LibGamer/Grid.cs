@@ -325,6 +325,7 @@ public class XYI {
 	}
 	public static implicit operator Point (XYI xy) => new(xy.x, xy.y);
 	public static implicit operator XYI (Point p) => new(p.X, p.Y);
+    public static explicit operator XY (XYI p) => new(p.x, p.y);
 }
 
 
