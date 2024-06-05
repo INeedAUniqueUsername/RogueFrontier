@@ -1,4 +1,4 @@
-﻿namespace LibAtomics;
+﻿namespace LibTerminator;
 public class Body {
 	public HashSet<BodyPart> active;
 	public BodyPart[] vision;

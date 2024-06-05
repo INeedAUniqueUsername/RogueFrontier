@@ -1,7 +1,7 @@
 ﻿using Common;
 using LibGamer;
 using System.Collections.Concurrent;
-namespace LibAtomics;
+namespace LibTerminator;
 public class Player : IActor, IEntity {
 	public World level;
 	public Tile tile => new Tile(Mainframe.tint, ABGR.Black, '@');

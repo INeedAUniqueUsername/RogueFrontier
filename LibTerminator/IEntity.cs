@@ -1,6 +1,6 @@
 ﻿using Common;
 using LibGamer;
-namespace LibAtomics;
+namespace LibTerminator;
 public interface IEntity {
 	XYI pos { get; }
 	Tile tile { get; }

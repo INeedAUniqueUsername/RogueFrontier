@@ -1,6 +1,6 @@
 ﻿using Common;
 using LibGamer;
-namespace LibAtomics;
+namespace LibTerminator;
 
 public class Marker : IEntity, IActor {
 

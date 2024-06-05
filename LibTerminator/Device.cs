@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace LibAtomics;
+namespace LibTerminator;
 /// <summary>Has vision; can be viewed through.</summary>
 public interface IEye {
 

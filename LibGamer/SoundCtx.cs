@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RogueFrontier;
+namespace LibGamer;
 public class SoundCtx {
 	public bool playing => IsPlaying?.Invoke() ?? true;
 	public (float x, float y) pos;

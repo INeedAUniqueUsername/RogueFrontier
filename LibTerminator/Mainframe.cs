@@ -1,7 +1,7 @@
 ﻿using Common;
 using LibGamer;
 using RogueFrontier;
-namespace LibAtomics;
+namespace LibTerminator;
 public class Mainframe : IScene {
 
 	public static readonly uint tint = ABGR.RGB(255, 0, 128);
@@ -71,8 +71,6 @@ public class Mainframe : IScene {
 			}
 		}
 		sf_ui.Clear();
-
-
 		{
 			var x = 1;
 			var y = 1;
@@ -166,16 +164,13 @@ public class Mainframe : IScene {
 		}
 		var pos = (XYI)mouse.pos / sf_main.font.GlyphSize - center;
 		pos = player.pos + (pos.x, -pos.y) + (0, -1);
-
 		if(!level.entities.Contains(marker))
 			level.AddEntity(marker);
 		marker._pos = (pos.x, pos.y);
-
 		if(mouse.leftDown && player.shoot?.done != false) {
 			player.shoot = new Shoot() { target = (XY)pos };
 			player.shoot.Init(player);
 		}
-
 		return;
 	}
 }

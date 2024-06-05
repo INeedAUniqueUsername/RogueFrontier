@@ -1,7 +1,7 @@
 ﻿using Common;
 using LibGamer;
 
-namespace LibAtomics;
+namespace LibTerminator;
 /// <summary>Takes items and stashes them somewhere. Usually runs away if encountered. If provoked, summons other Roach bots to fight. Melee attacks.</summary>
 public class Roach : IEntity, IActor {
 	public XYI pos { get; set; }

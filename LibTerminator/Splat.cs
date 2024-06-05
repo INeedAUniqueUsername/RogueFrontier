@@ -1,7 +1,7 @@
 ﻿using Common;
 using LibGamer;
 
-namespace LibAtomics;
+namespace LibTerminator;
 
 public class Splat : IEntity, IActor {
 	public XYI pos { get; set; }

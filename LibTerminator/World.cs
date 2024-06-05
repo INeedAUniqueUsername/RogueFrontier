@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-namespace LibAtomics;
+namespace LibTerminator;
 public class World {
 	public HashSet<IEntity> entitiesAdd = [];
 	public HashSet<IEntity> entitiesRemove = [];
