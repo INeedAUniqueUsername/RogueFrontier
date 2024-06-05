@@ -323,8 +323,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             if (playerShip.dock is { justDocked: true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
                 var scene =
-                    story.GetScene(this, playerShip, d) ??
-                    d.GetDockScene(this, playerShip);
+                    story.GetScene(new(this), d) ??
+                    d.GetDockScene(new(this));
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
@@ -392,7 +392,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             }
             if (playerShip.dock is {  justDocked:true, Target: IDockable d } dock) {
                 audio.PlayDocking(false);
-                var scene = story.GetScene(this, playerShip, d) ?? d.GetDockScene(this, playerShip);
+                var scene = story.GetScene(new(this), d) ?? d.GetDockScene(new(this));
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();

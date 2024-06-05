@@ -49,7 +49,7 @@ public class Wreck : MovingObject, IDockable {
     public IEnumerable<XY> GetDockPoints() {
         yield return XY.Zero;
     }
-    public IScene GetDockScene(IScene prev, PlayerShip playerShip) => new WreckScene(prev, playerShip, this);
+    public IScene GetDockScene(SceneCtx ctx) => new WreckScene(ctx, this);
     public void Damage(Projectile p) {}
     public void Destroy(ActiveObject source) {
         active = false;
@@ -283,7 +283,7 @@ public class Station : ActiveObject, ITrader, IDockable {
         weapons?.ForEach(w => w.Update(delta, this));
         behavior?.Update(delta, this);
     }
-    public IScene GetDockScene(IScene prev, PlayerShip playerShip) => null;
+    public IScene GetDockScene(SceneCtx ctx) => null;
     [JsonIgnore]
     public Tile tile => type.tile.Original;
 }

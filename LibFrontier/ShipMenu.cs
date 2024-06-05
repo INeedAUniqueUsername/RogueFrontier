@@ -133,11 +133,11 @@ class ShipMenu : IScene {
             ShowRefuel();
         }
     }
-    public void ShowInvokable() => Go(SMenu.Usable(this, playerShip));
-    public void ShowPower() => Go(SMenu.DeviceManager(this, playerShip));
-    public void ShowCargo() => Go(SMenu.Cargo(this, playerShip));
-    public void ShowLoadout() => Go(SMenu.Installed(this, playerShip));
-    public void ShowLogs() => Go(SMenu.Logs(this, playerShip));
-    public void ShowMissions() => Go(SMenu.Missions(this, playerShip, story));
-    public void ShowRefuel() => Go(SMenu.RefuelReactor(this, playerShip));
+    public void ShowInvokable() => Go(SMenu.Usable(new(this, sf, playerShip)));
+    public void ShowPower() => Go(SMenu.DeviceManager(new(this, sf, playerShip)));
+    public void ShowCargo() => Go(SMenu.Cargo(new(this, sf, playerShip)));
+    public void ShowLoadout() => Go(SMenu.Installed(new(this, sf, playerShip)));
+    public void ShowLogs() => Go(SMenu.Logs(new(this, sf, playerShip)));
+    public void ShowMissions() => Go(SMenu.Missions(new(this, sf, playerShip), story));
+    public void ShowRefuel() => Go(SMenu.RefuelReactor(new(this, sf, playerShip)));
 }

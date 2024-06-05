@@ -60,8 +60,6 @@ public static class SScene {
 		return result;
 	}
 }
-
-public record SceneCtx(int Width, int Height, IScene prev, PlayerShip playerShip);
 public interface IScene {
 	//IProgram Program { get; set; }
 	Action<IScene> Go { get; set; }
@@ -91,21 +89,18 @@ public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFl
 	public NavChoice (string name, Func<IScene, IScene> next, NavFlags flags = 0, bool enabled = true) : this(name.FirstOrDefault(char.IsLetterOrDigit), name, next, flags, enabled) { }
 }
 public static class SNav {
-
-	public static NavChoice DockArmorRepair (PlayerShip p, int price) =>
-		DockArmorReplacement(p, a => price);
-	public static NavChoice DockArmorRepair (PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(prev, p, GetPrice, null));
-	public static NavChoice DockArmorReplacement (PlayerShip p, int price) =>
-		DockArmorReplacement(p, a => price);
-	public static NavChoice DockArmorReplacement (PlayerShip p, Func<Armor, int> GetPrice) =>
-		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(prev, p, GetPrice, null));
-
-	public static NavChoice DockDeviceInstall (PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Install", prev => SMenu.DockDeviceInstall(prev, p, GetPrice, null));
-
-	public static NavChoice DockDeviceRemoval (PlayerShip p, Func<Device, int> GetPrice) =>
-		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(prev, p, GetPrice, null));
+	public static NavChoice DockArmorRepair (SceneCtx c, int price) =>
+		DockArmorReplacement(c, a => price);
+	public static NavChoice DockArmorRepair (SceneCtx c, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Repair", prev => SMenu.DockArmorRepair(c with { prev = prev }, GetPrice, null));
+	public static NavChoice DockArmorReplacement (SceneCtx c , int price) =>
+		DockArmorReplacement(c, a => price);
+	public static NavChoice DockArmorReplacement (SceneCtx c, Func<Armor, int> GetPrice) =>
+		new("Service: Armor Replacement", prev => SMenu.DockArmorReplacement(c with { prev = prev }, GetPrice, null));
+	public static NavChoice DockDeviceInstall (SceneCtx c, Func<Device, int> GetPrice) =>
+		new("Service: Device Install", prev => SMenu.DockDeviceInstall(c with { prev=prev}, GetPrice, null));
+	public static NavChoice DockDeviceRemoval (SceneCtx c, Func<Device, int> GetPrice) =>
+		new("Service: Device Removal", prev => SMenu.DockDeviceRemoval(c with { prev = prev }, GetPrice, null));
 }
 public class Dialog : IScene {
 	public delegate void AddNav (int index);
@@ -127,7 +122,13 @@ public class Dialog : IScene {
 	int escapeIndex;
 	int lineCount;
 	public static double maxCharge = 0.5;
-	public Dialog (string descStr, List<NavChoice> navigation){
+	Sf surf;
+
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public Dialog (SceneCtx ctx, string descStr, List<NavChoice> navigation){
+		surf = new Sf(ctx.Width, ctx.Height, Fonts.FONT_8x8);
 		this.descStr = descStr;
 		
 		var quoted = false;
@@ -163,11 +164,8 @@ public class Dialog : IScene {
 	}
 	int deltaIndex = 2;
 
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
-	public Action<SoundCtx> PlaySound { get; set; }
 
-	public void Update (TimeSpan delta) {
+	void IScene.Update (TimeSpan delta) {
 		ticks++;
 		if(ticks % 2 * deltaIndex == 0) {
 			if(descIndex < desc.Length - 1) {
@@ -216,7 +214,7 @@ public class Dialog : IScene {
 			}
 		}
 	}
-	public void Render (Sf surf, TimeSpan delta) {
+	void IScene.Render (TimeSpan delta) {
 		//this.RenderBackground();
 		if(background != null) {
 			foreach(((var px, var py), var t) in background) {
@@ -257,12 +255,13 @@ public class Dialog : IScene {
 				surf.Print(x, y + navIndex, Tile.Arr(arrow.Substring(0, (int)(barLength * Math.Clamp(ch / maxCharge, 0, 1))), ch < maxCharge ? ABGR.Yellow : ABGR.Orange, ABGR.Black));
 			}
 		}
+		Draw?.Invoke(surf);
 	}
-	public void ProcessKeyboard (KB kb) {
+	void IScene.HandleKey (KB kb) {
 		charging = false;
 		if(kb[KC.Escape] == KS.Press || prevEscape && kb[KC.Escape, 1]) {
 			if(!prevEscape) {
-				PlaySound(Tones.pressed);
+				PlaySound?.Invoke(Tones.pressed);
 			}
 			navIndex = escapeIndex;
 			charging = true;
@@ -273,7 +272,7 @@ public class Dialog : IScene {
 			enter = kb[KC.Enter, 1];
 			if(enter) {
 				if(!prevEnter) {
-					PlaySound(Tones.pressed);
+					PlaySound?.Invoke(Tones.pressed);
 				}
 
 				if(descIndex < desc.Length - 1) {
@@ -293,7 +292,7 @@ public class Dialog : IScene {
 			foreach(var c in kb.Down.Where(c => char.IsLetterOrDigit((char)c)).Select(c => char.ToUpper((char)c))) {
 				if(keyMap.TryGetValue(c, out int index)) {
 					if(!prevEnter) {
-						PlaySound(Tones.pressed);
+						PlaySound?.Invoke(Tones.pressed);
 					}
 
 					navIndex = index;
@@ -302,17 +301,17 @@ public class Dialog : IScene {
 				}
 			}
 			if(kb[KC.Up] == KS.Press) {
-				PlaySound(Tones.pressed);
+				PlaySound?.Invoke(Tones.pressed);
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
 			if(kb[KC.Down] == KS.Down) {
-				PlaySound(Tones.pressed);
+				PlaySound?.Invoke(Tones.pressed);
 				navIndex = (navIndex + 1) % navigation.Count;
 			}
 		}
 	}
-	public void ProcessMouse (Hand state) {
-		if(state.nowLeft) {
+	void IScene.HandleMouse (HandState state) {
+		if(state.leftDown) {
 			if(descIndex < desc.Length - 1) {
 				descIndex = desc.Length - 1;
 				allowEnter = false;

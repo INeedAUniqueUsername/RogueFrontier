@@ -24,7 +24,6 @@ public class Player : IActor, IEntity {
 		}
 		messages.Add(m);
 	}
-
 	public void Tell(string msg) {
 		AddMessage(new Message(Tile.Arr(msg), time, tick));
 	}
@@ -87,12 +86,9 @@ public class Player : IActor, IEntity {
 	void IActor.UpdateReal(System.TimeSpan delta) {
 		time += delta.TotalSeconds;
 	}
-
 	public ConcurrentDictionary<(int, int), Tile> _visibleTiles = null;
 	public ConcurrentDictionary<(int, int), Tile> visibleTiles => _visibleTiles ??=
 		new(visibleAt.Select(pair => (pair.Key, pair.Value.Select(v => v.tile).Except([null]).LastOrDefault())).Where(pair => pair.Item2 != null).ToDictionary());
-	
-	
 	public ConcurrentDictionary<(int, int), HashSet<IEntity>> visibleAt = [];
 	HashSet<IEntity> visible = [];
 
@@ -154,22 +150,18 @@ public class Player : IActor, IEntity {
 		}
 	}
 }
-
 public class Shoot {
 	public XY target;
 	Reticle reticle;
 	bool locked = false;
 	public bool done = false;
-
 	public void Init(Player p) {
 		reticle = new Reticle() { _pos = (XY)p.pos, visible = true };
 		p.level.AddEntity(reticle);
 		p.Tell("Attack_Select_Target");
 	}
 	public Action[] Act(Player p) {
-
 		if(done) return [];
-
 		if(!locked) {
 			p.Tell("Attack_Calibrate_Aim");
 			var from = (XY)p.pos;
@@ -184,21 +176,19 @@ public class Shoot {
 				}),
 			];
 		}
-
-
 		done = true;
 		bool msg = true;
+		var r = new Rand();
 		var a = () => {
 			if(msg) {
 				p.Tell("Attack_Fire_Weapon");
 				msg = false;
 			}
-			var r = new Rand();
-			p.level.AddEntity(new Splat(reticle.pos + (r.NextInteger(-3, 4), r.NextInteger(-3, 4)), new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
+			foreach(var i in Enumerable.Range(0, 2)) {	
+				p.level.AddEntity(new Splat(reticle.pos + (r.NextInteger(-2, 3), r.NextInteger(-2, 3)), new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
+			}
 		};
 		return [
-			a,a,a,a,a,
-			a,a,a,a,a,
 			a,a,a,a,a,
 			a,a,a,a,a,
 			() => p.level.RemoveEntity(reticle)

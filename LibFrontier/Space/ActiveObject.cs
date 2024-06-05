@@ -3,9 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 namespace RogueFrontier;
+public record SceneCtx {
+	public int Width;
+	public int Height;
+	public IScene prev;
+	public PlayerShip playerShip;
+
+    public void Go (IScene s) => prev.Go(s);
+
+	public SceneCtx (Mainframe main) {
+		Width = main.Width;
+		Height = main.Height;
+		prev = main;
+		playerShip = main.playerShip;
+	}
+    public SceneCtx(IScene prev, LibGamer.Sf sf, PlayerShip pl) {
+        (Width, Height) = (sf.Width, sf.Height);
+        this.prev = prev;
+        this.playerShip = pl;
+    }
+}
 public interface IDockable : StructureObject {
     IEnumerable<XY> GetDockPoints();
-    IScene GetDockScene(IScene prev, PlayerShip player);
+    IScene GetDockScene(SceneCtx ctx);
 }
 public interface MovingObject : Entity {
 

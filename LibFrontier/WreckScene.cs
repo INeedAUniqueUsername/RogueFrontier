@@ -23,17 +23,17 @@ public class WreckScene : IScene {
                 ]);
         }
     }
-    public WreckScene(IScene prev, PlayerShip playerShip, Wreck docked) {
-        this.prev = prev;
-        this.sf = new Sf(64, 96, Fonts.FONT_8x8);
-        this.player = playerShip.person;
+    public WreckScene(SceneCtx ctx, Wreck docked) {
+        this.prev = ctx.prev;
+        this.sf = new Sf(ctx.Width, ctx.Height, Fonts.FONT_8x8);
+        this.player = ctx.playerShip.person;
 
         descPane = new DescPanel<Item>();
         
-        playerPane = new(playerShip.name, playerShip.cargo, i => i.name, SetDesc) {
+        playerPane = new(ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, SetDesc) {
             active = false,
             invoke = i => {
-                playerShip.cargo.Remove(i);
+                ctx.playerShip.cargo.Remove(i);
                 docked.cargo.Add(i);
                 dockedPane.UpdateIndex();
             },
@@ -41,7 +41,7 @@ public class WreckScene : IScene {
         dockedPane = new(docked.name, docked.cargo, i => i.name, SetDesc) {
             active = true,
             invoke = i => {
-                playerShip.cargo.Add(i);
+                ctx.playerShip.cargo.Add(i);
                 docked.cargo.Remove(i);
                 playerPane.UpdateIndex();
             },
@@ -67,7 +67,7 @@ public class WreckScene : IScene {
             if(kb[KC.Right] == KS.Press) {
                 playerSide = false;
             }
-            currentPane.ProcessKeyboard(kb);
+            currentPane.HandleKey(kb);
         }
     }
     public void Render(TimeSpan delta) {

@@ -82,8 +82,8 @@ public record RepairArmor : ItemUse {
 	public RepairArmor(XElement e) {
 		e.Initialize(this);
 	}
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback) {
-		prev.Go(SMenu.RepairArmorFromItem(prev, player, item, this, callback));
+	public void Invoke(SceneCtx c, Item item, Action callback) {
+		c.prev.Go(SMenu.RepairArmorFromItem(c, item, this, callback));
 	}
 }
 public record InvokePower : ItemUse {
@@ -114,8 +114,8 @@ public record Refuel : ItemUse {
 		e.Initialize(this);
 	}
 	public string GetDesc(PlayerShip player, Item item) => "Refuel reactor";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-		prev.Go(SMenu.RefuelFromItem(prev, player, item, this, callback));
+	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+		c.prev.Go(SMenu.RefuelFromItem(c, item, this, callback));
 	}
 }
 public record DepleteTargetShields() : ItemUse {
@@ -155,9 +155,9 @@ public record ReplaceDevice() : ItemUse {
 	});
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Replace installed {from.name}";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-		prev.Go(SMenu.ReplaceDeviceFromItem(prev, player, item, this, callback));
-		player.cargo.Remove(item);
+	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+		c.Go(SMenu.ReplaceDeviceFromItem(c, item, this, callback));
+		c.playerShip.cargo.Remove(item);
 		callback?.Invoke();
 	}
 }
@@ -171,9 +171,9 @@ public record RechargeWeapon() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Recharged {item.name}";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-		prev.Go(SMenu.RechargeWeaponFromItem(prev, player, item, this, callback));
-		player.cargo.Remove(item);
+	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+		c.Go(SMenu.RechargeWeaponFromItem(c, item, this, callback));
+		c.playerShip.cargo.Remove(item);
 		callback?.Invoke();
 	}
 }
@@ -205,8 +205,8 @@ public record ApplyMod() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Apply modifier to item (shows menu)";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-		prev.Go(SMenu.SetMod(prev, player, item, mod, callback));
+	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+		c.Go(SMenu.SetMod(c, item, mod, callback));
 	}
 }
 public record ItemType : IDesignType {
