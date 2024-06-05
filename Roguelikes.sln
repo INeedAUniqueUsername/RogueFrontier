@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibTerminator", "LibTermina
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtGodot", "ExtGodot\ExtGodot.csproj", "{2D3287C6-6849-48F6-81EF-41324EBE8D8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glyphdot", "Glyphdot\Glyphdot.csproj", "{8B8FFF7C-298B-4763-A238-5FB41F933378}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,14 +119,6 @@ Global
 		{2D3287C6-6849-48F6-81EF-41324EBE8D8D}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
 		{2D3287C6-6849-48F6-81EF-41324EBE8D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D3287C6-6849-48F6-81EF-41324EBE8D8D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.Release|Any CPU.ActiveCfg = ExportRelease|Any CPU
-		{8B8FFF7C-298B-4763-A238-5FB41F933378}.Release|Any CPU.Build.0 = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

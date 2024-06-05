@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Glyphdot\Glyphdot.csproj" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
+		<ProjectReference Include="..\..\glyphdot\glyphdot.csproj" />
 	</ItemGroup>
 </Project>
