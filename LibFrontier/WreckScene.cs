@@ -5,9 +5,9 @@ namespace RogueFrontier;
 public class WreckScene : IScene {
     Player player;
 
-    ListPane<Item> playerPane, dockedPane;
+    ListControl<Item> playerPane, dockedPane;
 
-    DescPanel<Item> descPane;
+    DescPane<Item> descPane;
 
     IScene prev;
     Sf sf;
@@ -16,9 +16,9 @@ public class WreckScene : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 	private void SetDesc(Item i) {
         if (i == null) {
-            descPane.SetInfo("", []);
+            descPane.SetEntry("", []);
         } else {
-            descPane.SetInfo(i.name, [
+            descPane.SetEntry(i.name, [
                 [..i.type.desc.Select(line => new Tile(line, ABGR.White, ABGR.Black))]
                 ]);
         }
@@ -28,9 +28,9 @@ public class WreckScene : IScene {
         this.sf = new Sf(ctx.Width, ctx.Height, Fonts.FONT_8x8);
         this.player = ctx.playerShip.person;
 
-        descPane = new DescPanel<Item>();
+        descPane = new DescPane<Item>(sf);
         
-        playerPane = new(ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, SetDesc) {
+        playerPane = new(sf, ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, SetDesc) {
             active = false,
             invoke = i => {
                 ctx.playerShip.cargo.Remove(i);
@@ -38,7 +38,7 @@ public class WreckScene : IScene {
                 dockedPane.UpdateIndex();
             },
         };
-        dockedPane = new(docked.name, docked.cargo, i => i.name, SetDesc) {
+        dockedPane = new(sf, docked.name, docked.cargo, i => i.name, SetDesc) {
             active = true,
             invoke = i => {
                 ctx.playerShip.cargo.Add(i);
@@ -55,7 +55,7 @@ public class WreckScene : IScene {
         }
         get => playerPane.active;
     }
-    ListPane<Item> currentPane => playerSide ? playerPane : dockedPane;
+    ListControl<Item> currentPane => playerSide ? playerPane : dockedPane;
 
 	public void HandleKey(KB kb) {
         if (kb[KC.Escape] == KS.Press) {

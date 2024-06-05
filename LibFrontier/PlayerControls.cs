@@ -82,7 +82,8 @@ public class PlayerControls {
         if (input.Dock) {
             if (input.Shift) {
                 var dockable = playerShip.world.entities.all.OfType<IDockable>().OrderBy(d => (d.position - playerShip.position).magnitude2).ToList();
-                playerMain.dialog = SListWidget.DockList(playerMain, dockable, playerShip);
+                //playerMain.dialog = SListWidget.DockList(new(playerMain), dockable);
+                //TODO
             } else if (playerShip.dock.Target != null) {
                 if (playerShip.dock.docked) {
                     playerShip.AddMessage(new Message("Undocked"));

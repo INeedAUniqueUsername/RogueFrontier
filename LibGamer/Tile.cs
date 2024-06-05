@@ -382,8 +382,8 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 		return new Tile(f, b, g);
 	}
 	public static Tile[] ArrFrom(XElement element, uint df = ABGR.White, uint db = ABGR.Black) {
-		var f = ABGR.TryAttColor(element, "f", df);
-		var b = ABGR.TryAttColor(element, "b", db);
+		var f = element.TryAttUint("f", df);
+		var b = element.TryAttUint("b", db);
 		return [.. GetParts().SelectMany(a => a)];
 		IEnumerable<IEnumerable<Tile>> GetParts () {
 			foreach(var node in element.Nodes()) {

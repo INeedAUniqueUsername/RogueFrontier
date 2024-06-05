@@ -8,6 +8,8 @@ using Color = LibGamer.ABGR;
 using ColoredString = LibGamer.Tile[];
 using System.IO;
 using System.Xml.Linq;
+using System.Threading.Tasks;
+using Namotion.Reflection;
 namespace RogueFrontier;
 public static partial class SMenu {
 	public static void RenderBackground (this Sf c) {
@@ -143,26 +145,24 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Logs",
             logs,
-            GetName,
-            GetDesc,
+            GetEntry,
             Invoke,
             Escape
             );
 
-        string GetName(IPlayerMessage i) => i switch {
-            Message { text: { }t } => t,
-            Transmission { text: { }t } => $"{t}",
-            _ => throw new NotImplementedException()
-        };
-        List<Tile[]> GetDesc(IPlayerMessage i) {
-            return i switch {
-                Message => [],
-                Transmission t => [
-                    [..Tile.Arr("Source: "), ..Tile.Arr((t.source as ActiveObject)?.name ?? "N/A")]
-                    ],
-                _ => throw new NotImplementedException()
-            };
-        }
+        NameDesc GetEntry (IPlayerMessage i) => new(
+			i switch {
+				Message { text: { } t } => t,
+				Transmission { text: { } t } => $"{t}",
+				_ => throw new NotImplementedException()
+			},
+			i switch {
+				Message => [],
+				Transmission t => [
+					[..Tile.Arr("Source: "), ..Tile.Arr((t.source as ActiveObject)?.name ?? "N/A")]
+					],
+				_ => throw new NotImplementedException()
+			});
         void Invoke(IPlayerMessage item) {
             screen.list.UpdateIndex();
         }
@@ -184,36 +184,36 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Missions",
             missions,
-            GetName,
-            GetDesc,
+            GetEntry,
             Invoke,
             Escape
             );
-        string GetName(IPlayerInteraction i) => i switch {
-            DestroyTarget => "Destroy Target",
-            _ => "Mission"
-        };
-        List<ColoredString> GetDesc(IPlayerInteraction i) {
-            List<ColoredString> result = new();
-            switch (i) {
-                case DestroyTarget dt:
-                    if (dt.complete) {
-                        result.Add(Tile.Arr($"Mission complete"));
-                        result.Add(Tile.Arr($"Return to {dt.source.name}"));
-                    } else {
-                        result.Add(Tile.Arr("Destroy the following targets:"));
-                        foreach (var t in dt.targets) {
-                            result.Add(Tile.Arr($"- {t.name}"));
-                        }
-                        result.Add([]);
-                        result.Add(Tile.Arr($"Source: {dt.source.name}"));
-                    }
-                    result.Add([]);
-                    result.Add(Tile.Arr($"[Enter] Update targets", Color.Yellow, Color.Black));
-                    break;
-            }
-            return result;
-        }
+        NameDesc GetEntry (IPlayerInteraction i) => new(i switch {
+                DestroyTarget => "Destroy Target",
+                _ => "Mission"
+            },
+            new Lazy<List<Tile[]>>(() => {
+				List<ColoredString> result = new();
+				switch(i) {
+					case DestroyTarget dt:
+						if(dt.complete) {
+							result.Add(Tile.Arr($"Mission complete"));
+							result.Add(Tile.Arr($"Return to {dt.source.name}"));
+						} else {
+							result.Add(Tile.Arr("Destroy the following targets:"));
+							foreach(var t in dt.targets) {
+								result.Add(Tile.Arr($"- {t.name}"));
+							}
+							result.Add([]);
+							result.Add(Tile.Arr($"Source: {dt.source.name}"));
+						}
+						result.Add([]);
+						result.Add(Tile.Arr($"[Enter] Update targets", Color.Yellow, Color.Black));
+						break;
+				}
+				return result;
+			}).Value
+        );
         void Invoke(IPlayerInteraction item) {
             screen.list.UpdateIndex();
             switch (item) {
@@ -230,7 +230,7 @@ public static partial class SMenu {
     }
     public static List<Tile[]> GenerateDesc(ItemType t) {
         var result = new List<Tile[]>();
-        var desc = t.desc.SplitLine(64);
+        var desc = t.desc.SplitLine(48);
         if (desc.Any()) {
             result.AddRange(desc.Select(d => Tile.Arr(d)));
             result.Add([]);
@@ -319,22 +319,23 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Useful Items",
             usable,
-            GetName,
-            GetDesc,
+            GetEntry,
             InvokeItem,
             Escape
             );
-
-        string GetName(Item i) => $"{(installedInvokable.Contains(i) ? "[*] " : "[c] ")}{i.type.name}";
-        List<Tile[]> GetDesc(Item i) {
-            var invoke = i.type.Invoke;
-            var result = GenerateDesc(i);
-            if (invoke != null) {
-                string action = $"[Enter] {invoke.GetDesc(player, i)}";
-                result.Add(Tile.Arr(action, ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
+        NameDesc GetEntry (Item i) => new(
+            $"{(installedInvokable.Contains(i) ? "[*] " : "[c] ")}{i.type.name}",
+            new Lazy<List<Tile[]>>(() => {
+				var invoke = i.type.Invoke;
+				var result = GenerateDesc(i);
+				if(invoke != null) {
+					string action = $"[Enter] {invoke.GetDesc(player, i)}";
+					result.Add(Tile.Arr(action, ABGR.Yellow, ABGR.Black));
+				}
+				return result;
+			}).Value
+            );
+        
         void InvokeItem(Item item) {
             item.type.Invoke?.Invoke(screen, player, item, Update);
             screen.list.UpdateIndex();
@@ -344,7 +345,7 @@ public static partial class SMenu {
             screen.list.UpdateIndex();
         }
         void Escape() {
-            prev.Show();
+            screen.Go(prev);
         }
     }
     public static ListMenu<Device> Installed(SceneCtx c) {
@@ -354,22 +355,23 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Device System",
             devices,
-            GetName,
-            GetDesc,
+            GetEntry,
             InvokeDevice,
             Escape
             );
-        string GetName(Device d) => d.source.type.name;
-        List<Tile[]> GetDesc(Device d) {
-            var item = d.source;
-            var invoke = item.type.Invoke;
-            var result = GenerateDesc(d);
+        NameDesc GetEntry (Device d) => new(
+			d.source.type.name,
+            new Lazy<List<Tile[]>>(() => {
+				var item = d.source;
+				var invoke = item.type.Invoke;
+				var result = GenerateDesc(d);
 
-            if (invoke != null) {
-                result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, item)}", ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
+				if(invoke != null) {
+					result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, item)}", ABGR.Yellow, ABGR.Black));
+				}
+				return result;
+			}).Value
+			);
         void InvokeDevice(Device d) {
             var item = d.source;
             var invoke = item.type.Invoke;
@@ -387,20 +389,20 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Cargo",
             items,
-            GetName,
-            GetDesc,
+            i => new(
+				i.type.name,
+                new Lazy<List<Tile[]>>(() => {
+					var invoke = i.type.Invoke;
+					var result = GenerateDesc(i);
+					if(invoke != null) {
+						result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, i)}", ABGR.Yellow, ABGR.Black));
+					}
+					return result;
+				}).Value
+				),
             InvokeItem,
             Escape
             );
-        string GetName(Item i) => i.type.name;
-        List<Tile[]> GetDesc(Item i) {
-            var invoke = i.type.Invoke;
-            var result = GenerateDesc(i);
-            if (invoke != null) {
-                result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, i)}", ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
         void InvokeItem(Item item) {
             var invoke = item.type.Invoke;
             invoke?.Invoke(screen, player, item);
@@ -418,21 +420,22 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Device Power",
             powered,
-            GetName,
-            GetDesc,
+            d => new(
+				$"{(disabled.Contains(d) ? "[ ]" : "[*]")} {d.source.type.name}",
+                new Lazy<List<Tile[]>>(() => {
+					var result = GenerateDesc(d);
+					result.Add(Tile.Arr($"Status: {(disabled.Contains(d) ? "OFF" : "ON")}"));
+					result.Add(Tile.Arr(""));
+					var off = disabled.Contains(d);
+					var word = (off ? "Enable" : "Disable");
+					result.Add(Tile.Arr($"[Enter] {word} this device", ABGR.Yellow, ABGR.Black));
+					return result;
+				}).Value
+				),
             InvokeItem,
             Escape
             );
-        string GetName(Device d) => $"{(disabled.Contains(d) ? "[ ]" : "[*]")} {d.source.type.name}";
-        List<Tile[]> GetDesc(Device d) {
-            var result = GenerateDesc(d);
-            result.Add(Tile.Arr($"Status: {(disabled.Contains(d) ? "OFF" : "ON")}"));
-            result.Add(Tile.Arr(""));
-            var off = disabled.Contains(d);
-            var word = (off ? "Enable" : "Disable");
-            result.Add(Tile.Arr($"[Enter] {word} this device", ABGR.Yellow, ABGR.Black));
-            return result;
-        }
+        
         void InvokeItem(Device p) {
             if (disabled.Contains(p)) {
                 disabled.Remove(p);
@@ -455,21 +458,21 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Device Removal",
             devices,
-            GetName,
-            GetDesc,
+            d => new(
+				d.source.type.name,
+                Task.Run(() => {
+					var item = d.source;
+					var invoke = item.type.Invoke;
+					var result = GenerateDesc(d);
+					if(invoke != null) {
+						result.Add(Tile.Arr($"[Enter] Remove this device", ABGR.Yellow, ABGR.Black));
+					}
+					return result;
+				}).Result
+				),
             InvokeDevice,
             Escape
             );
-        string GetName(Device d) => d.source.type.name;
-        List <Tile[]> GetDesc(Device d) {
-            var item = d.source;
-            var invoke = item.type.Invoke;
-            var result = GenerateDesc(d);
-            if (invoke != null) {
-                result.Add(Tile.Arr($"[Enter] Remove this device", ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
         void InvokeDevice(Device device) {
             var item = device.source;
             player.devices.Remove(device);
@@ -488,28 +491,28 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Armor Repair",
             devices,
-            GetName,
-            GetDesc,
+            a => new(
+				$"{$"[{a.hp} / {a.maxHP}]",-12}{a.source.type.name}",
+                Task.Run(() => {
+					var item = a.source;
+					var invoke = item.type.Invoke;
+					var result = GenerateDesc(a);
+					if(a.desc.RestrictRepair?.Matches(source) == false) {
+						result.Add(Tile.Arr("This armor is not compatible", ABGR.Yellow, ABGR.Black));
+					} else if(a.hp < a.maxHP) {
+						result.Add(Tile.Arr("[Enter] Repair this armor", ABGR.Yellow, ABGR.Black));
+					} else if(a.maxHP < a.desc.maxHP) {
+						result.Add(Tile.Arr("This armor cannot be repaired any further", ABGR.Yellow, ABGR.Black));
+					} else {
+						result.Add(Tile.Arr("This armor is at full HP", ABGR.Yellow, ABGR.Black));
+					}
+					return result;
+				}).Result
+
+				),
             Repair,
             Escape
             );
-
-        string GetName(Armor a) => $"{$"[{a.hp} / {a.maxHP}]",-12}{a.source.type.name}";
-        List<Tile[]> GetDesc(Armor a) {
-            var item = a.source;
-            var invoke = item.type.Invoke;
-            var result = GenerateDesc(a);
-            if (a.desc.RestrictRepair?.Matches(source) == false) {
-                result.Add(Tile.Arr("This armor is not compatible", ABGR.Yellow, ABGR.Black));
-            } else if (a.hp < a.maxHP) {
-                result.Add(Tile.Arr("[Enter] Repair this armor", ABGR.Yellow, ABGR.Black));
-            } else if(a.maxHP < a.desc.maxHP) {
-                result.Add(Tile.Arr("This armor cannot be repaired any further", ABGR.Yellow, ABGR.Black));
-            } else {
-                result.Add(Tile.Arr("This armor is at full HP", ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
         void Repair(Armor a) {
             if (a.desc.RestrictRepair?.Matches(source) == false) {
                 return;
@@ -536,31 +539,33 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Refuel Reactor",
             devices,
-            GetName,
-            GetDesc,
-            Invoke,
+            r => new(
+				$"{$"[{r.energy:0} / {r.desc.capacity}]",-12} {r.source.type.name}",
+                Task.Run(() => {
+
+					var item = r.source;
+					var invoke = item.type.Invoke;
+					var result = GenerateDesc(r);
+					result.Add(Tile.Arr($"Refuel amount: {refuel.energy}"));
+					result.Add(Tile.Arr($"Fuel needed:   {r.desc.capacity - (int)r.energy}"));
+					result.Add(Tile.Arr(""));
+
+
+					if(!r.desc.allowRefuel) {
+						result.Add(Tile.Arr("This reactor does not accept fuel", ABGR.Yellow, ABGR.Black));
+					} else if(r.energy < r.desc.capacity) {
+						result.Add(Tile.Arr("[Enter] Refuel", ABGR.Yellow, ABGR.Black));
+					} else {
+						result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
+					}
+					return result;
+				}).Result
+                ),
+
+
+			Invoke,
             Escape
             );
-
-        string GetName(Reactor r) => $"{$"[{r.energy:0} / {r.desc.capacity}]",-12} {r.source.type.name}";
-        List<Tile[]> GetDesc(Reactor r) {
-            var item = r.source;
-            var invoke = item.type.Invoke;
-            var result = GenerateDesc(r);
-            result.Add(Tile.Arr($"Refuel amount: {refuel.energy}"));
-            result.Add(Tile.Arr($"Fuel needed:   {r.desc.capacity - (int)r.energy}"));
-            result.Add(Tile.Arr(""));
-
-
-            if(!r.desc.allowRefuel) {
-                result.Add(Tile.Arr("This reactor does not accept fuel", ABGR.Yellow, ABGR.Black));
-            } else if (r.energy < r.desc.capacity) {
-                result.Add(Tile.Arr("[Enter] Refuel", ABGR.Yellow, ABGR.Black));
-            } else {
-                result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
-            }
-            return result;
-        }
         void Invoke(Reactor r) {
             var before = r.energy;
             var refuelEnergy = Math.Min(refuel.energy, r.desc.capacity - r.energy);
@@ -585,19 +590,18 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Device Replacement",
             devices,
-            GetName,
-            GetDesc,
+            d => new(
+				$"{d.source.type.name}",
+                Task.Run(() => {
+					var item = d.source;
+					var result = GenerateDesc(d);
+					result.Add(Tile.Arr("Replace this device", ABGR.Yellow, ABGR.Black));
+					return result;
+				}).Result
+				),
             Invoke,
             Escape
             );
-
-        string GetName(Device d) => $"{d.source.type.name}";
-        List<Tile[]> GetDesc(Device r) {
-            var item = r.source;
-            var result = GenerateDesc(r);
-            result.Add(Tile.Arr("Replace this device", ABGR.Yellow, ABGR.Black));
-            return result;
-        }
         void Invoke(Device d) {
             d.source.type = replace.to;
             switch (d) {
@@ -620,19 +624,18 @@ public static partial class SMenu {
         return screen = new(c,
             $"{player.name}: Recharge Weapon",
             devices,
-            GetName,
-            GetDesc,
-            Invoke,
+            w => new($"{w.source.type.name}",
+            Task.Run(() => {
+
+				var item = w.source;
+				var result = GenerateDesc(w);
+				result.Add(Tile.Arr("Recharge this weapon", ABGR.Yellow, ABGR.Black));
+				return result;
+			}).Result),
+
+			Invoke,
             Escape
             );
-
-        string GetName(Weapon w) => $"{w.source.type.name}";
-        List<Tile[]> GetDesc(Weapon w) {
-            var item = w.source;
-			var result = GenerateDesc(w);
-            result.Add(Tile.Arr("Recharge this weapon", ABGR.Yellow, ABGR.Black));
-            return result;
-        }
         void Invoke(Weapon d) {
             var c = (d.ammo as ChargeAmmo);
             c.charges += recharge.charges;
@@ -669,30 +672,31 @@ public static partial class SMenu {
         return screen = new(c,
             $"Workshop",
             recipes.Keys,
-            GetName,
-            GetDesc,
+            type => new(
+				$"{type.name}",
+
+                Task.Run(() => {
+					var result = GenerateDesc(type);
+					var rec = recipes[type];
+					foreach((var compType, var minCount) in rec) {
+						var count = listing[type][compType].Count;
+						result.Add(Tile.Arr($"{compType.name}: {count} / {minCount}", count >= minCount ? ABGR.Yellow : ABGR.Gray, ABGR.Black));
+					}
+					result.Add([]);
+
+					if(available[type]) {
+						result.Add(Tile.Arr("[Enter] Fabricate this item", ABGR.Yellow, ABGR.Black));
+					} else {
+						result.Add(Tile.Arr("Additional materials required", ABGR.Yellow, ABGR.Black));
+					}
+
+				Done:
+					return result;
+				}).Result
+				),
             Invoke,
             Escape
             );
-        string GetName(ItemType type) => $"{type.name}";
-        List<Tile[]> GetDesc(ItemType type) {
-            var result = GenerateDesc(type);
-            var rec = recipes[type];
-            foreach ((var compType, var minCount) in rec) {
-                var count = listing[type][compType].Count;
-                result.Add(Tile.Arr($"{compType.name}: {count} / {minCount}", count >= minCount ? ABGR.Yellow : ABGR.Gray, ABGR.Black));
-            }
-            result.Add([]);
-
-            if (available[type]) {
-                result.Add(Tile.Arr("[Enter] Fabricate this item", ABGR.Yellow, ABGR.Black));
-            } else {
-                result.Add(Tile.Arr("Additional materials required", ABGR.Yellow, ABGR.Black));
-            }
-
-        Done:
-            return result;
-        }
         void Invoke(ItemType type) {
             if (available[type]) {
                 foreach ((var compType, var minCount) in recipes[type]) {
@@ -716,38 +720,39 @@ public static partial class SMenu {
         return screen = new(c,
             $"Refuel Service",
             reactors,
-            GetName,
-            GetDesc, Invoke, Escape);
-        string GetName(Reactor r) => $"{$"[{r.energy:0} / {r.desc.capacity}]",-12} {r.source.type.name}";
-        List<Tile[]> GetDesc(Reactor r) {
-            var item = r.source;
-            var invoke = item.type.Invoke;
-            var result = GenerateDesc(r);
-            int unitPrice = GetPrice(r);
-            if (unitPrice < 0) {
-                result.Add(Tile.Arr("Refuel services not available for this reactor", ABGR.Yellow, ABGR.Black));
-                return result;
-            }
-            var delta = r.desc.capacity - (int)r.energy;
-            result.Add(Tile.Arr($"Fuel needed: {delta}"));
-            result.Add(Tile.Arr($"Total cost:  {unitPrice * delta}"));
-            result.Add(Tile.Arr($"Your money:  {player.person.money}"));
-            result.Add([]);
-            if (delta <= 0) {
-                result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
-            } else if (job?.active == true) {
-                if (job.reactor == r) {
-                    result.Add(Tile.Arr("This reactor is currently refueling.", ABGR.Yellow, ABGR.Black));
-                } else {
-                    result.Add(Tile.Arr("Please wait for current refuel job to finish.", ABGR.Yellow, ABGR.Black));
-                }
-            } else if (unitPrice > player.person.money) {
-                result.Add(Tile.Arr($"You cannot afford refueling", Color.Yellow, Color.Black));
-            } else {
-                result.Add(Tile.Arr($"[Enter] Order refueling", Color.Yellow, Color.Black));
-            }
-            return result;
-        }
+            r => new(
+				$"{$"[{r.energy:0} / {r.desc.capacity}]",-12} {r.source.type.name}",
+                Task.Run(() => {
+					var item = r.source;
+					var invoke = item.type.Invoke;
+					var result = GenerateDesc(r);
+					int unitPrice = GetPrice(r);
+					if(unitPrice < 0) {
+						result.Add(Tile.Arr("Refuel services not available for this reactor", ABGR.Yellow, ABGR.Black));
+						return result;
+					}
+					var delta = r.desc.capacity - (int)r.energy;
+					result.Add(Tile.Arr($"Fuel needed: {delta}"));
+					result.Add(Tile.Arr($"Total cost:  {unitPrice * delta}"));
+					result.Add(Tile.Arr($"Your money:  {player.person.money}"));
+					result.Add([]);
+					if(delta <= 0) {
+						result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
+					} else if(job?.active == true) {
+						if(job.reactor == r) {
+							result.Add(Tile.Arr("This reactor is currently refueling.", ABGR.Yellow, ABGR.Black));
+						} else {
+							result.Add(Tile.Arr("Please wait for current refuel job to finish.", ABGR.Yellow, ABGR.Black));
+						}
+					} else if(unitPrice > player.person.money) {
+						result.Add(Tile.Arr($"You cannot afford refueling", Color.Yellow, Color.Black));
+					} else {
+						result.Add(Tile.Arr($"[Enter] Order refueling", Color.Yellow, Color.Black));
+					}
+					return result;
+				}).Result
+				),
+            Invoke, Escape);
         void Invoke(Reactor r) {
             if (job?.active == true) {
                 return;
@@ -798,61 +803,61 @@ public static partial class SMenu {
         return screen = new(c,
             $"Armor Repair",
             layers,
-            GetName,
-            GetDesc,
+            a => new(
+                Task.Run(() => {
+					var BAR = 8;
+					int available = BAR * Math.Min(a.maxHP, a.desc.maxHP) / Math.Max(1, a.desc.maxHP);
+
+					int active = available * Math.Min(a.hp, a.maxHP) / Math.Max(1, a.maxHP);
+
+					return $"[{new string('=', active)}{new string('.', available - active)}{new string(' ', BAR - available)}] [{a.hp}/{a.maxHP}] {a.source.type.name}";
+				}
+                ).Result,
+                Task.Run(() => {
+					var item = a.source;
+					var result = GenerateDesc(a);
+					int unitPrice = GetPrice(a);
+					if(unitPrice < 0) {
+						result.Add(Tile.Arr("Repair services not available for this armor", Color.Yellow, Color.Black));
+						return result;
+					}
+					int delta = a.maxHP - a.hp;
+					result.Add(Tile.Arr($"Price per HP: {unitPrice}"));
+					result.Add(Tile.Arr($"HP to repair: {delta}"));
+					result.Add(Tile.Arr($"Your money:   {player.person.money}"));
+					result.Add(Tile.Arr($"Full price:   {unitPrice * delta}"));
+					result.Add([]);
+					if(delta <= 0) {
+						if(a.maxHP == 0) {
+							result.Add(Tile.Arr("This armor cannot be repaired.", Color.Yellow, Color.Black));
+						} else if(a.maxHP < a.desc.maxHP) {
+							result.Add(Tile.Arr("This armor cannot be repaired any further.", Color.Yellow, Color.Black));
+						} else {
+							result.Add(Tile.Arr("This armor is at full HP.", Color.Yellow, Color.Black));
+						}
+						goto Done;
+					}
+					if(job?.active == true) {
+						if(job.armor == a) {
+							result.Add(Tile.Arr("This armor is currently under repair.", Color.Yellow, Color.Black));
+						} else {
+							result.Add(Tile.Arr("Another armor is currently under repair.", Color.Yellow, Color.Black));
+						}
+						goto Done;
+					}
+					if(unitPrice > player.person.money) {
+						result.Add(Tile.Arr($"You cannot afford repairs", Color.Yellow, Color.Black));
+						goto Done;
+					}
+					result.Add(Tile.Arr($"[Enter] Order repairs", Color.Yellow, Color.Black));
+
+				Done:
+					return result;
+				}).Result
+                ),
             Invoke,
             Escape
             );
-
-        string GetName(Armor a) {
-            var BAR = 8;
-            int available = BAR * Math.Min(a.maxHP, a.desc.maxHP) / Math.Max(1, a.desc.maxHP);
-
-            int active = available * Math.Min(a.hp, a.maxHP) / Math.Max(1, a.maxHP);
-
-            return $"[{new string('=', active)}{new string('.', available - active)}{new string(' ', BAR - available)}] [{a.hp}/{a.maxHP}] {a.source.type.name}";
-        }
-        List<ColoredString> GetDesc(Armor a) {
-            var item = a.source;
-            var result = GenerateDesc(a);
-            int unitPrice = GetPrice(a);
-            if (unitPrice < 0) {
-                result.Add(Tile.Arr("Repair services not available for this armor", Color.Yellow, Color.Black));
-                return result;
-            }
-            int delta = a.maxHP - a.hp;
-            result.Add(Tile.Arr($"Price per HP: {unitPrice}"));
-            result.Add(Tile.Arr($"HP to repair: {delta}"));
-            result.Add(Tile.Arr($"Your money:   {player.person.money}"));
-            result.Add(Tile.Arr($"Full price:   {unitPrice * delta}"));
-            result.Add([]);
-            if (delta <= 0) {
-                if(a.maxHP == 0) {
-                    result.Add(Tile.Arr("This armor cannot be repaired.", Color.Yellow, Color.Black));
-                } else if (a.maxHP < a.desc.maxHP) {
-                    result.Add(Tile.Arr("This armor cannot be repaired any further.", Color.Yellow, Color.Black));
-                } else {
-                    result.Add(Tile.Arr("This armor is at full HP.", Color.Yellow, Color.Black));
-                }
-                goto Done;
-            }
-            if (job?.active == true) {
-                if (job.armor == a) {
-                    result.Add(Tile.Arr("This armor is currently under repair.", Color.Yellow, Color.Black));
-                } else {
-                    result.Add(Tile.Arr("Another armor is currently under repair.", Color.Yellow, Color.Black));
-                }
-                goto Done;
-            }
-            if (unitPrice > player.person.money) {
-                result.Add(Tile.Arr($"You cannot afford repairs", Color.Yellow, Color.Black));
-                goto Done;
-            }
-            result.Add(Tile.Arr($"[Enter] Order repairs", Color.Yellow, Color.Black));
-
-        Done:
-            return result;
-        }
         void Invoke(Armor a) {
             if (job?.active == true) {
                 if (job.armor == a) {
@@ -1247,71 +1252,77 @@ public class ListMenu<T> : IScene {
 
     Sf sf;
     public PlayerShip player;
-    public ListPane<T> list;
-    public DescPanel<T> descPane;
+    public ListControl<T> list;
+    public DescPane<T> desc;
     public ref string title => ref list.title;
 	public Action escape;
-    public ListMenu(SceneCtx c, string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape) {
+
+
+    public ListMenu(SceneCtx c, string title, IEnumerable<T> items, DescPane<T>.GetEntry getEntry, ListControl<T>.Invoke invoke, Action escape) {
         this.player = c.playerShip;
-        sf = new Sf(c.Width, c.Height, Fonts.FONT_8x8);
-        descPane = new DescPanel<T>();
-        this.list = new(title, items, getName, UpdateDesc) {
+        sf = new Sf(c.Width, c.Height, Fonts.FONT_6x8);
+
+
+
+        desc = new DescPane<T>(sf) { pos = (45, 2) };
+        this.list = new(sf, title, items, i => getEntry(i).name, UpdateDesc) {
             invoke = invoke,
-        };
+			pos = (2, 2)
+		};
         void UpdateDesc(T i) {
             if(i != null) {
-                descPane.SetInfo(getName(i), getDesc(i));
+                desc.entry = getEntry(i);
             } else {
-                descPane.Clear();
+                desc.Clear();
             }
         }
         this.escape = escape;
     }
-    void IScene.HandleKey(LibGamer.KB keyboard) {
+
+
+	public ListMenu (SceneCtx c, string title, IEnumerable<T> items, Func<T, string> getName, Func<T, List<Tile[]>> getDesc, ListControl<T>.Invoke invoke, Action escape) {
+		this.player = c.playerShip;
+		sf = new Sf(c.Width, c.Height, Fonts.FONT_6x8);
+
+
+		desc = new DescPane<T>(sf) { pos = (45, 2) };
+		this.list = new(sf, title, items, i => getName(i), UpdateDesc) {
+			invoke = invoke,
+            pos = (2,2)
+		};
+		void UpdateDesc (T i) {
+			if(i != null) {
+				desc.entry = new(getName(i), getDesc(i));
+			} else {
+				desc.Clear();
+			}
+		}
+		this.escape = escape;
+	}
+    void IScene.Update(TimeSpan delta) {
+        list.Update(delta);
+        desc.Update(delta);
+    }
+	void IScene.HandleKey(LibGamer.KB keyboard) {
         if (keyboard.IsPress(KC.Escape)) {
             escape?.Invoke();
         } else {
             list.HandleKey(keyboard);
         }
     }
+    void IScene.HandleMouse(LibGamer.HandState mouse) {
+        list.HandleMouse(mouse);
+    }
     void IScene.Render(TimeSpan delta) {
         sf.Clear();
         sf.RenderBackground();
+
+        list.Render(delta);
+        desc.Render(delta);
         Draw(sf);
     }
 }
-
-public class DescPanel<T> {
-    public delegate List<Tile[]> GetDesc(T t);
-    public record Entry(string name, List<Tile[]> desc);
-    Entry entry;
-    public DescPanel(ListPane<T> list, GetDesc getDesc) {
-        list.indexChanged += i => {
-            if (i != null) {
-                entry = new(list.getName(i), getDesc(i));
-            } else {
-                entry = null;
-            }
-        };
-    }
-    public DescPanel () { }
-
-    public void Clear() {
-        entry = null;
-    }
-    public void SetInfo(string name, List<Tile[]> desc) =>
-        entry = new(name, desc);
-    public void Render(Sf Surface, TimeSpan delta) {
-        Surface.Clear();
-        Surface.Print(0, 0, Tile.Arr(entry.name, ABGR.Yellow, ABGR.Black));
-
-        int y = 2;
-        foreach(var line in entry.desc) {
-            Surface.Print(0, y++, line);
-        }
-    }
-}
-public class ListPane<T> {
+public class ListControl<T> {
     public string title;
     public bool groupMode = true;
     public bool active = true;
@@ -1334,7 +1345,7 @@ public class ListPane<T> {
     private bool enterDown = false;
     private double time;
 
-    private ScrollBar scroll = new(26);
+    private ScrollBar scroll;
     public int? index {
         set {
             _index = value;
@@ -1348,14 +1359,17 @@ public class ListPane<T> {
         get => _index;
     }
     public int count => groupMode ? groups.Length : singles.Count();
-    public T currentItem => index is { } i ? (groupMode ? groups[i].item : singles[i]) : default;
-    public ListPane(string title, IEnumerable<T> items, GetName getName, IndexChanged indexChanged) {
+    public T currentItem => index is { } i and > -1 ? (groupMode ? groups[i].item : singles[i]) : default;
+    Sf on;
+    public (int, int) pos;
+    public ListControl(Sf on, string title, IEnumerable<T> items, GetName getName, IndexChanged indexChanged) {
+        this.on = on;
         this.title = title;
         this.items = items;
         this.getName = getName;
         this.indexChanged = indexChanged;
 
-        scroll = new(26);
+        scroll = new(on, 26);
 
         UpdateIndex();
         time = -0.1;
@@ -1380,6 +1394,7 @@ public class ListPane<T> {
         time = 0;
     }
     public void HandleKey(KB keyboard) {
+
         enterDown = keyboard[KC.Enter, 1];
         void Up(int inc) {
             PlaySound?.Invoke(Tones.pressed);
@@ -1413,7 +1428,7 @@ public class ListPane<T> {
                 case KC.PageDown: Down(26); break;
                 case KC.Enter:
                     if(currentItem is { } i) {
-                        PlaySound(Tones.pressed);
+                        PlaySound?.Invoke(Tones.pressed);
                         invoke?.Invoke(i);
                         UpdateIndex();
                     }
@@ -1438,17 +1453,20 @@ public class ListPane<T> {
     }
 
     bool mouseOnItem;
-    public void ProcessMouse(Hand state) {
-        
+
+    public Hand hand = new();
+    public void HandleMouse(HandState state) {
+        scroll.HandleMouse(state);
+        hand.Update(state);
         var paneRect = new Rect(1, 3, lineWidth + 8, 26);
-        if (mouseOnItem = paneRect.Contains(state.nowPos)) {
+        if (mouseOnItem = paneRect.Contains((state.pos.x / 6, state.pos.y / 8))) {
             var (start, _) = scroll.GetIndexRange();
-            var ind = start + state.nowPos.y - 3;
+            var ind = start + state.pos.y/8 - 3 - pos.Item2;
             if(ind < count) {
                 index = ind;
-                enterDown = state.nowLeft;
+                enterDown = state.leftDown;
                 //TO DO: impl click
-                if (state.left == Pressing.Released) {
+                if (hand.left == Pressing.Released) {
                     invoke?.Invoke(currentItem);
                 }
             }
@@ -1458,9 +1476,8 @@ public class ListPane<T> {
         time += delta.TotalSeconds;
     }
     const int lineWidth = 36;
-    public void Render(Sf Surface, TimeSpan delta) {
-        int x = 0;
-        int y = 0;
+    public void Render(TimeSpan delta) {
+        var (x, y) = pos;
         int w = lineWidth + 7;
 
         var t = title;
@@ -1468,10 +1485,10 @@ public class ListPane<T> {
             w = (int) Main.Lerp(time, -0.1, -0.0, 1, w, 1);
             t = title.LerpString(time, -0.1, 0, 1);
         }
-        Surface.DrawRect(x, y, w, 3, new());
+        on.DrawRect(x, y, w, 3, new());
 
-        Surface.Print(x + 2, y + 1, Tile.Arr(t, active ? Color.Yellow : Color.White, Color.Black));
-        Surface.DrawRect(x, y + 2, w, 26 + 2, new() { connectAbove = true });
+        on.Print(x + 2, y + 1, Tile.Arr(t, active ? Color.Yellow : Color.White, Color.Black));
+        on.DrawRect(x, y + 2, w, 26 + 2, new() { connectAbove = true });
         x += 2;
         y += 3;
         if (count > 0) {
@@ -1506,23 +1523,81 @@ public class ListPane<T> {
                 var key = @$"<S f=""{(active ? ABGR.White : ABGR.Gray)}"">{SMenu.indexToLetter(i - start)}.</S>";
                 var name = Tile.ArrFrom(XElement.Parse($"<S>{$"{key} {n}":lineWidth}</S>"), f, b);
                 if(time < 0) {
-                    Surface.Print(x, y++, name.LerpString(time, -0.1, 0, 1));
+                    on.Print(x, y++, name.LerpString(time, -0.1, 0, 1));
                 } else {
-                    Surface.Print(x, y++, name);
+                    on.Print(x, y++, name);
                 }
             }
         } else {
-            Surface.Print(x, y, Tile.Arr("<Empty>", Color.White, Color.Black));
+            on.Print(x, y, Tile.Arr("<Empty>", Color.White, Color.Black));
         }
+        scroll.Render(delta);
     }
 }
+public record NameDesc {
+	public NameDesc (string name, List<Tile[]> desc) {
+		this.name = name;
+		this.desc = desc;
+	}
+	public NameDesc () { }
+	public string name;
+	public List<Tile[]> desc;
+}
+public class DescPane<T> {
+	public delegate NameDesc GetEntry (T t);
+    public (int, int) pos;
+	public NameDesc entry;
+    Sf on;
+	public DescPane (Sf on, ListControl<T> list, GetEntry getDesc) {
+        this.on = on;
+        list.indexChanged += i => {
+			if(i != null) {
+				entry = getDesc(i);
+			} else {
+				entry = null;
+			}
+		};
+	}
+	public DescPane (Sf on) { this.on = on; }
+    public double time;
+    public void Update(TimeSpan delta) {
+        if(entry == null) {
+            time = Math.Min(0.1, time) - delta.TotalSeconds;
+        } else {
 
+			time = Math.Max(0, time) + delta.TotalSeconds;
+		}
+    }
+	public void Clear () {
+		entry = null;
+	}
+	public void SetEntry (string name, List<Tile[]> desc) =>
+		entry = new(name, desc);
+	public void Render (TimeSpan delta) {
+		var (x, y) = pos;
+		on.DrawRect(x, y, 32, (int)Common.Main.Lerp(time, 0, 0.1, 0, 16, 1), new() {
+		});
+		if(entry is null) return;
+        x += 2;
+        y++;
+		on.Print(x, y, Tile.Arr(entry.name, ABGR.Yellow, ABGR.Black));
+
+		y += 2;
+		foreach(var line in entry.desc) {
+			on.Print(x, y++, line);
+		}
+	}
+}
 public class ScrollBar {
+    public (int, int) pos;
     public int index;
     public int windowSize;
     public int count;
 
-    public ScrollBar(int windowSize) {
+    public Sf on;
+
+    public ScrollBar(Sf on, int windowSize) {
+        this.on = on;
         this.windowSize = windowSize;
     }
     public (int, int) GetIndexRange() {
@@ -1546,16 +1621,17 @@ public class ScrollBar {
     }
     public void Scroll(int delta) {
         index += delta * count / windowSize;
-        index = Math.Clamp(index, 0, count - 25);
+        index = Math.Clamp(index, 0, Math.Max(0, count - 25));
     }
 
     bool mouseOnBar;
     bool clickOnBar;
     int prevClick = 0;
-    public void ProcessMouse(HandState state) {
+    public void HandleMouse(HandState state) {
+        state = state.OnRect(on.rect);
         if (state.on) {
             var (barStart, barEnd) = GetBarRange();
-            var y = state.pos.y;
+            var y = state.pos.y / 8;
             if (state.leftDown) {
 
                 if (clickOnBar) {
@@ -1580,7 +1656,7 @@ public class ScrollBar {
             }
         } else {
             if(clickOnBar && state.leftDown) {
-                var y = state.pos.y;
+                var y = state.pos.y / 8;
                 int delta = y - prevClick;
                 Scroll(delta);
 
@@ -1594,23 +1670,20 @@ public class ScrollBar {
             }
         }
     }
-    public void Render(Sf Surface, TimeSpan delta) {
-        Surface.Clear();
+    public void Render(TimeSpan delta) {
         if(count <= 26) {
             return;
         }
-        Surface.DrawRect(0, 0, 1, 26, new() { width = Line.Single, f = Color.Gray });
-
+        var (x, y) = pos;
+        on.DrawRect(x, y, 1, 26, new() { width = Line.Single, f = Color.Gray });
         var (barStart, barEnd) = GetBarRange();
-
         var (f, b) =
             clickOnBar ?
                 (Color.Black, Color.White) :
             mouseOnBar ?
                 (Color.White, Color.Gray) :
                 (Color.White, Color.Black);
-
-        Surface.DrawRect(0, barStart, 1, barEnd - barStart + 1, new() {
+        on.DrawRect(x, y + barStart, 1, barEnd - barStart + 1, new() {
             width = Line.Double,
             f = f,
             b = b
@@ -1619,8 +1692,9 @@ public class ScrollBar {
 }
 
 public static class SListWidget {
-    public static ListWidget<Item> UsefulItems(IScene prev, PlayerShip player) {
-        ListWidget<Item> screen = null;
+    public static ListWidget<Item> UsefulItems(SceneCtx c) {
+		var (prev, player) = (c.prev, c.playerShip);
+		ListWidget<Item> screen = null;
         IEnumerable<Item> cargoInvokable;
         IEnumerable<Item> installedInvokable;
         List<Item> usable = new();
@@ -1632,7 +1706,7 @@ public static class SListWidget {
         }
         UpdateList();
 
-        return screen = new(
+        return screen = new(c,
             "Use Item",
             usable,
             GetName,
@@ -1664,11 +1738,12 @@ public static class SListWidget {
 
         }
     }
-    public static ListWidget<Device> ManageDevices(IScene prev, PlayerShip player) {
+    public static ListWidget<Device> ManageDevices(SceneCtx c) {
+        (IScene prev, PlayerShip player) = (c.prev, c.playerShip);
         ListWidget<Device> screen = null;
         var disabled = player.energy.off;
         var powered = player.devices.Powered;
-        return screen = new(
+        return screen = new(c,
             "Manage Devices",
             powered,
             GetName,
@@ -1701,9 +1776,10 @@ public static class SListWidget {
             prev.Show();
         }
     }
-    public static ListWidget<IDockable> DockList(IScene prev, List<IDockable> d, PlayerShip player) {
-        ListWidget<IDockable> screen = null;
-        return screen = new(
+    public static ListWidget<IDockable> DockList(SceneCtx c, List<IDockable> d) {
+		var (prev, player) = (c.prev, c.playerShip);
+		ListWidget<IDockable> screen = null;
+        return screen = new(c,
             "Docking",
             d,
             GetName,
@@ -1713,21 +1789,22 @@ public static class SListWidget {
             ) { groupMode=false};
         string GetName(IDockable d) => $"{d.name, -24}"; //{(d.position - player.position).magnitude,4:0}
         List<ColoredString> GetDesc(IDockable d) => [
-			Tile.Arr($"Distance: {(d.position - player.position).magnitude:0}")
+			Tile.Arr($"Distance: {(d.position - c.playerShip.position).magnitude:0}")
         ];
         void InvokeItem(IDockable d) {
-            player.dock = new() { Target = d, Offset = d.GetDockPoints().First() };
+            c.playerShip.dock = new() { Target = d, Offset = d.GetDockPoints().First() };
             Escape();
         }
         void Escape() {
-            prev.Show();
+            c.prev.Show();
         }
     }
-    public static ListWidget<AIShip> Communications(IScene prev, PlayerShip player) {
+    public static ListWidget<AIShip> Communications(SceneCtx c) {
+        var (prev, player) = (c.prev, c.playerShip);
         ListWidget<AIShip> screen = null;
-        screen = new(
+        screen = new(c,
             "Communications",
-            player.wingmates,
+            c.playerShip.wingmates,
             GetName,
             GetDesc,
             InvokeItem,
@@ -1851,37 +1928,36 @@ public class ButtonPane {
 }
 #endif
 
-public class ListWidget<T>:IScene {
-	public Action<IScene> Go { get; set; }
-	public Action<Sf> Draw { get; set; }
-	public Action<SoundCtx> PlaySound { get; set; }
+public class ListWidget<T> {
 
-	public ListPane<T> list;
-    public DescPanel<T> descPane;
+	public ListControl<T> list;
+    public DescPane<T> descPane;
 
     public ref string title => ref list.title;
     public ref bool groupMode => ref list.groupMode;
 
 
 	public Action escape;
-    public Sf Surface;
-    public ListWidget(string title, IEnumerable<T> items, ListPane<T>.GetName getName, DescPanel<T>.GetDesc getDesc, ListPane<T>.Invoke invoke, Action escape){
-        descPane = new DescPanel<T>();
-        list = new(title, items, getName, UpdateDesc) {
+    public Sf sf;
+    public ListWidget(SceneCtx c, string title, IEnumerable<T> items, ListControl<T>.GetName getName, Func<T, List<Tile[]>> getDesc, ListControl<T>.Invoke invoke, Action escape){
+
+        sf = new Sf(32, 32, Fonts.FONT_6x8);
+        descPane = new DescPane<T>(sf);
+        list = new(sf, title, items, getName, UpdateDesc) {
             invoke = invoke,
         };
 
         void UpdateDesc(T i) {
             if (i != null) {
-                descPane.SetInfo(getName(i), getDesc(i));
+                descPane.entry = new(getName(i), getDesc(i));
             } else {
-                descPane.SetInfo("", new());
+                descPane.Clear();
             }
         }
 
         this.escape = escape;
     }
-    public void ProcessKeyboard(KB keyboard) {
+    public void HandleKey(KB keyboard) {
         if (keyboard[KC.Escape] == KS.Press) {
             escape?.Invoke();
         } else {

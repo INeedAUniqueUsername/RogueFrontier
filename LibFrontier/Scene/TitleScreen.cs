@@ -443,6 +443,9 @@ public class TitleScreen : IScene {
 		w.AddEffect(new Heading(playerShip));
 		w.AddEntity(playerShip);
 
+		foreach(var i in 1..100)
+		playerShip.cargo.Add(new Item(w.types.Lookup<ItemType>("item_orator_charm_silence")));
+
 		AddStarterKit(playerShip);
 		//new LiveGame(w, player, playerShip).Save();
 		/*

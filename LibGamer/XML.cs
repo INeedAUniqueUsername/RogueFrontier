@@ -343,6 +343,14 @@ public static class Main {
 				Convert.ToInt32(new Expression(value).Evaluate()) :
 			throw e.Invalid<int>(key)) :
 		fallback;
+	public static uint TryAttUint (this XElement e, string key, uint fallback = 0) =>
+		e.TryAtt(key, out var value) ?
+			(uint.TryParse(value, out var result) ?
+				result :
+			value.Any() ?
+				Convert.ToUInt32(new Expression(value).Evaluate()) :
+			throw e.Invalid<int>(key)) :
+		fallback;
 
 	public static int? TryAttIntNullable(this XElement e, string key, int? fallback=null) =>
 		e.TryAtt(key, out var value) ?
