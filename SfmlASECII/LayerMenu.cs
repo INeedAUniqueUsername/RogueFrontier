@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using SadRogue.Primitives;
 using Console = SadConsole.Console;
-using LibSadConsole;
+using ExtSadConsole;
 using System.Linq;
 
 namespace ASECII {

@@ -1,9 +1,9 @@
-﻿using LibSadConsole;
+﻿using ExtSadConsole;
 using LibGamer;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using LabelButton = LibSadConsole.LabelButton;
+using LabelButton = ExtSadConsole.LabelButton;
 using Console = SadConsole.Console;
 
 namespace RogueFrontier;

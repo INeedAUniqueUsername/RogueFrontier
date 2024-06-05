@@ -16,7 +16,7 @@
 
 		<PackageReference Include="SadConsole.Host.SFML" Version="10.4.0" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-		<ProjectReference Include="..\LibSadConsole\LibSadConsole.csproj" />
+		<ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="Assets\IBMCGA+.font">

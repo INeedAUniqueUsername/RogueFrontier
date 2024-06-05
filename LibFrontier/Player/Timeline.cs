@@ -737,7 +737,7 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
     public delegate IScene GetDockScreen(SceneCtx ctx, Station source);
     public IScene GetScene(SceneCtx ctx, IDockable d) {
         return
-			mainInteractions.Select(m => m.GetScene(ctx, d)).FirstOrDefault(s => s != null) is RogueFrontier.IScene c ?
+			mainInteractions.Select(m => m.GetScene(ctx, d)).FirstOrDefault(s => s != null) is LibGamer.IScene c ?
                 c :
             d is Station st && GetDock(st.type.codename) is G g ?
                 g(ctx, st) :

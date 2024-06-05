@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LibSadConsole;
+namespace ExtSadConsole;
 public enum ButtonStates {
     PrevUp = 1,
     PrevDown = 2,

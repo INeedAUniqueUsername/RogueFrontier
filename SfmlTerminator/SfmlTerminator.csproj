@@ -9,9 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibTerminator\LibTerminator.csproj" />
-    <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-	<ProjectReference Include="..\LibSadConsole\LibSadConsole.csproj" />
+	<ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using LibSadConsole;
+﻿using ExtSadConsole;
 using Newtonsoft.Json;
 using SadConsole;
 using SadConsole.Input;
@@ -14,8 +14,8 @@ using System.Text;
 using static SadConsole.Input.Keys;
 using Console = SadConsole.Console;
 using SadConsole.Renderers;
-using Label = LibSadConsole.Label;
-using LabelButton = LibSadConsole.LabelButton;
+using Label = ExtSadConsole.Label;
+using LabelButton = ExtSadConsole.LabelButton;
 using LibGamer;
 using static SFML.Graphics.Font;
 

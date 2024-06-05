@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using static SadConsole.Input.Keys;
 using Console = SadConsole.Console;
-using LibSadConsole;
+using ExtSadConsole;
 using Newtonsoft.Json.Serialization;
 using System.Threading.Tasks;
 

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Console = SadConsole.Console;
 using LibGamer;
-namespace LibSadConsole; 
+namespace ExtSadConsole; 
 public class CellButton : SadConsole.Console {
     public delegate bool Active();
     public delegate void Click();
