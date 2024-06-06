@@ -364,7 +364,7 @@ public class Power : IPower {
 	public void OnDestroyCheck(PlayerShip player, Projectile p) {
 		if (type.onDestroyCheck && ready) {
 			cooldownLeft = cooldownPeriod;
-			p.damageHP = 0;
+			p.damageLeft = 0;
 			player.ship.damageSystem.Restore();
 			type.Effect.ForEach(e=>e.Invoke(player));
 			if (type.message != null) {

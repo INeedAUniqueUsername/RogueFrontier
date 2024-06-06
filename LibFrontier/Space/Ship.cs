@@ -154,10 +154,10 @@ public class BaseShip {
     }
     public void SetDecelerating(bool decelerating = true) => this.decelerating = decelerating;
     public void ReduceDamage(Projectile p) {
-        var dmgMatched = (int)(p.damageHP * p.desc.CalcSilenceRatio(silence));
+        var dmgMatched = (int)(p.damageLeft * p.desc.CalcSilenceRatio(silence));
         //var dmgSilence = p.damageHP - dmgMatched;
-        var silenceInc = p.desc.silenceInflict * p.damageHP * Math.Min(1, 1 - silence);
-        p.damageHP = dmgMatched;
+        var silenceInc = p.desc.silenceInflict * p.damageLeft * Math.Min(1, 1 - silence);
+        p.damageLeft = dmgMatched;
 
         if (devices.Shield.Any()) {
             foreach (var s in devices.Shield) {
@@ -175,7 +175,7 @@ public class BaseShip {
             blindTicks += blind.Roll();
             blindTicks = Math.Min(blindTicks, 300);
         }
-        int knockback = p.desc.knockback * p.damageHP / Math.Max(1, dmgMatched);
+        int knockback = p.desc.knockback * p.damageLeft / Math.Max(1, dmgMatched);
         velocity += (p.velocity - velocity).WithMagnitude(knockback);
         disruption = p.desc.Disruptor?.GetHijack() ?? disruption;
     }

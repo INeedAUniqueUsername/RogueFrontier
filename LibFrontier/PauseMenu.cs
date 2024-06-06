@@ -17,7 +17,7 @@ public class PauseScreen : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 
 	public PauseScreen(Mainframe playerMain) {
-        sf = new(playerMain.Width, playerMain.Height, Fonts.FONT_8x8);
+        sf = new(playerMain.Width * 4/3, playerMain.Height, Fonts.FONT_6x8);
 		this.playerMain = playerMain;
         this.sparkle = new SparkleFilter(Width, Height);
         int x = 2;

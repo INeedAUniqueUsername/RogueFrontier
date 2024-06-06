@@ -6,13 +6,16 @@ public class ScanTransition : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	IScene next;
+    Sf sf_next;
     Sf sf;
     public int Width => sf.Width;
     public int Height => sf.Height;
     double y;
-    public ScanTransition(IScene next) {
+    public ScanTransition(IScene next, Sf sf_next) {
         y = 0;
         this.next = next;
+        this.sf_next = sf_next;
+        this.sf = Sf.From(sf_next);
         next.Render(new TimeSpan());
     }
     public void HandleKey(KB keyboard) {
@@ -22,6 +25,7 @@ public class ScanTransition : IScene {
         }
     }
     public void Update(TimeSpan delta) {
+        next.Update(delta);
         if (y < sf.Height) {
             y += delta.TotalSeconds * sf.Height * 3;
         } else {
@@ -41,7 +45,11 @@ public class ScanTransition : IScene {
         next.Render(delta);
         next.Draw -= SetSf;
 
-		sf.Clear();
+        if(sf_next != null) {
+            sf = Sf.From(sf_next);
+        } else {
+            sf.Clear();
+        }
         var last = (int)Math.Min(this.y - 1, Height - 1);
 
         int y;

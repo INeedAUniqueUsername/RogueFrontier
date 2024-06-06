@@ -150,7 +150,7 @@ class PlayerCreator : IScene {
         //We print each line twice since the art gets flattened by the square font
         //Ideally the art looks like the original with an added 3D effect
 
-        sf_img.DrawRect(17, y + 2, 3, 3, new());
+        Sf.DrawRect(sf_img, 17, y + 2, 3, 3, new());
         sf_img.Tile[18, y + 3] = current.tile;
         foreach (var (p,t) in current.playerSettings.heroImage) {
 

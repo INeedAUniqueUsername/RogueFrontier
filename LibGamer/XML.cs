@@ -467,6 +467,9 @@ public static class Main {
 	}
 
 	public static List<Tile[]> SplitLine(this Tile[] s, int width) {
+		if(s.Length == 0)
+			return [[new Tile(0, 0, ' ')]];
+
 		var result = new List<Tile[]>();
 		var column = 0;
 		var line = new List<Tile>();
@@ -486,20 +489,20 @@ public static class Main {
 				var g = c.Glyph;
 				if (g == ' ') {
 					AddWord();
-					line.Append(c);
+					line.Add(c);
 					column++;
 				} else if (g == '\n') {
 					AddWord();
 					column = 0;
 				} else if (g == '-') {
-					word.Append(c);
+					word.Add(c);
 					AddWord();
 				} else {
-					word.Append(c);
+					word.Add(c);
 					column++;
 				}
 			} else {
-				word.Append(c);
+				word.Add(c);
 				AddLine();
 			}
 		}

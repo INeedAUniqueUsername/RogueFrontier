@@ -65,7 +65,7 @@ public class Dialog : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	public Dialog (SceneCtx ctx, string descStr, List<NavChoice> navigation){
-		surf = new Sf(ctx.Width, ctx.Height, Fonts.FONT_8x8);
+		surf = new Sf(ctx.Width * 4 / 3, ctx.Height, Fonts.FONT_6x8);
 		this.descStr = descStr;
 		
 		var quoted = false;
@@ -121,7 +121,8 @@ public class Dialog : IScene {
 				foreach(var (i, option) in navigation.Select((n, i) => (i, n))) {
 					keyMap[char.ToUpper(option.key)] = i;
 				}
-				PrintComplete();
+				PrintComplete?.Invoke();
+				descIndex++;
 			}
 		}
 		if(charging && navIndex != -1 && navigation[navIndex].enabled) {
@@ -135,7 +136,7 @@ public class Dialog : IScene {
 			if(c >= maxCharge) {
 				//Make sure we aren't sent back to the screen again
 				prevEnter = false;
-				navigation[navIndex].next.Invoke(this);
+				Go(navigation[navIndex].next?.Invoke(this));
 				c = maxCharge - 0.01;
 			}
 		} else {
@@ -153,15 +154,21 @@ public class Dialog : IScene {
 	}
 	void IScene.Render (TimeSpan delta) {
 		//this.RenderBackground();
-		if(background != null) {
-			foreach(((var px, var py), var t) in background) {
-				surf.Tile[px, py] = t;
+		surf.Clear();
+		surf.RenderBackground();
+		try {
+			if(background != null) {
+				foreach(((var px, var py), var t) in background) {
+					surf.Tile[px, py] = t;
+				}
 			}
+		} catch(Exception e) {
+
 		}
 		int descX = surf.Width / 2 + 8, descY = 8;
 
 		int left = descX;
-		int top = lineCount + descY;
+		int top = descY;
 		int y = top;
 		int x = left;
 		for(int i = 0; i < descIndex; i++) {
@@ -181,13 +188,26 @@ public class Dialog : IScene {
 		} else {
 			var barLength = 4;
 			var arrow = $"{new string('-', barLength - 1)}>";
+			var headless = $"{new string('-', barLength - 1)} ";
 			x = descX - barLength;
 			y = descY + desc.Count(c => c.Glyph == '\n') + 3;
 			foreach(var (c, i) in charge.Select((c, i) => (c, i))) {
-				surf.Print(x, y + i, Tile.Arr(arrow[0..(int)(barLength * Math.Clamp(c / maxCharge, 0, 1))], ABGR.Gray, ABGR.Black));
+				var en = navigation[i].enabled;
+				if(en) {
+					surf.Print(x, y + i, Tile.Arr(arrow[0..(int)(barLength * Math.Clamp(c / maxCharge, 0, 1))], ABGR.Gray, ABGR.Black));
+				}
+				
+				surf.Print(x + 4, y + i, Tile.Arr(navigation[i].name,
+
+					en ? ABGR.White : ABGR.Gray, ABGR.Black));
 			}
 			if(navIndex > -1) {
-				surf.Print(x, y + navIndex, Tile.Arr(arrow, ABGR.Gray, ABGR.Black));
+
+				if(navigation[navIndex].enabled) {
+					surf.Print(x, y + navIndex, Tile.Arr(arrow, ABGR.Gray, ABGR.Black));
+				} else {
+					surf.Print(x, y + navIndex, Tile.Arr(headless, ABGR.Gray, ABGR.Black));
+				}
 				var ch = charge[navIndex];
 				surf.Print(x, y + navIndex, Tile.Arr(arrow.Substring(0, (int)(barLength * Math.Clamp(ch / maxCharge, 0, 1))), ch < maxCharge ? ABGR.Yellow : ABGR.Orange, ABGR.Black));
 			}
@@ -241,7 +261,7 @@ public class Dialog : IScene {
 				PlaySound?.Invoke(Tones.pressed);
 				navIndex = (navIndex - 1 + navigation.Count) % navigation.Count;
 			}
-			if(kb[KC.Down] == KS.Down) {
+			if(kb[KC.Down] == KS.Press) {
 				PlaySound?.Invoke(Tones.pressed);
 				navIndex = (navIndex + 1) % navigation.Count;
 			}

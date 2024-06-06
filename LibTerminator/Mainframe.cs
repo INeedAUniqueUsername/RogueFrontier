@@ -1,6 +1,9 @@
 ﻿using Common;
 using LibGamer;
-using RogueFrontier;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static LibGamer.Sf;
 namespace LibTerminator;
 public class Mainframe : IScene {
 
@@ -74,7 +77,7 @@ public class Mainframe : IScene {
 		{
 			var x = 1;
 			var y = 1;
-			sf_ui.DrawRect(x, y, 32, 3, new() {
+			Sf.DrawRect(sf_ui, x, y, 32, 3, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});
@@ -85,7 +88,7 @@ public class Mainframe : IScene {
 		{
 			var x = 1;
 			var y = Height - 26 - 5;
-			sf_ui.DrawRect(x, y, 32, 5, new() {
+			Sf.DrawRect(sf_ui, x, y, 32, 5, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});
@@ -98,7 +101,7 @@ public class Mainframe : IScene {
 		{
 			var x = 1; var y = Height - 26;
 			var _m = player.messages;
-			sf_ui.DrawRect(x, y, 32, 26, new() {
+			Sf.DrawRect(sf_ui, x, y, 32, 26, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});
@@ -120,7 +123,7 @@ public class Mainframe : IScene {
 		}
 		if(level.entities.Contains(marker)){
 			int x = Width/2 - 16, y = 1;
-			sf_ui.DrawRect(x, y, 32, 5, new() {
+			Sf.DrawRect(sf_ui, x, y, 32, 5, new() {
 				f = tint,
 				b = ABGR.SetA(ABGR.Black, 128)
 			});

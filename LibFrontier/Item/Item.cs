@@ -6,6 +6,7 @@ using Helper = Common.Main;
 using Newtonsoft.Json;
 using System.Xml.Linq;
 using LibGamer;
+using static RogueFrontier.ItemType;
 
 namespace RogueFrontier;
 public class Item {
@@ -298,7 +299,7 @@ public class Armor : Device {
         }
     }
     public int Absorb(Projectile p) {
-        if (p.damageHP < 1)
+        if (p.damageLeft < 1)
             return 0;
         //If we have a minAbsorb, then we absorb damage even at 0 hp
         int damageWall = Math.Min(maxHP, desc.minAbsorb);
@@ -319,8 +320,8 @@ public class Armor : Device {
             }
             //If we still have something to absorb, do it now
             if (damageWall > 0) {
-                var deltaHP = Math.Min(p.damageHP, damageWall);
-                p.damageHP -= deltaHP;
+                var deltaHP = Math.Min(p.damageLeft, damageWall);
+                p.damageLeft -= deltaHP;
                 lifetimeDamageAbsorbed += deltaHP * 5;
 
                 ApplyDecay();
@@ -341,15 +342,15 @@ public class Armor : Device {
         }
         //Check if we have a kill threshold
         if (hp <= killHP) {
-            if (p.damageHP < killHP) {
-                p.damageHP = 0;
-                var amount = p.damageHP;
+            if (p.damageLeft < killHP) {
+                p.damageLeft = 0;
+                var amount = p.damageLeft;
                 p.hitBlocked = true;
                 //Remember this but take no damage
                 OnAbsorb(amount);
                 return amount;
             } else {
-                p.damageHP -= killHP;
+                p.damageLeft -= killHP;
                 lastDamageTick = p.world.tick;
                 //Otherwise, we fall
                 hp = 0;
@@ -358,7 +359,7 @@ public class Armor : Device {
             }
         }
         var multiplier = p.desc.armorFactor;// + lifetimeDamageAbsorbed * desc.lifetimeDegrade;
-        var absorbed = (int)Math.Clamp(p.damageHP * multiplier, 0, hp);
+        var absorbed = (int)Math.Clamp(p.damageLeft * multiplier, 0, hp);
         if(desc.maxAbsorb > -1 && desc.maxAbsorb < absorbed) {
             absorbed = desc.maxAbsorb;
             //lifetimeDamageAbsorbed += (absorbed - desc.maxAbsorb) * 5;
@@ -375,10 +376,10 @@ public class Armor : Device {
             p.hitReflected = true;
             return absorbed;
         }
-        p.damageHP = Math.Max(0, p.damageHP - (int)Math.Ceiling(Math.Max(absorbed, damageWall) / multiplier));
+        p.damageLeft = Math.Max(0, p.damageLeft - (int)Math.Ceiling(Math.Max(absorbed, damageWall) / multiplier));
         return absorbed;
         void ApplyDecay() {
-            if (p.desc.Decay is { } d) {
+            if (p.desc.Corrode is { } d) {
                 decay.Add(new(d, p));
             }
         }
@@ -686,7 +687,7 @@ public class Shield : Device {
     }
     public void Absorb(Projectile p) {
         var multiplier = p.desc.shieldFactor;
-        var absorbed = (int)Math.Clamp(p.damageHP * (1 - p.desc.shieldDrill) * absorbFactor * multiplier, 0, maxAbsorb);
+        var absorbed = (int)Math.Clamp(p.damageLeft * (1 - p.desc.shieldDrill) * absorbFactor * multiplier, 0, maxAbsorb);
         if (absorbed > 0) {
             hp -= absorbed;
             lifetimeDamageAbsorbed += absorbed;
@@ -697,7 +698,7 @@ public class Shield : Device {
                 p.hitReflected = true;
                 return;
             }
-            p.damageHP -= (int)Math.Ceiling(absorbed / multiplier);
+            p.damageLeft -= (int)Math.Ceiling(absorbed / multiplier);
         }
     }
 }
@@ -1056,7 +1057,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         var criticalChance = 1.0 / (1 + criticalFactor);
         foreach (var p in projectiles) {
             if (owner.world.karma.NextDouble() > criticalChance) {
-                p.damageHP *= 3;
+                p.damageLeft *= 3;
             }
         }
         projectiles.ForEach(p => p.onHitActive += this);

@@ -1,5 +1,6 @@
 ﻿using Common;
 using LibGamer;
+using System;
 namespace LibTerminator;
 public interface IEntity {
 	XYI pos { get; }

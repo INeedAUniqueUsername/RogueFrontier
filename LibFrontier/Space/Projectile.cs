@@ -28,7 +28,9 @@ public class Projectile : MovingObject {
     public ITrail trail;
     public FragmentDesc desc;
     public Maneuver maneuver;
-    public int damageHP;
+    public int damageFull;
+    public int damageLeft;
+    public int damageApplied => damageFull - damageLeft;
     public int armorSkip;
     public int ricochet = 0;
     class IntervalFragment {
@@ -44,7 +46,7 @@ public class Projectile : MovingObject {
     public bool hitBlocked;
     public bool hitHull;
     public bool hitKill;
-    public bool hitHandled => damageHP == 0 || hitReflected || hitBlocked;
+    public bool hitHandled => damageLeft == 0 || hitReflected || hitBlocked;
     public double detonateRadius;
     public HashSet<Entity> exclude = new();
     //List of projectiles that were created from the same fragment
@@ -71,7 +73,8 @@ public class Projectile : MovingObject {
         this.intervalFragments = desc.Fragment.Where(f => f.fragmentInterval > 0).Select(f => new IntervalFragment(f)).ToList();
         this.trail = (ITrail)desc.Trail ?? new SimpleTrail(desc.effect.Original);
         this.maneuver = maneuver;
-        this.damageHP = desc.damageHP.Roll();
+        this.damageFull = desc.damageHP.Roll();
+        this.damageLeft = damageFull;
         this.armorSkip = desc.armorSkip;
         this.ricochet = desc.ricochet;
         this.detonateRadius = desc.detonateRadius;

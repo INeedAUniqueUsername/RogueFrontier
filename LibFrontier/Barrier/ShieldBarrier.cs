@@ -42,7 +42,7 @@ class ShieldBarrier : ProjectileBarrier {
         }
         blocked.Add(other);
         other.lifetime = 0;
-        other.damageHP = 0;
+        other.damageLeft = 0;
 
     }
 }
@@ -78,7 +78,7 @@ class BubbleBarrier : ProjectileBarrier {
         }
         blocked.Add(other);
         other.lifetime = 0;
-        other.damageHP = 0;
+        other.damageLeft = 0;
 
     }
 }

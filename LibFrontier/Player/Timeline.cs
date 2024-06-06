@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Common;
 using LibGamer;
 using Newtonsoft.Json;
@@ -17,7 +18,89 @@ public class TradeMenu: IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 
-	public TradeMenu (SceneCtx ctx, IDockable source, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
+    public TradeMenu (SceneCtx ctx, ITrader trader, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
+    
+    
+		this.prev = ctx.prev;
+		this.sf = new Sf(ctx.Width * 4 / 3, ctx.Height, Fonts.FONT_6x8);
+		this.player = ctx.playerShip.person;
+		descPane = new DescPane<Item>(sf) { pos = (45, 2) };
+		playerPane = new(sf, (2, 2), ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, SetDesc) {
+			active = false,
+			invoke = i => {
+				ctx.playerShip.cargo.Remove(i);
+				trader.cargo.Add(i);
+				dockedPane.UpdateIndex();
+			},
+		};
+		dockedPane = new(sf, (81, 2), trader.name, trader.cargo, i => i.name, SetDesc) {
+			active = true,
+			invoke = i => {
+				ctx.playerShip.cargo.Add(i);
+				trader.cargo.Remove(i);
+				playerPane.UpdateIndex();
+			},
+		};
+    }
+
+	Player player;
+
+	ListControl<Item> playerPane, dockedPane;
+
+	DescPane<Item> descPane;
+
+	IScene prev;
+	Sf sf;
+	private void SetDesc (Item i) {
+		if(i == null) {
+			descPane.Clear();
+		} else {
+
+			List<Tile[]> desc = [.. i.type.desc.SplitLine(42).Select(line => Tile.Arr(line, ABGR.White, ABGR.Black))];
+
+
+			descPane.SetEntry(i.name, desc);
+		}
+	}
+	bool playerSide {
+		set {
+			dockedPane.active = !(playerPane.active = value);
+			SetDesc(currentPane.currentItem);
+		}
+		get => playerPane.active;
+	}
+	ListControl<Item> currentPane => playerSide ? playerPane : dockedPane;
+	void IScene.Update (TimeSpan delta) {
+		playerPane.Update(delta);
+		dockedPane.Update(delta);
+		descPane.Update(delta);
+	}
+	public void HandleKey (KB kb) {
+		if(kb[KC.Escape] == KS.Press) {
+			Go(prev);
+		} else {
+			if(kb[KC.Left] == KS.Press) {
+				playerSide = true;
+			}
+			if(kb[KC.Right] == KS.Press) {
+				playerSide = false;
+			}
+			currentPane.HandleKey(kb);
+		}
+	}
+	public void Render (TimeSpan delta) {
+		sf.Clear();
+		sf.RenderBackground();
+
+		int y = 4;
+		var f = ABGR.White;
+		var b = ABGR.Black;
+		sf.Print(4, y++, Tile.Arr($"Money: {$"{player.money}".PadLeft(8)}", f, b));
+
+		dockedPane.Render(delta);
+		playerPane.Render(delta);
+		descPane.Render(delta);
+		Draw?.Invoke(sf);
 	}
 }
 public class IntroMeeting : IPlayerInteraction {
@@ -700,6 +783,9 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
 
 		item_spec_amethyst_laser_i = 0,
 
+
+		item_constellation_id = 0,
+
 		item_amethyst_armor_polish = 0,
 	}.ToDict<int>();
     public Timeline(PlayerShip playerShip) {
@@ -732,7 +818,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
     
     }
     public void Update(PlayerShip playerShip) {
-
     }
     public delegate IScene GetDockScreen(SceneCtx ctx, Station source);
     public IScene GetScene(SceneCtx ctx, IDockable d) {
@@ -1353,17 +1438,16 @@ upon you.""",
                     ]));
             }
 
-            return screen = new(c, $"{playerShip.name}: Cargo", playerShip.cargo.Where(i => dict.ContainsKey(i.type.codename)), (Item i) => i.name, GetDesc, Choose, Escape);
-            List<Tile[]> GetDesc (Item i) {
-                List<Tile[]> result = [];
-                var desc = i.type.desc.SplitLine(64);
-                if (desc.Any()) {
-                    result.AddRange(desc.Select(c => Tile.Arr(c, ABGR.White, ABGR.Black)));
-                    result.Add([]);
-                }
-                result.Add(Tile.Arr("[Enter] Donate", ABGR.Yellow, ABGR.Black));
-                return result;
-            }
+            return screen = new(c,
+                $"{playerShip.name}: Cargo",
+                playerShip.cargo.Where(i => dict.ContainsKey(i.type.codename)),
+                i => new ListEntry(i.name, [
+					[..i.type.desc.Select(c => new Tile(ABGR.White, ABGR.Black, c))],
+					[],
+                    Tile.Arr("[Enter] Donate", ABGR.Yellow, ABGR.Black)
+                    ]),
+                
+                Choose, Escape);
             void Choose(Item i) {
                 playerShip.cargo.Remove(i);
                 dict[i.type.codename]();

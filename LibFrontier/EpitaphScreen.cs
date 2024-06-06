@@ -17,8 +17,8 @@ public class EpitaphScreen : IScene {
         this.playerMain = playerMain;
         this.epitaph = epitaph;
         this.sf_ui = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_6x8);
-		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height / 4 - 4), "Resurrect", Resurrect));
-		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height / 4 - 2), "TitleScreen", Exit));
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height * 3 / 4 - 4), "Resurrect", Resurrect));
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height * 3 / 4 - 2), "TitleScreen", Exit));
 
 		var size = epitaph.deathFrame.GetLength(0);
         sf_img = new Sf(size, size, Fonts.FONT_8x8) { pos = (playerMain.sf.Width - size, 0) };

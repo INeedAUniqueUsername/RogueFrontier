@@ -232,7 +232,7 @@ public class AmethystStore : StationBehavior, Ob<Station.Destroyed>, Ob<Station.
             if (!damaged.TryGetValue(pl, out var d)) {
                 damaged[pl] = 0;
             }
-            d = damaged[pl] += projectile.damageHP;
+            d = damaged[pl] += projectile.damageApplied;
             if (d > 80) {
                 //station.weapons.ForEach(w => w.onFire += this);
                 station.weapons.ForEach(w => w.SetTarget(pl));
@@ -247,7 +247,7 @@ public class AmethystStore : StationBehavior, Ob<Station.Destroyed>, Ob<Station.
                 }
             }
         }
-        damageTaken += projectile.damageHP;
+        damageTaken += projectile.damageLeft;
         if(damageTaken > 80) {
             if (shine.ready) {
                 shine.Invoke(station);

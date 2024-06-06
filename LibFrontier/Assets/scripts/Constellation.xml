@@ -115,7 +115,7 @@
 			/>
 	</StationType>
 	<StationType	codename="station_constellation_habitat"
-					name=		"Constellation Habitat"
+					name=		"Constellation Shelter"
 					sovereign=	"sovereign_constellation"
 
 					crimeOnDestroy="true"
@@ -146,8 +146,18 @@
 		<HeroImage path="Assets/ConstellationAstra.asc"/>
 		-->
 	</StationType>
+
+	<ItemType	codename=	"item_constellation_id"
+		name=		"Constellation defense tracker"
+		level=		"1"
+		mass=		"2000"
+		value=		"200"
+		desc=		"The Constellation Militia uses this tracking device to maintain surveillance over enemy combatants and low-level personnel alike."
+		>
+	</ItemType>
+
 	<StationType	codename="station_armor_shop"
-					name=		"Armor shop"
+					name=		"Corporate armor shop"
 					sovereign=	"sovereign_constellation"
 
 					crimeOnDestroy="true"
@@ -194,7 +204,7 @@
 	</StationType>
 
 	<StationType	codename="station_arms_dealer"
-					name=		"Arms dealer"
+					name=		"Corporate arms dealer"
 					sovereign=	"sovereign_constellation"
 					crimeOnDestroy="true"
 

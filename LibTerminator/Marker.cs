@@ -1,5 +1,6 @@
-﻿using Common;
+using Common;
 using LibGamer;
+using System;
 namespace LibTerminator;
 
 public class Marker : IEntity, IActor {

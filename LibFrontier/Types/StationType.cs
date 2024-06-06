@@ -7,6 +7,7 @@ using System.Linq;
 using C = System.Drawing.Color;
 using LibGamer;
 using System.IO;
+using static RogueFrontier.ItemType;
 
 namespace RogueFrontier;
 

@@ -2,7 +2,9 @@
 using LibGamer;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using static Common.Main;
@@ -16,80 +18,83 @@ public partial class Runner : Node2D {
 	HashSet<KC> down = [];
 	KB kb = new();
 	HandState hand = new((0, 0), 0, false, false, false, true);
-	public override void _Ready () {
-		var surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
-		ConcurrentDictionary<Sf, Surface> surfaces = new();
-		ConcurrentDictionary<Tf, SurfaceFont> fonts = [];
-		ConcurrentDictionary<SoundCtx, AudioStreamPlayer2D> sounds = new();
-		ConcurrentDictionary<byte[], AudioStream> streams = new();
-		void Go (IScene next) {
-			if(current is { } prev) {
-				prev.Go -= Go;
-				prev.Draw -= Draw;
-				prev.PlaySound -= PlaySound;
-			}
-			if(next == null) {
-				throw new Exception("Main scene cannot be null");
-			}
-			current = next;
-			current.Go += Go;
-			current.Draw += Draw;
-			current.PlaySound += PlaySound;
-		};
-		void Draw (Sf sf) {
-			var c = surfaces.GetOrAdd(sf, sf => {
-				var s = surface.Instantiate<Surface>();
-				AddChild(s);
-				s.Show();
-				s.GridWidth = sf.Width;
-				s.GridHeight = sf.Height;
-				var pos = sf.pos * sf.font.GlyphSize;
-				s.Position = new Vector2(pos.xf, pos.yf);
-				s.font = fonts.GetOrAdd(sf.font, f => {
-					var i = Image.Create(f.Width, f.Height, false, Image.Format.Rgba8);
-					i.LoadPngFromBuffer(f.data);
-					return new SurfaceFont() {
-						GlyphWidth = f.GlyphWidth,
-						GlyphHeight = f.GlyphHeight,
-						GlyphPadding = 0,
-						SolidGlyphIndex = f.solidGlyphIndex,
-						Columns = f.cols,
-						Texture = ImageTexture.CreateFromImage(i)
-					};
-				});
-				return s;
-			});
-			c.Clear();
-			foreach(var ((x, y), t) in sf.Active) {
-				c.Print(x, y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
-			}
-			c.Show();
-			//c.QueueRedraw();
-			return;
-		}
-		void PlaySound (SoundCtx s) {
-			var snd = sounds.GetOrAdd(s, s => {
-				var snd = new AudioStreamPlayer2D();
-				s.Stop = snd.Stop;
-				s.IsPlaying = () => snd.Playing;
-				snd.Finished += () => {
 
-				};
-				AddChild(snd);
-				return snd;
-			});
-			snd.Stream = streams.GetOrAdd(s.data, d => {
-				var str = new AudioStreamWav();
-				str.Data = d;
-				str.Format = AudioStreamWav.FormatEnum.Format16Bits;
-				str.Stereo = true;
-				return str;
-			});
-			//snd.VolumeDb = s.volume;
-			snd.Position = new Vector2(s.pos.x, s.pos.y);
-			if(snd.Playing) snd.Stop();
-			//snd.Play();
+
+	PackedScene surface = ResourceLoader.Load<PackedScene>("res://Surface.tscn");
+	ConcurrentDictionary<Sf, Surface> surfaces = new();
+	ConcurrentDictionary<Tf, SurfaceFont> fonts = [];
+	ConcurrentDictionary<SoundCtx, AudioStreamPlayer2D> sounds = new();
+	ConcurrentDictionary<byte[], AudioStream> streams = new();
+	public override void _Ready () {
+		
+	}
+	public void Go (IScene next) {
+		if(current is { } prev) {
+			prev.Go -= Go;
+			prev.Draw -= Draw;
+			prev.PlaySound -= PlaySound;
 		}
+		if(next == null) {
+			throw new Exception("Main scene cannot be null");
+		}
+		current = next;
+		current.Go += Go;
+		current.Draw += Draw;
+		current.PlaySound += PlaySound;
+	}
+	public void Draw (Sf sf) {
+		var c = surfaces.GetOrAdd(sf, sf => {
+			var s = surface.Instantiate<Surface>();
+			AddChild(s);
+			s.Show();
+			s.GridWidth = sf.Width;
+			s.GridHeight = sf.Height;
+			var pos = sf.pos * sf.font.GlyphSize;
+			s.Position = new Vector2(pos.xf, pos.yf);
+			s.font = fonts.GetOrAdd(sf.font, f => {
+				var i = Image.Create(f.Width, f.Height, false, Image.Format.Rgba8);
+				i.LoadPngFromBuffer(f.data);
+				return new SurfaceFont() {
+					GlyphWidth = f.GlyphWidth,
+					GlyphHeight = f.GlyphHeight,
+					GlyphPadding = 0,
+					SolidGlyphIndex = f.solidGlyphIndex,
+					Columns = f.cols,
+					Texture = ImageTexture.CreateFromImage(i)
+				};
+			});
+			return s;
+		});
+		c.Clear();
+		foreach(var ((x, y), t) in sf.Active) {
+			c.Print(x, y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
+		}
+		c.Show();
+		//c.QueueRedraw();
+		return;
+	}
+	public void PlaySound (SoundCtx s) {
+		var snd = sounds.GetOrAdd(s, s => {
+			var snd = new AudioStreamPlayer2D();
+			s.Stop = snd.Stop;
+			s.IsPlaying = () => snd.Playing;
+			snd.Finished += () => {
+
+			};
+			AddChild(snd);
+			return snd;
+		});
+		snd.Stream = streams.GetOrAdd(s.data, d => {
+			var str = new AudioStreamWav();
+			str.Data = d;
+			str.Format = AudioStreamWav.FormatEnum.Format16Bits;
+			str.Stereo = true;
+			return str;
+		});
+		//snd.VolumeDb = s.volume;
+		snd.Position = new Vector2(s.pos.x, s.pos.y);
+		if(snd.Playing) snd.Stop();
+		//snd.Play();
 	}
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process (double delta) {

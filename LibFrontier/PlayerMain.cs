@@ -328,7 +328,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    SubGo(new ScanTransition(scene));
+                    SubGo(new ScanTransition(scene, sf));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -396,7 +396,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 if (scene != null) {
                     playerShip.DisengageAutopilot();
                     dock.Clear();
-                    SubGo(new ScanTransition(scene));
+                    SubGo(new ScanTransition(scene, sf));
                 } else {
                     playerShip.AddMessage(new Message($"Stationed on {dock.Target.name}"));
                 }
@@ -484,13 +484,13 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
                     vignette.Render(delta);     Draw(vignette.sf);
 
-                    uiMain.Render(delta);       Draw(uiMain.sf);
-                    uiEdge.Render(delta);       Draw(uiEdge.sf);
+					uiMain.Render(delta);       Draw(uiMain.sf_ui);
+					uiEdge.Render(delta);       Draw(uiEdge.sf);
                     uiMinimap.Render(delta);    Draw(uiMinimap.sf);
                 } else {
                     uiMegamap.Render(delta);    Draw(uiMegamap.sf);
                     vignette.Render(delta);     Draw(vignette.sf);
-                    uiMain.Render(delta);       Draw(uiMain.sf);
+                    uiMain.Render(delta);       Draw(uiMain.sf_ui);
                     uiEdge.Render(delta);       Draw(uiEdge.sf);
                 }
             } else {
@@ -512,7 +512,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                         uiBack.Render(delta);       Draw?.Invoke(uiBack.sf);
                         uiViewport.Render(delta);   Draw?.Invoke(uiViewport.sf);
                     }
-                    uiMegamap.Render(delta);        Draw?.Invoke(uiMain.sf);
+                    uiMegamap.Render(delta);        Draw?.Invoke(uiMain.sf_ui);
                     vignette.Render(delta);         Draw?.Invoke(vignette.sf);
                 } else {
                     uiMegamap.Render(delta);        Draw?.Invoke(uiMegamap.sf);
@@ -1049,7 +1049,7 @@ public class Megamap {
             if(viewScale > 1) {
 				int w = (int)(Width / (viewScale) - 1);
 				int h = (int)(Height / (viewScale) - 1);
-				sf.DrawRect(Width / 2 - w / 2, Height / 2 - h / 2, w, h, new SMenu.RectOptions() {
+				Sf.DrawRect(sf, Width / 2 - w / 2, Height / 2 - h / 2, w, h, new() {
                     b = ABGR.Transparent,
                 });
             }
@@ -1333,18 +1333,17 @@ public class Readout {
     public double viewScale;
 
     public int arrowDistance;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf_ui.Width;
+    public int Height => sf_ui.Height;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
-    public Sf sf;
+    public Sf sf_ui;
     public Readout(Monitor m) {
         camera = m.camera;
         player = m.playerShip;
-        sf = new Sf(m.Width, m.Height, Fonts.FONT_6x8);
-
-        //arrowDistance = Math.Min(Width, Height)/2 - 6;
-        arrowDistance = 24;
+		sf_ui = new Sf(m.Width * 4/3, m.Height, Fonts.FONT_6x8);
+		//arrowDistance = Math.Min(Width, Height)/2 - 6;
+		arrowDistance = 24;
         /*
         char[] particles = {
             '%', '&', '?', '~'
@@ -1397,19 +1396,20 @@ public class Readout {
         }
     }
     public void Render(TimeSpan drawTime) {
-        sf.Clear();
+        sf_ui.Clear();
         var messageY = Height * 3 / 5;
         int targetX = 48, targetY = 1;
         int tick = player.world.tick;
         for (int i = 0; i < player.messages.Count; i++) {
             var message = player.messages[i];
             var line = message.Draw();
-            var x = Width * 3 / 4 - line.Count();
-            sf.Print(x, messageY, line);
+            var xStart = 36;
+            var x = xStart - line.Count();
+            sf_ui.Print(x, messageY, line);
             if (message is Transmission t) {
                 //Draw a line from message to source
 
-                var screenCenterOffset = new XY(Width * 3 / 4, Height - messageY) - screenCenter;
+                var screenCenterOffset = ((xStart, Height - messageY) - screenCenter) * (1, 1);
                 var messagePos = (player.position + screenCenterOffset).roundDown;
 
                 var sourcePos = t.source.position.roundDown;
@@ -1418,17 +1418,17 @@ public class Readout {
                     continue;
                 }
 
-                int screenX = Width * 3 / 4;
+                int screenX = xStart;
                 int screenY = messageY;
 
-                var (f, b) = line.Any() ? (line[0].Foreground, line[0].Background) : (ABGR.White, ABGR.Transparent);
+                var (f, b) = line.Any() ? (line[0].Foreground, ABGR.Transparent) : (ABGR.White, ABGR.Transparent);
 
 
                 var lineWidth = Line.Single;
 
                 screenX++;
                 messagePos.x++;
-                sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                     e = Line.Single,
                     //n = Line.Single,
                     //s = Line.Single
@@ -1439,7 +1439,7 @@ public class Readout {
 
 
                 for (int j = 0; j < i; j++) {
-                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+					sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         e = lineWidth,
                         w = lineWidth
                     }]);
@@ -1451,7 +1451,7 @@ public class Readout {
                 int screenLineY = Math.Max(-(Height - screenY - 2), Math.Min(screenY - 2, offset.yi < 0 ? offset.yi - 1 : offset.yi));
                 int screenLineX = Math.Max(-(screenX - 2), Math.Min(Width - screenX - 2, offset.xi));
                 */
-                var offset = sourcePos - player.position;
+                var offset = (sourcePos - player.position) * (4/3f, 1) + (0, 0);
                 var offsetLeft = new XY(0, 0);
                 bool truncateX = Math.Abs(offset.x) > Width / 2 - 3;
                 bool truncateY = Math.Abs(offset.y) > Height / 2 - 3;
@@ -1466,7 +1466,7 @@ public class Readout {
                 int screenLineY = offset.yi + (offset.yi < 0 ? 0 : 1);
                 int screenLineX = offset.xi;
                 if (screenLineY != 0) {
-                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+                    sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y > 0 ? lineWidth : Line.None,
                         s = offset.y < 0 ? lineWidth : Line.None,
                         w = lineWidth,
@@ -1476,7 +1476,7 @@ public class Readout {
                     screenLineY -= Math.Sign(screenLineY);
 
                     while (screenLineY != 0) {
-                        sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+						sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             n = lineWidth,
                             s = lineWidth
                         }]);
@@ -1485,7 +1485,7 @@ public class Readout {
                     }
                 }
                 if (screenLineX != 0) {
-                    sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+					sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y < 0 ? lineWidth : offset.y > 0 ? Line.None : Line.Single,
                         s = offset.y > 0 ? lineWidth : offset.y < 0 ? Line.None : Line.Single,
 
@@ -1496,7 +1496,7 @@ public class Readout {
                     screenLineX -= Math.Sign(screenLineX);
 
                     while (screenLineX != 0) {
-                        sf.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
+						sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             e = lineWidth,
                             w = lineWidth
                         }]);
@@ -1517,14 +1517,14 @@ public class Readout {
 
         ActiveObject target;
         if (player.GetTarget(out target)) {
-            sf.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
+            sf_ui.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
         } else if(player.primary.item?.target is ActiveObject found) {
             target = found;
-            sf.Print(targetX, targetY++, Tile.Arr("[Auto]", ABGR.White, ABGR.Black));
+            sf_ui.Print(targetX, targetY++, Tile.Arr("[Auto]", ABGR.White, ABGR.Black));
         } else {
             goto SkipTarget;
         }
-        sf.Print(targetX, targetY++, Tile.Arr(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
+        sf_ui.Print(targetX, targetY++, Tile.Arr(target.name, player.tracking.ContainsKey(target) ? ABGR.SpringGreen : ABGR.White, ABGR.Black));
         PrintTarget(targetX, targetY, target);
     SkipTarget:
         
@@ -1563,7 +1563,7 @@ public class Readout {
                     int l = (int)Math.Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
                     Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
 
-                    sf.Print(x, y, [
+                    sf_ui.Print(x, y, [
                         ..Tile.Arr("[", ABGR.White, b),
                         ..bar,
                         ..Tile.Arr("]", ABGR.White, b),
@@ -1587,7 +1587,7 @@ public class Readout {
                             bar[i].Foreground = Color.Yellow;
                         }
                         */
-                        sf.Print(x, y, [
+                        sf_ui.Print(x, y, [
                             ..Tile.Arr("[", ABGR.White, b),
                             ..bar,
                             ..Tile.Arr("]", ABGR.White, b),
@@ -1613,7 +1613,7 @@ public class Readout {
                             w.firing || w.delay > 0 ?
                                 ABGR.Yellow :
                             ABGR.White;
-                        sf.Print(x, y,[
+                        sf_ui.Print(x, y,[
                             ..Tile.Arr("[", ABGR.White, b),
                             ..w.GetBar(BAR),
                             ..Tile.Arr($"] {w.source.type.name} {enhancement}", foreground, b)]);
@@ -1626,7 +1626,7 @@ public class Readout {
                     foreach (var m in misc) {
                         string tag = m.source.type.name;
                         var f = ABGR.White;
-                        sf.Print(x, y, Tile.Arr($"{tag}", f, b));
+                        sf_ui.Print(x, y, Tile.Arr($"{tag}", f, b));
                         y++;
                     }
                     y++;
@@ -1643,10 +1643,10 @@ public class Readout {
 								ABGR.Cyan :
 							ABGR.White;
                         int l = BAR * s.hp / s.desc.maxHP;
-                        sf.Print(x, y, Tile.Arr("[", f, b));
-                        sf.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
-                        sf.Print(x + 1, y, Tile.Arr(new('=', l), f, b));
-                        sf.Print(x + 1 + BAR, y, Tile.Arr($"] {name}", f, b));
+                        sf_ui.Print(x, y, Tile.Arr("[", f, b));
+                        sf_ui.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                        sf_ui.Print(x + 1, y, Tile.Arr(new('=', l), f, b));
+                        sf_ui.Print(x + 1 + BAR, y, Tile.Arr($"] {name}", f, b));
                         y++;
                     }
                     y++;
@@ -1676,7 +1676,7 @@ public class Readout {
 
                                 int active = available * Math.Min(armor.hp, armor.maxHP) / Math.Max(1, armor.maxHP);
                                 
-                                sf.Print(x, y, [
+                                sf_ui.Print(x, y, [
                                     ..Tile.Arr("[", f, b),
 									..Tile.Arr(new('=', active), f, b),
 									..Tile.Arr(new('=', available - active), ABGR.Gray, b),
@@ -1690,10 +1690,10 @@ public class Readout {
                         }
                     case HP hp: {
                             var f = ABGR.White;
-                            sf.Print(x, y, Tile.Arr("[", f, b));
-                            sf.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
-                            sf.Print(x + 1, y, Tile.Arr(new('=', BAR * hp.hp / hp.maxHP), f, b));
-                            sf.Print(x + 1 + BAR, y, Tile.Arr($"] HP: {hp.hp}", f, b));
+                            sf_ui.Print(x, y, Tile.Arr("[", f, b));
+                            sf_ui.Print(x + 1, y, Tile.Arr(new('=', BAR), ABGR.Gray, b));
+                            sf_ui.Print(x + 1, y, Tile.Arr(new('=', BAR * hp.hp / hp.maxHP), f, b));
+                            sf_ui.Print(x + 1 + BAR, y, Tile.Arr($"] HP: {hp.hp}", f, b));
                             break;
                         }
                 }
@@ -1704,7 +1704,7 @@ public class Readout {
             int x = 4;
             int y = 3;
 
-            sf.DrawRect(x++, y++, 36, 16, new() {
+            Sf.DrawRect(sf_ui, x++, y++, 36, 16, new() {
                 f = ABGR.White,
                 b = ABGR.SetA(ABGR.Black, 128),
             });
@@ -1745,7 +1745,7 @@ public class Readout {
                 l = (int)Math.Min(bar.Length, Math.Ceiling(BAR * (double)totalSolar / Math.Max(1, totalMax)));
 
 				Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkCyan }).ToArray(), bar, l);
-                sf.Print(x, y++, [
+                sf_ui.Print(x, y++, [
                     ..Tile.Arr("[", 0xFFFFFFFF, b),
                     ..bar,
                     ..Tile.Arr("]", 0xFFFFFFFF, b),
@@ -1790,7 +1790,7 @@ public class Readout {
                         ref var e = ref entry[i + 1];
                         e = e with { Background = ABGR.DarkKhaki };
                     }
-                    sf.Print(x, y, entry);
+                    sf_ui.Print(x, y, entry);
                     y++;
                 }
                 y++;
@@ -1811,7 +1811,7 @@ public class Readout {
                         Tile.empty,
                         ..Tile.Arr(s.source.type.name, f, b)
 						];
-                    sf.Print(x, y, line);
+                    sf_ui.Print(x, y, line);
                     y++;
                 }
                 y++;
@@ -1834,7 +1834,7 @@ public class Readout {
                         w.firing || w.delay > 0 ?
 							ABGR.Yellow :
 						ABGR.White;
-                    sf.Print(x, y, [..Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), ..Tile.Arr(tag, foreground, b)]);
+                    sf_ui.Print(x, y, [..Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), ..Tile.Arr(tag, foreground, b)]);
                     y++;
                     i++;
                 }
@@ -1844,7 +1844,7 @@ public class Readout {
                 foreach (var m in misc) {
                     var tag = m.source.type.name;
                     var f = ABGR.White;
-                    sf.Print(x, y, Tile.Arr($"[{new string('-', BAR)}] {tag}", f, b));
+                    sf_ui.Print(x, y, Tile.Arr($"[{new string('-', BAR)}] {tag}", f, b));
                     y++;
                 }
                 y++;
@@ -1876,7 +1876,7 @@ public class Readout {
                     }
                     var counter = Tile.Arr($"{s.hp,3}/{s.desc.maxHP,3}", f, b);
 					var name = Tile.Arr(s.source.type.name, f, b);
-					sf.Print(x, y, [
+					sf_ui.Print(x, y, [
                         ..bar,
                         Tile.empty,
                         ..counter,
@@ -1926,7 +1926,7 @@ public class Readout {
                                 ];
                             var counter = $"{(bonus > 0 ? $"{bonus}+{hp}" : $"{hp}"),3}/{armor.maxHP,3}";
                             var name =      armor.source.type.name;
-                            sf.Print(x, y, [..bar, Tile.empty, ..Tile.Arr($"{counter} {name}", f, bb)]);
+                            sf_ui.Print(x, y, [..bar, Tile.empty, ..Tile.Arr($"{counter} {name}", f, bb)]);
                             y++;
                         }
                         break;
@@ -1936,7 +1936,7 @@ public class Readout {
                         var l = BAR * hp.hp / hp.maxHP;
 
                         
-                        sf.Print(x, y, Tile.ArrFrom(XElement.Parse(@$"
+                        sf_ui.Print(x, y, Tile.ArrFrom(XElement.Parse(@$"
 <S f=""{f}"" b=""{b}"">[{new string('=', l)}<S b=""{ABGR.Gray}"">{new string('=', BAR - l)}</S>] HP: {hp.hp}</S>"""))
 );
                         y++;
@@ -1946,11 +1946,11 @@ public class Readout {
             y++;
 
             var (_f, _b) = (ABGR.White, ABGR.Black);
-            sf.Print(x, y++, Tile.Arr($"Stealth: {ship.stealth:0.00}", _f, _b));
-            sf.Print(x, y++, Tile.Arr($"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}", _f, _b));
-            sf.Print(x, y++, Tile.Arr($"Darkness: {player.ship.silence:0.00}", _f, _b));
+            sf_ui.Print(x, y++, Tile.Arr($"Stealth: {ship.stealth:0.00}", _f, _b));
+            sf_ui.Print(x, y++, Tile.Arr($"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}", _f, _b));
+            sf_ui.Print(x, y++, Tile.Arr($"Darkness: {player.ship.silence:0.00}", _f, _b));
         }
-        Draw?.Invoke(sf);
+        Draw?.Invoke(sf_ui);
     }
 }
 public class Edgemap {

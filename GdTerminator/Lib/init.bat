@@ -1,1 +1,3 @@
-mklink /D glyphdot ..\..\..\glyphdot\addons\glyphdot
+mklink /D ExtGodot ..\..\ExtGodot
+mklink /D LibTerminator ..\..\LibTerminator
+mklink /D LibGamer ..\..\LibGamer

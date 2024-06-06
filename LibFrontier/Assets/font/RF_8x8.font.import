@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://dh8yr8w7rybwv"
+path="res://.godot/imported/RF_8x8.font-8735e3f6749b8ea37de3a1c03c406857.fontdata"
+
+[deps]
+
+source_file="res://Lib/LibFrontier/Assets/font/RF_8x8.font"
+dest_files=["res://.godot/imported/RF_8x8.font-8735e3f6749b8ea37de3a1c03c406857.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

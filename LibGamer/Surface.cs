@@ -48,7 +48,7 @@ public class Sf {
 	public void Clear (Tile t = null) {
 		redraw = true;
 		Active.Clear();
-		Array.Fill(Data, t ?? LibGamer.Tile.empty);
+		Array.Fill(Data, LibGamer.Tile.empty);
 	}
 	public uint GetFront (int x, int y) => Data[GetIndex(x, y)].Foreground;
 	public void SetFront (int x, int y, uint color) {
@@ -109,9 +109,76 @@ public class Sf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
+
+
+	public static void DrawRect (Sf surf, int xStart, int yStart, int dx, int dy, RectOptions op) {
+		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>
+			(char)BoxInfo.IBMCGA.glyphFromInfo[new(n, e, s, w)];
+
+		var width = op.width;
+		var aboveWidth = op.connectAbove ? width : Line.None;
+		var belowWidth = op.connectBelow ? width : Line.None;
+		var vert = Box(n: width, s: width);
+		var hori = Box(e: width, w: width);
+
+		void c (int x, int y, char c) =>
+				surf.Print(x, y, new Tile(op.f, op.b, c));
+		void l (int x, int y, string line) =>
+				surf.Print(x, y, LibGamer.Tile.Arr(line, op.f, op.b));
+
+		int y = yStart;
+
+		void p (string line) =>
+				surf.Print(xStart, y++, LibGamer.Tile.Arr(line, op.f, op.b));
+		bool fill = ABGR.A(op.b) != 0;
+		if(dx == 0 || dy == 0)
+			return;
+		if(dx == 1) {
+			var n = Box(e: Line.Single, w: Line.Single, s: width, n: aboveWidth);
+			var s = Box(e: Line.Single, w: Line.Single, n: width, s: belowWidth);
+			p($"{n}");
+			foreach(var i in 0..Math.Max(0, dy - 1))
+				p($"{vert}");
+			p($"{s}");
+		} else if(dy == 1) {
+			var e = Box(n: Line.Single, s: Line.Single, w: width);
+			var w = Box(n: Line.Single, s: Line.Single, e: width);
+			p($"{w}{new string(hori, dx - 2)}{e}");
+		} else {
+			var nw = Box(e: width, s: width, n: aboveWidth);
+			var ne = Box(w: width, s: width, n: aboveWidth);
+			var sw = Box(e: width, n: width, s: belowWidth);
+			var se = Box(w: width, n: width, s: belowWidth);
+
+			if(fill) {
+
+				p($"{nw}{new string(hori, dx - 2)}{ne}");
+				foreach(var i in 0..Math.Max(0, dy - 2))
+					p($"{vert}{new string(' ', dx - 2)}{vert}");
+				p($"{sw}{new string(hori, dx - 2)}{se}");
+			} else {
+				var x = xStart;
+				l(x, y, $"{nw}{new string(hori, dx - 2)}{ne}"); y++;
+				foreach(var i in 0..Math.Max(0, dy - 1)) {
+					c(x, y, vert); c(x + dx - 1, y, vert); y++;
+				}
+				l(x, y, $"{sw}{new string(hori, dx - 2)}{se}"); y++;
+			}
+		}
+	}
+
+
 }
 public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
 	public int Width => GlyphWidth * cols;
 	public int Height=>GlyphHeight * rows;
+}
+
+
+
+public class RectOptions {
+	public bool connectBelow, connectAbove;
+	public Line width = Line.Single;
+	public uint f = ABGR.White, b = ABGR.Black;
 }

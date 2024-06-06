@@ -227,6 +227,8 @@ public record ItemType : IDesignType {
 	[Sub(construct = false)] public LauncherDesc Launcher;
 	[Sub(construct = false)] public WeaponDesc Weapon;
 	[Par(construct = false, fallback = true)] public ItemUse Invoke;
+	[Opt] public Dictionary<(int, int), Tile> sprite = [];
+
 
 	public bool HasAtt(string att) => attributes.Contains(att);
 	public T Get<T>() =>
@@ -275,12 +277,20 @@ public record ItemType : IDesignType {
 			_ => throw new Exception("Unsupported use type")
 		};
 	}
-	public void Initialize(Assets tc, XElement e) {
+	public void Initialize (Assets tc, XElement e) {
 		e.Initialize(this, transform: new() {
 			[nameof(Launcher)] = (XElement e) => new LauncherDesc(tc, e),
 			[nameof(Weapon)] = (XElement e) => new WeaponDesc(tc, e),
 			[nameof(Invoke)] = (XElement e) => new InvokeFrom(tc, e).invoke
 		});
+		if(e.TryAtt("sprite", out var _sprite)) {
+#if GODOT
+			_sprite = $"{_sprite}_gd";
+#endif
+			sprite = ImageLoader.ReadTile(Assets.GetSprite(_sprite)).ToDictionary(
+				pair => (X: pair.Key.X, Y: -pair.Key.Y),
+				pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));
+		}
 	}
 }
 public record ArmorDesc() {
@@ -503,7 +513,7 @@ public record FragmentDesc {
 	/// <summary>Inflicts silence on the target</summary>
 	[Opt] public double silenceInflict;
 	[Sub] public FlashDesc Flash;
-	[Sub] public CorrodeDesc Decay;
+	[Sub] public CorrodeDesc Corrode;
 	[Sub] public DisruptorDesc Disruptor;
 
 
