@@ -13,15 +13,13 @@ public record FragmentMod {
     public IntMod
         damageHP = IntMod.EMPTY,
         missileSpeed = IntMod.EMPTY,
-        lifetime = IntMod.EMPTY,
-        maxHP = IntMod.EMPTY;
+        lifetime = IntMod.EMPTY;
     public FragmentMod () { }
     public FragmentMod(XElement e) {
         e.Initialize(this);
         damageHP = new(e, nameof(damageHP));
         missileSpeed = new(e, nameof(missileSpeed));
         lifetime = new(e, nameof(lifetime));
-        maxHP = new(e, nameof(maxHP));
     }
     public static FragmentMod Sum(params FragmentMod[] mods) {
         FragmentMod result = new();
@@ -35,7 +33,6 @@ public record FragmentMod {
             damageHP = x.damageHP + y.damageHP,
             missileSpeed=x.missileSpeed + y.missileSpeed,
             lifetime = x.lifetime + y.lifetime,
-            maxHP=x.maxHP + y.maxHP
         };
     public static FragmentDesc operator *(FragmentMod x, FragmentDesc y) =>
         y with {

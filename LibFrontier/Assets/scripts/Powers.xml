@@ -6,7 +6,7 @@
 		scareEnemies=	"true"
 		invokeDelay=	"90"
 		cooldownTime=	"3600"
-		message=		"You channel the energy of SILENCE"
+		message=		"You channel the sound of SILENCE"
 		voice=			"Orator"
 		>
 		<RechargeWeapon codename="item_magic_blaster_i" maxCharges="200"/>
@@ -43,7 +43,7 @@
 		name=			"PROTECT"
 		invokeDelay=	"150"
 		cooldownTime=	"3600"
-		message=		"You PROTECT yourself from bad faith"
+		message=		"You PROTECT yourself from malice"
 		voice=			"Orator"
 		>
 		<ProjectileBarrier barrierType="shield" lifetime="900" radius="4"/>
@@ -52,19 +52,29 @@
 		name=			"ENLIGHTEN"
 		invokeDelay=	"180"
 		cooldownTime=	"3600"
-		message=		"You ENLIGHTEN yourself about nearby threats"
+		message=		"You ENLIGHTEN yourself about your surroundings."
 		voice=			"Orator"
 		>
 		<Reveal/>
+	</PowerType>
+	<PowerType codename="power_whisper"
+		name=			"WHISPER"
+		invokeDelay=	"180"
+		cooldownTime=	"3600"
+		message=		"Your actions become quiet as a WHISPER."
+		voice=			"Orator"
+		>
+		<QuietWeapons/>
 	</PowerType>
 	<PowerType codename="power_reflect"
 		name=			"REFLECT"
 		invokeDelay=	"210"
 		cooldownTime=	"3600"
-		message=		"In the face of death, you REFLECT on past events"
+		message=		"Before the end, you REFLECT on your actions."
 		onDestroyCheck=	"true"
 		voice=			"Orator"
 		>
+		<DelayDamage/>
 		<ProjectileBarrier barrierType="bubble" lifetime="900" radius="1"/>
 		<!--
 		<Projectile
@@ -91,7 +101,7 @@
 		scareEnemies=	"true"
 		invokeDelay=	"120"
 		cooldownTime=	"3600"
-		message=		"You channel the energy of SILENCE"
+		message=		"You channel the sound of SILENCE"
 		voice=			"Dictator"
 		>
 		<Projectile
@@ -115,7 +125,7 @@
 		name=			"DEFLECT"
 		invokeDelay=	"120"
 		cooldownTime=	"3600"
-		message=		"You DEFLECT oncoming attacks"
+		message=		"You DEFLECT attacks away from yourself"
 		voice=			"Dictator"
 		>
 		<ProjectileBarrier barrierType="bounce" lifetime="900" radius="4"/>
@@ -124,7 +134,7 @@
 		name=			"DECRY"
 		invokeDelay=	"120"
 		cooldownTime=	"3600"
-		message=		"You DECRY the actions of your attackers"
+		message=		"You DECRY the deeds of your enemies"
 		voice=			"Dictator"
 		>
 		<ProjectileBarrier barrierType="multiplyAttack" lifetime="900" radius="4"/>
@@ -143,7 +153,7 @@
 		scareEnemies=	"true"
 		invokeDelay=	"120"
 		cooldownTime=	"3600"
-		message=		"You EXECUTE anyone who dares to oppose you"
+		message=		"You EXECUTE your vows."
 		voice=			"Dictator"
 		>
 		<Clonewall/>

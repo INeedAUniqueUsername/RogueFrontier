@@ -49,6 +49,7 @@ public partial class Runner : Node2D {
 			s.Show();
 			s.GridWidth = sf.Width;
 			s.GridHeight = sf.Height;
+			s.ResetGrid();
 			var pos = sf.pos * sf.font.GlyphSize;
 			s.Position = new Vector2(pos.xf, pos.yf);
 			s.font = fonts.GetOrAdd(sf.font, f => {

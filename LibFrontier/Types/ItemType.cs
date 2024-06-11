@@ -227,7 +227,7 @@ public record ItemType : IDesignType {
 	[Sub(construct = false)] public LauncherDesc Launcher;
 	[Sub(construct = false)] public WeaponDesc Weapon;
 	[Par(construct = false, fallback = true)] public ItemUse Invoke;
-	[Opt] public Dictionary<(int, int), Tile> sprite = [];
+	public Dictionary<(int, int), Tile> sprite = [];
 
 
 	public bool HasAtt(string att) => attributes.Contains(att);
@@ -255,7 +255,8 @@ public record ItemType : IDesignType {
 		refuel,
 		depleteTargetShields,
 		replaceDevice,
-		unlockPrescience
+		unlockPrescience,
+		applyMod
 	}
 
 	class InvokeFrom {
@@ -274,6 +275,7 @@ public record ItemType : IDesignType {
 			EItemUse.depleteTargetShields => new DepleteTargetShields(e),
 			EItemUse.replaceDevice => new ReplaceDevice(tc, e),
 			EItemUse.unlockPrescience => new UnlockPrescience(),
+			EItemUse.applyMod => new ApplyMod(e),
 			_ => throw new Exception("Unsupported use type")
 		};
 	}
@@ -287,17 +289,16 @@ public record ItemType : IDesignType {
 #if GODOT
 			_sprite = $"{_sprite}_gd";
 #endif
-			sprite = ImageLoader.ReadTile(Assets.GetSprite(_sprite)).ToDictionary(
-				pair => (X: pair.Key.X, Y: -pair.Key.Y),
-				pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));
+			sprite = ImageLoader.Adjust(ImageLoader.ReadTile(Assets.GetSprite(_sprite)).Select(pair => (pair.Key, new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph))).ToDictionary());
 		}
 	}
 }
 public record ArmorDesc() {
 	[Req] public int maxHP;
 	[Opt] public int initialHP = -1;
-	[Opt] public double radioRegenRate;
-	[Opt] public double radioDegradeRate;
+	[Opt] public int radioThreshold = 0;
+	[Opt] public double radioRegenRate = 0;
+	[Opt] public double radioDegradeRate = 0;
 	[Opt] public double recoveryFactor;
 	[Opt] public double recoveryRate;
 	[Opt(alias = "regenRate")]
@@ -307,9 +308,13 @@ public record ArmorDesc() {
 	/// <summary>For every damage HP taken, the maxHP decreases by this amount.</summary>
 	[Opt] public double lifetimeDegrade = 1/50.0;
 	[Opt] public double reflectFactor;
+	/// <summary>Absorb up to this much damage when knocked down</summary>
 	[Opt] public int minAbsorb = 0;
 	[Opt] public int powerUse = -1;
+	/// <summary>Absorb up to this much damage and let the rest pass through.</summary>
 	[Opt] public int maxAbsorb = -1;
+	/// <summary>Take up to this much damage to HP and send the rest to degradation.</summary>
+	[Opt] public int damageWall = -1;
 
 	/// <summary>This armor is more resistant to attacks in the silent dimension</summary>
 	[Opt] public bool silenceStrength;
@@ -468,6 +473,8 @@ public record FragmentDesc {
 	[Opt] public double detonateFailChance;
 
 	[Opt] public int knockback;
+	[Opt] public int armorDisrupt = 0;
+	[Opt] public int shieldDisrupt = 0;
 	[Opt] public int shock = 1;
 	[Req] public int lifetime;
 	[Opt] public bool passthrough;
@@ -678,7 +685,7 @@ public record CapacitorDesc {
 	[Opt] public double bonusSpeedPerCharge,
 						bonusDamagePerCharge,
 						bonusLifetimePerCharge;
-	
+	[Opt] public bool requireReady = false;
 	public CapacitorDesc() { }
 	public CapacitorDesc(XElement e) {
 		e.Initialize(this);

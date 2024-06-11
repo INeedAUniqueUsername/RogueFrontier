@@ -50,6 +50,8 @@ public class Dialog : IScene {
 	List<NavChoice> navigation;
 	public int navIndex = 0;
 	double[] charge;
+
+	public List<IScene> sub = [];
 	public Dictionary<(int, int), Tile> background = new();
 	Dictionary<char, int> keyMap = new();
 	bool prevEscape;

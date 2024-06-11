@@ -89,7 +89,7 @@ public class GateTransition : IScene {
                         (var v, var b) = (back, prevBack);
                         _back.SetTile(x, y, b.GetTile(x, y));
                         var g = v.GetTile(x, y);
-                        sf.SetTile(x, Height - y, g);
+                        sf.SetTile(x, Height - y - 1, g);
                     }
                 }
             }

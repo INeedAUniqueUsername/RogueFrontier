@@ -15,12 +15,12 @@ public interface SfControl {
 
 	bool IsFocused => false;
 }
-public class SfText : SfControl {
+public class SfLabel : SfControl {
 	public Action<Sf> Draw { set; get; }
 	Sf on;
 	(int x, int y) pos;
 	public Tile[] text;
-	public SfText (Sf on, (int,int) pos, string text) {
+	public SfLabel (Sf on, (int,int) pos, string text) {
 		this.on = on;
 		this.pos = pos;
 		this.text = Tile.Arr(text);

@@ -23,6 +23,7 @@ public class Sf {
 	public int GlyphWidth => font.GlyphWidth;
 	public int GlyphHeight => font.GlyphHeight;
 	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * Width, GlyphHeight * Height);
+	public Rect SubRect (int x, int y, int w, int h) => new Rect((pos.xi + x) * GlyphWidth, (y + pos.yi) * GlyphHeight, w * GlyphWidth, h * GlyphHeight);
 	public Sf(int Width, int Height, Tf font) {
 		this.Width = Width;
 		this.Height = Height;
@@ -32,6 +33,13 @@ public class Sf {
 		Front = new(GetFront, SetFront);
 		Back = new(GetBack, SetBack);
 		Tile = new(GetTile, SetTile);
+	}
+	public static Sf Display(int w, int h, Tf font, Dictionary<(int x,int y), Tile> img) {
+		Sf sf = new Sf(w, h, font);
+		foreach(var(p, t) in img) {
+			sf.Tile[p] = t;
+		}
+		return sf;
 	}
 	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height, sf.font);
 	public Sf Clone => Sf.From(this);
@@ -109,25 +117,19 @@ public class Sf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
-
-
 	public static void DrawRect (Sf surf, int xStart, int yStart, int dx, int dy, RectOptions op) {
 		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>
 			(char)BoxInfo.IBMCGA.glyphFromInfo[new(n, e, s, w)];
-
 		var width = op.width;
 		var aboveWidth = op.connectAbove ? width : Line.None;
 		var belowWidth = op.connectBelow ? width : Line.None;
 		var vert = Box(n: width, s: width);
 		var hori = Box(e: width, w: width);
-
 		void c (int x, int y, char c) =>
 				surf.Print(x, y, new Tile(op.f, op.b, c));
 		void l (int x, int y, string line) =>
 				surf.Print(x, y, LibGamer.Tile.Arr(line, op.f, op.b));
-
 		int y = yStart;
-
 		void p (string line) =>
 				surf.Print(xStart, y++, LibGamer.Tile.Arr(line, op.f, op.b));
 		bool fill = ABGR.A(op.b) != 0;
@@ -149,9 +151,7 @@ public class Sf {
 			var ne = Box(w: width, s: width, n: aboveWidth);
 			var sw = Box(e: width, n: width, s: belowWidth);
 			var se = Box(w: width, n: width, s: belowWidth);
-
 			if(fill) {
-
 				p($"{nw}{new string(hori, dx - 2)}{ne}");
 				foreach(var i in 0..Math.Max(0, dy - 2))
 					p($"{vert}{new string(' ', dx - 2)}{vert}");
@@ -166,17 +166,12 @@ public class Sf {
 			}
 		}
 	}
-
-
 }
 public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
 	public int Width => GlyphWidth * cols;
 	public int Height=>GlyphHeight * rows;
 }
-
-
-
 public class RectOptions {
 	public bool connectBelow, connectAbove;
 	public Line width = Line.Single;

@@ -139,26 +139,30 @@
 
 
 	<ItemType	codename=	"item_beowulf_dual_laser_cannon"
-				name=		"Beowulf cannon"
+				name=		"Blade laser cannon"
 				level=		"1"
 				mass=		"2000"
 				value=		"3000"
 
-				desc=		""
+				desc=		"The Beowulf gunship's standard weapon fires a spread of three lasers that can counter a small team at medium range."
+				sprite=		"item_beowulf_blaster.dat"
 		>
-		<Weapon	initialCharges=	"1800"
+		<Weapon	initialCharges=	"1500"
 				powerUse=		"20"
 				fireCooldown=	"15"
 				sweep=			"30"
 				sound=			"beowulf_blaster.wav"
 			>
 			<Projectile
-					count="2"
+					count="3"
+					spreadAngle=	"5"
 					missileSpeed=	"100"
 					damageType=		"1"
-					damageHP=		"2d4"
+					damageHP=		"1d4"
+					damageFalloff=	"true"
 					lifetime=		"45"
 
+					shieldFactor=	"2"
 					glyph=			"\249"
 					foreground=		"Red"
 					background=		"Black"
@@ -166,7 +170,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_beowulf_dual_laser_repeater"
-			name=		"Beowulf repeater"
+			name=		"Blade laser repeater"
 			level=		"2"
 			mass=		"2000"
 			value=		"3000"
@@ -179,12 +183,16 @@
 				sweep=			"30"
 			>
 			<Projectile
-					count="2"
+					count="1"
+					spreadAngle=	"5"
 					missileSpeed=	"100"
 					damageType=		"1"
-					damageHP=		"2d4"
+					damageHP=		"1d4"
 					lifetime=		"45"
 
+					damageFalloff=	"true"
+					
+					shieldFactor=	"2"
 					glyph=			"\249"
 					foreground=		"Red"
 					background=		"Black"
@@ -233,7 +241,7 @@
 		>
 	</ItemType>
 	<ItemType	codename=	"item_klaw_missile_launcher"
-				name=		"Klaw missile launcher"
+				name=		"Klaw launcher"
 				level=		"2"
 				mass=		"2000"
 				value=		"400"
@@ -351,7 +359,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_musket_turret"
-				name=		"Shotgun turret"
+				name=		"Crockett shotgun"
 				level=		"2"
 				mass=		"2000"
 
@@ -359,22 +367,26 @@
 
 				invoke=		"installWeapon"
 
-				desc=		"This kinetic gun is mounted on an omnidirectional turret for automatic aiming."
+				desc=		"This omnidirectional gun fires a burst of heavy shells."
 		>
 		<Weapon
 			initialCharges=	"500"
 			powerUse=		"20"
 			fireCooldown=	"45"
 			omnidirectional="true"
-			sound=			"shotgun_alt.wav"
+			sound=			"shotgun_3.wav"
 			>
 			<Projectile
 				count=			"8"
 				spreadAngle=	"20"
 				missileSpeed=	"30"
 				damageType=		"2"
-				damageHP=		"12"
+				damageHP=		"2d5"
 				lifetime=		"120"
+				
+				shock=			"2"
+				
+				armorDisrupt=	"120"
 				
 				glyph=			"\249"
 				foreground=		"Gray"
@@ -506,6 +518,7 @@
 		<Armor
 			reflectFactor=	"0.75"
 			maxHP=			"90"
+			damageWall=		"30"
 			killHP=			"3"
 			/>
 	</ItemType>
@@ -534,7 +547,7 @@
 		mass=		"2000"
 		value=		"2000"
 		invoke=		"installWeapon"
-		desc=		"This civilian-grade bomb launcher packs a small but powerful explosion. Time and technology have not improved this weapon whatsoever."
+		desc=		"This dynamite launcher packs a small but powerful explosion for something that was invented before 2000. Time and progress have not improved this weapon whatsoever."
 		>
 		<Weapon	
 			powerUse=		"10"

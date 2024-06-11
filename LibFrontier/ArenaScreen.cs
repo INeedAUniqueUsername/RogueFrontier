@@ -55,7 +55,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				"[K] Kill nearest ship",
 				"[Tab] Show/Hide Menus",
 				"[Hold left] Move camera"
-			]).ForEach((string s) => controls.Add(new SfText(sf_ui, (x, y++), s)));
+			]).ForEach((string s) => controls.Add(new SfLabel(sf_ui, (x, y++), s)));
 		}
 		InitControls();
 		void InitControls() {
@@ -70,7 +70,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			void AddSovereignField() {
 				var x = 1;
 				var y = 7;
-				var label = new SfText(sf_ui, (x,y++), "Sovereign");
+				var label = new SfLabel(sf_ui, (x,y++), "Sovereign");
 				var sovereignField = new SfField(sf_ui, (x, y++), 24);
 				var buttons = new SfLinkGroup(controls, (x, y++), sf_ui);
 				sovereignField.TextChanged += _ => UpdateSovereignListing();
@@ -99,7 +99,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 			void AddStationField() {
 				var x = 1 + 32;
 				var y = 7;
-				controls.Add(new SfText(sf_ui, (x,y++), "Spawn Station"));
+				controls.Add(new SfLabel(sf_ui, (x,y++), "Spawn Station"));
 				var stationField = new SfField(sf_ui, (x, y++), 24);
 				var buttons = new SfLinkGroup(controls, (x,y++), sf_ui);
 				stationField.TextChanged += _ => UpdateStationListing();
@@ -146,7 +146,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1 + 32 + 32;
 				var y = 7;
 
-				controls.Add(new SfText(sf_ui, (x, y++), "Spawn Ship"));
+				controls.Add(new SfLabel(sf_ui, (x, y++), "Spawn Ship"));
 				var shipField = new SfField(sf_ui, (x, y++), 24);
 				var buttons = new SfLinkGroup(controls, (x, y++), sf_ui);
 				shipField.TextChanged += _ => UpdateShipListing();
@@ -199,7 +199,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1;
 				var y = 7 + 18;
 
-				controls.Add(new SfText(sf_ui, (x, y++), "Cargo"));
+				controls.Add(new SfLabel(sf_ui, (x, y++), "Cargo"));
 				var cargoField = new SfField(sf_ui, (x, y++) , 24);
 				var addButtons = new SfLinkGroup(controls, (x,y++), sf_ui);
 				var removeButtons = new SfLinkGroup(controls, (x, y + 18), sf_ui);
@@ -252,7 +252,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var x = 1 + 32;
 				var y = 7 + 18;
 
-				controls.Add(new SfText(sf_ui, (x,y++), "Devices"));
+				controls.Add(new SfLabel(sf_ui, (x,y++), "Devices"));
 				var deviceField = new SfField(sf_ui, (x, y++), 24);
 				var addButtons = new SfLinkGroup(controls,(x,y++),sf_ui);
 				var removeButtons = new SfLinkGroup(controls, (x, y+18), sf_ui);
@@ -317,7 +317,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	public void ToggleArena() {
 		showUI = !showUI;
 	}
-	public void Reset() => Reset(mainframe.camera.position);
+	public void Reset() => Reset(mainframe?.camera.position ?? camera);
 	public void Reset(XY camera) {
 
 		this.camera = camera;

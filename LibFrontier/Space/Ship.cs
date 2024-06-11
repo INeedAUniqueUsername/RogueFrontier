@@ -309,7 +309,8 @@ public static class SShipBehavior {
     public static bool CanTarget(this IShipBehavior behavior, ActiveObject other) {
         switch (behavior) {
             case Wingmate w:
-                return w.order.CanTarget(other);
+                
+                return w.order?.CanTarget(other) ?? false;
             case IShipOrder o:
                 return o.CanTarget(other);
         }

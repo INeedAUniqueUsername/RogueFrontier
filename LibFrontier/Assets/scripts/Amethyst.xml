@@ -96,6 +96,7 @@
 				attributes= "Amethyst"
 
 				desc=		"The Amethyst laser cannon fires a magenta-colored beam that deals more damage to shields. Its internal specifications are a trade secret."
+				sprite=		"item_amethyst_laser_i.dat"
 		>
 		<Weapon
 			initialCharges=	"1200"
@@ -114,6 +115,14 @@
 				glyph=			"\249"
 				foreground=		"Magenta"
 				/>
+
+			<Capacitor
+				dischargeOnFire=		"100"
+				rechargePerTick=		"100/20"
+				maxCharge=				"100"
+				bonusDamagePerCharge=	"8/100"
+				requireReady=			"true"
+				/>
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_magic_blaster_i"
@@ -125,9 +134,10 @@
 			attributes= "Amethyst"
 
 			desc=		"The first-generation Magic Blaster fires a burst of corrosive energy. Its directed-energy technology is sufficiently proprietary as to be indistinguishable from magic."
+			sprite=		"amethyst_magic_blaster_i.dat"
 		>
 		<Weapon
-			initialCharges=	"250"
+			initialCharges=	"300"
 			powerUse=		"10"
 			fireCooldown=	"20"
 			sound=			"magic_blaster.wav"
@@ -161,9 +171,10 @@
 			attributes= "Amethyst"
 
 			desc=		"The second-generation Amethyst laser cannon features improved damage output. Its internal specifications are protected by lawyers."
+			sprite=		"item_amethyst_laser_i.dat"
 		>
 		<Weapon
-			initialCharges=	"1800"
+			initialCharges=	"1500"
 			powerUse=		"10"
 			fireCooldown=	"15"
 			
@@ -190,9 +201,10 @@
 		attributes= "Amethyst"
 
 		desc=		"The second-generation Magic Blaster features stronger corrosion. Its directed-energy technology is sufficiently magical as to be indistinguishable from technology."
+		sprite=		"amethyst_magic_blaster_i.dat"
 		>
 		<Weapon
-			initialCharges=	"500"
+			initialCharges=	"600"
 			powerUse=		"10"
 			fireCooldown=	"20"
 			sound=			"magic_blaster.wav"
@@ -226,6 +238,7 @@
 		attributes= "Amethyst"
 
 		desc=		"The third-generation Amethyst laser cannon features yet improved damage output."
+		sprite=		"item_amethyst_laser_i.dat"
 		>
 		<Weapon
 			initialCharges=	"1800"
@@ -260,7 +273,7 @@
 		<Weapon
 			powerUse=		"30"
 			fireCooldown=	"30"
-			initialCharges= "720"
+			initialCharges= "800"
 			
 			repeat="5"
 			repeatDelay=	"6"
@@ -288,14 +301,14 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_shimmer_shield_i"
-		name=		"Shimmer Shield I"
+		name=		"Karat Shield I"
 		level=		"2"
 		mass=		"200"
 		value=		"400"
 		
 		attributes= "Amethyst"
 				
-		desc=		"Fight fast. Recover fast. Repeat. Shimmer shield is designed for the pilot that boldly goes."
+		desc=		"Fight fast. Recover fast. Repeat. Karat shield is designed for the pilot that boldly goes."
 		>
 		<Shield
 			powerUse=		"20"
@@ -308,14 +321,14 @@
 		</Shield>
 	</ItemType>
 	<ItemType	codename=	"item_shimmer_shield_ii"
-		name=		"Shimmer Shield II"
+		name=		"Karat Shield II"
 		level=		"3"
 		mass=		"200"
 		value=		"800"
 		
 		attributes= "Amethyst"
 				
-		desc=		"Fight faster. Recover faster. Repeat. Shimmer shield is designed for the pilot that boldly goes."
+		desc=		"Fight faster. Recover faster. Repeat. Karat shield is designed for the pilot that boldly goes."
 		>
 		<Shield
 			powerUse=		"30"

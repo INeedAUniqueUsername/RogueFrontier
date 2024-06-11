@@ -10,6 +10,7 @@
 				value=		"400"
 				desc=		"The Bronze bolter is a crossbow designed to accomodate both close-range fighters and long-range snipers. While idle, it charges up power for the next shot. The shells from this weapon can fly scary fast when fully charged."
 				invoke=		"installWeapon"
+				sprite=		"orion_crossbow.dat"
 		>
 		<Weapon
 			powerUse=		"20"

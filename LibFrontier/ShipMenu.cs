@@ -104,7 +104,8 @@ class ShipMenu : IScene {
         if (playerShip.messages.Any()) {
             Print(x, y++, "[Messages]");
             foreach (var m in playerShip.messages) {
-                sf.Print(x, y++, m.Draw());
+                
+                sf.Print(x, Math.Min(sf.Height - 3, y++), m.Draw());
             }
             y++;
         }

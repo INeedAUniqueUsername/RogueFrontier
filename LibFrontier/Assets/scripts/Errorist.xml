@@ -8,21 +8,27 @@
 		attribute=	"Errorists; "
 		mass=		"1000"
 		level=		"1"
-		desc=		"This armor glows because of radiation."
+		desc=		"This armor contains radioactive fuel rods that decay upon taking damage, causing the armor to reform."
 		>
-		<Armor	maxHP=		"90"/>
+		<Armor	maxHP=				"90"
+				radioRegenRate=		"3/60"
+				radioDegradeRate=	"5"
+				radioThreshold=		"30"
+				/>
 	</ItemType>
 	<ItemType	codename=	"item_sand_cannon"
 		name=		"Sand cannon"
 		attribute=	"Errorists"
 		mass=		"5000"
 		level=		"3"
-		desc=		"This uncommon weapon sprays radioactive sand imported from the surface of Mars."
+		desc=		"This uncommon weapon sprays radioactive sand."
 		>
 		<Weapon
 			powerUse=		"50"
 			fireCooldown=	"20"
 			initialCharges=	"320"
+			
+			sound=			"vent_fire.wav"
 			>
 			<Projectile	
 				missileSpeed=	"30"
@@ -52,6 +58,8 @@
 		<Weapon	powerUse=		"30"
 				fireCooldown=	"60"
 				initialCharges=	"240"
+				
+				sound=			"vent_fire.wav"
 			>
 			<Projectile
 				missileSpeed=	"30"
@@ -80,6 +88,8 @@
 			powerUse=		"30"
 			fireCooldown=	"10"
 			initialCharges=	"480"
+			
+			sound=			"vent_fire.wav"
 			>
 			<Projectile
 				count=			"4"
@@ -181,52 +191,89 @@
 			</Projectile>
 		</Weapon>
 	</ItemType>
-	<ItemType	codename=	"item_demon_cannon"
-				name=		"Demon cannon"
+	<ItemType	codename=	"item_lucifer_cannon"
+				name=		"Lucifer cannon"
 				attributes=	"Errorists"
 				level=		"6"
 				mass=		"2000"
-				desc=		""
+				desc=		"The Lucifer cannon fires a high-energy beam that causes armor to, in a word, melt."
 		>
-		<Weapon	initialCharges="400"
+		<Weapon	initialCharges="480"
+				powerUse=		"30"
+				fireCooldown=	"90"
+				sound=			"vent_fire.wav"
+				repeat=			"7"
+				repeatDelay=	"2"
+				repeatDelayEnd=	"60"
+			>
+			<Projectile
+				missileSpeed=	"100"
+				damageType=		"1"
+				damageHP=		"5"
+				lifetime=		"120"
+				glyph=			"\15"
+				foreground=		"Cyan"
+				background=		"Transparent"
+				>
+				<Trail
+					lifetime=	"10"
+					glyph=		"\7"
+					foreground=	"55FFFFFF"
+					background=	"77BBDDFF"/>
+				<Corrode lifetime="10" damageRate="3/60" fixedDegradeRate="60/60" descend="true" lethal="true"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	<ItemType	codename=	"item_gamma_launcher"
+				name=		"Gamma launcher"
+				attributes=	"Errorists"
+				level=		"6"
+				mass=		"2000"
+				desc=		"The Gamma bomb creates a very large explosion."
+		>
+		<Weapon	initialCharges="50"
 				powerUse=		"30"
 				fireCooldown=	"90"
 				sound=			"flashbang_cannon.wav"
 			>
 			<Projectile
-				missileSpeed=	"50"
+				missileSpeed=	"30"
 				damageType=		"1"
 				damageHP=		"5"
-				lifetime=		"60"
-				glyph=			"0"
+				lifetime=		"90"
+				glyph=			"\15"
 				foreground=		"LightGray"
 				background=		"Black"
 				
 				detonateRadius="5"
 				detonateSound=	"flashbang_explosion.wav"
 				>
-				<Flash intensity="30"/>
 				<Fragment
 					precise=		"false"
 					hitSource=		"true"
 					
-					count=			"24*6"
+					count=			"24*3"
 					spreadAngle=	"360"
 					missileSpeed=	"200"
 					damageType=		"1"
-					damageHP=		"0-2"
-					lifetime=		"8"
-					glyph=			"\249"
+					damageHP=		"1d5"
+					lifetime=		"5"
+					glyph=			"\7"
 					foreground=		"Cyan"
 					background=		"Transparent"
 					>
-					<Corrode lifetime="300" damageRate="0" fixedDegradeRate="1/2" descend="true"/>
+					<Trail
+						lifetime=	"10"
+						glyph=		"\7"
+						foreground=	"55FFFFFF"
+						background=	"77BBDDFF"/>
+					<Corrode lifetime="10" damageRate="1/60" fixedDegradeRate="20/60" descend="true" lethal="true"/>
 				</Fragment>
 			</Projectile>
 		</Weapon>
 	</ItemType>
 	<ShipClass	codename=	"ship_toxin"
-		name=				"Nauseating raider"
+		name=				"Nauseous raider"
 		thrust=				"0.3"
 		maxSpeed=			"15"
 		rotationAccel=		"3"
@@ -244,7 +291,7 @@
 		</LayeredArmorSystem>
 	</ShipClass>
 	<ShipClass	codename=	"ship_mutant"
-		name=				"Noxious destroyer"
+		name=				"Noxious fighter"
 		thrust=				"0.25"
 		maxSpeed=			"12"
 		rotationAccel=		"3"
@@ -264,7 +311,32 @@
 		</LayeredArmorSystem>
 		<PlayerSettings
 			startingClass="false"
-			description="The Mutant-class missileship is armed with the armor-melting sludge cannon and armor-pelting sand-bomb cannon"
+			description="The Noxious destroyer is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			/>
+	</ShipClass>
+	
+	<ShipClass	codename=	"ship_necrotizing_destroyer"
+		name=				"Necrotizing destroyer"
+		thrust=				"0.25"
+		maxSpeed=			"12"
+		rotationAccel=		"3"
+		rotationDecel=		"6"
+		rotationMaxSpeed=	"4"
+		glyph=				"E"
+		foreground=			"Orange"
+		>
+		<Devices>
+			<Weapon	codename="item_gamma_launcher"/>
+			<Weapon codename="item_lucifer_cannon"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_radiant_plate"/>
+			<Armor	codename="item_radiant_plate"/>
+			<Armor	codename="item_radiant_plate"/>
+		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass="false"
+			description="The Noxious destroyer is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
 			/>
 	</ShipClass>
 
@@ -274,38 +346,9 @@
 		
 		glyph=		"E"
 		foreground="LightGreen"
+		structure=	"station_errorist_compound.dat"
 		>
 		<HP maxHP="250"/>
-		<Segments>
-
-			<Point offsetX="-1" offsetY="1"
-				   glyph="/" foreground="YellowGreen"/>
-			<Point offsetX="0" offsetY="1"
-				   glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="1" offsetY="1"
-				   glyph="\" foreground="YellowGreen"/>
-
-			<Point offsetX="-1" offsetY="-1"
-				   glyph="\" foreground="YellowGreen"/>
-			<Point offsetX="0" offsetY="-1"
-				   glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="1" offsetY="-1"
-				   glyph="/" foreground="YellowGreen"/>
-
-			<Point offsetX="-1" offsetY="0"
-				   glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="-2" offsetY="0"
-				   glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="-3" offsetY="0"
-				   glyph="+" foreground="YellowGreen"/>
-
-			<Point offsetX="1" offsetY="0"
-					glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="2" offsetY="0"
-				   glyph="-" foreground="YellowGreen"/>
-			<Point offsetX="3" offsetY="0"
-				   glyph="+" foreground="YellowGreen"/>
-		</Segments>
 		<Explosion
 			missileSpeed=	"5"
 			damageType=		"2"
@@ -326,6 +369,39 @@
 			<Weapon	codename="item_sand_vent"/>
 			<Weapon	codename="item_sludge_vent"/>
 		</Weapons>
+		<Ships>
+			<Ship	count="3"	codename="ship_mutant"/>
+			<Ship	count="5"	codename="ship_toxin"/>
+		</Ships>
+	</StationType>
+	
+
+
+	<StationType	codename="station_errorist_reactor"
+		name=		"Errorist reactor"
+		sovereign=	"sovereign_errorist"
+		
+		glyph=		"E"
+		foreground=	"LightGreen"
+		structure=	"station_errorist_reactor.dat"
+		>
+		<HP maxHP="400"/>
+		<Explosion
+			missileSpeed=	"5"
+			damageType=		"2"
+			damageHP=		"1"
+			lifetime=		"360"
+			spreadAngle=	"360"
+			count=			"120"
+						
+			ricochet=		"4"
+
+			hitProjectile=	"true"
+						
+			glyph=			"\249"
+			foreground=		"SpringGreen"
+			background=		"Transparent"
+			/>
 		<Ships>
 			<Ship	count="3"	codename="ship_mutant"/>
 			<Ship	count="5"	codename="ship_toxin"/>

@@ -10,6 +10,8 @@
 				level=		"4"
 				invoke=		"installWeapon"
 				desc=		"The Iron Cannon fires a heavy kinetic shell with crude seeking capabilities."
+				
+				sprite=		"item_iron_cannon.dat"
 				>
 		<Weapon		powerUse=		"50"
 					fireCooldown=	"60"
@@ -35,6 +37,7 @@
 			level=		"2"
 			invoke=		"installWeapon"
 			desc=		"The Iron Driver is a makeshift kinetic mass driver with rapid-fire capabilities."
+			sprite=		"item_iron_driver.dat"
 			>
 		<Weapon		powerUse=		"15"
 					fireCooldown=	"15"
@@ -133,7 +136,8 @@
 				name=		"Ironside plate"
 				mass=		"5000"
 				level=		"2"
-				desc=		"When this armor is on its last HP, nothing will take it down except for a very strong hit (likely) or very severe rusting (unlikely)."
+				desc=		"Even when this armor is on its last HP, nothing can knock it down except for a very strong hit (probably) or very severe rusting (less probable)."
+				sprite=		"item_ironside_plate.dat"
 		>
 		<Armor	maxHP=		"90"
 				damageWall=	"9"

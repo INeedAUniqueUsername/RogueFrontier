@@ -73,7 +73,7 @@ class PlayerCreator : IScene {
         var nameField = new LabeledField(sf_ui, (x, y), "Name           ", context.playerName, (e, text) => context.playerName = text);
         controls.Add(nameField);
         y++;
-        var identityLabel = new SfText(sf_ui, (x,y),"Identity       ");
+        var identityLabel = new SfLabel(sf_ui, (x,y),"Identity       ");
         controls.Add(identityLabel);
 
         SfLink identityButton = null;

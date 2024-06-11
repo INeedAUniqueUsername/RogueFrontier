@@ -39,6 +39,12 @@ public static class ImageLoader {
 #else
 		DeserializeObject<HashSet<((int x, int y), TileTuple t)>>(data).ToDictionary();
 #endif
+
+	public static Dictionary<(int X, int Y), Tile> Adjust(this Dictionary<(int X, int Y), Tile> img) {
+		var xMin = img.Min(pair => pair.Key.X);
+		var yMin = img.Min(pair => pair.Key.Y);
+		return img.Select(pair => ((pair.Key.X - xMin, pair.Key.Y - yMin), pair.Value)).ToDictionary();
+	}
 	public static T DeserializeObject<T> (string s) {
 		
 		STypeConverter.PrepareConvert();

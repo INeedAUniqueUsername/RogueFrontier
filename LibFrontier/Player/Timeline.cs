@@ -19,8 +19,6 @@ public class TradeMenu: IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 
     public TradeMenu (SceneCtx ctx, ITrader trader, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
-    
-    
 		this.prev = ctx.prev;
 		this.sf = new Sf(ctx.Width * 4 / 3, ctx.Height, Fonts.FONT_6x8);
 		this.player = ctx.playerShip.person;
@@ -75,6 +73,11 @@ public class TradeMenu: IScene {
 		dockedPane.Update(delta);
 		descPane.Update(delta);
 	}
+
+    void IScene.HandleMouse(LibGamer.HandState mouse) {
+        playerPane.HandleMouse(mouse);
+        dockedPane.HandleMouse(mouse);
+    }
 	public void HandleKey (KB kb) {
 		if(kb[KC.Escape] == KS.Press) {
 			Go(prev);
@@ -127,7 +130,7 @@ You are a complete stranger here.";
             var sc = new Dialog(ctx, t, [
                 new("Continue", Intro2),
                 new("Leave", Intro2b, NavFlags.ESC)
-            ]) { background = heroImage };
+            ]);
             return sc;
         }
 		IScene Intro2 (IScene prev) {
@@ -146,7 +149,7 @@ any other. We may also receive a message from
 The Orator today!"" the guard says.";
             var sc = new Dialog(ctx, t, [
                 new(@"""Ummm, yeah, The Orator?""", Intro3)
-            ]) { background = heroImage };
+            ]) { sub = { } };
             return sc;
         }
 		IScene Intro2b (IScene prev) {
@@ -156,7 +159,7 @@ much to the possible chagrin of some mysterious
 entity and several possibly preferred timelines.".Replace("\r", null);
             return new Dialog(ctx, t, [
                 new("Undock")
-            ]) { background = heroImage };
+            ]);
         }
 		IScene Intro3 (IScene prev) {
             var t =
@@ -728,13 +731,10 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_cloaking_shield = 2400,
         item_darkened_knightsteel_plate = 7500,
 
-        item_magic_bomb = 15,
-        item_magic_bomb_launcher = 2500,
-
         item_sand_blaster = 1600,
         item_sand_vent = 2400,
         item_sludge_vent = 2400,
-        item_demon_cannon = 6000,
+        item_gamma_launcher = 6000,
 
         item_hull_puncher = 6000,
         item_iron_hook_cannon = 3200,
@@ -764,7 +764,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_shine_charm = 5000,
         item_gem_of_monologue = 500,
         
-        item_repeater_turret = 9000,
         item_magic_shotgun_i = 1500,
 
         item_dark_magic_blaster = 25000,
@@ -774,7 +773,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_biocart_transcendence = 900,
 
         item_flakbang_cannon = 4800,
-        item_tipped_orion_longbow = 4800,
 
         item_specrom_magic_blaster_i = 8400,
 
@@ -793,7 +791,7 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         stdPrice = stdPriceTable.ToDictionary(pair => i[pair.Key], pair => pair.Value);
         var missing = i.Keys.Except(stdPriceTable.Keys).ToList();
         if (missing.Any()) {
-            throw new Exception(string.Join('\n', missing.Select(m => @$"[""{m}""] = 0,")));
+            //throw new Exception(string.Join('\n', missing.Select(m => @$"[""{m}""] = 0,")));
         }
         mainInteractions = [new IntroMeeting(this)];
         secondaryInteractions = [];
@@ -939,11 +937,11 @@ of civilian gunship pilots.",
         IScene Intro() {
             return new Dialog(ctx,
 @"You are docked at a Campers Outpost,
-an independent enclave of tinkers,
-craftspersons, and adventurers.",
+an independent enclave of adventurers, builders, and
+craftspersons.",
             [
                 new("Trade", Trade),
-                new("Workshop", Workshop),
+                new("Assembler", Assembler),
                 SNav.DockArmorRepair(ctx, GetArmorRepairPrice),
                 SNav.DockArmorReplacement(ctx, GetArmorReplacePrice),
                 SNav.DockDeviceInstall(ctx, GetDeviceInstallPrice),
@@ -959,11 +957,10 @@ craftspersons, and adventurers.",
 		IScene Trade (IScene prev) => new TradeMenu(ctx, source,
             GetStdPrice,
             (Item i) => GetStdPrice(i) / 4);
-		IScene Workshop (IScene prev) => SMenu.Workshop(ctx with { prev = prev }, recipes, null);
+		IScene Assembler (IScene prev) => SMenu.Assembler(ctx with { prev = prev }, recipes, null);
     }
     public TradeMenu TradeStation(SceneCtx ctx, Station source) =>
         new (ctx, source, GetStdPrice, i => GetStdPrice(i) / 2);
-
     public IScene CheckConstellationArrest (SceneCtx ctx, Station source) {
 		var (prev, playerShip) = (ctx.prev, ctx.playerShip);
 		return GetConstellationCrimes(playerShip, source).FirstOrDefault() is ICrime c ?
@@ -1364,17 +1361,25 @@ that permeates throughout the sanctum.",
 @"The Orator grants you
 the power of SILENCE.
 
-""If the void is quiet,
-then raise your voice.""");
+""Surrounded by noise,
+amplify your voice.""");
                     case 3:
                         AddPower("power_recite_orator");
                         return Info(prev,
 @"The Orator grants you
 the power of RECITE.
 
-""If you lose the sight of truth,
-then RECITE the words against doom.""");
-                    default:
+""Confronted with doom,
+remember the words of truth.""");
+					case 5:
+						AddPower("power_enlighten");
+						return Info(prev,
+@"The Orator grants you
+the power of ENLIGHTEN.
+
+""Going into the quiet night,
+turn thoughts into limitless light.""");
+					default:
                         return Shambles(prev);
                 }
 

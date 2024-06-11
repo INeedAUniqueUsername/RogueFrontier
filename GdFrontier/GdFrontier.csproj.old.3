@@ -1,4 +1,4 @@
-<Project Sdk="Godot.NET.Sdk/4.2.2">
+<Project Sdk="Godot.NET.Sdk/4.3.0-dev.5">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net7.0</TargetFramework>
@@ -9,7 +9,7 @@
   <ItemGroup>
     <Compile Remove="Lib/*/*.cs" />
     <Compile Remove="Lib/*/obj/*/*/*.cs" />
-    <Compile Include="Lib/ExtGodot/*.cs" />
+	  <Compile Include="Lib/ExtGodot/*.cs" />
     <Compile Include="Lib/LibGamer/*.cs" />
     <Compile Include="Lib/LibFrontier/*.cs" />
     <PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />

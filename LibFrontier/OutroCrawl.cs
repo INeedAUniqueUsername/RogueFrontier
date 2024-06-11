@@ -186,8 +186,6 @@ class OutroCrawl : IScene {
         }
     }
 }
-
-
 public class Slide : IScene {
     public Action<IScene> Go { get; set; }
     public Action<Sf> Draw { set; get; }

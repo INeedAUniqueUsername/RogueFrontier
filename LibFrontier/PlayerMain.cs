@@ -144,9 +144,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 		void DrawPar (Sf sf) {
 			Draw?.Invoke(sf);
 		}
-		powerWidget = new(31, 16, this);
+		powerWidget = new(this);
         powerWidget.visible = false;
-        powerWidget.sf.pos = new(3, 32);
 
 		pauseScreen = new(this) { visible = false };
         networkMap = new(this) { visible = false };
@@ -276,7 +275,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var ds = new EpitaphScreen(this, ep);
         var dt = new DeathTransition(this, sf, ds);
         var dp = new DeathPause(this, dt);
-        Go(dp);
+        Go?.Invoke(dp);
         Task.Run(() => {
             lock (world) {
                 StreamWriter w = null;
@@ -1704,7 +1703,7 @@ public class Readout {
             int x = 4;
             int y = 3;
 
-            Sf.DrawRect(sf_ui, x++, y++, 36, 16, new() {
+            Sf.DrawRect(sf_ui, x++, y++, 48, 16, new() {
                 f = ABGR.White,
                 b = ABGR.SetA(ABGR.Black, 128),
             });
@@ -2274,9 +2273,9 @@ public class PowerWidget {
         }
         get => _blockMouse;
     }
-    public PowerWidget(int width, int height, Mainframe main) {
+    public PowerWidget(Mainframe main) {
         this.playerShip = main.playerShip;
-        sf = new(width, height, Fonts.FONT_6x8);
+        sf = new(36, 16, Fonts.FONT_6x8) { pos = (3, 32) };
 		this.main = main;
         InitButtons();
     }
@@ -2383,10 +2382,15 @@ public class PowerWidget {
 
     }
     public void Render(TimeSpan delta) {
+
         int x = 0;
         int y = 0;
         int index = 0;
         sf.Clear();
+
+        Sf.DrawRect(sf, x++, y++, sf.Width, sf.Height, new() {
+
+        });
         var foreground = ABGR.White;
         if (ticks % 60 < 30) {
             foreground = ABGR.Yellow;

@@ -115,7 +115,8 @@ public class Armor : Device {
     public double titanDuration;
     public double hpToRecover;
     public double recoveryHP;
-    public double regenHP;
+    public double autoRegenHP;
+    public double radioRegenHP;
     public double corrodeHP;
     public int killHP;
     public double damageDelay;
@@ -184,7 +185,7 @@ public class Armor : Device {
                 foreach (var d in decay) {
                     var silenceMatch = FragmentDesc.GetSilenceMatch(d.silenceFactor, ownerSilence);
 
-                    var degrade = delta * 60 * d.fixedDegradeRate * silenceMatch;
+                    var degrade = delta * 60 * (d.fixedDegradeRate) * silenceMatch;
                     totalDegrade += degrade;
 
                     corrodeHP += d.damageRate * delta * 60 * silenceMatch;
@@ -216,6 +217,19 @@ public class Armor : Device {
                 titanHP = Math.Max(0, titanHP - delta * desc.Titan.decay);
             }
         }
+        if(desc.radioRegenRate > 0 && maxHP > desc.radioThreshold) {
+			radioRegenHP += desc.radioRegenRate * delta * Constants.TICKS_PER_SECOND;
+			while(radioRegenHP >= 1) {
+				if(hp < maxHP) {
+					lastRegenTick = owner.world.tick;
+					hp++;
+					radioRegenHP--;
+                    lifetimeDamageAbsorbed += desc.radioDegradeRate;
+				} else {
+					radioRegenHP = 0;
+				}
+			}
+		}
         allowRecovery = desc.powerUse == -1 || owner switch {
             PlayerShip { energy: { off: { } off } } => !off.Contains(this),
             _ => true
@@ -229,12 +243,12 @@ public class Armor : Device {
             return;
         }
         if (hpToRecover >= 1) {
-            lastRegenTick = owner.world.tick;
-            powerUse = desc.powerUse;
             recoveryHP += desc.recoveryRate * delta * Constants.TICKS_PER_SECOND;
             while (recoveryHP >= 1) {
                 if (hp < maxHP) {
-                    hp++;
+					powerUse = desc.powerUse;
+					lastRegenTick = owner.world.tick;
+					hp++;
                     recoveryHP--;
                     hpToRecover--;
                 } else {
@@ -244,15 +258,15 @@ public class Armor : Device {
             }
         }
         if (desc.freeRegenRate > 0) {
-            lastRegenTick = owner.world.tick;
-            powerUse = desc.powerUse;
-            regenHP += desc.freeRegenRate * delta * Constants.TICKS_PER_SECOND;
-            while (regenHP >= 1) {
+            autoRegenHP += desc.freeRegenRate * delta * Constants.TICKS_PER_SECOND;
+            while (autoRegenHP >= 1) {
                 if (hp < maxHP) {
-                    hp++;
-                    regenHP--;
+					powerUse = desc.powerUse;
+					lastRegenTick = owner.world.tick;
+					hp++;
+                    autoRegenHP--;
                 } else {
-                    regenHP = 0;
+                    autoRegenHP = 0;
                 }
             }
         }
@@ -266,14 +280,14 @@ public class Armor : Device {
     private void UpdateHP() {
         hp = Math.Min(hp, maxHP);
     }
-    private void OnAbsorb(int absorbed) {
+    private void OnAbsorb(int absorbed, int damageDelay = 0) {
         lifetimeDamageAbsorbed += absorbed;
         if (desc.Titan is { } t) {
             titanHP = Math.Min(desc.maxHP * t.factor, titanHP + absorbed * t.gain);
             titanDuration = t.duration;
         }
         hpToRecover += (absorbed * desc.recoveryFactor);
-        damageDelay = 30;
+        this.damageDelay = Math.Max(damageDelay, 30);
     }
     public void Damage(int amount) {
         if(hp == 0 || amount < 1) {
@@ -330,6 +344,8 @@ public class Armor : Device {
                 throw new Exception("Impossible scenario encountered");
             }
         } else {
+            
+            
             //If we're below the drill threshold, then skip this armor
             if ((float)hp / desc.maxHP < p.desc.armorDrill) {
                 return 0;
@@ -347,25 +363,32 @@ public class Armor : Device {
                 var amount = p.damageLeft;
                 p.hitBlocked = true;
                 //Remember this but take no damage
-                OnAbsorb(amount);
+                OnAbsorb(amount, p.desc.armorDisrupt);
                 return amount;
             } else {
                 p.damageLeft -= killHP;
                 lastDamageTick = p.world.tick;
                 //Otherwise, we fall
                 hp = 0;
-                OnAbsorb(killHP);
+                OnAbsorb(killHP, p.desc.armorDisrupt);
                 return killHP;
             }
         }
         var multiplier = p.desc.armorFactor;// + lifetimeDamageAbsorbed * desc.lifetimeDegrade;
-        var absorbed = (int)Math.Clamp(p.damageLeft * multiplier, 0, hp);
+
+        var totalDamage = p.damageLeft * multiplier;
+        var absorbed = (int)Math.Min(totalDamage, hp);
         if(desc.maxAbsorb > -1 && desc.maxAbsorb < absorbed) {
             absorbed = desc.maxAbsorb;
             //lifetimeDamageAbsorbed += (absorbed - desc.maxAbsorb) * 5;
         }
-        hp -= absorbed;
-        OnAbsorb(absorbed);
+        if(desc.damageWall > -1 && desc.damageWall < absorbed) {
+            absorbed = desc.damageWall;
+			lifetimeDamageAbsorbed += (absorbed - desc.damageWall) * 5;
+            p.damageLeft = 0;
+		}
+		hp = Math.Max(0, hp - absorbed);
+        OnAbsorb(absorbed, p.desc.armorDisrupt);
         if (killHP > 0 && absorbed >= killHP) {
             killHP = 0;
         }
@@ -861,7 +884,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
             targeting?.Update(owner, this);
             aiming?.Update(owner, this);
         }
-        capacitor?.Update();
+        capacitor?.Update(this);
         timeSinceLastFire += delta;
         if (delay > 0) {
             delay -= delta * Constants.TICKS_PER_SECOND;
@@ -963,7 +986,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
             targeting?.Update(owner, this);
             aiming?.Update(owner, this);
         }
-        capacitor?.Update();
+        capacitor?.Update(this);
         timeSinceLastFire += delta;
         if (delay > 0) {
             delay -= delta * Constants.TICKS_PER_SECOND;
@@ -1158,8 +1181,9 @@ public class Capacitor {
     }
     public void CheckFire(ref bool firing) => firing = firing && AllowFire;
     public bool AllowFire => desc.minChargeToFire <= charge;
-    public void Update() =>
-        charge = Math.Min(desc.maxCharge, charge + desc.rechargePerTick);
+    public void Update(Weapon w) =>
+        charge = Math.Min(desc.maxCharge, charge +
+            ((desc.requireReady && w.delay > 0) ? 0: desc.rechargePerTick));
     public FragmentMod mod => new() {
         damageHP =      new(inc: (int)(charge * desc.bonusDamagePerCharge)),
         missileSpeed =  new(inc: (int)(charge * desc.bonusSpeedPerCharge)),

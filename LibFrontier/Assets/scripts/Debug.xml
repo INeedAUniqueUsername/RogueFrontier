@@ -68,7 +68,7 @@
 			<Item codename="item_armor_repair_patch"	count="6"/>
 		</Items>
 		<Devices>
-			<Weapon codename="item_demon_cannon"/>
+			<Weapon codename="item_gamma_launcher"/>
 			<Shield codename="item_buckler_shield"/>
 			<Reactor codename="item_20mw_generator"/>
 			<Reactor codename="item_10mw_secondary"/>

@@ -52,10 +52,12 @@ public record PowerType() : IDesignType {
 			"Storm" => new PowerStorm(e),
 			"Clonewall" => new Clonewall(e),
 			"RechargeWeapon" => new PowerRechargeWeapon(a, e),
+			"QuietWeapons" => null,
+			"DelayDamage" => null,
 			_ => throw new Exception($"Unknown PowerEffect type: {e.Name.LocalName} ### {e} ### {e.Parent}")
 		})));
 		if(Effect.Count == 0) {
-			throw new Exception($"Power must have effect: {codename} ### {e} ### {e.Parent}");
+			//throw new Exception($"Power must have effect: {codename} ### {e} ### {e.Parent}");
 		}
 	}
 	public void Invoke(PlayerShip player) => Effect.ForEach(e => e.Invoke(player));
@@ -139,9 +141,9 @@ public record Clonewall() : PowerEffect {
 			XY  up = XY.Polar(owner.rotationRad - Math.PI / 2),
 				down = XY.Polar(owner.rotationRad + Math.PI / 2);
 			offsets = new() {
-				up * 2, down * 2,
-				up * 4, down * 4,
-				up * 6, down * 6
+				up * 3, down * 3,
+				up * 6, down * 6,
+				//up * 6, down * 6
 			};
 		}
 		 public void Observe(PlayerShip.WeaponFired ev){
@@ -350,7 +352,7 @@ public class Power : IPower {
 	public bool fullyCharged => invokeCharge >= invokeDelay;
 	public double cooldownLeft { get; set; }
 	[JsonIgnore]
-	public bool ready => cooldownLeft == 0;
+	public bool ready => cooldownLeft <= 0;
 	public int invokeCharge { get; set; }
 	public bool charging { get; set; }
 	[JsonIgnore]

@@ -75,6 +75,10 @@ public class WreckScene : IScene {
             currentPane.HandleKey(kb);
         }
     }
+    void IScene.HandleMouse(LibGamer.HandState mouse) {
+        playerPane.HandleMouse(mouse);
+        dockedPane.HandleMouse(mouse);
+    }
     public void Render(TimeSpan delta) {
         sf.Clear();
         sf.RenderBackground();

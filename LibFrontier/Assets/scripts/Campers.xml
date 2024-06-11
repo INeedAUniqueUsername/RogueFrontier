@@ -39,38 +39,8 @@
 			<Item count="96"	codename="item_dynamite_charge"/>
 		</Cargo>
 	</StationType>
-	<ItemType	codename=	"item_repeater_turret"
-				name=		"Repeating turret"
-				level=		"2"
-				mass=		"2000"
-
-				value=		"3500"
-
-				invoke=		"installWeapon"
-
-				desc=		"This kinetic repeater is mounted on an omnidirectional turret for automatic aiming."
-		>
-		<Weapon
-			initialCharges=	"800"
-			powerUse=		"40"
-			fireCooldown=	"30"
-			
-			repeat="2"
-			repeatDelay=	"5"
-			>
-			<Projectile
-				omnidirectional="true"
-				missileSpeed=	"40"
-				damageType=		"2"
-				damageHP=		"12"
-				lifetime=		"120"
-				glyph=			"\249"
-				foreground=		"White"
-				/>
-		</Weapon>
-	</ItemType>
 	<ItemType	codename=	"item_magic_shotgun_i"
-			name=		"sawed-off Magic Blaster I"
+			name=		"Sawed-off Magic Blaster I"
 			level=		"1"
 			mass=		"1000"
 			value=		"1500"
@@ -80,14 +50,14 @@
 			desc=		"An unlicensed modification turns a first-generation Magic Blaster into a much more explosive and much less accurate weapon."
 		>
 		<Weapon
-			initialCharges=	"180"
+			initialCharges=	"200"
 			powerUse=		"20"
 			fireCooldown=	"40"
-			recoil=			"8"
+			recoil=			"4"
 			>
 			<Projectile
-				count=			"12"
-				spreadAngle=	"30"
+				count=			"15"
+				spreadAngle=	"36"
 				missileSpeed=	"60"
 				damageType=		"1"
 				damageHP=		"1d8"
@@ -104,105 +74,6 @@
 					glyph=		"*"
 					foreground=	"FF55FFFF"
 					background=	"BB77DDFF"/>
-			</Projectile>
-		</Weapon>
-	</ItemType>
-	<ItemType	codename=	"item_tipped_orion_longbow"
-			name=		"Tipped Bronze Longbow"
-			mass=		"5000"
-			level=		"3"
-			value=		"800"
-			desc=		"Using "
-			invoke=		"installWeapon"
-		>
-		<Weapon
-			powerUse=		"20"
-			fireCooldown=	"30"
-			initialCharges=	"200"
-			>
-			<Projectile
-				missileSpeed=	"20"
-				damageType=		"2"
-				damageHP=		"5d5"
-				lifetime=		"90"
-				glyph=			"+"
-				foreground=		"Orange"
-				>
-				<Corrode lifetime="5" damageRate="4/60" degradeFactor="10" lethal="true" />
-				<Trail
-					lifetime=	"10"
-					glyph=		"*"
-					foreground=	"FF55FFFF"
-					background=	"BB77DDFF"/>
-			</Projectile>
-			<Capacitor
-				dischargeOnFire=		"100"
-				rechargePerTick=			"1/3"
-				maxCharge=				"100"
-
-				bonusSpeedPerCharge=	"70/100"
-				bonusDamagePerCharge=	"30/100"
-				bonusLifetimePerCharge=	"90/100"
-				/>
-		</Weapon>
-	</ItemType>
-	<ItemType	codename=	"item_magic_bomb"
-				name=		"Magic bomb"
-				attributes=	""
-				level=		"2"
-				mass=		"200"
-				value=		"8"
-				
-				desc=		""
-		>
-	</ItemType>
-	<ItemType	codename=	"item_magic_bomb_launcher"
-				name=		"Magic bomb launcher"
-				attributes=	""
-				level=		"2"
-				mass=		"2000"
-				value=		"400"
-				invoke=		"installWeapon"
-				desc=		""
-		>
-		<Weapon	powerUse=		"10"
-				fireCooldown=	"90"
-				ammoType=		"item_magic_bomb"
-				sound=			"generic_missile.wav"
-			>
-			<Projectile
-				missileSpeed=	"40"
-				damageType=		"1"
-				damageHP=		"5"
-				lifetime=		"90"
-				glyph=			"="
-				foreground=		"FF55FFFF"
-				background=		"Black"
-				
-				fragmentSpin=	"10"
-				>
-				<Fragment
-					count=			"6"
-					spreadAngle=	"360"
-					missileSpeed=	"60"
-					damageType=		"1"
-					damageHP=		"1d8"
-					
-					fragmentInterval="6"
-				
-					reflectFactor=	"0.5"
-				
-					lifetime=		"15"
-					glyph=			"*"
-					foreground=		"FF55FFFF"
-				>
-					<Corrode lifetime="10" damageRate="1/60"/>
-					<Trail
-						lifetime=	"10"
-						glyph=		"*"
-						foreground=	"FF55FFFF"
-						background=	"BB77DDFF"/>
-				</Fragment>
 			</Projectile>
 		</Weapon>
 	</ItemType>
@@ -232,5 +103,16 @@
 				foreground=		"White"
 				/>
 		</Weapon>
+	</ItemType>
+
+
+	<ItemType	codename=	"item_laser_enhancer"
+		name=		"laser enhancer"
+		level=		"1"
+		mass=		"2000"
+		value=		"3000"
+
+		desc=		"This aftermarket enhancer increases the damage output of a laser weapon."
+		>
 	</ItemType>
 </Module>
