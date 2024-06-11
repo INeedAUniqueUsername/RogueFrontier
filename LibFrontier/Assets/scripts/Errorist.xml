@@ -272,7 +272,7 @@
 			</Projectile>
 		</Weapon>
 	</ItemType>
-	<ShipClass	codename=	"ship_toxin"
+	<ShipClass	codename=	"ship_errorist_raider"
 		name=				"Nauseous raider"
 		thrust=				"0.3"
 		maxSpeed=			"15"
@@ -289,8 +289,12 @@
 			<Armor	codename="item_radiant_plate"/>
 			<Armor	codename="item_radiant_plate"/>
 		</LayeredArmorSystem>
+		<PlayerSettings
+			startingClass=	"false"
+			description=	"The Nauseous is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			/>
 	</ShipClass>
-	<ShipClass	codename=	"ship_mutant"
+	<ShipClass	codename=	"ship_errorist_fighter"
 		name=				"Noxious fighter"
 		thrust=				"0.25"
 		maxSpeed=			"12"
@@ -311,12 +315,12 @@
 		</LayeredArmorSystem>
 		<PlayerSettings
 			startingClass="false"
-			description="The Noxious destroyer is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			description="The Noxious is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
 			/>
 	</ShipClass>
 	
-	<ShipClass	codename=	"ship_necrotizing_destroyer"
-		name=				"Necrotizing destroyer"
+	<ShipClass	codename=	"ship_errorist_destroyer"
+		name=				"Necrotic destroyer"
 		thrust=				"0.25"
 		maxSpeed=			"12"
 		rotationAccel=		"3"
@@ -336,7 +340,7 @@
 		</LayeredArmorSystem>
 		<PlayerSettings
 			startingClass="false"
-			description="The Noxious destroyer is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			description="The Necrotic carries the heaviest radiation weaponry of the Errorists."
 			/>
 	</ShipClass>
 
@@ -370,8 +374,8 @@
 			<Weapon	codename="item_sludge_vent"/>
 		</Weapons>
 		<Ships>
-			<Ship	count="3"	codename="ship_mutant"/>
-			<Ship	count="5"	codename="ship_toxin"/>
+			<Ship	count="3"	codename="ship_errorist_fighter"/>
+			<Ship	count="5"	codename="ship_errorist_raider"/>
 		</Ships>
 	</StationType>
 	
@@ -403,8 +407,9 @@
 			background=		"Transparent"
 			/>
 		<Ships>
-			<Ship	count="3"	codename="ship_mutant"/>
-			<Ship	count="5"	codename="ship_toxin"/>
+			<Ship	count="1"	codename="ship_errorist_destroyer"/>
+			<Ship	count="5"	codename="ship_errorist_fighter"/>
+			<Ship	count="9"	codename="ship_errorist_raider"/>
 		</Ships>
 	</StationType>
 
