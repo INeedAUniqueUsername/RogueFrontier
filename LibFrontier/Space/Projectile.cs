@@ -97,7 +97,6 @@ public class Projectile : MovingObject {
         if (lifetime > 0) {
 
             var deltaTicks = delta * 60;
-            lifetime -= deltaTicks;
             age += deltaTicks;
             fragmentRotation += delta * desc.fragmentSpin;
             UpdateMove();
@@ -111,9 +110,10 @@ public class Projectile : MovingObject {
                         Fragment(f.desc);
                     }
                 }
-            }
-        } else if(active) {
-            UpdateMove();
+			}
+			lifetime -= deltaTicks;
+		} else if(active) {
+            //UpdateMove();
             if (world.karma.NextDouble() < desc.detonateFailChance) {
                 goto NoDetonate;
             }
@@ -126,7 +126,7 @@ public class Projectile : MovingObject {
         void UpdateMove() {
             maneuver?.Update(delta, this);
 
-            var dest = position + velocity * delta;
+            var dest = position + velocity * Math.Min(lifetime, delta);
             var inc = velocity.normal * 0.5;
             var steps = velocity.magnitude * 2 * delta;
 

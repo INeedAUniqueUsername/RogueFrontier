@@ -190,13 +190,10 @@
 		</Ships>
 		<Cargo>
 			<Item count="40"	codename="item_armor_repair_patch"/>
-			<Item count="8" codename="item_gemsteel_plate_i"/>
 			<Item count="8" codename="item_knightsteel_plate"/>
 			<Item count="8" codename="item_bumpersteel_plate"/>
 			
 			<Item count="8" codename="item_buckler_shield"/>
-
-			<Item count="8" codename="item_shimmer_shield_i"/>
 		</Cargo>
 		<Weapons>
 			<Weapon codename="item_missile_defender"/>
@@ -236,14 +233,10 @@
 		</Ships>
 		<Cargo>
 			<Item count="8" codename="item_tracking_laser"/>
-			<Item count="8" codename="item_amethyst_laser_i"/>
-			<Item count="8" codename="item_dynamite_cannon"/>
-			<Item count="320" codename="item_dynamite_charge"/>
 			<Item count="8" codename="item_beowulf_dual_laser_cannon"/>
 			<Item count="8" codename="item_klaw_missile_launcher"/>
 			<Item count="240" codename="item_klaw_missile"/>
 			<Item count="8"	codename="item_musket_turret"/>
-			<Item count="8"	codename="item_sidearm_turret"/>
 			<Item count="8" codename="item_missile_defender"/>
 		</Cargo>
 		<Weapons>

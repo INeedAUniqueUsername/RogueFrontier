@@ -14,13 +14,15 @@
 		>
 		<Weapon	initialCharges=	"1200"
 				powerUse=		"20"
-				fireCooldown=	"18"
+				fireCooldown=	"24"
 				repeat=			"2"
 				repeatDelay=	"6"
-				repeatDelayEnd=	"30"
+				repeatDelayEnd=	"60"
 			>
 
 			<Projectile
+						count=			"3"
+						spreadAngle=	"9"
 						missileSpeed=	"60"
 						damageType=		"1"
 						damageHP=		"4"

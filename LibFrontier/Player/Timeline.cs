@@ -11,9 +11,7 @@ public interface IPlayerInteraction {
 	IScene GetScene (SceneCtx ctx, IDockable d);
 }
 public class TradeMenu: IScene {
-
     public delegate int GetPrice (Item i);
-
     public Action<IScene> Go { set; get; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }

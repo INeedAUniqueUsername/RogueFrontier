@@ -182,9 +182,7 @@
 			<Item codename="item_simple_fuel_rod"	count="24"/>
 			<Item codename="item_armor_repair_patch"	count="8"/>
 			<Item codename="item_scanner_drone"	count="4"/>
-			<Item codename="item_sidearm_turret"	count="2"/>
-
-			<Item codename="item_dynamite_charge" count="24"/>
+			<Item codename="item_dynamite_charge" count="96"/>
 		</Items>
         <Devices>
 			<Weapon codename="item_musket_turret"/>
