@@ -48,47 +48,47 @@ public class Heading : Effect {
 			W = (-1, 0), N = (0, 1), E = (1, 0), S = (0, -1), NE = (1, 1), NW = (-1, 1), SE = (1, -1), SW = (-1, -1);
         int i = 776;
         Connectors = new () {
-			[(W, N)] = 776,
-			[(W, NE)]= 777,
-			[(W, E)] = 778,
-			[(W, SE)]= 779,
-			[(W, S)]= 780,
-			[(NW, NE)]= 781,
-			[(NW, E)]=782,
-			[(NW, SE)]= 783,
-			[(NW, S)]=784,
-			[(NW, SW)]= 785,
-			[(N, E)]=786,
-			[(N, SE)]= 787,
-			[(N, S)]=788,
-			[(N, SW)]=789,
-			[(N, W)]=776,
-			[(NE,SE)]=790,
-			[(NE,S)]=791,
-			[(NE,SW)]= 792,
-			[(NE,W)] = 777,
-			[(NE,NW)] = 781,
-			[(E,S)]= 793,
-			[(E, SW)] = 794,
-			[(E,W)] = 778,
-			[(E,N)] = 786,
-			[(E,NW)] = 782,
-			[(SE, SW)] = 795,
-			[(SE,W)] = 779,
-			[(SE,NW)] = 783,
-			[(SE,N)] = 787,
-			[(SE,NE)] = 790,
-			[(S,E)] = 793,
-			[(S,NE)] = 791,
-			[(S,N)] = 788,
-			[(S,NW)] = 784,
-			[(S,W)] = 780,
-			[(SW,E)] = 794,
-			[(SW,NW)] = 785,
-			[(SW,N)] = 789,
-			[(SW,NE)] = 792,
-			[(SW,E)] = 794,
-			[(SW,SE)] = 795,
+			[(W, N)] = i+0,
+			[(W, NE)]= i+1,
+			[(W, E)] = i+2,
+			[(W, SE)]= i+3,
+			[(W, S)]= i+4,
+			[(NW, NE)]= i+5,
+			[(NW, E)]=i+6,
+			[(NW, SE)]= i+7,
+			[(NW, S)]=i+8,
+			[(NW, SW)]= i+9,
+			[(N, E)]=i+10,
+			[(N, SE)]= i+11,
+			[(N, S)]=i+12,
+			[(N, SW)]=i+13,
+			[(N, W)]=i+0,
+			[(NE,SE)]=i+14,
+			[(NE,S)]=i+15,
+			[(NE,SW)]= i+16,
+			[(NE,W)] = i+1,
+			[(NE,NW)] = i+5,
+			[(E,S)]= i+17,
+			[(E, SW)] = i+18,
+			[(E,W)] = i+2,
+			[(E,N)] = i+10,
+			[(E,NW)] = i+6,
+			[(SE, SW)] = i+19,
+			[(SE,W)] = i+3,
+			[(SE,NW)] = i+7,
+			[(SE,N)] = i+11,
+			[(SE,NE)] = i+14,
+			[(S,E)] = i+17,
+			[(S,NE)] = i+15,
+			[(S,N)] = i+12,
+			[(S,NW)] = i+8,
+			[(S,W)] = i+14,
+			[(SW,E)] = i+18,
+			[(SW,NW)] = i+9,
+			[(SW,N)] = i+13,
+			[(SW,NE)] = i+16,
+			[(SW,E)] = i+18,
+			[(SW,SE)] = i+19,
 		};
     }
 
@@ -117,7 +117,7 @@ public class Heading : Effect {
 				var here = start + inc * (i + 1);
                 var value = (byte)(153 - Math.Max(1, i) * 153 / length);
 
-				var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, g + 5);
+				var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, g);
                 var particle = new EffectParticle(here, cg, interval + 1);
                 particles[i] = particle;
                 parent.world.AddEffect(particle);
@@ -125,8 +125,19 @@ public class Heading : Effect {
         } else {
             for (int i = 0; i < particles.Length; i++) {
                 var p = particles[i];
-                p.position = start + inc * (i + 1);
-                p.lifetime = interval + 1 + (interval * (i - particles.Length)) / particles.Length;
+
+                var here = start + inc * (i + 1);
+				var prev = here - inc;
+				var next = here + inc;
+				var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
+				var _c = ((double x, double y) p) => (c(p.x), c(p.y));
+				var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
+				var g = Connectors.GetValueOrDefault(__c((prev.roundDown - here.roundDown), (next.roundDown - here.roundDown)), 249);
+
+                p.tile = p.tile with { Glyph = (char)g };
+
+				p.position = here;
+				p.lifetime = interval + 1 + (interval * (i - particles.Length)) / particles.Length;
             }
         }
         ticks++;
@@ -134,26 +145,25 @@ public class Heading : Effect {
     }
     public static void AimLine(System World, XY start, double angle, int lifetime = 1) {
         //ColoredGlyph pointEffect = new ColoredGlyph((char)249, new Color(153, 153, 76), Color.Transparent);
-        var point = start;
+        var here = start;
         var inc = XY.Polar(angle);
         int length = 20;
         int interval = 2;
         for (int i = 0; i < length / interval; i++) {
-            point += inc * interval;
+            here += inc * interval;
 
 
 
-			var prev = point - inc;
-			var next = point + inc;
-
+			var prev = here - inc;
+			var next = here + inc;
 			var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
 			var _c = ((double x, double y) p) => (c(p.x), c(p.y));
 			var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
-			var g = Connectors.GetValueOrDefault(__c((prev.roundDown - point.roundDown), (next.roundDown - point.roundDown)), 249);
+			var g = Connectors.GetValueOrDefault(__c((prev.roundDown - here.roundDown), (next.roundDown - here.roundDown)), 249);
 
 			var pointEffect = new Tile(ABGR.RGBA(255, 255, 0, 204), ABGR.Transparent, g);
 
-			World.AddEffect(new EffectParticle(point, pointEffect, lifetime));
+			World.AddEffect(new EffectParticle(here, pointEffect, lifetime));
         }
     }
     public static void AimLine(ActiveObject owner, double angle, Weapon w) {
