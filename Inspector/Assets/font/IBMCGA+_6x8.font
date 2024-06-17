@@ -1,0 +1,10 @@
+{
+  "$type": "SadConsole.SadFont, SadConsole",
+  "FilePath": "IBMCGA+_6x8.png",
+  "GlyphHeight": 8,
+  "GlyphPadding": 0,
+  "GlyphWidth": 6,
+  "Columns": "32",
+  "Name": "IBMCGA+_6x8",
+  "SolidGlyphIndex": 219
+}

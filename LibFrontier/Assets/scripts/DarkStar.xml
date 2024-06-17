@@ -25,7 +25,7 @@
 						spreadAngle=	"9"
 						missileSpeed=	"60"
 						damageType=		"1"
-						damageHP=		"4"
+						damageHP=		"1d4"
 						shock=			"2"
 			
 						lifetime=		"180"

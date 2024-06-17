@@ -183,11 +183,11 @@
 				sweep=			"30"
 			>
 			<Projectile
-					count="1"
+					count="3"
 					spreadAngle=	"5"
 					missileSpeed=	"100"
 					damageType=		"1"
-					damageHP=		"1d4"
+					damageHP=		"1d5"
 					lifetime=		"45"
 
 					damageFalloff=	"true"

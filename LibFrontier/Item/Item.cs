@@ -105,6 +105,12 @@ public class CorrodeDesc {
         this.source = p.source;
     }
 }
+
+public class Corrode {
+    public CorrodeDesc desc;
+    public ActiveObject source;
+    public double lifetime;
+}
 public class Armor : Device {
     [JsonProperty]
     public Item source { get; private set; }
@@ -124,15 +130,13 @@ public class Armor : Device {
     public double lifetimeDamageAbsorbed;
     public int lastDamageTick = -1000;
     public int lastRegenTick = -1000;
-    public HashSet<CorrodeDesc> decay=new();
+    public HashSet<CorrodeDesc> decay = [];
     public int powerUse { get; private set; }
     public bool allowRecovery;
     public bool hasRecovery => allowRecovery && Math.Max(hpToRecover, Math.Max(desc.freeRegenRate, killHP)) >= 1;
     public int maxHP => Math.Max(0, desc.maxHP - (int)(desc.lifetimeDegrade * lifetimeDamageAbsorbed) + (int)titanHP);
     public bool canAbsorb => hp > 0 || Math.Min(maxHP, desc.minAbsorb) > 0;
-
     public int apparentHP => Math.Min(maxHP, Math.Max(killHP, desc.minAbsorb));
-
     public double valueFactor => (0.5 * hp / desc.maxHP) + (0.5 * maxHP / desc.maxHP);
     public Armor() { }
     public Armor(Item source, ArmorDesc desc) {

@@ -12,28 +12,27 @@ using static RogueFrontier.ItemType;
 namespace RogueFrontier;
 
 public class StationType : IDesignType {
-	[Req] public string codename;
-	[Req] public string name;
-	[Opt] public bool crimeOnDestroy;
-	[Opt] public double stealth;
+	[InspectName] [Req] public string codename;
+	[InspectField][Req] public string name;
+	[InspectField][Opt] public bool crimeOnDestroy;
+	[InspectField][Opt] public double stealth;
 	[Opt(parse = false)] public byte[] discoverySound;
 
 
-	[Opt(separator = ";")] public HashSet<string> attributes = new();
+	[InspectField][Opt(separator = ";")] public HashSet<string> attributes = new();
 
 	[Sub(alias = "HP", type = typeof(HitPointDesc))]
 	[Sub(alias = "LayeredArmor", type = typeof(LayeredArmorDesc), fallback = true)]
 	[Err(msg = "Hull system expected")]
 	public HullSystemDesc hull;
 
-
+	[InspectField]
 	[Opt(alias ="explosionType", parse = false)]
 	[Sub(alias = "Explosion", fallback = true)]
 	public FragmentDesc ExplosionDesc;
 
 	[Opt] public Station.Behaviors behavior;
 	[Req(parse = false)] public Sovereign sovereign;
-
 	public StaticTile tile;
 	public List<SegmentDesc> segments;
 	public List<XY> dockPoints;

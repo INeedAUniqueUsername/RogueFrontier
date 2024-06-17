@@ -128,6 +128,30 @@ public class SfLinkGroup {
 	}
 }
 
+public class SfBool :SfControl{
+
+	public Action<Sf> Draw { set; get; }
+
+	public (int x, int y) pos;
+	public Sf on;
+	bool b;
+	public SfBool((int x, int y) pos, Sf on) {
+		this.pos = pos;
+		this.on = on;
+	}
+	Hand h = new();
+	void SfControl.HandleMouse(LibGamer.HandState state) {
+
+		if(on.SubRect(pos.x, pos.y, 1, 1).Contains(state.pos)) {
+			
+		}
+	}
+	void SfControl.Render(System.TimeSpan delta) {
+		on.Print(pos.x, pos.y, b ? "True" : "False");
+	}
+
+}
+
 public class SfField : SfControl {
 	public Action<Sf> Draw { get; set; }
 
@@ -168,9 +192,9 @@ public class SfField : SfControl {
 		this.on = on;
 		this.Width = width;
 		this.pos = pos;
-		this.text = text;
 		_index = 0;
 		_text = "";
+		this.text = text;
 		placeholder = new string('.', width);
 		time = 0;
 		mouse = new();

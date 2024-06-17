@@ -87,7 +87,7 @@ public class Projectile : MovingObject {
                 PlayerShip { avoidHit: { }ah } => ah,
                 AIShip { avoidHit: { }ah } => ah,
                 Station {guards:{ }g } => g,
-                _ => new HashSet<Entity>()
+                _ => []
             });
         }
         //exclude.UnionWith(source.world.entities.all.OfType<ActiveObject>().Where(a => a.sovereign == source.sovereign));

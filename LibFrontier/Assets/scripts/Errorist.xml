@@ -295,7 +295,7 @@
 			/>
 	</ShipClass>
 	<ShipClass	codename=	"ship_errorist_fighter"
-		name=				"Noxious fighter"
+		name=				"Noxious gunship"
 		thrust=				"0.25"
 		maxSpeed=			"12"
 		rotationAccel=		"3"
@@ -317,6 +317,18 @@
 			startingClass="false"
 			description="The Noxious is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
 			/>
+	</ShipClass>
+	<ShipClass codename=	"ship_errorist_missileship"
+		name=				"Numbing missileship"
+		thrust=				"0.25"
+		maxSpeed=			"12"
+		rotationAccel=		"3"
+		rotationDecel=		"6"
+		rotationMaxSpeed=	"4"
+		glyph=				"e"
+		foreground=			"Orange"
+		>
+		
 	</ShipClass>
 	
 	<ShipClass	codename=	"ship_errorist_destroyer"

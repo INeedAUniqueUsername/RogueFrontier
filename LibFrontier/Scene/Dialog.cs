@@ -24,6 +24,10 @@ public record NavChoice (char key, string name, Func<IScene, IScene> next, NavFl
 	public NavChoice () : this('\0', "", null, 0) { }
 	public NavChoice (string name) : this(name, null, 0) { }
 	public NavChoice (string name, Func<IScene, IScene> next, NavFlags flags = 0, bool enabled = true) : this(name.FirstOrDefault(char.IsLetterOrDigit), name, next, flags, enabled) { }
+
+
+	public static implicit operator NavChoice (string name) => new(name);
+	public static implicit operator NavChoice ((string name, Func<IScene, IScene> nav) p) => new(p.name, p.nav);
 }
 public static class SNav {
 	public static NavChoice DockArmorRepair (SceneCtx c, int price) =>

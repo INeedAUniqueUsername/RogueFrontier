@@ -505,6 +505,8 @@ public record FragmentDesc {
 	[Opt] public int ricochet;
 	[Opt] public int tracker;
 
+	[Opt] public bool numbing;
+
 	/// <summary>If the target shield is up, sets the remaining delay to at least this value</summary>
 	[Opt] public int shieldDelay = 0;
 	/// <summary>If the target shield is down, sets the remaining depletion delay to at least this value</summary>

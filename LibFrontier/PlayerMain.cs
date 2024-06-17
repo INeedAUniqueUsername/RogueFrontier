@@ -1402,7 +1402,7 @@ public class Readout {
         for (int i = 0; i < player.messages.Count; i++) {
             var message = player.messages[i];
             var line = message.Draw();
-            var xStart = 36;
+            var xStart = 52;
             var x = xStart - line.Count();
             sf_ui.Print(x, messageY, line);
             if (message is Transmission t) {
