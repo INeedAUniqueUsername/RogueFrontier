@@ -1156,7 +1156,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
     }
     public void Update(TimeSpan delta) {
         silenceViewport.Update(delta);
-        armorDecay = false && player.hull is LayeredArmor la && la.layers.Any(a => a.decay.Any());
+        armorDecay = false && player.hull is LayeredArmor la && la.layers.Any(a => a.corrode.Any());
         var charging = player.powers.Where(p => p.charging);
         if (charging.Any()) {
             var (power, charge) = charging.Select(p => (power:p, charge: p.invokeCharge / p.invokeDelay)).MaxBy(p => p.charge);
@@ -1664,7 +1664,7 @@ public class Readout {
                                         ABGR.Orange :
                                     ABGR.Gray;
                                 var bb =
-                                    armor.decay.Any() ?
+                                    armor.corrode.Any() ?
                                         ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Red, 128)) :
                                     tick - armor.lastRegenTick < 15 ?
                                         ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Cyan, 128)) :
@@ -1891,7 +1891,7 @@ public class Readout {
                             //Foreground describes current action
                             var f =
                                     armor.hp > 0 ?
-                                        (armor.decay.Any() ?
+                                        (armor.corrode.Any() ?
 											ABGR.Red :
                                         tick - armor.lastDamageTick < 15 ?
 											ABGR.Yellow :
@@ -1904,7 +1904,7 @@ public class Readout {
 
                                 armor.hasRecovery ?
 									ABGR.Blend(ABGR.Black,ABGR.SetA(ABGR.Cyan,51)) :
-                                armor.decay.Any() ?
+                                armor.corrode.Any() ?
 									ABGR.Blend(ABGR.Black,ABGR.SetA(ABGR.Red,51)) :
                                 armor.hp > 0 ?
                                     b :

@@ -110,6 +110,12 @@ public class Corrode {
     public CorrodeDesc desc;
     public ActiveObject source;
     public double lifetime;
+
+    public Corrode(CorrodeDesc desc, Projectile p) {
+        this.desc = desc;
+        this.source = p.source;
+        this.lifetime = desc.lifetime;
+    }
 }
 public class Armor : Device {
     [JsonProperty]
@@ -130,7 +136,7 @@ public class Armor : Device {
     public double lifetimeDamageAbsorbed;
     public int lastDamageTick = -1000;
     public int lastRegenTick = -1000;
-    public HashSet<CorrodeDesc> decay = [];
+    public HashSet<Corrode> corrode = [];
     public int powerUse { get; private set; }
     public bool allowRecovery;
     public bool hasRecovery => allowRecovery && Math.Max(hpToRecover, Math.Max(desc.freeRegenRate, killHP)) >= 1;
@@ -155,28 +161,28 @@ public class Armor : Device {
     public void Update(double delta, Station st) =>
         UpdateCommon(delta, st, st.damageSystem);
     private void UpdateCommon(double delta, ActiveObject owner, HullSystem hull) {
-        if (decay.Any()) {
+        if (corrode.Any()) {
             var ownerSilence = owner switch {
                 AIShip {ship:{silence:{ } s } } => s,
                 PlayerShip { ship: { silence: { }s } } => s,
                 _ => 0
             };
-            var expired = new HashSet<CorrodeDesc>();
+            var expired = new HashSet<Corrode>();
             //If the armor is down, then degrade it faster
             if (hp == 0) {
-                if (hull.GetHP() == 0 && decay.FirstOrDefault(d => d.lethal) is { } kill) {
+                if (hull.GetHP() == 0 && corrode.FirstOrDefault(d => d.desc.lethal) is { } kill) {
                     owner.Destroy(kill.source);
                 } else {
-                    if (decay.Where(d => d.descend).ToList() is { Count:>0 } descending &&
+                    if (corrode.Where(d => d.desc.descend).ToList() is { Count:>0 } descending &&
                         hull is LayeredArmor { layers: { } layers } &&
                         layers.Reverse<Armor>().Skip(layers.Count - layers.IndexOf(this)).FirstOrDefault(l => l.hp > 0) is { } next) {
 
-                        decay.ExceptWith(descending);
-                        next.decay.UnionWith(descending);
+                        corrode.ExceptWith(descending);
+                        next.corrode.UnionWith(descending);
                     }
-                    foreach (var d in decay) {
-                        var silenceMatch = FragmentDesc.GetSilenceMatch(d.silenceFactor, ownerSilence);
-                        lifetimeDamageAbsorbed += delta * 60 * (d.damageRate * d.degradeFactor + d.fixedDegradeRate) * silenceMatch;
+                    foreach (var d in corrode) {
+                        var silenceMatch = FragmentDesc.GetSilenceMatch(d.desc.silenceFactor, ownerSilence);
+                        lifetimeDamageAbsorbed += delta * 60 * (d.desc.damageRate * d.desc.degradeFactor + d.desc.fixedDegradeRate) * silenceMatch;
                         d.lifetime -= delta;
                         if (d.lifetime <= 0) {
                             expired.Add(d);
@@ -186,13 +192,13 @@ public class Armor : Device {
                 lastDamageTick = owner.world.tick;
             } else {
                 var totalDegrade = 0d;
-                foreach (var d in decay) {
-                    var silenceMatch = FragmentDesc.GetSilenceMatch(d.silenceFactor, ownerSilence);
+                foreach (var d in corrode) {
+                    var silenceMatch = FragmentDesc.GetSilenceMatch(d.desc.silenceFactor, ownerSilence);
 
-                    var degrade = delta * 60 * (d.fixedDegradeRate) * silenceMatch;
+                    var degrade = delta * 60 * (d.desc.fixedDegradeRate) * silenceMatch;
                     totalDegrade += degrade;
 
-                    corrodeHP += d.damageRate * delta * 60 * silenceMatch;
+                    corrodeHP += d.desc.damageRate * delta * 60 * silenceMatch;
                     d.lifetime -= delta;
                     if (d.lifetime <= 0) {
                         expired.Add(d);
@@ -212,7 +218,7 @@ public class Armor : Device {
                     UpdateHP();
                 }
             }
-            decay.ExceptWith(expired);
+            corrode.ExceptWith(expired);
         }
         if (titanHP > 0) {
             if (titanDuration > 0) {
@@ -405,9 +411,10 @@ public class Armor : Device {
         }
         p.damageLeft = Math.Max(0, p.damageLeft - (int)Math.Ceiling(Math.Max(absorbed, damageWall) / multiplier));
         return absorbed;
+
         void ApplyDecay() {
             if (p.desc.Corrode is { } d) {
-                decay.Add(new(d, p));
+                corrode.Add(new Corrode(d, p));
             }
         }
     }

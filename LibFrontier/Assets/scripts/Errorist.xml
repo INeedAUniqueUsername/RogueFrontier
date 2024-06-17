@@ -328,7 +328,16 @@
 		glyph=				"e"
 		foreground=			"Orange"
 		>
-		
+
+		<Devices>
+			<Weapon	codename="item_gamma_launcher"/>
+			<Weapon codename="item_lucifer_cannon"/>
+		</Devices>
+		<LayeredArmorSystem>
+			<Armor	codename="item_radiant_plate"/>
+			<Armor	codename="item_radiant_plate"/>
+			<Armor	codename="item_radiant_plate"/>
+		</LayeredArmorSystem>
 	</ShipClass>
 	
 	<ShipClass	codename=	"ship_errorist_destroyer"
