@@ -414,7 +414,7 @@ public class Armor : Device {
 
         void ApplyDecay() {
             if (p.desc.Corrode is { } d) {
-                corrode.Add(new Corrode(d, p));
+                corrode.Add(new(d, p));
             }
         }
     }

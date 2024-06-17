@@ -395,7 +395,7 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_missile_defender"
-				name=		"Kinetic takedown"
+				name=		"Kinetic intercept"
 				level=		"3"
 				mass=		"1000"
 				value=		"4000"
@@ -406,7 +406,7 @@
 		>
 		<Weapon
 			powerUse=		"5"
-			fireCooldown=	"30"
+			fireCooldown=	"15"
 			pointDefense=	"true"
 			>
 
@@ -414,8 +414,8 @@
 				missileSpeed=	"100"
 				damageType=		"1"
 				damageHP=		"1"
-				lifetime=		"15"
-				glyph=			"-"
+				lifetime=		"20"
+				glyph=			"\249"
 				foreground=		"Red"
 				/>
 		</Weapon>

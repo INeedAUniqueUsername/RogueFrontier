@@ -2,6 +2,8 @@
 using System;
 using System.Linq;
 using LibGamer;
+using System.Collections.Generic;
+using System.Runtime.Intrinsics.X86;
 namespace RogueFrontier;
 public class Heading : Effect {
     public IShip parent;
@@ -13,7 +15,84 @@ public class Heading : Effect {
     public Tile tile => null;
     int ticks;
     public EffectParticle[] particles;
-    public void Update(double delta) {
+
+
+    static char g = (char)776;
+    /*
+    public static int WN = 776,
+        W_NE = 777,
+        W_E = 778,
+        W_SE = 779,
+        W_S = 780,
+        NW_NE = 781,
+        NW_E = 782,
+        NW_SE = 783,
+        NW_S = 784,
+        NW_SW = 785,
+        N_E = 786,
+        N_SE = 787,
+        N_S = 788,
+        N_SW = 789,
+        NE_SE = 790,
+        NE_S = 791,
+        NE_SW = 792,
+        E_S = 793,
+        E_SW = 794,
+        SE_SW = 795;
+    */
+    public static Dictionary<((int x, int y) prev,(int x, int y) next), int> Connectors;
+	static Heading()  {
+
+
+        (int, int)
+			W = (-1, 0), N = (0, 1), E = (1, 0), S = (0, -1), NE = (1, 1), NW = (-1, 1), SE = (1, -1), SW = (-1, -1);
+        int i = 776;
+        Connectors = new () {
+			[(W, N)] = 776,
+			[(W, NE)]= 777,
+			[(W, E)] = 778,
+			[(W, SE)]= 779,
+			[(W, S)]= 780,
+			[(NW, NE)]= 781,
+			[(NW, E)]=782,
+			[(NW, SE)]= 783,
+			[(NW, S)]=784,
+			[(NW, SW)]= 785,
+			[(N, E)]=786,
+			[(N, SE)]= 787,
+			[(N, S)]=788,
+			[(N, SW)]=789,
+			[(N, W)]=776,
+			[(NE,SE)]=790,
+			[(NE,S)]=791,
+			[(NE,SW)]= 792,
+			[(NE,W)] = 777,
+			[(NE,NW)] = 781,
+			[(E,S)]= 793,
+			[(E, SW)] = 794,
+			[(E,W)] = 778,
+			[(E,N)] = 786,
+			[(E,NW)] = 782,
+			[(SE, SW)] = 795,
+			[(SE,W)] = 779,
+			[(SE,NW)] = 783,
+			[(SE,N)] = 787,
+			[(SE,NE)] = 790,
+			[(S,E)] = 793,
+			[(S,NE)] = 791,
+			[(S,N)] = 788,
+			[(S,NW)] = 784,
+			[(S,W)] = 780,
+			[(SW,E)] = 794,
+			[(SW,NW)] = 785,
+			[(SW,N)] = 789,
+			[(SW,NE)] = 792,
+			[(SW,E)] = 794,
+			[(SW,SE)] = 795,
+		};
+    }
+
+	public void Update(double delta) {
         if (parent.dock.docked == true) {
             ticks = 0;
             return;
@@ -29,10 +108,17 @@ public class Heading : Effect {
             int count = length / step;
             particles = new EffectParticle[count];
             for (int i = 0; i < count; i++) {
-                var point = start + inc * (i + 1);
+
+
+
+
+
+
+				var here = start + inc * (i + 1);
                 var value = (byte)(153 - Math.Max(1, i) * 153 / length);
-                var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, (char)249);
-                var particle = new EffectParticle(point, cg, interval + 1);
+
+				var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, g + 5);
+                var particle = new EffectParticle(here, cg, interval + 1);
                 particles[i] = particle;
                 parent.world.AddEffect(particle);
             }
@@ -48,14 +134,26 @@ public class Heading : Effect {
     }
     public static void AimLine(System World, XY start, double angle, int lifetime = 1) {
         //ColoredGlyph pointEffect = new ColoredGlyph((char)249, new Color(153, 153, 76), Color.Transparent);
-        var pointEffect = new Tile(ABGR.RGBA(255, 255, 0, 204), ABGR.Transparent, (char)249);
         var point = start;
         var inc = XY.Polar(angle);
         int length = 20;
         int interval = 2;
         for (int i = 0; i < length / interval; i++) {
             point += inc * interval;
-            World.AddEffect(new EffectParticle(point, pointEffect, lifetime));
+
+
+
+			var prev = point - inc;
+			var next = point + inc;
+
+			var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
+			var _c = ((double x, double y) p) => (c(p.x), c(p.y));
+			var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
+			var g = Connectors.GetValueOrDefault(__c((prev.roundDown - point.roundDown), (next.roundDown - point.roundDown)), 249);
+
+			var pointEffect = new Tile(ABGR.RGBA(255, 255, 0, 204), ABGR.Transparent, g);
+
+			World.AddEffect(new EffectParticle(point, pointEffect, lifetime));
         }
     }
     public static void AimLine(ActiveObject owner, double angle, Weapon w) {
@@ -66,7 +164,7 @@ public class Heading : Effect {
 
         //ColoredGlyph pointEffect = new ColoredGlyph((char)249, new Color(153, 153, 76), Color.Transparent);
         //ColoredGlyph dark = new ColoredGlyph(new Color(255, 255, 0, 102), Color.Transparent, (char)249);
-        var bright = new Tile(ABGR.RGBA(255, 255, 0, 204), ABGR.Transparent, (char)249);
+        var bright = new Tile(ABGR.RGBA(255, 255, 0, 204), ABGR.Transparent, g);
         var point = start;
         var inc = XY.Polar(angle);
         //var length = w.target == null ? 20 : (w.target.Position - owner.Position).Magnitude;
