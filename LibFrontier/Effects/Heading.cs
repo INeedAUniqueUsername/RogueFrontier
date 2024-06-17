@@ -193,11 +193,11 @@ public class Heading : Effect {
     public static void Crosshair(System World, XY point, uint foreground) {
         //Color foreground = new Color(153, 153, 153);
         var background = ABGR.Transparent;
-        var cg = (uint c) => new Tile(foreground, background, c);
-        World.AddEffect(new EffectParticle(point + (1, 0), cg('-'), 1));
-        World.AddEffect(new EffectParticle(point + (-1, 0), cg('-'), 1));
-        World.AddEffect(new EffectParticle(point + (0, 1), cg('|'), 1));
-        World.AddEffect(new EffectParticle(point + (0, -1), cg('|'), 1));
+        var cg = (int c) => new Tile(foreground, background, c);
+        World.AddEffect(new EffectParticle(point + (1, 0), cg(826), 1));
+        World.AddEffect(new EffectParticle(point + (-1, 0), cg(825), 1));
+        World.AddEffect(new EffectParticle(point + (0, 1), cg(824), 1));
+        World.AddEffect(new EffectParticle(point + (0, -1), cg(856), 1));
     }
     public static void Box(Station st, uint foreground) {
         //Color foreground = new Color(153, 153, 153);
