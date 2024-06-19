@@ -6,15 +6,16 @@ using System.IO;
 using System.Linq;
 namespace RogueFrontier;
 public class PauseScreen : IScene {
-    public Mainframe playerMain;
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+	public Mainframe playerMain;
     public SparkleFilter sparkle;
     public Sf sf;
+    public List<SfControl> controls = [];
     public bool visible;
     public int Width => sf.Width;
     public int Height => sf.Height;
-	public Action<IScene> Go { get;set; }
-	public Action<Sf> Draw { get;set; }
-	public Action<SoundCtx> PlaySound { get; set; }
 
 	public PauseScreen(Mainframe playerMain) {
         sf = new(playerMain.Width * 4/3, playerMain.Height, Fonts.FONT_6x8);
@@ -23,10 +24,10 @@ public class PauseScreen : IScene {
         int x = 2;
         int y = 2;
         var fs = 3;
-#if false
-        Children.Add(new Label("[Paused]") { Position = new Point(x, y++), FontSize = fs });
+#if true
+        controls.Add(new SfLabel(sf, (x,y++),"[Paused]"));
         y++;
-        Surface.Children.Add(new LabelButton("Continue", Continue) { Position = new Point(x, y++), FontSize = fs });
+        controls.Add(new SfLink(sf, (x,y++),"Continue", Continue));
         y++;
         y++;//this.Children.Add(new LabelButton("Save & Continue", SaveContinue) { Position = new Point(x, y++), FontSize = fs });
         y++;
@@ -34,9 +35,9 @@ public class PauseScreen : IScene {
         y++;
         y++;
         y++;
-        Surface.Children.Add(new LabelButton("Self Destruct", SelfDestruct) { Position = new Point(x, y++), FontSize = fs });
+        controls.Add(new SfLink(sf, (x,y++), "Self Destruct", SelfDestruct));
         y++;
-        Surface.Children.Add(new LabelButton("Delete & Quit", DeleteQuit) { Position = new Point(x, y++), FontSize = fs });
+        controls.Add(new SfLink(sf, (x, y++), "Delete & Quit", DeleteQuit));
 #endif
     }
     public void Update(TimeSpan delta) {
@@ -62,6 +63,8 @@ public class PauseScreen : IScene {
                 sf.Print(x, y++, line.PadRight(Width - x - 4), ABGR.White, ABGR.Black);
             }
         }
+
+        foreach(var c_ in controls) c_.Render(delta);
         Draw?.Invoke(sf);
     }
     public void HandleKey(KB kb) {
@@ -70,8 +73,8 @@ public class PauseScreen : IScene {
         }
     }
     public void HandleMouse(HandState state) {
-        
-    }
+		foreach(var c in controls) c.HandleMouse(state);
+	}
     public void Continue() {
         visible = false;
     }

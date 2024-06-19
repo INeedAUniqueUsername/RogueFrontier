@@ -197,19 +197,19 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var prevViewport = new Viewport(Width, Height, monitor.FreezeCamera);
         world.entities.Remove(playerShip);
 
-        var nextWorld = destGate.world;
-        playerShip.ship.world = nextWorld;
+        var dest = destGate.world;
+        playerShip.ship.world = dest;
         playerShip.ship.position = destGate.position + (playerShip.ship.position - gate.position);
-        nextWorld.entities.Add(playerShip);
-        nextWorld.effects.Add(new Heading(playerShip));
-        var nextViewport = new Viewport(Width, Height, monitor with { world = nextWorld });
+        dest.entities.Add(playerShip);
+        dest.effects.Add(new Heading(playerShip));
+        var nextViewport = new Viewport(Width, Height, monitor with { world = dest });
 
-        uiBack = new(nextViewport);
-        uiViewport = nextViewport;
         this.gate = new GateTransition(prevViewport, nextViewport, () => {
             this.gate = null;
         });
-    }
+		uiBack = new(nextViewport);
+		uiViewport = nextViewport;
+	}
     public void OnIntermission() {
         HideAll();
         Go(new ExitTransition(this, this.sf, () => {
@@ -1396,8 +1396,11 @@ public class Readout {
     }
     public void Render(TimeSpan drawTime) {
         sf_ui.Clear();
-        var messageY = Height * 3 / 5;
-        int targetX = 48, targetY = 1;
+
+        var wd = 42;
+
+		var messageY = Height * 3 / 5;
+        int targetX = wd + 4, targetY = 1;
         int tick = player.world.tick;
         for (int i = 0; i < player.messages.Count; i++) {
             var message = player.messages[i];
@@ -1703,7 +1706,7 @@ public class Readout {
             int x = 4;
             int y = 3;
 
-            Sf.DrawRect(sf_ui, x++, y++, 48, 16, new() {
+            Sf.DrawRect(sf_ui, x++, y++, wd, 16, new() {
                 f = ABGR.White,
                 b = ABGR.SetA(ABGR.Black, 128),
             });

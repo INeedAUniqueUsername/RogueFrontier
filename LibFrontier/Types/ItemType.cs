@@ -8,7 +8,7 @@ using System.IO;
 namespace RogueFrontier;
 public interface ItemUse {
 	string GetDesc(PlayerShip player, Item item);
-	void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) { }
+	void Invoke(SceneCtx ctx, Item item, Action callback = null) { }
 }
 public record DeployShip : ItemUse {
 	[Req(parse = false)] public ShipClass shipClass;
@@ -19,7 +19,9 @@ public record DeployShip : ItemUse {
 		});
 	}
 	public string GetDesc(PlayerShip player, Item item) => $"Deploy {shipClass.name}";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
+
+		var player = ctx.playerShip;
 		var w = new Wingmate(player);
 		var a = new AIShip(
 			new(player.world, shipClass, player.position),
@@ -44,7 +46,8 @@ public record DeployStation : ItemUse {
 		});
 	}
 	public string GetDesc(PlayerShip player, Item item) => $"Deploy {stationType.name}";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
+		var player = ctx.playerShip;
 		var a = new Station(player.world, stationType, player.position) { sovereign = player.sovereign };
 		player.world.AddEntity(a);
 		a.CreateSegments();
@@ -58,7 +61,8 @@ public record DeployStation : ItemUse {
 public record InstallWeapon : ItemUse {
 	public string GetDesc(PlayerShip player, Item item) =>
 		player.cargo.Contains(item) ? "Install this weapon" : "Remove this weapon";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
+		var player = ctx.playerShip;
 		if (player.cargo.Contains(item)) {
 			if(player.shipClass.restrictWeapon?.Matches(item) == false) {
 				player.AddMessage(new Message($"Unable to install weapon (incompatible): {item.type.name}"));
@@ -82,8 +86,8 @@ public record RepairArmor : ItemUse {
 	public RepairArmor(XElement e) {
 		e.Initialize(this);
 	}
-	public void Invoke(SceneCtx c, Item item, Action callback) {
-		c.prev.Go(SMenu.RepairArmorFromItem(c, item, this, callback));
+	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback) {
+		ctx.prev.Go(SMenu.RepairArmorFromItem(ctx, item, this, callback));
 	}
 }
 public record InvokePower : ItemUse {
@@ -97,7 +101,8 @@ public record InvokePower : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Invoke {powerType.name} ({charges} charges remaining)";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+	void ItemUse.Invoke (SceneCtx ctx, Item item, Action callback = null) {
+		var player = ctx.playerShip;
 		player.AddMessage(new Message($"Invoked the power of {item.type.name}"));
 		charges--;
 		if (charges == 0) {
@@ -114,7 +119,7 @@ public record Refuel : ItemUse {
 		e.Initialize(this);
 	}
 	public string GetDesc(PlayerShip player, Item item) => "Refuel reactor";
-	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx c, Item item, Action callback = null) {
 		c.prev.Go(SMenu.RefuelFromItem(c, item, this, callback));
 	}
 }
@@ -124,8 +129,8 @@ public record DepleteTargetShields() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		player.GetTarget(out var t) ? $"Deplete shields on {t.name}" : "Deplete shields on target";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
-
+	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
+		var player = ctx.playerShip;
 		//var am = Common.Main.PreBind(player.AddMessage, (string s) => new Message(s));
 		var am = Main.PreBind((string s) => player.AddMessage(new Message(s)));
 		(
@@ -155,7 +160,7 @@ public record ReplaceDevice() : ItemUse {
 	});
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Replace installed {from.name}";
-	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx c, Item item, Action callback = null) {
 		c.Go(SMenu.ReplaceDeviceFromItem(c, item, this, callback));
 		c.playerShip.cargo.Remove(item);
 		callback?.Invoke();
@@ -171,7 +176,7 @@ public record RechargeWeapon() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Recharged {item.name}";
-	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx c, Item item, Action callback = null) {
 		c.Go(SMenu.RechargeWeaponFromItem(c, item, this, callback));
 		c.playerShip.cargo.Remove(item);
 		callback?.Invoke();
@@ -188,7 +193,8 @@ public record UnlockPrescience() : ItemUse {
 	});
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Read book";
-	public void Invoke(IScene prev, PlayerShip player, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx c, Item item, Action callback = null) {
+		var player = c.playerShip;
 		if (player.powers.Contains(prescience)) {
 			player.AddMessage(new Message("You already have PRESCIENCE!"));
 		} else {
@@ -205,7 +211,7 @@ public record ApplyMod() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Apply modifier to item (shows menu)";
-	public void Invoke(SceneCtx c, Item item, Action callback = null) {
+	void ItemUse.Invoke(SceneCtx c, Item item, Action callback = null) {
 		c.Go(SMenu.SetMod(c, item, mod, callback));
 	}
 }
@@ -523,9 +529,7 @@ public record FragmentDesc {
 	[Opt] public double silenceInflict;
 	[Sub] public FlashDesc Flash;
 	[Sub] public CorrodeDesc Corrode;
-	[Sub] public DisruptorDesc Disruptor;
-
-
+	[Sub] public DisruptDesc Disrupt;
 	public double CalcSilenceRatio(double targetSilence) => FragmentDesc.GetSilenceMatch(silenceFactor, targetSilence);
 	/// <summary>Calculates the total damage dealt (silent plus non-silent)</summary>
 	public static double GetSilenceMatch(double silenceFactor, double targetSilence) {
@@ -549,14 +553,12 @@ public record FragmentDesc {
 		//.32 + .12
 		//.44
 	}
-
 	public int range => missileSpeed * lifetime / Constants.TICKS_PER_SECOND;
 	public double angleInterval => spreadAngle / count;
 	public int range2 => range * range;
 	[Sub(required = false, multiple = true)] public HashSet<FragmentDesc> Fragment = new();
 	[Par] public StaticTile effect;
 	[Sub] public TrailDesc Trail;
-
 	[Opt(parse = false)] public byte[] detonateSound;
 	public FragmentDesc() { }
 	public FragmentDesc(XElement e) {
@@ -652,26 +654,28 @@ public record TrailDesc : ITrail {
 	}
 	public Effect GetParticle(XY Position, XY Velocity = null) => new FadingTile(Position, new(foreground, background, glyph), lifetime);
 }
-public record DisruptorDesc {
-	[Opt(parse = false)] bool? thrustMode, turnMode, brakeMode, fireMode;
-	[Opt] public int lifetime = 60;
-	public DisruptorDesc() { }
-	public DisruptorDesc(XElement e) {
+public record DisruptDesc {
+	[Opt(parse = false)] bool? thrust, turn, brake, fire;
+	[Opt] public IDice lifetime = new Constant(60);
+	public DisruptDesc() { }
+	public DisruptDesc(XElement e) {
+
+		var f = GetMode;
 		e.Initialize(this, transform:new() {
-			[nameof(thrustMode)] = GetMode,
-			[nameof(turnMode)] = GetMode,
-			[nameof(brakeMode)] = GetMode,
-			[nameof(fireMode)] = GetMode,
+			[nameof(thrust)] = f,
+			[nameof(turn)] = f,
+			[nameof(brake)] = f,
+			[nameof(fire)] = f,
 		});
 	}
 	public Disrupt GetHijack() => new() {
-		thrustMode = thrustMode,
-		turnMode = turnMode,
-		brakeMode = brakeMode,
-		fireMode = fireMode,
-		ticksLeft = lifetime
+		thrustMode = thrust,
+		turnMode = turn,
+		brakeMode = brake,
+		fireMode = fire,
+		ticksLeft = lifetime.Roll()
 	};
-	public bool? GetMode(string str) => str switch {
+	public static bool? GetMode(string str) => str switch {
 		"on" => true,
 		"off" => false,
 		"none" => null,

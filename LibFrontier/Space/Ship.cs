@@ -177,7 +177,7 @@ public class BaseShip {
         }
         int knockback = p.desc.knockback * p.damageLeft / Math.Max(1, dmgMatched);
         velocity += (p.velocity - velocity).WithMagnitude(knockback);
-        disruption = p.desc.Disruptor?.GetHijack() ?? disruption;
+        disruption = p.desc.Disrupt?.GetHijack() ?? disruption;
     }
     public void Destroy(ActiveObject owner) {
         var items = cargo
@@ -235,7 +235,7 @@ public class BaseShip {
             decelerating = disruption.brakeMode ?? decelerating;
             devices.Weapon.ForEach(a => a.firing = disruption.fireMode ?? a.firing);
             disruption.Update();
-            if (disruption.active == false) {
+            if (!disruption.active) {
                 disruption = null;
             }
         }

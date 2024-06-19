@@ -1,5 +1,5 @@
 ﻿<Module>
-	<GenomeType codename="genome_human_male"		name="Human Male"		species="human"	gender="male"		subjective="he"		objective="him"	possessiveAdj="his"		possessiveNoun="his"	reflexive="himself"/>
-	<GenomeType codename="genome_human_female"	name="Human Female"		species="human"	gender="female"		subjective="she"	objective="her"	possessiveAdj="her"		possessiveNoun="hers"	reflexive="herself"/>
-	<GenomeType codename="genome_human_enby"	name="Human Enby"	species="human"	gender="nonbinary"	subjective="they"	objective="them"	possessiveAdj="their"	possessiveNoun="theirs" reflexive="theirself"/>
+	<GenomeType codename="genome_human_male"	name="Human Male"	kind="human"	gender="male"		subjective="he"		objective="him"	possessiveAdj="his"		possessiveNoun="his"	reflexive="himself"/>
+	<GenomeType codename="genome_human_female"	name="Human Female"	kind="human"	gender="female"		subjective="she"	objective="her"	possessiveAdj="her"		possessiveNoun="hers"	reflexive="herself"/>
+	<GenomeType codename="genome_human_enby"	name="Human Enby"	kind="human"	gender="nonbinary"	subjective="they"	objective="them"	possessiveAdj="their"	possessiveNoun="theirs" reflexive="theirself"/>
 </Module>

@@ -1091,7 +1091,7 @@ public static class Main {
 	/// <seealso cref="Sub"/>
 	/// <exception cref="Exception"></exception>
 	public static void Initialize(this XElement ele, object obj, object inherit = null, Dictionary<string, object> transform = null, Dictionary<string, object> fallback = null) {
-		var props = obj.GetType().GetFields();
+		var props = obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 		foreach (var p in props) {
 			foreach(var a in p.GetCustomAttributes(true).OfType<IXml>()) {
 				void Transform(ref object value, object f) {

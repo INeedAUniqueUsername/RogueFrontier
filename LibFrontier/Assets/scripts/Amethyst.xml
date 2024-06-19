@@ -64,7 +64,7 @@
 		>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_25mw_generator"
-				name=		"Amethyst 25MW generator"
+				name=		"Amethyst 25* generator"
 				level=		"1"
 				mass=		"3000"
 		>
@@ -295,7 +295,7 @@
 				
 				tracker=		"8"
 				>
-				<Flash intensity="8"/>
+				<Flash intensity="8" lifetime="30"/>
 			</Projectile>
 		</Weapon>
 	</ItemType>
@@ -315,7 +315,7 @@
 			idlePowerUse=	"2"
 			maxHP=			"60"
 			damageDelay=	"60"
-			depletionDelay=	"120"
+			depletionDelay=	"180"
 			regen=			"60 / 150"
 			>
 		</Shield>
@@ -335,8 +335,8 @@
 			idlePowerUse=	"3"
 			maxHP=			"120"
 			damageDelay=	"60"
-			depletionDelay=	"120"
-			regen=			"60 / 150"
+			depletionDelay=	"180"
+			regen=			"120 / 300"
 			>
 		</Shield>
 	</ItemType>

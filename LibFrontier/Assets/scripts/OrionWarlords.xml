@@ -137,7 +137,7 @@
 					lifetime=	"15"
 					glyph=		"+"
 					foreground=	"Orange"
-					background=	"552200"/>
+					background=	"552200FF"/>
 			</Projectile>
 			<Capacitor
 				dischargeOnFire=		"100"

@@ -381,9 +381,9 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 		var g = e.TryAtt(["g", "glyph"], out var _g) ? char.Parse(_g) : throw new Exception();
 		return new Tile(f, b, g);
 	}
-	public static Tile[] ArrFrom(XElement element, uint df = ABGR.White, uint db = ABGR.Black) {
-		var f = element.TryAttUint("f", df);
-		var b = element.TryAttUint("b", db);
+	public static Tile[] ArrFrom(XElement element, uint f = ABGR.White, uint b = ABGR.Black) {
+		f = element.TryAttUint("f", f);
+		b = element.TryAttUint("b", b);
 		return [.. GetParts().SelectMany(a => a)];
 		IEnumerable<IEnumerable<Tile>> GetParts () {
 			foreach(var node in element.Nodes()) {

@@ -7,11 +7,12 @@ using System.Xml.Linq;
 using Sys = RogueFrontier.System;
 public record FlashDesc(){
     [Req] public int intensity;
+    [Opt] public int lifetime = 60;
     public FlashDesc(XElement e) : this() {
         e.Initialize(this);
     }
     public void Create(Sys world, XY position) {
-        var center = new Center(position, (int)(255 * Math.Sqrt(intensity)), 60);
+        var center = new Center(position, (int)(255 * Math.Sqrt(intensity)), lifetime);
         world.AddEffect(center);
         int radius = (int)(Math.Sqrt(intensity) * 1.5);
         var particles = Enumerable.Range(-radius*2, radius * 2 * 2)

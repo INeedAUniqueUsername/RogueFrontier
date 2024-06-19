@@ -194,11 +194,18 @@ public class Heading : Effect {
         //Color foreground = new Color(153, 153, 153);
         var background = ABGR.Transparent;
         var cg = (int c) => new Tile(foreground, background, c);
+
+		World.AddEffect(new EffectParticle(point + (1, 0), cg(256-64-12), 1));
+		World.AddEffect(new EffectParticle(point + (-1, 0), cg(256-64+3), 1));
+		World.AddEffect(new EffectParticle(point + (0, 1), cg(256-64+2), 1));
+		World.AddEffect(new EffectParticle(point + (0, -1), cg(256-64+1), 1));
+		/*
         World.AddEffect(new EffectParticle(point + (1, 0), cg(826), 1));
         World.AddEffect(new EffectParticle(point + (-1, 0), cg(825), 1));
         World.AddEffect(new EffectParticle(point + (0, 1), cg(824), 1));
         World.AddEffect(new EffectParticle(point + (0, -1), cg(856), 1));
-    }
+        */
+	}
     public static void Box(Station st, uint foreground) {
         //Color foreground = new Color(153, 153, 153);
         var background = ABGR.Transparent;

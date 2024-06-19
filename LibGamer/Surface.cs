@@ -18,7 +18,7 @@ public interface SfContainer {
 public class Sf {
 	public bool redraw = false;
 	public XY pos = (0, 0);
-	public int scale = 1;
+	public double scale = 1;
 	public Tf font;
 	public int GlyphWidth => font.GlyphWidth;
 	public int GlyphHeight => font.GlyphHeight;

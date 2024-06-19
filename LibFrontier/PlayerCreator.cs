@@ -35,6 +35,8 @@ class PlayerCreator : IScene {
     public Sf sf_tile;
     int Width => sf_img.Width;
     int Height => sf_img.Height;
+
+    public Sf sf_icon;
     public Sf sf_ui;
     private IScene prev;
     private Sf sf_prev;
@@ -48,6 +50,7 @@ class PlayerCreator : IScene {
     public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
         sf_img = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
         sf_ui = new Sf(Width * 4 / 3, Height, Fonts.FONT_6x8);
+        sf_icon = new Sf(1, 1, Fonts.FONT_8x8) { scale = 2, pos = (17, 17) };
         this.prev = prev;
         this.sf_prev = sf_prev;
         this.next = next;
@@ -95,24 +98,24 @@ class PlayerCreator : IScene {
                     controls.Remove(identityButton);
 
                     context.playerGenome = new GenomeType() {
-                        name = "Human Variant",
-                        species = "human",
-                        gender = "variant",
-                        subjective = "they",
-                        objective = "them",
-                        possessiveAdj = "their",
-                        possessiveNoun = "theirs",
-                        reflexive = "theirself"
+                        name =              "Human Enby",
+                        kind =              "human",
+                        gender =            "enby",
+                        subjective =        "they",
+                        objective =         "them",
+                        possessiveAdj =     "their",
+                        possessiveNoun =    "theirs",
+                        reflexive =         "theirself"
                     };
                     Enumerable.ToList<(string key, string val, Action<string> set)>([
-						("Identity       ", playerGenome.name, (s) => playerGenome.name = s),
-						("Species        ", playerGenome.species, (s) => playerGenome.species = s),
+						("Identity       ", playerGenome.name, s => playerGenome.name = s),
+						("Kind           ", playerGenome.kind, s => playerGenome.kind = s),
 						("Gender         ", playerGenome.gender, s => playerGenome.gender = s),
-						("Subjective     ", playerGenome.subjective, (s) => playerGenome.subjective = s),
-						("Objective      ", playerGenome.objective, (s) => playerGenome.objective = s),
-						("Possessive Adj.", playerGenome.possessiveAdj, (s) => playerGenome.possessiveAdj = s),
-						("Possessive Noun", playerGenome.possessiveNoun, (s) => playerGenome.possessiveNoun = s),
-						("Reflexive      ", playerGenome.reflexive, (s) => playerGenome.reflexive = s)
+						("Subjective     ", playerGenome.subjective, s => playerGenome.subjective = s),
+						("Objective      ", playerGenome.objective, s => playerGenome.objective = s),
+						("Possessive Adj.", playerGenome.possessiveAdj, s => playerGenome.possessiveAdj = s),
+						("Possessive Noun", playerGenome.possessiveNoun, s => playerGenome.possessiveNoun = s),
+						("Reflexive      ", playerGenome.reflexive, s => playerGenome.reflexive = s)
 
 						]).ForEach(t => {
                             controls.Add(new LabeledField(sf_ui, (x, y++), t.key, t.val, (e, s) => t.set(s)));
@@ -150,8 +153,12 @@ class PlayerCreator : IScene {
         //We print each line twice since the art gets flattened by the square font
         //Ideally the art looks like the original with an added 3D effect
 
-        Sf.DrawRect(sf_img, 17, y + 2, 3, 3, new());
-        sf_img.Tile[18, y + 3] = current.tile;
+        
+        Sf.DrawRect(sf_img, 16, y + 2, 4, 4, new());
+        //sf_img.Tile[18, y + 3] = current.tile;
+        
+        sf_icon.Tile[0, 0] = current.tile;
+
         foreach (var (p,t) in current.playerSettings.heroImage) {
 
             var pos = (p.X + 2, -p.Y + Height - 36 - 2);
@@ -194,6 +201,7 @@ class PlayerCreator : IScene {
 
         foreach(var c in controls) c.Render(drawTime);
 		Draw?.Invoke(sf_img);
+		Draw?.Invoke(sf_icon);
 		Draw?.Invoke(sf_ui);
 	}
 
@@ -201,7 +209,7 @@ class PlayerCreator : IScene {
     public bool showLeft => index > 0;
 
     public void HandleMouse(HandState state) {
-        foreach(var c in controls) {
+        foreach(var c in controls.ToList()) {
             c.HandleMouse(state);
         }
     }

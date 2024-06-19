@@ -1,6 +1,6 @@
 ﻿<Module>
 	<ItemType	codename=	"item_20mw_generator"
-				name=		"M20 generator"
+				name=		"20* generator"
 				level=		"2"
 				mass=		"1000"
 		>
@@ -13,7 +13,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_50mw_generator"
-			name=		"M50 generator"
+			name=		"50* generator"
 			level=		"4"
 			mass=		"1000"
 		>
@@ -25,7 +25,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_10mw_loneheart"
-				name=		"M10 battery"
+				name=		"10* battery"
 				level=		"2"
 				mass=		"1000"
 				desc=		"This battery is efficient at powering weapons and shields"
@@ -41,7 +41,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_20mw_primary"
-			name=		"M20 battery"
+			name=		"20* battery"
 			level=		"4"
 			mass=		"1000"
 		>
@@ -55,7 +55,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_10mw_secondary"
-			name=		"M10 capacitor"
+			name=		"10* capacitor"
 			level=		"1"
 			mass=		"1000"
 		>
@@ -71,7 +71,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_20mw_secondary"
-			name=		"M20 capacitor"
+			name=		"20* capacitor"
 			level=		"1"
 			mass=		"1000"
 		>
@@ -87,7 +87,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_30mw_secondary"
-			name=		"M30 capacitor"
+			name=		"30* capacitor"
 			level=		"1"
 			mass=		"1000"
 		>
@@ -103,7 +103,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_40mw_secondary"
-			name=		"M40 capacitor"
+			name=		"40* capacitor"
 			level=		"1"
 			mass=		"1000"
 		>
@@ -119,7 +119,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_50mw_secondary"
-			name=		"M50 capacitor"
+			name=		"50* capacitor"
 			level=		"1"
 			mass=		"1000"
 		>
@@ -135,7 +135,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_60mw_secondary"
-		name=		"M60 capacitor"
+		name=		"60* capacitor"
 		level=		"1"
 		mass=		"1000"
 		>
@@ -152,7 +152,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_20mw_solar"
-			name=		"M20 panel"
+			name=		"20* panel"
 			level=		"1"
 			mass=		"1000"
 		>

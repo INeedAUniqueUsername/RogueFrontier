@@ -95,7 +95,8 @@ public class Assets {
 		Action<XElement> a = element.Name.LocalName switch {
 			"Module" => e => {
 				var subfile = Path.Combine(Directory.GetParent(file).FullName, e.ExpectAtt("file"));
-				XElement module = XDocument.Load(subfile).Root;
+
+				XElement module = XElement.Parse(File.ReadAllText(subfile));
 				ProcessRoot(file, module);
 			},
 			"Source" => AddSource,

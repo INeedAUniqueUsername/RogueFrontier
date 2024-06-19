@@ -1,5 +1,6 @@
 ﻿using LibGamer;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 namespace RogueFrontier;
 using Keys = KC;
@@ -11,6 +12,9 @@ class ShipMenu : IScene {
     public PlayerShip playerShip;
     public Timeline story;
     public Sf sf;
+
+
+    public List<SfControl> controls = [];
 	//Idea: Show an ASCII-art map of the ship where the player can walk around
 	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {
         this.sf = new Sf(sf_prev.Width * 4 / 3, sf_prev.Height, Fonts.FONT_6x8);
@@ -18,6 +22,15 @@ class ShipMenu : IScene {
         this.playerShip = playerShip;
         this.story = story;
         int x = 1, y = sf.Height - 9;
+
+        controls = [
+			new SfLink(sf, (x,y++), "[A]ctive Devices", ShowPower),
+			new SfLink(sf, (x,y++), "[C]argo", ShowCargo),
+            //new SfLink(sf, (x,y++), "[D]evices", ShowCargo),
+            new SfLink(sf, (x,y++), "[U]sable Items", ShowInvokable),
+			new SfLink(sf, (x,y++), "[M]issions", ShowMissions),
+			new SfLink(sf, (x,y++), "[R]efuel", ShowRefuel),
+			];
 #if false
         Children.Add(new LabelButton("[A] Active Devices", ShowPower) { Position = (x, y++) });
         Children.Add(new LabelButton("[C] Cargo", ShowCargo) { Position = (x, y++) });
@@ -109,7 +122,12 @@ class ShipMenu : IScene {
             }
             y++;
         }
+
+        foreach(var c in controls) c.Render(delta);
         Draw(sf);
+    }
+    void IScene.HandleMouse(LibGamer.HandState mouse) {
+        foreach(var c in controls) c.HandleMouse(mouse);
     }
     public void HandleKey(KB info) {
         var pr = info.IsPress;

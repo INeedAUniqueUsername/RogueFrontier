@@ -17,7 +17,7 @@ public static partial class SMenu {
 	public static void RenderBackground (this Sf c) {
         foreach(var x in Enumerable.Range(0, c.Width)) {
 			foreach(var y in Enumerable.Range(0, c.Height)) {
-                c.Tile[x, y] = new Tile(ABGR.Black, ABGR.SetA(ABGR.Black, 128), ' ');
+                c.Tile[x, y] = new Tile(Color.Black, Color.SetA(Color.Black, 128), ' ');
 			}
 		}
 		/*
@@ -103,7 +103,8 @@ public static partial class SMenu {
 			i switch {
 				Message => [],
 				Transmission t => [
-					[..Tile.Arr("Source: "), ..Tile.Arr((t.source as ActiveObject)?.name ?? "N/A")]
+					[   ..Tile.Arr("Source: "),
+                        ..Tile.Arr((t.source as ActiveObject)?.name ?? "N/A")]
 					],
 				_ => throw new NotImplementedException()
 			});
@@ -137,6 +138,8 @@ public static partial class SMenu {
 				switch(i) {
 					case DestroyTarget dt:
 						if(dt.complete) {
+
+
 							result.Add(Tile.Arr($"Mission complete"));
 							result.Add(Tile.Arr($"Return to {dt.source.name}"));
 						} else {
@@ -185,28 +188,27 @@ public static partial class SMenu {
         var r = GenerateDesc(d.source.type);
         ((Action)(d switch {
             Weapon w => () => {
-                Tile[]?[] lines = [
-                    Tile.Arr($"Damage range: {w.desc.Projectile.damageHP.str}"),
-                    Tile.Arr($"Fire cooldown:{w.desc.fireCooldown/60.0:0.00} SEC"),
-                    Tile.Arr($"Power rating: {w.desc.powerUse}"),
-                    w.desc.recoil != 0 ?
-                        Tile.Arr($"Recoil force: {w.desc.recoil}") : null,
-                    w.ammo switch {
-                        ItemAmmo ia =>      Tile.Arr($"Ammo type:    {ia.itemType.name}"),
-                        ChargeAmmo ca =>    Tile.Arr($"Charges left: {ca.charges}"),
-                        _ => null
-                    },
-                    w.aiming switch {
-                        Omnidirectional =>  Tile.Arr($"Turret:       Omnidirectional"),
-                        Swivel s =>         Tile.Arr($"Turret:       {(int)((s.leftRange + s.rightRange) * 180 / Math.PI)}-degree swivel"),
-                        _ => null
-                    }
-                    ];
-                r.AddRange(lines.Except([null]));
+                r.AddRange(Enumerable.Except([
+					Tile.Arr($"Damage range: {w.desc.Projectile.damageHP.str}"),
+					Tile.Arr($"Fire cooldown:{w.desc.fireCooldown/60.0:0.00} SEC"),
+					Tile.Arr($"Power rating: {w.desc.powerUse}"),
+					w.desc.recoil != 0 ?
+						Tile.Arr($"Recoil force: {w.desc.recoil}") : null,
+					w.ammo switch {
+						ItemAmmo ia =>      Tile.Arr($"Ammo type:    {ia.itemType.name}"),
+						ChargeAmmo ca =>    Tile.Arr($"Charges left: {ca.charges}"),
+						_ => null
+					},
+					w.aiming switch {
+						Omnidirectional =>  Tile.Arr($"Turret:       Omnidirectional"),
+						Swivel s =>         Tile.Arr($"Turret:       {(int)((s.leftRange + s.rightRange) * 180 / Math.PI)}-degree swivel"),
+						_ => null
+					}
+					], [null]));
             },
             Shield s => () => {
 
-                r.AddRange(new Tile[][] {
+                r.AddRange(Enumerable.Except([
 					Tile.Arr(        $"Max HP:  {s.desc.maxHP} HP"),
 					Tile.Arr(        $"Regen:   {s.desc.regen:0.00} HP/s"),
 					Tile.Arr(        $"Stealth: {s.desc.stealth}"),
@@ -214,30 +216,29 @@ public static partial class SMenu {
 					Tile.Arr(        $"Regen power use: {s.desc.powerUse}"),
                     s.desc.reflectFactor is > 0 and var reflectFactor ?
 						Tile.Arr(  $"Reflect factor:  {reflectFactor}") : null,
-                }.Except([null]));
+                ], [null]));
             }
             ,
             Solar solar => () => {
-                r.AddRange(new Tile[][] {
+                r.AddRange([
 					Tile.Arr($"Peak output:    {solar.maxOutput} EL"),
 					Tile.Arr($"Current output: {solar.energyDelta} EL")
-                });
+                ]);
             }
             ,
             Reactor reactor => () => {
-                r.AddRange(new Tile[][] {
+                r = [..r,
 					Tile.Arr($"Peak output:     {reactor.maxOutput, -4} EL"),
 					Tile.Arr($"Current output:  {-reactor.energyDelta, -4} EL"),
 					Tile.Arr($"Energy capacity: {reactor.desc.capacity, -4} EN"),
 					Tile.Arr($"Energy content:  {(int)reactor.energy, -4} EN"),
 					Tile.Arr($"Efficiency:      {reactor.efficiency, -4} EL/EN"),
-
-                });
+                ];
             },
             Armor armor => () => {
-                r.AddRange(new Tile[][] {
+                r = [..r,
 					Tile.Arr($"Max HP: {armor.maxHP}"),
-                });
+				];
             },
 
             _ => () => { }
@@ -270,7 +271,7 @@ public static partial class SMenu {
 
 			});
 			foreach(var (p, t) in im) {
-				img.Tile[p.x + 1, p.y + 1] = t with { Background = ABGR.Blend(img.Back[p.x + 1, p.y + 1], t.Background) };
+				img.Tile[p.x + 1, p.y + 1] = t with { Background = Color.Blend(img.Back[p.x + 1, p.y + 1], t.Background) };
 			}
 		}
         return screen;
@@ -308,15 +309,15 @@ public static partial class SMenu {
             $"{(installedInvokable.Contains(i) ? "[*] " : "[c] ")}{i.type.name}",
             Eval(() => {
 				var result = GenerateDesc(i);
-				if(i.type.Invoke is { }invoke) {
-					result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, i)}", ABGR.Yellow, ABGR.Black));
+				if(i.type.Invoke?.GetDesc(player, i) is { }desc) {
+					result.Add(Tile.Arr($"[Enter] {desc}", Color.Yellow, Color.Black));
 				}
 				return result;
 			})
             );
         
-        void InvokeItem(Item item) {
-            item.type.Invoke?.Invoke(screen, player, item, Update);
+        void InvokeItem(Item i) {
+            i.type.Invoke?.Invoke(c, i, Update);
         }
         void Update() {
             UpdateList();
@@ -339,14 +340,14 @@ public static partial class SMenu {
             Eval(() => {
 				var result = GenerateDesc(d);
 				if(d.source is { type: { Invoke: { } invoke } } item) {
-					result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, item)}", ABGR.Yellow, ABGR.Black));
+					result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, item)}", Color.Yellow, Color.Black));
 				}
 				return result;
 			}));
         void InvokeDevice(Device d) {
             var item = d.source;
             var invoke = item.type.Invoke;
-            invoke?.Invoke(screen, player, item);
+            invoke?.Invoke(c, item);
             screen.list.UpdateIndex();
         }
         void Escape() {
@@ -360,7 +361,7 @@ public static partial class SMenu {
 
         Sf img = new Sf(c.Width, c.Height, Fonts.FONT_8x8);
 
-		return screen = ImageList<Item>(c,
+		return screen = ImageList(c,
             $"{player.name}: Cargo",
             [..items],
             i => new(
@@ -368,7 +369,7 @@ public static partial class SMenu {
                 Eval(() => {
                     var result = GenerateDesc(i);
                     if(i.type.Invoke is { } invoke) {
-                        result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, i)}", ABGR.Yellow, ABGR.Black));
+                        result.Add(Tile.Arr($"[Enter] {invoke.GetDesc(player, i)}", Color.Yellow, Color.Black));
                     }
                     return result;
                 })),
@@ -377,7 +378,7 @@ public static partial class SMenu {
             );
         void InvokeItem(Item item) {
             var invoke = item.type.Invoke;
-            invoke?.Invoke(screen, player, item);
+            invoke?.Invoke(c, item);
             screen.list.UpdateIndex();
         }
         void Escape() {
@@ -400,7 +401,7 @@ public static partial class SMenu {
 					result.Add(Tile.Arr(""));
 					var off = disabled.Contains(d);
 					var word = (off ? "Enable" : "Disable");
-					result.Add(Tile.Arr($"[Enter] {word} this device", ABGR.Yellow, ABGR.Black));
+					result.Add(Tile.Arr($"[Enter] {word} this device", Color.Yellow, Color.Black));
 					return result;
 				})
 				),
@@ -434,7 +435,7 @@ public static partial class SMenu {
 					var invoke = item.type.Invoke;
 					var result = GenerateDesc(d);
 					if(invoke != null) {
-						result.Add(Tile.Arr($"[Enter] Remove this device", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr($"[Enter] Remove this device", Color.Yellow, Color.Black));
 					}
 					return result;
 				})
@@ -464,13 +465,13 @@ public static partial class SMenu {
 					var invoke = item.type.Invoke;
 					var result = GenerateDesc(a);
 					if(a.desc.RestrictRepair?.Matches(source) == false) {
-						result.Add(Tile.Arr("This armor is not compatible", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This armor is not compatible", Color.Yellow, Color.Black));
 					} else if(a.hp < a.maxHP) {
-						result.Add(Tile.Arr("[Enter] Repair this armor", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("[Enter] Repair this armor", Color.Yellow, Color.Black));
 					} else if(a.maxHP < a.desc.maxHP) {
-						result.Add(Tile.Arr("This armor cannot be repaired any further", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This armor cannot be repaired any further", Color.Yellow, Color.Black));
 					} else {
-						result.Add(Tile.Arr("This armor is at full HP", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This armor is at full HP", Color.Yellow, Color.Black));
 					}
 					return result;
 				})),
@@ -516,11 +517,11 @@ public static partial class SMenu {
 
 
 					if(!r.desc.allowRefuel) {
-						result.Add(Tile.Arr("This reactor does not accept fuel", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This reactor does not accept fuel", Color.Yellow, Color.Black));
 					} else if(r.energy < r.desc.capacity) {
-						result.Add(Tile.Arr("[Enter] Refuel", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("[Enter] Refuel", Color.Yellow, Color.Black));
 					} else {
-						result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This reactor is full", Color.Yellow, Color.Black));
 					}
 					return result;
 				})
@@ -558,7 +559,7 @@ public static partial class SMenu {
                 Eval(() => {
 					var item = d.source;
 					var result = GenerateDesc(d);
-					result.Add(Tile.Arr("Replace this device", ABGR.Yellow, ABGR.Black));
+					result.Add(Tile.Arr("Replace this device", Color.Yellow, Color.Black));
 					return result;
 				})
 				),
@@ -590,7 +591,7 @@ public static partial class SMenu {
             w => new($"{w.source.type.name}",
                 Eval(() => {
 				    var result = GenerateDesc(w);
-                    result = [.. result, Tile.Arr("Recharge this weapon", ABGR.Yellow, ABGR.Black)];
+                    result = [.. result, Tile.Arr("Recharge this weapon", Color.Yellow, Color.Black)];
 				    return result;
 			    })),
             w=>w.source.type.sprite,
@@ -640,14 +641,14 @@ public static partial class SMenu {
 					var rec = recipes[type];
 					foreach((var compType, var minCount) in rec) {
 						var count = listing[type][compType].Count;
-						result.Add(Tile.Arr($"{compType.name}: {count} / {minCount}", count >= minCount ? ABGR.Yellow : ABGR.Gray, ABGR.Black));
+						result.Add(Tile.Arr($"{compType.name}: {count} / {minCount}", count >= minCount ? Color.Yellow : Color.Gray, Color.Black));
 					}
 					result.Add([]);
 
 					if(available[type]) {
-						result.Add(Tile.Arr("[Enter] Fabricate this item", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("[Enter] Fabricate this item", Color.Yellow, Color.Black));
 					} else {
-						result.Add(Tile.Arr("Additional materials required", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("Additional materials required", Color.Yellow, Color.Black));
 					}
 
 				Done:
@@ -687,7 +688,7 @@ public static partial class SMenu {
 					var result = GenerateDesc(r);
 					int unitPrice = GetPrice(r);
 					if(unitPrice < 0) {
-						result.Add(Tile.Arr("Refuel services not available for this reactor", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("Refuel services not available for this reactor", Color.Yellow, Color.Black));
 						return result;
 					}
 					var delta = r.desc.capacity - (int)r.energy;
@@ -696,12 +697,12 @@ public static partial class SMenu {
 					result.Add(Tile.Arr($"Your money:  {player.person.money}"));
 					result.Add([]);
 					if(delta <= 0) {
-						result.Add(Tile.Arr("This reactor is full", ABGR.Yellow, ABGR.Black));
+						result.Add(Tile.Arr("This reactor is full", Color.Yellow, Color.Black));
 					} else if(job?.active == true) {
 						if(job.reactor == r) {
-							result.Add(Tile.Arr("This reactor is currently refueling.", ABGR.Yellow, ABGR.Black));
+							result.Add(Tile.Arr("This reactor is currently refueling.", Color.Yellow, Color.Black));
 						} else {
-							result.Add(Tile.Arr("Please wait for current refuel job to finish.", ABGR.Yellow, ABGR.Black));
+							result.Add(Tile.Arr("Please wait for current refuel job to finish.", Color.Yellow, Color.Black));
 						}
 					} else if(unitPrice > player.person.money) {
 						result.Add(Tile.Arr($"You cannot afford refueling", Color.Yellow, Color.Black));
@@ -1071,9 +1072,7 @@ public static partial class SMenu {
                     l[l.IndexOf(removed)] = installed;
                     player.cargo.Add(removed.source);
                     player.cargo.Remove(installed.source);
-
                     callback?.Invoke();
-
                     Escape();
                 }
                 void Escape() {
@@ -1099,7 +1098,6 @@ public static partial class SMenu {
             all.Remove(source);
         }
         UpdateList();
-
         return screen = new(c,
             $"{player.name}: Item Modify",
             all,
@@ -1190,16 +1188,13 @@ public class ListMenu<T> : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-
     Sf sf;
     public PlayerShip player;
     public ListControl<T> list;
     public DescPane<T> desc;
     public ref string title => ref list.title;
 	public Action escape;
-
     public List<Sf> sub = [];
-
     public ListMenu(SceneCtx c, string title, IEnumerable<T> items, Func<T, ListEntry> getEntry, ListControl<T>.Invoke invoke, Action escape) {
         this.player = c.playerShip;
         sf = new Sf(c.Width * 4/3, c.Height, Fonts.FONT_6x8);
@@ -1221,28 +1216,23 @@ public class ListMenu<T> : IScene {
     void IScene.Update(TimeSpan delta) {
         list.Update(delta);
         desc.Update(delta);
-
     }
-	void IScene.HandleKey(LibGamer.KB keyboard) {
+	void IScene.HandleKey(KB keyboard) {
         if (keyboard.IsPress(KC.Escape)) {
             escape?.Invoke();
         } else {
             list.HandleKey(keyboard);
         }
     }
-    void IScene.HandleMouse(LibGamer.HandState mouse) {
+    void IScene.HandleMouse(HandState mouse) {
         list.HandleMouse(mouse);
     }
     void IScene.Render(TimeSpan delta) {
         sf.Clear();
         sf.RenderBackground();
-
         list.Render(delta);
         desc.Render(delta);
-
-
         Draw(sf);
-
 		foreach(var s in sub) Draw(s);
 	}
 }
@@ -1425,7 +1415,7 @@ public class ListControl<T> {
             var (start, end) = scroll.GetIndexRange();
             for(int i = start; i < end; i++) {
                 var n = nameAt(i);
-                var (f, b) = (Color.White, i%2 == 0 ? Color.Black : ABGR.Blend(Color.Black,ABGR.SetA(Color.White,36)));
+                var (f, b) = (Color.White, i%2 == 0 ? Color.Black : Color.Blend(Color.Black, Color.SetA(Color.White,36)));
                 if (active && i == highlight) {
                     if (n.Length > lineWidth) {
                         double initialDelay = 1;
@@ -1433,7 +1423,7 @@ public class ListControl<T> {
 
                         n = n.Substring(index);
                     }
-                    (f, b) = (Color.Yellow, ABGR.Blend(Color.Black, ABGR.SetA(Color.Yellow,51)));
+                    (f, b) = (Color.Yellow, Color.Blend(Color.Black, Color.SetA(Color.Yellow,51)));
                     if (enterDown) {
                         (f, b) = (b, f);
                     }
@@ -1441,7 +1431,7 @@ public class ListControl<T> {
                 if (n.Length > lineWidth) {
                     n = $"{n.Substring(0, lineWidth - 3)}...";
                 }
-                var key = @$"<S f=""{(active ? ABGR.White : ABGR.Gray)}"">{SMenu.indexToLetter(i - start)}.</S>";
+                var key = @$"<S f=""{(active ? Color.White : Color.Gray)}"">{SMenu.indexToLetter(i - start)}.</S>";
                 var name = Tile.ArrFrom(XElement.Parse($"<S>{$"{key} {n}":lineWidth}</S>"), f, b);
                 if(time < 0) {
                     on.Print(x, y++, name.LerpString(time, -0.1, 0, 1));
@@ -1450,7 +1440,7 @@ public class ListControl<T> {
                 }
             }
         } else {
-            on.Print(x, y, Tile.Arr("<Empty>", Color.White, Color.Black));
+            on.Print(x, y, Tile.Arr("----", Color.White, Color.Black));
         }
         scroll.Render(delta);
     }
@@ -1501,7 +1491,7 @@ public class DescPane<T> {
 		if(entry is null) return;
         x += 2;
         y++;
-		on.Print(x, y, Tile.Arr(entry.name, ABGR.Yellow, ABGR.Black));
+		on.Print(x, y, Tile.Arr(entry.name, Color.Yellow, Color.Black));
 
 		y += 2;
 		foreach(var line in entry.desc) {
@@ -1601,8 +1591,8 @@ public class ScrollBar {
         }
         var (x, y) = pos;
         Sf.DrawRect(on, x, y, 1, 26, new() { width = Line.Single,
-            f = clickOnArea ? ABGR.Black : mouseOnArea ? ABGR.White :  Color.Gray,
-            b = clickOnArea ? ABGR.White : mouseOnArea ? ABGR.RGB(102, 102, 102) : Color.Black
+            f = clickOnArea ? Color.Black : mouseOnArea ? Color.White :  Color.Gray,
+            b = clickOnArea ? Color.White : mouseOnArea ? Color.RGB(102, 102, 102) : Color.Black
         
         });
         var (barStart, barEnd) = GetBarRange();
@@ -1652,7 +1642,7 @@ public static class SListWidget {
             return result;
         }
         void InvokeItem(Item i) {
-            i.type.Invoke?.Invoke(prev, player, i, Update);
+            i.type.Invoke?.Invoke(c, i, Update);
             screen.list.UpdateIndex();
         }
         void Update() {

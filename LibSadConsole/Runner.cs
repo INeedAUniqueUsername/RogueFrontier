@@ -64,6 +64,7 @@ public class Runner {
 				Position = new(sf.pos.xi, sf.pos.yi),
 				Font = font,
 			};
+			c.FontSize *= sf.scale;
 			//c.FontSize *= sf.scale;
 			return c;
 		});

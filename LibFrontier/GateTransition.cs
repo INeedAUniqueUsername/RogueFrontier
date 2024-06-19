@@ -10,12 +10,12 @@ public class GateTransition : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 
-	Viewport back, front;
+	Viewport prevView, nextView;
     double amount;
     Rect rect;
     public Action next;
 
-    Sf sf;int Width => sf.Width;int Height => sf.Height;
+    Sf compositeView;int Width => compositeView.Width;int Height => compositeView.Height;
 
     class Particle {
         public int lifetime;
@@ -26,11 +26,10 @@ public class GateTransition : IScene {
         }
     }
     private List<Particle> particles = new();
-
-	public GateTransition(Viewport back, Viewport front, Action next) {
-        this.back = back;
-        this.front = front;
-        this.sf = Sf.From(back.sf);
+	public GateTransition(Viewport prevView, Viewport nextView, Action next) {
+        this.prevView = prevView;
+        this.nextView = nextView;
+        this.compositeView = Sf.From(prevView.sf);
         rect = new Rect(Width, Height, 0, 0);
         this.next = next;
     }
@@ -40,7 +39,7 @@ public class GateTransition : IScene {
         }
     }
     public void Update(TimeSpan delta) {
-        back.Update(delta);
+        prevView.Update(delta);
         amount += delta.TotalSeconds * 1;
 
         if (amount < 1) {
@@ -58,44 +57,41 @@ public class GateTransition : IScene {
         }
     }
     public void Render(TimeSpan delta) {
-        sf.Clear();
+        compositeView.Clear();
         var particleLayer = new Sf(Width, Height, Fonts.FONT_8x8);
         particles.ForEach(p => {
-            var pos = p.pos;
-            particleLayer.SetBack(pos.X, pos.Y, ABGR.RGBA(255, 255, 255, (byte)(p.lifetime * 255 / 15)));
+            particleLayer.Back[p.pos] = ABGR.RGBA(255, 255, 255, (byte)(p.lifetime * 255 / 15));
         });
-        var _back = new Sf(Width, Height, Fonts.FONT_8x8);
-        if (front != null) {
-            BackdropConsole prevBack = new(back);
-            BackdropConsole nextBack = new(front);
+        var compositeBack = new Sf(Width, Height, Fonts.FONT_8x8);
+        if (nextView != null) {
+            BackdropConsole prevBack = new(prevView);
+            BackdropConsole nextBack = new(nextView);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
                     var p = (x, y);
-                    (var v, var b) = rect.Contains(p) ? (front, nextBack) : (back, prevBack);
-                    _back.SetTile(x, y, b.GetTile(x, y));
-                    var g = v.GetTile(x, y);
+                    (var view, var back) = rect.Contains(p) ? (nextView, nextBack) : (prevView, prevBack);
+                    compositeBack.Tile[x, y] = back.GetTile(x, y);
                     //var g = (rect.Contains(p) ? next : prev).GetCellAppearance(x, y);
-                    sf.Tile[x, Height - y - 1] = g;
+                    compositeView.Tile[x, Height - y - 1] = view.GetTile(x, y);
                 }
             }
         } else {
-            var prevBack = new BackdropConsole(back);
+            var prevBack = new BackdropConsole(prevView);
             foreach (var y in Enumerable.Range(0, Height)) {
                 foreach (var x in Enumerable.Range(0, Width)) {
                     var p = (x, y);
                     if (rect.Contains(p)) {
-                        sf.SetTile(x, Height - y, new Tile(ABGR.Black, ABGR.Black, 0));
+                        compositeView.Tile[x, Height - y - 1] = new Tile(ABGR.Black, ABGR.Black, 0);
                     } else {
-                        (var v, var b) = (back, prevBack);
-                        _back.SetTile(x, y, b.GetTile(x, y));
-                        var g = v.GetTile(x, y);
-                        sf.SetTile(x, Height - y - 1, g);
+                        (var view, var back) = (prevView, prevBack);
+                        compositeBack.Tile[x, y] = back.GetTile(x, y);
+                        compositeView.Tile[x, Height - y - 1] = view.GetTile(x, y);
                     }
                 }
             }
         }
-        Draw?.Invoke(_back);
-        Draw?.Invoke(sf);
+        Draw?.Invoke(compositeBack);
+        Draw?.Invoke(compositeView);
         Draw?.Invoke(particleLayer);
     }
 }

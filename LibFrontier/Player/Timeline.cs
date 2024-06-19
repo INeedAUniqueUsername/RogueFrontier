@@ -15,12 +15,63 @@ public class TradeMenu: IScene {
     public Action<IScene> Go { set; get; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
+
+	bool allow = false;
+
+	Action<Item> SetDesc;
     public TradeMenu (SceneCtx ctx, ITrader trader, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
 		this.prev = ctx.prev;
 		this.sf = new Sf(ctx.Width * 4 / 3, ctx.Height, Fonts.FONT_6x8);
 		this.player = ctx.playerShip.person;
 		descPane = new DescPane<Item>(sf) { pos = (45, 2) };
-		playerPane = new(sf, (2, 2), ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, SetDesc) {
+
+		SetDesc = i => {
+
+			if(i == null) {
+				descPane.Clear();
+			} else {
+				List<Tile[]> desc = [.. i.type.desc.SplitLine(42).Select(line => Tile.Arr(line, ABGR.White, ABGR.Black))];
+				if(playerPane != null) {
+					if(playerSide) {
+
+						var price = GetSellPrice(i);
+						if(price > 0) {
+							desc = [..desc,
+								[],
+								Tile.Arr($"Price: {price}", ABGR.Yellow, ABGR.Black),
+								Tile.Arr("[Enter] Sell this item.", ABGR.Yellow, ABGR.Black)
+							];
+						} else {
+							desc = [..desc,
+								[],
+								Tile.Arr($"You cannot sell this item here.", ABGR.Yellow, ABGR.Black)
+							];
+						}
+					} else {
+						var price = GetBuyPrice(i);
+						var msg = Tile.Arr("[Enter] Buy this item.", ABGR.Yellow, ABGR.Black);
+						if(price > 0) {
+							if(price > player.money) {
+								msg = Tile.Arr("You cannot afford this item.", ABGR.Yellow);
+							}
+							desc = [..desc,
+								[],
+								Tile.Arr($"Price: {price}", ABGR.Yellow, ABGR.Black),
+								msg
+							];
+						} else {
+							desc = [..desc,
+								[],
+								Tile.Arr($"You cannot buy this item.", ABGR.Yellow, ABGR.Black),
+							];
+						}
+					}
+				}
+				descPane.SetEntry(i.name, desc);
+			}
+		};
+
+		playerPane = new(sf, (2, 2), ctx.playerShip.name, ctx.playerShip.cargo, i => i.name, i => SetDesc(i)) {
 			active = false,
 			invoke = i => {
 				ctx.playerShip.cargo.Remove(i);
@@ -28,7 +79,7 @@ public class TradeMenu: IScene {
 				dockedPane.UpdateIndex();
 			},
 		};
-		dockedPane = new(sf, (81, 2), trader.name, trader.cargo, i => i.name, SetDesc) {
+		dockedPane = new(sf, (81, 2), trader.name, trader.cargo, i => i.name, i => SetDesc(i)) {
 			active = true,
 			invoke = i => {
 				ctx.playerShip.cargo.Add(i);
@@ -42,14 +93,6 @@ public class TradeMenu: IScene {
 	DescPane<Item> descPane;
 	IScene prev;
 	Sf sf;
-	private void SetDesc (Item i) {
-		if(i == null) {
-			descPane.Clear();
-		} else {
-			List<Tile[]> desc = [.. i.type.desc.SplitLine(42).Select(line => Tile.Arr(line, ABGR.White, ABGR.Black))];
-			descPane.SetEntry(i.name, desc);
-		}
-	}
 	bool playerSide {
 		set {
 			dockedPane.active = !(playerPane.active = value);
@@ -1275,8 +1318,7 @@ As promised, here's your 400""",
 			}
 			Dialog Reject (IScene prev) {
 				return Dia(
-@"""Oh man, what the hell is it with you people?
-Okay, fine, I'll just find someone else to do it.""",
+@"""THEN HOW ABOUT YOU GET THE F*** OFF OF THIS STATION, YOU USELESS F***ING IDIOT.""",
 					[
 						("Undock")
 					]);
