@@ -47,7 +47,7 @@ public class Sf {
 	public int Height { get; }
 	public int Count => Width * Height;
 	public Tile[] Data;
-	public Dictionary<(int x,int y), Tile> Active = new();
+	public HashSet<(int x,int y)> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
@@ -65,7 +65,7 @@ public class Sf {
 		if(t?.Foreground == color) return;
 		redraw = true;
 		t = (t ?? LibGamer.Tile.empty) with { Foreground = color };
-		Active[(x, y)] = t;
+		Active.Add((x, y));
 	}
 	public uint GetBack (int x, int y) => Data[GetIndex(x, y)].Background;
 	public void SetBack (int x, int y, uint color) {
@@ -74,7 +74,7 @@ public class Sf {
 		if(t?.Background == color) return;
 		redraw = true;
 		t = (t ?? LibGamer.Tile.empty) with { Background = color };
-		Active[(x, y)] = t;
+		Active.Add((x, y));
 	}
 	public uint GetGlyph (int x, int y) => Data[GetIndex(x, y)].Glyph;
 	public void SetGlyph (int x, int y, uint g) {
@@ -83,7 +83,7 @@ public class Sf {
 		if(t?.Glyph == g) return;
 		redraw = true;
 		t = (t ?? LibGamer.Tile.empty) with { Glyph = g };
-		Active[(x, y)] = t;
+		Active.Add((x, y));
 	}
 	public Tile GetTile (int x, int y) => Data[GetIndex(x, y)];
 	public void SetTile (int x, int y, Tile g) {
@@ -92,13 +92,13 @@ public class Sf {
 		if(t == g) return;
 		redraw = true;
 		t = g;
-		Active[(x, y)] = t;
+		Active.Add((x, y));
 	}
 	public void Print (int x, int y, params Tile[] str) {
 		var i = GetIndex(x, y);
 		foreach(var t in str) {
 			Data[i] = t;
-			Active[(i % Width, i / Width)] = t;
+			Active.Add((i % Width, i / Width));
 			i++;
 		}
 	}

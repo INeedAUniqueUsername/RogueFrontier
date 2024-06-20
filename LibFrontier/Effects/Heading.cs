@@ -98,7 +98,7 @@ public class Heading : Effect {
             return;
         }
         const int interval = 30;
-        XY start = parent.position;
+        XY from = parent.position;
         int step = 2;
         XY inc = XY.Polar(parent.rotationDeg * Math.PI / 180, 1) * step;
         if (ticks == 0) {
@@ -108,13 +108,7 @@ public class Heading : Effect {
             int count = length / step;
             particles = new EffectParticle[count];
             for (int i = 0; i < count; i++) {
-
-
-
-
-
-
-				var here = start + inc * (i + 1);
+				var here = from + inc * (i + 1);
                 var value = (byte)(153 - Math.Max(1, i) * 153 / length);
 
 				var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, g);
@@ -124,20 +118,18 @@ public class Heading : Effect {
             }
         } else {
             for (int i = 0; i < particles.Length; i++) {
-                var p = particles[i];
-
-                var here = start + inc * (i + 1);
+                var here = from + inc * (i + 1);
 				var prev = here - inc;
 				var next = here + inc;
 				var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
 				var _c = ((double x, double y) p) => (c(p.x), c(p.y));
 				var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
 				var g = Connectors.GetValueOrDefault(__c((prev.roundDown - here.roundDown), (next.roundDown - here.roundDown)), 249);
-
-                p.tile = p.tile with { Glyph = (char)g };
-
+				var p = particles[i];
+				p.tile = p.tile with { Glyph = (char)g };
 				p.position = here;
 				p.lifetime = interval + 1 + (interval * (i - particles.Length)) / particles.Length;
+                parent.world.AddEffect(p);
             }
         }
         ticks++;

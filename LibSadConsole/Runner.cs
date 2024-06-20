@@ -73,8 +73,8 @@ public class Runner {
 			return c;
 		});
 		c.Clear();
-		foreach(var ((x, y), t) in sf.Active) {
-			c.SetCellAppearance(x, y, t.ToCG());
+		foreach(var (x, y) in sf.Active) {
+			c.SetCellAppearance(x, y, sf.Tile[x,y].ToCG());
 		}
 		c.Render(new TimeSpan());
 		return;
