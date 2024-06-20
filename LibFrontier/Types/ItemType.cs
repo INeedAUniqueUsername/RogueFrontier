@@ -87,7 +87,7 @@ public record RepairArmor : ItemUse {
 		e.Initialize(this);
 	}
 	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback) {
-		ctx.prev.Go(SMenu.RepairArmorFromItem(ctx, item, this, callback));
+		ctx.prev.Go?.Invoke(SMenu.RepairArmorFromItem(ctx, item, this, callback));
 	}
 }
 public record InvokePower : ItemUse {
@@ -478,6 +478,8 @@ public record FragmentDesc {
 
 	[Opt] public double detonateFailChance;
 
+	/// <summary>DamageHP reduced by up to this fraction as the projectile's lifetime decreases.</summary>
+	[Opt] public double falloff = 0;
 	[Opt] public int knockback;
 	[Opt] public int armorDisrupt = 0;
 	[Opt] public int shieldDisrupt = 0;
@@ -487,7 +489,7 @@ public record FragmentDesc {
 	///<summary>Subfragments cannot hit objects that are excluded by this fragment</summary>
 	[Opt] public bool precise = true;
 	[Opt] public int armorSkip = 0;
-	/// <summary>If armor integrity ratio is below this amount, then we bypass the shield completely</summary>
+	/// <summary>If shield integrity ratio is below this amount, then we bypass the shield completely and go to armor layer</summary>
 	[Opt] public double shieldDrill;
 	/// <summary>If armor integrity ratio is below this amount, then we bypass the armor completely and go to the next layer</summary>
 	[Opt] public double armorDrill = 0;
@@ -613,9 +615,9 @@ public record FragmentDesc {
 		var i = 0;
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;
 		
-		Func<Maneuver> getManeuver = targets switch {
-			{ Count: 1 } => () => GetManeuver(targets.First()),
-			{ Count: > 1 } => () => GetManeuver(targets[i++ % targets.Count]),
+		Func<Guidance> getManeuver = targets switch {
+			{ Count: 1 } => () => InitGuidance(targets.First()),
+			{ Count: > 1 } => () => InitGuidance(targets[i++ % targets.Count]),
 			_ => () => null
 		};
 		var angles = GetAngles(direction + adj);
@@ -636,7 +638,7 @@ public record FragmentDesc {
 		));
 		return burst.projectiles;
 	}
-	public Maneuver GetManeuver(ActiveObject target) =>
+	public Guidance InitGuidance(ActiveObject target) =>
 		(acquireTarget && target != null) ? new(target, maneuver, maneuverRadius) : null;
 }
 public record TrailDesc : ITrail {

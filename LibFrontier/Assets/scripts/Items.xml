@@ -161,6 +161,8 @@
 					damageHP=		"1d4"
 					damageFalloff=	"true"
 					lifetime=		"45"
+					
+					falloff=		"1/3"
 
 					shieldFactor=	"2"
 					glyph=			"\249"
@@ -183,14 +185,14 @@
 				sweep=			"30"
 			>
 			<Projectile
-					count="3"
+					count=			"3"
 					spreadAngle=	"5"
 					missileSpeed=	"100"
 					damageType=		"1"
 					damageHP=		"1d5"
 					lifetime=		"45"
 
-					damageFalloff=	"true"
+					falloff=		"1/3"
 					
 					shieldFactor=	"2"
 					glyph=			"\249"
@@ -509,7 +511,7 @@
 		</Armor>
 	</ItemType>
 	<ItemType	codename=	"item_bumpersteel_plate"
-		name=		"Bumpersteel plate"
+		name=		"Bumper plate"
 		mass=		"9000"
 		level=		"2"
 		value=		"4500"
@@ -517,8 +519,8 @@
 		>
 		<Armor
 			reflectFactor=	"0.75"
-			maxHP=			"90"
-			damageWall=		"30"
+			maxHP=			"100"
+			damageWall=		"15"
 			killHP=			"3"
 			/>
 	</ItemType>

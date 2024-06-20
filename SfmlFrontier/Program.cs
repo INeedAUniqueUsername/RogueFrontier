@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using SFML.Audio;
 using ExtSadConsole;
 using RogueFrontier;
-const int WIDTH = 100, HEIGHT = 60;
+const int WIDTH = Runner.WIDTH, HEIGHT = Runner.HEIGHT;
 string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
 string cover = ExpectFile($"{Assets.ROOT}/sprites/game_title.dat");
 string splash = ExpectFile($"{Assets.ROOT}/sprites/game_splash_background.dat");

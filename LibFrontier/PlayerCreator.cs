@@ -31,7 +31,6 @@ class PlayerCreator : IScene {
     private ref int genomeIndex => ref context.genomeIndex;
     private ref GenomeType playerGenome => ref context.playerGenome;
     public Sf sf_img;
-
     public Sf sf_tile;
     int Width => sf_img.Width;
     int Height => sf_img.Height;
@@ -54,14 +53,16 @@ class PlayerCreator : IScene {
         this.prev = prev;
         this.sf_prev = sf_prev;
         this.next = next;
-
-        context = new ShipSelectorModel() {
+        var guessName = Main.GetRandom([
+            "Luminous",
+        ], World.karma);
+		context = new ShipSelectorModel() {
             World = World,
-            playable = World.types.Get<ShipClass>().Where(sc => sc.playerSettings?.startingClass == true).ToList(),
+            playable = [..World.types.Get<ShipClass>().Where(sc => sc.playerSettings?.startingClass == true)],
             shipIndex = 0,
-            genomes = World.types.Get<GenomeType>().ToList(),
+            genomes = [..World.types.Get<GenomeType>()],
             genomeIndex = 0,
-            playerName = "Luminous",
+            playerName = guessName,
             playerGenome = World.types.Get<GenomeType>().First(),
             portrait = new char[8, 8]
         };
@@ -116,7 +117,6 @@ class PlayerCreator : IScene {
 						("Possessive Adj.", playerGenome.possessiveAdj, s => playerGenome.possessiveAdj = s),
 						("Possessive Noun", playerGenome.possessiveNoun, s => playerGenome.possessiveNoun = s),
 						("Reflexive      ", playerGenome.reflexive, s => playerGenome.reflexive = s)
-
 						]).ForEach(t => {
                             controls.Add(new LabeledField(sf_ui, (x, y++), t.key, t.val, (e, s) => t.set(s)));
                         });
@@ -124,14 +124,13 @@ class PlayerCreator : IScene {
             }
             lastClick = time;
         });
-        controls.Add(identityButton);
-
-        string back = "[Escape] Back";
-        controls.Add(new SfLink(sf_ui, (sf_ui.Width - back.Length, 1), back, Back));
-
-        string start = "[Enter] Start";
-        controls.Add(new SfLink(sf_ui, (sf_ui.Width - start.Length, Height - 1), start, Start));
-        PlaceArrows();
+        controls.Add(identityButton); {
+            string back = "[Escape] Back";
+            controls.Add(new SfLink(sf_ui, (sf_ui.Width - back.Length, 1), back, Back));
+        } {
+            string start = "[Enter] Start";
+            controls.Add(new SfLink(sf_ui, (sf_ui.Width - start.Length, Height - 1), start, Start));
+        } PlaceArrows();
     }
     public void Update(TimeSpan delta) {
         time += delta.TotalSeconds;

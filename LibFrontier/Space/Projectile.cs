@@ -27,7 +27,7 @@ public class Projectile : MovingObject {
     public Tile tile { get; private set; }
     public ITrail trail;
     public FragmentDesc desc;
-    public Maneuver maneuver;
+    public Guidance maneuver;
     public int damageFull;
     public int damageLeft;
     public int damageApplied => damageFull - damageLeft;
@@ -60,7 +60,7 @@ public class Projectile : MovingObject {
     public Vi<Effect> emitEffect = new();
     public bool active { get; set; } = true;
     public Projectile() { }
-    public Projectile(ActiveObject source, FragmentDesc desc, XY position, XY velocity, double? direction = null, Maneuver maneuver = null, HashSet<Entity> exclude = null) {
+    public Projectile(ActiveObject source, FragmentDesc desc, XY position, XY velocity, double? direction = null, Guidance maneuver = null, HashSet<Entity> exclude = null) {
         this.id = source.world.nextId++;
         this.source = source;
         this.world = source.world;
@@ -112,6 +112,8 @@ public class Projectile : MovingObject {
                 }
 			}
 			lifetime -= deltaTicks;
+            damageLeft = (int)(damageFull * (1 - desc.falloff * lifetime / desc.lifetime));
+
 		} else if(active) {
             //UpdateMove();
             if (world.karma.NextDouble() < desc.detonateFailChance) {
@@ -274,7 +276,7 @@ public class Projectile : MovingObject {
                 position + XY.Polar(angle, 0.5),
                 velocity + XY.Polar(angle, fragment.missileSpeed),
                 angle,
-                fragment.GetManeuver(maneuver?.target),
+                fragment.InitGuidance(maneuver?.target),
                 exclude
                 ) { burst = burst };
             burst.projectiles.Add(p);
@@ -282,14 +284,14 @@ public class Projectile : MovingObject {
         }
     }
 }
-public class Maneuver {
+public class Guidance {
     public ActiveObject target;
     public double maneuver;
     public double maneuverDistance;
-    public bool smart = true;
+    public bool smart = false;
     private double prevDistance = double.NegativeInfinity;
     private bool startApproach = false;
-    public Maneuver(ActiveObject target, double maneuver, double maneuverDistance) {
+    public Guidance(ActiveObject target, double maneuver, double maneuverDistance) {
         this.target = target;
         this.maneuver = maneuver;
         this.maneuverDistance = maneuverDistance;

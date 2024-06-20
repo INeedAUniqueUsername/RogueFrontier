@@ -10,7 +10,11 @@ public class Runner {
 	ConcurrentDictionary<SoundCtx, Sound> sounds = new();
 	ConcurrentDictionary<byte[], SoundBuffer> soundBuffers = [];
 	IScene current = null;
-	public const int WIDTH = 100, HEIGHT = 60;
+#if false
+	public const int WIDTH = 106, HEIGHT = 64;
+#else
+	public const int WIDTH = 150, HEIGHT = 90;
+#endif
 	public static void Run (string font, Action<Runner> Start) {
 
 		//SadConsole.Host.Settings.SFMLSurfaceBlendMode = SFML.Graphics.BlendMode.Add;

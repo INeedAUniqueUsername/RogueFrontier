@@ -261,19 +261,19 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_light_launcher_i"
-		name=		"Luminous Launcher I"
+		name=		"Luminescent Launcher I"
 		level=		"1"
 		mass=		"1000"
 		value=		"7200"
 				
 		attributes= "Amethyst"
 
-		desc=		"The Luminous Launcher by Amethyst, Inc fires multiple independent high-speed missiles that deal extra damage to shields."
+		desc=		"The Luminescent Launcher by Amethyst, Inc fires multiple independent high-speed missiles that cause targets to glow on impact, breaking their stealth."
 		>
 		<Weapon
 			powerUse=		"30"
 			fireCooldown=	"30"
-			initialCharges= "800"
+			initialCharges= "900"
 			
 			repeat="5"
 			repeatDelay=	"6"
@@ -283,6 +283,8 @@
 				missileSpeed=	"70"
 				damageType=		"1"
 				damageHP=		"1d8"
+				
+				shieldDrill=	"0.5"
 				shieldFactor=	"2"
 				
 				hitNonTarget=	"false"
@@ -293,7 +295,7 @@
 				glyph=			"+"
 				foreground=		"Violet"
 				
-				tracker=		"8"
+				tracker=		"30"
 				>
 				<Flash intensity="8" lifetime="30"/>
 			</Projectile>

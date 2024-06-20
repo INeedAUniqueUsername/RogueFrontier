@@ -425,7 +425,7 @@ public class TitleScreen : IScene {
 		var seed = player.name.GetHashCode();
 		Universe u = new Universe(universeDesc, World.types, new Rand(seed));
 
-		var quickStartClass = "ship_quietus";
+		var quickStartClass = "ship_clark";
 		var ent = u.GetAllEntities().OfType<FixedMarker>().ToList();
 		var marker = ent.First(e => e.Name == "Start");
 		var w = marker.world;
@@ -435,7 +435,7 @@ public class TitleScreen : IScene {
 		var playerShip = new PlayerShip(player, new BaseShip(w, playerClass, playerStart), playerSovereign);
 		//playerShip.powers.Add(new Power(w.types.Lookup<PowerType>("power_declare")));
 		//playerShip.powers.AddRange(w.types.Get<PowerType>().Select(pt => new Power(pt)));
-		playerShip.AddMessage(new Message("Welcome to the Rogue Frontier!"));
+		playerShip.AddMessage(new Message("Welcome to Rogue Frontier!"));
 
 		playerShip.powers.Add(new(w.types.Lookup<PowerType>("power_silence_dictator")));
 		playerShip.powers.Add(new(w.types.Lookup<PowerType>("power_execute_dictator")));

@@ -195,6 +195,7 @@
         <LayeredArmorSystem>
 			<Armor  codename="item_bumpersteel_plate"/>
 			<Armor  codename="item_bumpersteel_plate"/>
+			<Armor  codename="item_bumpersteel_plate"/>
         </LayeredArmorSystem>
 		<PlayerSettings
             startingClass=  "true"
