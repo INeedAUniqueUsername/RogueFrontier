@@ -536,20 +536,20 @@
 				damageWall=	"10"/>
 	</ItemType>
 	<ItemType	codename=	"item_dynamite_charge"
-		name=		"Dynamite charge"
+		name=		"Deltamite bomb"
 		level=		"1"
 		mass=		"2000"
 		value=		"12"
 
-		desc=		"This cheap explosive bomb is capable of blowing apart a civilian starship (with some difficulty)."
+		desc=		"Adapted from the original formulation of dynamite with the addition of a legally distinct name, this cheap explosive bomb is capable of blowing apart a civilian starship (with some difficulty)."
 		/>
 	<ItemType	codename=	"item_dynamite_cannon"
-		name=		"Dynamite launcher"
+		name=		"Deltamite launcher"
 		level=		"1"
 		mass=		"2000"
 		value=		"2000"
 		invoke=		"installWeapon"
-		desc=		"This dynamite launcher packs a small but powerful explosion for something that was invented before 2000. Time and progress have not improved this weapon whatsoever."
+		desc=		"The deltamite launcher packs a small but powerful explosion for something that is considered ancient technology. Time and progress have not improved its usability whatsoever."
 		>
 		<Weapon	
 			powerUse=		"10"
@@ -562,7 +562,7 @@
 				damageType=		"1"
 				damageHP=		"5"
 				lifetime=		"90"
-				glyph=			"i"
+				glyph=			"\235"
 				foreground=		"Red"
 				
 				detonateFailChance="0.25"
