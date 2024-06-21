@@ -370,7 +370,7 @@
 			powerUse=		"20"
 			fireCooldown=	"45"
 			omnidirectional="true"
-			sound=			"shotgun_3.wav"
+			sound=			"crockett_shotgun.wav"
 			>
 			<Projectile
 				count=			"8"

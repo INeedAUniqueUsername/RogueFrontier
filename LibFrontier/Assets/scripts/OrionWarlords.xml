@@ -126,7 +126,7 @@
 			<Projectile
 				missileSpeed=	"20"
 				damageType=		"2"
-				damageHP=		"1-30"
+				damageHP=		"1-10"
 				lifetime=		"120"
 				glyph=			"+"
 				foreground=		"Orange"

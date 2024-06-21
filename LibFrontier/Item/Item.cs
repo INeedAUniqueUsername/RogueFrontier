@@ -1133,7 +1133,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         result?.AddRange(projectiles);
 
 
-        targeting?.OnFire();
+        targeting?.OnFire(this);
         ammo?.OnFire();
         capacitor?.OnFire();
         onFire.Observe(new(this, projectiles));
@@ -1258,6 +1258,7 @@ public class Targeting : IDestroyedListener {
         if (ticks++ % 30 != 0) {
             return;
         }
+
         targets.RemoveAll(t => !(t?.active == true
             && owner.CanSee(t)
             && weapon.IsInRange(owner.position - t.position)
@@ -1278,10 +1279,16 @@ public class Targeting : IDestroyedListener {
             ((IDestroyedListener)this).Register(t);
         }
     }
-    public void OnFire() {
+    public void OnFire(Weapon weapon) {
         if (cycleTargets) {
             tracker++;
+            return;
+        } 
+        /*
+        if(weapon.aiming is { }a && a.GetFireAngle() == null) {
+            tracker++;
         }
+        */
     }
     public void Update(Station owner, Weapon weapon) =>
         Update(owner, weapon, other => owner.CanSee(other) && SStation.IsEnemy(owner, other));
@@ -1297,7 +1304,6 @@ public class Targeting : IDestroyedListener {
         targets.Insert(0, target);
     }
     public static ActiveObject AcquireTarget(ActiveObject owner, Weapon weapon, Func<ActiveObject, bool> filter) {
-
         return owner.world.entities.FilterKey(p =>
             weapon.IsInRange(owner.position - p))
             .OfType<ActiveObject>()
@@ -1361,9 +1367,12 @@ public class Swivel : IAiming {
         rightRange = right;
     }
     public void Update(ActiveObject owner, Weapon weapon) {
-        if (weapon.targeting.cycleTargets) {
+        if (weapon.targeting.cycleTargets || true) {
             direction = null;
             weapon.targeting.tracker.CycleWhile(t => {
+                if(t == null) {
+                    return true;
+                }
                 var dir = Omnidirectional.GetFireAngle(owner, t, weapon);
                 var deltaRad = Main.AngleDiffRad(facing, dir);
                 if (deltaRad > 0 ? deltaRad > leftRange : -deltaRad > rightRange) {
@@ -1373,7 +1382,7 @@ public class Swivel : IAiming {
                 Heading.AimLine(owner.world, owner.position + weapon.offset, direction.Value);
                 return false;
             });
-            return;
+            //return;
         }
         var targeting = weapon.targeting;
         if (targeting.target == null) {
