@@ -246,7 +246,7 @@ public static partial class SMenu {
         r.Add(Tile.Arr(""));
         return r;
     }
-    public static ListMenu<T> ImageList<T>(SceneCtx c, string title, List<T> items, Func<T, ListEntry> GetEntry, Func<T, Dictionary<(int x, int y), Tile>> GetImage, ListControl<T>.Invoke Invoke) {
+    public static ListMenu<T> ImageList<T>(SceneCtx c, string title, IEnumerable<T> items, Func<T, ListEntry> GetEntry, Func<T, Dictionary<(int x, int y), Tile>> GetImage, ListControl<T>.Invoke Invoke) {
 		var (prev, player) = (c.prev, c.playerShip);
 		ListMenu<T> screen = null;
         Sf img = new Sf(18, 18, Fonts.FONT_8x8) { pos = (34, 32) };
@@ -357,13 +357,12 @@ public static partial class SMenu {
     public static ListMenu<Item> Cargo(SceneCtx c) {
 		var (prev, player) = (c.prev, c.playerShip);
 		ListMenu<Item> screen = null;
-        var items = player.cargo;
 
         Sf img = new Sf(c.Width, c.Height, Fonts.FONT_8x8);
 
 		return screen = ImageList(c,
             $"{player.name}: Cargo",
-            [..items],
+			player.cargo,
             i => new(
                 i.type.name,
                 Eval(() => {
@@ -378,7 +377,7 @@ public static partial class SMenu {
             );
         void InvokeItem(Item item) {
             var invoke = item.type.Invoke;
-            invoke?.Invoke(c, item);
+            invoke?.Invoke(c with { prev = screen }, item);
             screen.list.UpdateIndex();
         }
         void Escape() {
@@ -1343,7 +1342,11 @@ public class ListControl<T> {
                         UpdateIndex();
                     }
                     break;
-                case KC.Tab: groupMode = !groupMode; UpdateIndex(); break;
+                case KC.Tab:
+                    UpdateIndex();
+					groupMode = !groupMode;
+                    UpdateIndex();
+                    break;
                 default:
                     if(char.ToLower((char)key) is var ch and >= 'a' and <= 'z') {
 						PlaySound?.Invoke(Tones.pressed);

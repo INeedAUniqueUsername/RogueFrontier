@@ -941,6 +941,8 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         if (direction == null) {
             goto Cancel;
         }
+
+        goto LineCheckDone;
         var d = XY.Polar(direction.Value);
         var p = owner.position;
         for (int i = 0; i < projectileDesc.range; i++) {
@@ -950,7 +952,8 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                     case ActiveObject a when (targeting?.HasTarget(a) == true) || owner.CanTarget(a):
                         goto LineCheckDone;
                     case Station s when s == owner:
-                    case AIShip ai when owner.guards.Contains(ai):
+                    case PlayerShip ps when !owner.CanTarget(ps):
+                    case AIShip ai when owner.guards.Contains(ai) || !owner.CanTarget(ai):
                     case Wreck:
                     case Projectile:
                         continue;

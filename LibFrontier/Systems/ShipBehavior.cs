@@ -420,7 +420,7 @@ public class GuardAt : IShipOrder, Ob<Docking.OnDocked>, Ob<AIShip.Damaged>, Ob<
     public IShipOrder errand { get; private set; } = null;
     [JsonProperty]
     private Approach approach;
-    public int errandTime;
+    public double errandTime;
     public int ticks;
 
 
@@ -434,6 +434,9 @@ public class GuardAt : IShipOrder, Ob<Docking.OnDocked>, Ob<AIShip.Damaged>, Ob<
     }
     public GuardAt(ActiveObject home, ActiveObject attackTarget) {
         this.home = home;
+
+
+
         approach = new(home);
         errand = new AttackTarget(attackTarget);
         errandTime = -1;
@@ -452,7 +455,7 @@ public class GuardAt : IShipOrder, Ob<Docking.OnDocked>, Ob<AIShip.Damaged>, Ob<
         approach.target = home;
     }
     public bool CanTarget(ActiveObject other) => errand is AttackTarget a && a.target == other;
-    public void SetAttack(ActiveObject target, int attackTime = -1) {
+    public void SetAttack(ActiveObject target, double attackTime = -1) {
         var a = new AttackTarget(target);
         a.onTargetInvisible += this;
         errand = a;
@@ -480,12 +483,13 @@ public class GuardAt : IShipOrder, Ob<Docking.OnDocked>, Ob<AIShip.Damaged>, Ob<
         if (errand?.Active == true) {
             errand.Update(delta, owner);
             //If we have finite errand time, then give up on expire
-            if (errandTime-- == 0) {
+            if (errandTime > 0 && errandTime < delta) {
                 errand = null;
             }
+			errandTime -= delta;
 
 
-            if (ticks%30 == 0 && allowFlee && !owner.IsAble()) {
+			if (ticks%30 == 0 && allowFlee && !owner.IsAble()) {
                 ClearErrand();
                 return;
             }
@@ -548,19 +552,19 @@ public class GuardAt : IShipOrder, Ob<Docking.OnDocked>, Ob<AIShip.Damaged>, Ob<
     public void Observe(Docking.OnDocked ev) => onDockedHome.Observe(new(ev.owner, this));
     public void Observe(AIShip.Damaged ev) {
         var (owner, p) = ev;
-        if (!allowFlee) {
-            return;
-        }
         if (owner.IsAble()) {
             return;
         }
-        if (errand is AttackTarget) {
+		if(!allowFlee) {
+			return;
+		}
+		if (errand is AttackTarget) {
             ClearErrand();
         }
     }
     public void Observe(Station.Damaged ev) {
         var (owner, projectile) = ev;
-        if(owner.damageSystem.GetHP() > owner.damageSystem.GetMaxHP()) {
+        if(owner.damageSystem.GetHP() > owner.damageSystem.GetMaxHP() / 2) {
             return;
         }
         allowFlee = false;
@@ -759,7 +763,7 @@ public class AttackTarget : IShipOrder {
             stealthCheckTime += delta;
             if (stealthCheckTime > 0.5) {
                 stealthCheckTime = 0;
-                if(SStealth.CanSee(owner, target)) {
+                if(!SStealth.CanSee(owner, target)) {
                     onTargetInvisible.Observe(new(this));
                 }
             }

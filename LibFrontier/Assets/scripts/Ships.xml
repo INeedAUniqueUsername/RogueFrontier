@@ -30,6 +30,7 @@
         <LayeredArmorSystem>
 			<Armor  codename="item_gemsteel_plate_i"/>
 			<Armor  codename="item_gemsteel_plate_i"/>
+			<Armor  codename="item_gemsteel_plate_i"/>
         </LayeredArmorSystem>
         <PlayerSettings
             startingClass=	"true"

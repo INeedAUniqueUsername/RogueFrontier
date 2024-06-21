@@ -129,29 +129,35 @@ public class SfLinkGroup {
 }
 
 public class SfBool :SfControl{
-
 	public Action<Sf> Draw { set; get; }
-
 	public (int x, int y) pos;
 	public Sf on;
-	bool b;
-	public SfBool((int x, int y) pos, Sf on) {
+	public Action<SfBool> StateChanged;
+	public bool state;
+	public SfBool(Sf on, (int x, int y) pos) {
 		this.pos = pos;
 		this.on = on;
 	}
 	Hand h = new();
-	void SfControl.HandleMouse(LibGamer.HandState state) {
-
-		if(on.SubRect(pos.x, pos.y, 1, 1).Contains(state.pos)) {
-			
+	void SfControl.HandleMouse(LibGamer.HandState hs) {
+		h.Update(hs.OnRect(on.SubRect(pos.x, pos.y, 8, 1)));
+		if(h.nowOn && h.left == Pressing.Released) {
+			state = !state;
+			StateChanged?.Invoke(this);
 		}
 	}
 	void SfControl.Render(System.TimeSpan delta) {
-		on.Print(pos.x, pos.y, b ? "True" : "False");
+		var (f, b) = (ABGR.White, ABGR.Black);
+		if(h.nowOn) {
+			if(h.nowLeft) {
+				(f, b) = (b, f);
+			} else {
+				b = ABGR.Gray;
+			}
+		}
+		on.Print(pos.x, pos.y, state ? "True" : "False", f, b);
 	}
-
 }
-
 public class SfField : SfControl {
 	public Action<Sf> Draw { get; set; }
 
@@ -224,7 +230,7 @@ public class SfField : SfControl {
 			(foreground, background) = (background, foreground);
 		}
 		for(int x = 0; x < Width; x++) {
-			on.SetBack(pos.x + x, pos.y + 0, background);
+			on.Back[pos.x + x, pos.y + 0] = background;
 		}
 		Func<int, Tile> getGlyph = (i) => new Tile(foreground, background, text[i]);
 		if(showCursor && IsFocused) {
@@ -232,19 +238,18 @@ public class SfField : SfControl {
 				getGlyph = i =>	i == _index ? new Tile(background, foreground, text[i])
 											: new Tile(foreground, background, text[i]);
 			} else {
-				on.SetBack(pos.x + x2, pos.y + 0, foreground);
+				on.Back[pos.x + x2, pos.y + 0] = foreground;
 			}
 		}
 		for(int x = 0; x < x2; x++) {
 			var i = textStart + x;
-			on.SetTile(pos.x + x, pos.y + 0, getGlyph(i));
+			on.Tile[pos.x + x, pos.y + 0] = getGlyph(i);
 		}
 	}
 	public void HandleKey (KB keyboard) {
 		if(!IsFocused) {
 			return;
 		}
-		
 		if(keyboard.Press.Any()) {
 			//bool moved = false;
 			foreach(var key in keyboard.Press) {

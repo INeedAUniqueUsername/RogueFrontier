@@ -5,7 +5,7 @@ using RogueFrontier;
 using System.Text;
 const int WIDTH = 96, HEIGHT = 50;
 SadConsole.Settings.WindowTitle = $"Inspector";
-Runner.Run(null, r => {
+Runner.Run(Fonts.IBMCGA_6X8_FONT, r => {
 	r.Go(new EditorMain(WIDTH, HEIGHT));
 });
 public class EditorMain : IScene {
@@ -51,8 +51,8 @@ public class EditorMain : IScene {
 				}},
 				{ typeof(bool), () => {
 					controls.Add(new SfLabel(sf, (0, y), f.Name));
-					controls.Add(new SfField(sf, (16, y), 16, f.Name) {
-						TextChanged = s => f.SetValue(current, s.text)
+					controls.Add(new SfBool(sf, (16, y)) {
+						 StateChanged = s => f.SetValue(current, s.state)
 					});
 
 				} }

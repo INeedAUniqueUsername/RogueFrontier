@@ -6,7 +6,7 @@ using System.Reflection;
 using static ExtSadConsole.SadGamer;
 namespace ExtSadConsole;
 public class Runner {
-	ConcurrentDictionary<Sf, SadConsole.Console> consoles = new();
+	ConcurrentDictionary<Sf, ScreenSurface> consoles = new();
 	ConcurrentDictionary<SoundCtx, Sound> sounds = new();
 	ConcurrentDictionary<byte[], SoundBuffer> soundBuffers = [];
 	IScene current = null;
@@ -64,7 +64,7 @@ public class Runner {
 				font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
 				GameHost.Instance.Fonts[f.name] = font;
 			}
-			var c = new SadConsole.Console(sf.Width, sf.Height) {
+			var c = new SadConsole.ScreenSurface(sf.Width, sf.Height) {
 				Position = new(sf.pos.xi, sf.pos.yi),
 				Font = font,
 			};

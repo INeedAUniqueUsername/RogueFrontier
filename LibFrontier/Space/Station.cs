@@ -209,7 +209,7 @@ public class Station : ActiveObject, ITrader, IDockable {
                 .OfType <GuardAt>()
                 .Where(g => g.home == this);
             foreach (var order in guards) {
-                order.SetAttack(source, 300);
+                order.SetAttack(source, 10);
             }
         }
     }

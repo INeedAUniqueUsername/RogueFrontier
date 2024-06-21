@@ -67,7 +67,8 @@ public partial class Runner : Node2D {
 			return s;
 		});
 		c.Clear();
-		foreach(var ((x, y), t) in sf.Active) {
+		foreach(var (x, y) in sf.Active) {
+			var t = sf.Tile[x, y];
 			c.Print(x, y, (char)t.Glyph, new Color(ABGR.ToRGBA(t.Foreground)), new Color(ABGR.ToRGBA(t.Background)));
 		}
 		c.Show();

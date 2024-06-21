@@ -642,7 +642,9 @@ public class LocatorDict<TValue, TKey> {
         space.Where(pair => keySelector(pair.Key)).SelectMany(pair => pair.Value);
     public IEnumerable<V> FilterKeySelect<V>(Predicate<TKey> keySelector, Func<TValue, V> valueSelector, Func<V, bool> valueFilter) =>
     space.Where(pair => keySelector(pair.Key)).SelectMany(pair => pair.Value.Select(valueSelector).Where(valueFilter));
-    public Dictionary<TKey, HashSet<TValue>> Transform(Func<TKey, TKey> scale) =>
+	public IEnumerable<V> SelectKeyValue<V> (Predicate<TKey> whereKey, Func<TValue, V> selectValue) =>
+	space.Where(pair => whereKey(pair.Key)).SelectMany(pair => pair.Value.Select(selectValue));
+	public Dictionary<TKey, HashSet<TValue>> Transform(Func<TKey, TKey> scale) =>
         LocateAll(all, t => scale(locator.Locate(t)));
     public Dictionary<TKey, HashSet<TValue>> Relocate(Func<TValue, TKey> locate) =>
         LocateAll(all, locate);

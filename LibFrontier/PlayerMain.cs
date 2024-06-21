@@ -90,11 +90,10 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 return;
             }
             _dialog = value;
-            if(value is { }) {
-
-				value.Go += SubGo;
-				value.Draw += SubDraw;
-				value.PlaySound += SubPlaySound;
+            if(_dialog is { } d) {
+				d.Go += SubGo;
+				d.Draw += SubDraw;
+				d.PlaySound += SubPlaySound;
 			}
         }
     }
@@ -1978,30 +1977,28 @@ public class Edgemap {
         var halfWidth = Width / 2;
         var halfHeight = Height / 2;
         var range = 192;
-        player.world.entities.FilterKeySelect<(Entity entity, double dist)?>(
-            ((int, int) p) => (player.position - p).maxCoord < range,
-            entity => entity is { tile:not null } and not ISegment && player.GetVisibleDistanceLeft(entity) is var d and > 0 ? (entity, d) : null,
-            v => v != null)
-            .ToList()
-            .ForEach(pair => {
-                (var entity, var dist) = pair.Value;
-                var offset = (entity.position - player.position).Rotate(-camera.rotation);
-                var (x, y) = (offset / viewScale).abs;
-                if (x >= halfWidth || y >= halfHeight) {
-                    (x, y) = Main.GetBoundaryPoint(screenSize, offset.angleRad);
-                    PrintTile(x, y, dist, entity);
-                } else if (x > halfWidth - 4 || y > halfHeight - 4) {
-                    (x, y) = screenCenter + offset / viewScale;// + new XY(1, 1);
-                    PrintTile(x, y, dist, entity);
-                }
-            });
 
+        foreach(var (entity, dist) in player.world.entities.SelectKeyValue<(Entity entity, double dist)?>(
+            ((int, int) p) => (player.position - p).maxCoord < range,
+            entity => (entity is ISegment { parent: { } par } ? par : entity) is { tile: { } } ent && player.GetVisibleDistanceLeft(ent) is { } d and > 0 ? (entity, d) : null).OfType<(Entity entity, double dist)>()
+            ) {
+			var offset = (entity.position - player.position).Rotate(-camera.rotation);
+			var (x, y) = (offset / viewScale).abs;
+			if(x >= halfWidth || y >= halfHeight) {
+				(x, y) = Main.GetBoundaryPoint(screenSize, offset.angleRad);
+				PrintTile(x, y, dist, entity);
+			} else if(x > halfWidth - 4 || y > halfHeight - 4) {
+				(x, y) = screenCenter + offset / viewScale;// + new XY(1, 1);
+				PrintTile(x, y, dist, entity);
+			}
+		};
         if(player.active) {
             var (x, y) = Main.GetBoundaryPoint(screenSize, player.rotationRad);
             sf.Tile[x, Height - y - 1] = new Tile(ABGR.White, ABGR.Transparent, 7);
         }
         void PrintTile(int x, int y, double distance, Entity e) {
             switch(e) {
+                case ISegment:
                 case ActiveObject:
                 case Projectile:
                 case Wreck:
