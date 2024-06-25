@@ -57,6 +57,7 @@
 			<Weapon codename="item_amethyst_laser_ii"/>
 			<Weapon codename="item_magic_blaster_ii"/>
 			<Weapon codename="item_light_launcher_i"/>
+			<Weapon codename="item_shine_launcher_i"/>
 			<Shield codename="item_shimmer_shield_ii"/>
 			<Reactor codename="item_amethyst_50mw_generator"/>
 			<Reactor codename="item_20mw_secondary"/>

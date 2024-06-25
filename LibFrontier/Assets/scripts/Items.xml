@@ -491,11 +491,11 @@
 	
 	<!--To do: Attack-drones, universal point-defense, anti-fragmentation armor-->
 	<ItemType	codename=	"item_knightsteel_plate"
-		name=		"Knightscale plate"
+		name=		"Knight plate"
 		mass=		"6000"
 		level=		"1"
 		value=		"5000"
-		desc=		"This strong armor is made for the Knight series of gunships. Knightscale can continue absorbing damage after knockdown."
+		desc=		"This strong armor is made for the Knight series of gunships. Knight plate can continue absorbing damage after knockdown."
 		>
 		<Armor
 			minAbsorb=		"1"

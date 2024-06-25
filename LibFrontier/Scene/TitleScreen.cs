@@ -256,7 +256,7 @@ public class TitleScreen : IScene {
 		tiles.Clear();
 		World.PlaceTiles(tiles);
 
-		if (World.entities.all.OfType<IShip>().Count() < 5) {
+		while(World.entities.all.OfType<IShip>().Count() < 100) {
 			var shipClasses = World.types.Get<ShipClass>();
 			var shipClass = shipClasses.ElementAt(World.karma.NextInteger(shipClasses.Count));
 			var angle = World.karma.NextDouble() * Math.PI * 2;

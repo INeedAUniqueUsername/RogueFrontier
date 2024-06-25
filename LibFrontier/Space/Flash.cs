@@ -46,7 +46,7 @@ public record FlashDesc(){
         public XY position { get; set; }
         public double distance;
         public byte brightness => (byte)Math.Min(255, parent.brightness / distance);
-        public bool active => brightness > 128;
+        public bool active => brightness > 128 && parent.active;
         public Tile tile => delay > 0 ? null : (ABGR.Transparent, ABGR.RGBA(255, 255, 255, brightness), ' ');
 
         public double delay;

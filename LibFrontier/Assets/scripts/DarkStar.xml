@@ -37,23 +37,23 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_shrapnel_bomb"
-				name=		"Shrapnel bomb"
+				name=		"Fragmentation grenade"
 				attributes=	"DarkStar"
 				level=		"2"
 				mass=		"200"
 				value=		"8"
 				
-				desc=		""
+				desc=		"This grenade is loaded with armor-piercing fragments. To be caught in the blast is dangerous; to take a direct hit is lethal."
 		>
 	</ItemType>
 	<ItemType	codename=	"item_bomb_launcher"
-				name=		"Shrapnel bomb launcher"
+				name=		"Grenade launcher"
 				attributes=	"DarkStar"
 				level=		"2"
 				mass=		"2000"
 				value=		"400"
 				invoke=		"installWeapon"
-				desc=		""
+				desc=		"Dark Star assassins are expected to be highly skilled and thus capable of landing direct hits easily, so shrapnel bombs do not use automatic detonation."
 		>
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"90"
@@ -65,49 +65,48 @@
 				damageType=		"1"
 				damageHP=		"5"
 				lifetime=		"90"
-				glyph=			"b"
+				glyph=			"\235"
 				foreground=		"A0A0A0FF"
 				background=		"Black"
-				
-				detonateRadius="5"
 				
 				detonateSound=	"dynamite.wav"
 				>
 				<Fragment
-					count=			"18"
+					count=			"32"
 					spreadAngle=	"360"
-					missileSpeed=	"30"
+					missileSpeed=	"60"
 					damageType=		"1"
-					damageHP=		"3"
+					damageHP=		"1d5"
+					lifetime=		"5"
+					glyph=			"+"
+					foreground=		"Red"
+					
+					shock=			"3"
+					/>
+				<Fragment
+					count=			"32"
+					spreadAngle=	"360"
+					missileSpeed=	"55"
+					damageType=		"1"
+					damageHP=		"1d4"
 					lifetime=		"10"
-					glyph=			"*"
-					foreground=		"OrangeRed"
-					/>
-				<Fragment
-					count=			"18"
-					spreadAngle=	"360"
-					missileSpeed=	"30"
-					damageType=		"1"
-					damageHP=		"3"
-					lifetime=		"20"
-					glyph=			"*"
+					glyph=			"+"
 					foreground=		"Orange"
+					shock=			"2"
 					/>
 				<Fragment
-					count=			"18"
+					count=			"32"
 					spreadAngle=	"360"
-					missileSpeed=	"30"
+					missileSpeed=	"50"
 					damageType=		"1"
-					damageHP=		"3"
-					lifetime=		"30"
-					glyph=			"*"
+					damageHP=		"1d3"
+					lifetime=		"15"
+					glyph=			"+"
 					foreground=		"Yellow"
 					/>
-
 			</Projectile>
 		</Weapon>
 	</ItemType>
-
 	<ItemType	codename=	"item_metal_grinder"
 				name=		"Metal Grinder"
 				attributes=	"DarkStar"
@@ -159,15 +158,17 @@
 		</Shield>
 	</ItemType>
 	<ItemType	codename=	"item_darkened_knightsteel_plate"
-		name=		"Dark Knightsteel plate"
+		name=		"Prince armor"
 		attributes=	"DarkStar"
 		mass=		"6000"
 		level=		"1"
 		value=		"5000"
-		desc=		"This version of knightsteel plate is darkened with a stealthing compound"
+		desc=		"This version of knight plate is darkened with a stealthing compound"
 		>
-		<Armor	maxHP=		"180"
-			stealth="8"
+		<Armor	maxHP=		"150"
+			stealth=		"8"
+			minAbsorb=		"1"
+			reflectFactor=	"1.0"
 			>
 		</Armor>
 	</ItemType>

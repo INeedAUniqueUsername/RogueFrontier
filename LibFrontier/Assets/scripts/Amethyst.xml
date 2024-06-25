@@ -88,15 +88,15 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_laser_i"
-				name=		"Amethyst Cannon I"
-				level=		"1"
-				mass=		"1000"
-				value=		"4800"
+		name=		"Amethyst Cannon I"
+		level=		"1"
+		mass=		"1000"
+		value=		"4800"
 				
-				attributes= "Amethyst"
+		attributes= "Amethyst"
 
-				desc=		"The Amethyst laser cannon fires a magenta-colored beam that deals more damage to shields. Its internal specifications are a trade secret."
-				sprite=		"item_amethyst_laser_i.dat"
+		desc=		"The Amethyst laser cannon fires a magenta-colored beam that deals more damage to shields. Its internal specifications are a trade secret."
+		sprite=		"item_amethyst_laser_i.dat"
 		>
 		<Weapon
 			initialCharges=	"1200"
@@ -296,8 +296,62 @@
 				foreground=		"Violet"
 				
 				tracker=		"30"
+				glow=			"10"
 				>
 				<Flash intensity="8" lifetime="30"/>
+			</Projectile>
+		</Weapon>
+	</ItemType>
+	
+	
+
+
+	<ItemType	codename=	"item_shine_launcher_i"
+				name=		"Starburst Launcher I"
+				attributes=	""
+				level=		"2"
+				mass=		"2000"
+				value=		"400"
+				desc=		""
+		>
+		<Weapon	powerUse=		"10"
+				fireCooldown=	"120"
+				sound=			"generic_missile.wav"
+			>
+			<Projectile
+				missileSpeed=	"30"
+				damageType=		"1"
+				damageHP=		"5"
+				lifetime=		"120"
+				glyph=			"\15"
+				foreground=		"FF55FFFF"
+				background=		"Black"
+
+				fragmentSpin=	"180"
+				>
+				<Fragment
+					count=			"5"
+					spreadAngle=	"360"
+					missileSpeed=	"60"
+					damageType=		"1"
+					damageHP=		"1d8"
+
+					fragmentInterval="5"
+					fragmentInitialDelay="15"
+
+					reflectFactor=	"0.5"
+
+					lifetime=		"15"
+					glyph=			"\7"
+					foreground=		"FF55FFFF"
+				>
+					<Corrode lifetime="10" damageRate="1/60"/>
+					<Trail
+						lifetime=	"10"
+						glyph=		"\7"
+						foreground=	"FF55FFFF"
+						background=	"BB77DDFF"/>
+				</Fragment>
 			</Projectile>
 		</Weapon>
 	</ItemType>

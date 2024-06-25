@@ -580,6 +580,7 @@ public record FragmentDesc {
 			},
 			[nameof(detonateSound)] = (string s) => Assets.GetAudio(s),
 			[nameof(spreadAngle)] = (double d) => d * Math.PI / 180,
+			[nameof(fragmentSpin)] = (double d) => d * Math.PI / 180,
 			[nameof(spreadOmni)] = (bool b) => {
 				spreadAngle = 2 * Math.PI / count;
 				return b;
@@ -587,6 +588,8 @@ public record FragmentDesc {
 			[nameof(maneuver)] = (double d) => {
 				acquireTarget |= d > 0;
 				return d * Math.PI / 180; },
+
+
 		});
 		/*
 		if(e.HasElement("Flash", out var xmlFlash)) {

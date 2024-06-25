@@ -48,7 +48,7 @@ public class Projectile : MovingObject {
     public bool hitKill;
     public bool hitHandled => damageLeft == 0 || hitReflected || hitBlocked;
     public double detonateRadius;
-    public HashSet<Entity> exclude = new();
+    public HashSet<Entity> exclude = [];
     //List of projectiles that were created from the same fragment
     public record Burst() {
         public List<Projectile> projectiles = [];
@@ -259,7 +259,7 @@ public class Projectile : MovingObject {
             fragmentAngle = direction;
         }
         fragmentAngle += fragmentRotation;
-        HashSet<Entity> exclude = new() { null, this };
+        HashSet<Entity> exclude = [ null, this ];
         if (fragment.precise) {
             exclude.UnionWith(this.exclude);
         }
