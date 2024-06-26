@@ -608,7 +608,7 @@ public record FragmentDesc {
 		if(guidanceDesc is {} g) {
 			var f = g.Create;
 			var i = 0;
-			getManeuver = targets.Count switch {
+			getManeuver = targets?.Count switch {
 				>1 => GetMulti,
 				1 => GetSingle,
 				_ => null,
@@ -645,7 +645,7 @@ public record GuidanceDesc {
 			return d * Math.PI / 180;
 		},
 	});
-	public Guidance Create (ActiveObject target) => target is { } t ? new(t, maneuver, maneuverRadius) : null;
+	public Guidance Create (ActiveObject target) => target is { } t ? new(t, this) : null;
 }
 public record TrailDesc : ITrail {
 	[Req] public int lifetime;

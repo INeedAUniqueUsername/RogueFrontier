@@ -286,30 +286,28 @@ public class Projectile : MovingObject {
 }
 public class Guidance {
     public ActiveObject target;
-    public double maneuver;
-    public double maneuverDistance;
+    public GuidanceDesc desc;
     public bool smart = false;
     private double prevDistance = double.NegativeInfinity;
     private bool startApproach = false;
-    public Guidance(ActiveObject target, double maneuver, double maneuverDistance) {
+    public Guidance(ActiveObject target, GuidanceDesc desc) {
         this.target = target;
-        this.maneuver = maneuver;
-        this.maneuverDistance = maneuverDistance;
+        this.desc = desc;
     }
     public void Update(double delta, Projectile p) {
-        if (target == null || maneuver == 0) {
+        if (target == null || desc.maneuver == 0) {
             return;
         }
         //var uncertainty = XY.Polar(p.world.karma.NextDouble() * 2 * Math.PI, 0);
         var vel = p.velocity;
         var offset = target.position - p.position;
-        var turn = maneuver * delta * Constants.TICKS_PER_SECOND;
+        var turn = desc.maneuver * delta * Constants.TICKS_PER_SECOND;
         var velLeft = vel.Rotate(turn);
         var velRight = vel.Rotate(-turn);
         var distLeft = (offset - velLeft.normal).magnitude;
         var distRight = (offset - velRight.normal).magnitude;
         (var closer, var farther) = distLeft < distRight ? (velLeft, velRight) : (velRight, velLeft);
-        if (maneuverDistance == 0) {
+        if (desc.maneuverRadius == 0) {
             if(smart) {
                 var dist = offset.magnitude;
                 if (dist < prevDistance) {
@@ -326,7 +324,7 @@ public class Guidance {
 
 
                     var timeToHit = offset.magnitude / deltaVel.magnitude;
-                    var timeToTurn = Math.Min(Math.PI/2, deltaAngle) / (maneuver * Constants.TICKS_PER_SECOND);
+                    var timeToTurn = Math.Min(Math.PI/2, deltaAngle) / (desc.maneuver * Constants.TICKS_PER_SECOND);
 
                     if (timeToTurn < timeToHit) {
                         startApproach = true;
@@ -367,7 +365,7 @@ public class Guidance {
             }
             */
         } else {
-            if (offset.magnitude > maneuverDistance) {
+            if (offset.magnitude > desc.maneuverRadius) {
                 p.velocity = closer;
             } else {
                 p.velocity = farther;

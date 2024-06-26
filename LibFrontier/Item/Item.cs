@@ -633,8 +633,7 @@ public class Service : Device {
                             .OfType<Projectile>()
                             .FirstOrDefault(
                                 p => (owner.position - p.position).magnitude < 24
-                                  && p.maneuver != null
-                                  && p.maneuver.maneuver > 0
+                                  && p.maneuver is { desc.maneuver: > 0 }
                                   && Equals(p.maneuver.target, owner)
                                 );
                         if (missile != null) {
@@ -852,9 +851,9 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
     public string GetReadoutName() {
         string name = source.type.name;
         return ammo switch {
-            ChargeAmmo { charges: { }charges } => $"{charges, 6} {name}",
-            ItemAmmo { count: { } count } => $"{count, 6} {name}",
-            _ => $"------ {name}"
+            ChargeAmmo { charges: {}charges } => $"{charges, 6} {name}",
+            ItemAmmo { count: {} count } => $"{count, 6} {name}",
+            _ => $"     * {name}"
         };
     }
     public Tile[] GetBar(int BAR) {
@@ -965,7 +964,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         }
     LineCheckDone:
         ammo?.Update(owner);
-        if (!firing || capacitor?.AllowFire == false || ammo?.AllowFire == false) {
+        if (!firing || !(capacitor?.AllowFire ?? true) || !(ammo?.AllowFire ?? true)) {
             goto Cancel;
         }
         UpdateProjectileDesc();
@@ -1037,7 +1036,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
             }
         }
         ammo?.Update(owner);
-        if (!firing || capacitor?.AllowFire == false || ammo?.AllowFire == false) {
+        if (!firing || !(capacitor?.AllowFire ?? true) || !(ammo?.AllowFire ?? true)) {
             goto Cancel;
         }
         UpdateProjectileDesc();
