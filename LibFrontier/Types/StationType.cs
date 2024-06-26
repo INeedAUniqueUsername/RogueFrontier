@@ -92,7 +92,7 @@ public class StationType : IDesignType {
 			[nameof(Inventory)] = (XElement x) => new Group<Item>(x, SGenerator.ParseFrom(tc, SGenerator.ItemFrom)),
 			[nameof(ExplosionDesc)] = (object o) => 
 				o is string explosionType ?
-					tc.Lookup<ItemType>(explosionType).Weapon.Projectile ?? throw new Exception($"Expected Weapon desc") :
+					tc.Lookup<ItemType>(explosionType).Weapon.projectile ?? throw new Exception($"Expected Weapon desc") :
 					(FragmentDesc) o,
 			[nameof(HeroImage)] = (XElement x) => {
 				if (x.TryAtt("path", out string path)) {

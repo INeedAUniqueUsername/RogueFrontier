@@ -1368,7 +1368,7 @@ public class Readout {
         var autoTargets = player.primary.item?.targeting?.GetMultiTarget()
             .Except(new ActiveObject[] { null })
             .Except(player.tracking.Keys)
-            .Take(player.primary.item.desc.barrageSize);
+            .Take(player.primary.item.desc.burstSize);
         foreach (var at in autoTargets ?? Enumerable.Empty<ActiveObject>()) {
             DrawTargetArrow(at, ABGR.LightYellow);
         }

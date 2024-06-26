@@ -554,7 +554,7 @@ public class Launcher : Device {
         this.index = index;
         var l = desc.missiles[index];
         weapon.ammo = new ItemAmmo(l.ammoType);
-        weapon.desc.Projectile = l.shot;
+        weapon.desc.projectile = l.shot;
     }
     public string GetReadoutName() => weapon.GetReadoutName();
     public Tile[] GetBar(int BAR) => weapon.GetBar(BAR);
@@ -820,8 +820,8 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         this.desc = desc;
 
         capacitor =
-            desc.Capacitor != null ?
-                new(desc.Capacitor) :
+            desc.capacitor != null ?
+                new(desc.capacitor) :
             null;
         ammo =
             desc.initialCharges > -1 ?
@@ -830,7 +830,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                 new ItemAmmo(desc.ammoType) :
             null;
         aiming ??=
-            desc.Projectile.omnidirectional || desc.omnidirectional ?
+            desc.projectile.omnidirectional || desc.omnidirectional ?
                 new Omnidirectional() :
             desc.sweep > 0 ?
                 new Swivel(desc.sweep) :
@@ -838,9 +838,9 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                 new Swivel(desc.leftRange, desc.rightRange) :
             null;
         targeting =
-            desc.Projectile.multiTarget ?
+            desc.projectile.multiTarget ?
                 new(true) :
-            desc.Projectile.acquireTarget ?
+            desc.projectile.acquireTarget ?
                 new(false) :
             aiming != null ?
                 new(false) :
@@ -888,7 +888,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         }
     }
     public void UpdateProjectileDesc() {
-        projectileDesc = FragmentMod.Sum(capacitor?.mod, mod) * desc.Projectile;
+        projectileDesc = FragmentMod.Sum(capacitor?.mod, mod) * desc.projectile;
     }
     public void Update(double delta, Station owner) {
         if (!blind) {

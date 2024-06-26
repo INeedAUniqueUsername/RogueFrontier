@@ -276,7 +276,7 @@ public class Projectile : MovingObject {
                 position + XY.Polar(angle, 0.5),
                 velocity + XY.Polar(angle, fragment.missileSpeed),
                 angle,
-                fragment.InitGuidance(maneuver?.target),
+                fragment.guidanceDesc?.Create(maneuver?.target),
                 exclude
                 ) { burst = burst };
             burst.projectiles.Add(p);

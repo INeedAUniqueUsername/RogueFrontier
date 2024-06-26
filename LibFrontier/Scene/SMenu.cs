@@ -189,7 +189,7 @@ public static partial class SMenu {
         ((Action)(d switch {
             Weapon w => () => {
                 r.AddRange(Enumerable.Except([
-					Tile.Arr($"Damage range: {w.desc.Projectile.damageHP.str}"),
+					Tile.Arr($"Damage range: {w.desc.projectile.damageHP.str}"),
 					Tile.Arr($"Fire cooldown:{w.desc.fireCooldown/60.0:0.00} SEC"),
 					Tile.Arr($"Power rating: {w.desc.powerUse}"),
 					w.desc.recoil != 0 ?

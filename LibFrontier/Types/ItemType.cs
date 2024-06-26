@@ -155,8 +155,8 @@ public record DepleteTargetShields() : ItemUse {
 public record ReplaceDevice() : ItemUse {
 	[Req(parse =false)]public ItemType from, to;
 	public ReplaceDevice(Assets tc, XElement e) : this() => e.Initialize(this, transform: new() {
-		[nameof(from)] = tc.Lookup<ItemType>,
-		[nameof(to)] = tc.Lookup<ItemType>,
+		[nameof(from)] = (string s) => tc.Lookup<ItemType>(s),
+		[nameof(to)] = (string s ) => tc.Lookup<ItemType>(s),
 	});
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Replace installed {from.name}";
@@ -234,8 +234,6 @@ public record ItemType : IDesignType {
 	[Sub(construct = false)] public WeaponDesc Weapon;
 	[Par(construct = false, fallback = true)] public ItemUse Invoke;
 	public Dictionary<(int, int), Tile> sprite = [];
-
-
 	public bool HasAtt(string att) => attributes.Contains(att);
 	public T Get<T>() =>
 		(T)new Dictionary<Type, object>{
@@ -264,7 +262,6 @@ public record ItemType : IDesignType {
 		unlockPrescience,
 		applyMod
 	}
-
 	class InvokeFrom {
 		[Opt(type = typeof(EItemUse))] public ItemUse invoke;
 		public InvokeFrom(Assets tc, XElement e) => e.Initialize(this, transform: new() {
@@ -374,7 +371,6 @@ public record LaunchDesc {
 		e.Initialize(this, transform: new() {
 			[nameof(ammoType)] = (string s) => types.Lookup<ItemType>(s),
 		});
-		
 		shot = ammoType.Ammo ?? new(e);
 	}
 }
@@ -400,9 +396,9 @@ public record LauncherDesc {
 		fireCooldown = fireCooldown,
 		recoil = recoil,
 		repeat = repeat,
-		Projectile = missiles.First().shot,
+		projectile = missiles.First().shot,
 		initialCharges = -1,
-		Capacitor = Capacitor,
+		capacitor = Capacitor,
 		ammoType = missiles.First().ammoType,
 		targetProjectile = false,
 		autoFire = false
@@ -417,7 +413,6 @@ public record WeaponDesc {
 	[Opt] public int repeatDelayEnd = 3;
 	[Opt] public double failureRate = 0;
 	[Opt] public int initialCharges = -1;
-
 	[Opt] public bool pointDefense;
 	public bool targetProjectile;
 	[Opt] public bool autoFire;
@@ -429,15 +424,15 @@ public record WeaponDesc {
 	
 	[Opt(parse = false)] public byte[] sound;
 	[Opt(parse = false)] public ItemType ammoType;
-	[Sub(required = true)] public FragmentDesc Projectile;
-	[Sub] public CapacitorDesc Capacitor;
+	[Sub(required = true, alias = "Projectile")] public FragmentDesc projectile;
+	[Sub(alias = "Capacitor")] public CapacitorDesc capacitor;
 
-	public int barrageSize => (repeat + 1) * Projectile.count;
-	public int missileSpeed => Projectile.missileSpeed;
-	public int damageType => Projectile.damageType;
-	public IDice damageHP => Projectile.damageHP;
-	public int lifetime => Projectile.lifetime;
-	public int minRange => Projectile.missileSpeed * Projectile.lifetime / (Constants.TICKS_PER_SECOND * Constants.TICKS_PER_SECOND); //DOES NOT INCLUDE CAPACITOR EFFECTS
+	public int burstSize => (repeat + 1) * projectile.count;
+	public int missileSpeed => projectile.missileSpeed;
+	public int damageType => projectile.damageType;
+	public IDice damageHP => projectile.damageHP;
+	public int lifetime => projectile.lifetime;
+	public int minRange => projectile.missileSpeed * projectile.lifetime / (Constants.TICKS_PER_SECOND * Constants.TICKS_PER_SECOND); //DOES NOT INCLUDE CAPACITOR EFFECTS
 	public Weapon GetWeapon(Item i) => new(i, this);
 	public WeaponDesc() { }
 	public WeaponDesc(Assets types, XElement e) {
@@ -451,10 +446,11 @@ public record WeaponDesc {
 			[nameof(ammoType)] = (string at) => types.Lookup<ItemType>(at),
 			[nameof(sound)] = (string s) => Assets.GetAudio(s)
 		});
+
 		//Projectile = new(e.ExpectElement("Projectile"));
 		//sound = e.TryAtt("sound", out string s) ? new SoundBuffer(s) : null;
 		if (pointDefense) {
-			Projectile.hitProjectile = true;
+			projectile.hitProjectile = true;
 			targetProjectile = true;
 			autoFire = true;
 		}
@@ -498,8 +494,6 @@ public record FragmentDesc {
 	/// <summary>If true, then the weapon has Targeting</summary>
 	[Opt] public bool acquireTarget;
 	[Opt] public bool multiTarget;
-	[Opt] public double maneuver;
-	[Opt] public double maneuverRadius;
 	[Opt] public int detonateRadius;
 	[Opt] public int fragmentInitialDelay;
 	[Opt] public int fragmentInterval;
@@ -512,26 +506,22 @@ public record FragmentDesc {
 	[Opt] public IDice blind;
 	[Opt] public int ricochet;
 	[Opt] public int tracker;
-
 	[Opt] public bool numbing;
-
 	/// <summary>If the target shield is up, sets the remaining delay to at least this value</summary>
 	[Opt] public int shieldDelay = 0;
 	/// <summary>If the target shield is down, sets the remaining depletion delay to at least this value</summary>
 	[Opt] public int shieldSuppress = 0;
-
-
 	//[Opt] public bool beacon;
 	[Opt] public bool hook;
 	/// <summary>On hit, the projectile attaches an overlay that automatically makes future shots hit instantly</summary>
 	[Opt] public bool lightning;
-
 	[Opt] public double silenceFactor;
 	/// <summary>Inflicts silence on the target</summary>
 	[Opt] public double silenceInflict;
 	[Sub] public FlashDesc Flash;
 	[Sub] public CorrodeDesc Corrode;
 	[Sub] public DisruptDesc Disrupt;
+	public GuidanceDesc guidanceDesc;
 	public double CalcSilenceRatio(double targetSilence) => FragmentDesc.GetSilenceMatch(silenceFactor, targetSilence);
 	/// <summary>Calculates the total damage dealt (silent plus non-silent)</summary>
 	public static double GetSilenceMatch(double silenceFactor, double targetSilence) {
@@ -585,12 +575,10 @@ public record FragmentDesc {
 				spreadAngle = 2 * Math.PI / count;
 				return b;
 			},
-			[nameof(maneuver)] = (double d) => {
-				acquireTarget |= d > 0;
-				return d * Math.PI / 180; },
-
-
 		});
+		if(e.TryAtt("maneuver", out _)) {
+			guidanceDesc = new(e);
+		}
 		/*
 		if(e.HasElement("Flash", out var xmlFlash)) {
 			Flash = new(xmlFlash);
@@ -615,14 +603,19 @@ public record FragmentDesc {
 		Enumerable.Range(0, count).Select(i => direction + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1));
 	public List<Projectile> CreateProjectiles(ActiveObject owner, List<ActiveObject> targets, double direction, XY offset = null, HashSet<Entity> exclude = null /*, int projectilesPerTarget = 0*/) {
 		var position = owner.position + (offset ?? new(0, 0));
-		var i = 0;
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;
-		
-		Func<Guidance> getManeuver = targets switch {
-			{ Count: 1 } => () => InitGuidance(targets.First()),
-			{ Count: > 1 } => () => InitGuidance(targets[i++ % targets.Count]),
-			_ => () => null
-		};
+		Func<Guidance> getManeuver = null;
+		if(guidanceDesc is {} g) {
+			var f = g.Create;
+			var i = 0;
+			getManeuver = targets.Count switch {
+				>1 => GetMulti,
+				1 => GetSingle,
+				_ => null,
+			};
+			Guidance GetMulti () => f(targets[i++ % targets.Count]);
+			Guidance GetSingle () => f(targets.Single());
+		}
 		var angles = GetAngles(direction + adj);
 		/*
 		if(projectilesPerTarget > 0 && targets?.Any() == true) {
@@ -635,14 +628,24 @@ public record FragmentDesc {
 				position + XY.Polar(angle),
 				owner.velocity + XY.Polar(angle, missileSpeed),
 				angle,
-				getManeuver(),
+				getManeuver?.Invoke(),
 				exclude
 				) { burst = burst }
 		));
 		return burst.projectiles;
 	}
-	public Guidance InitGuidance(ActiveObject target) =>
-		(acquireTarget && target != null) ? new(target, maneuver, maneuverRadius) : null;
+}
+public record GuidanceDesc {
+	/// <summary>If nonzero, the projectile changes direction to maintain distance from target</summary>
+	[Opt] public double maneuver;
+	/// <summary>If nonzero, the projectile maintains this distance from target</summary>
+	[Opt] public double maneuverRadius;
+	public GuidanceDesc (XElement e) => e.Initialize(this, transform: new() {
+		[nameof(maneuver)] = (double d) => {
+			return d * Math.PI / 180;
+		},
+	});
+	public Guidance Create (ActiveObject target) => target is { } t ? new(t, maneuver, maneuverRadius) : null;
 }
 public record TrailDesc : ITrail {
 	[Req] public int lifetime;
@@ -652,9 +655,9 @@ public record TrailDesc : ITrail {
 	public TrailDesc() { }
 	public TrailDesc(XElement e) {
 		e.Initialize(this, transform: new() {
-			["foreground"] = (string s) => ABGR.Parse(s),
-			["background"] = (string s) => ABGR.Parse(s),
-			["glyph"] = (string s) => s.Length == 1 ? s[0] : (char)uint.Parse(s[1..])
+			[nameof(foreground)] = (string s) => ABGR.Parse(s),
+			[nameof(background)] = (string s) => ABGR.Parse(s),
+			[nameof(glyph)] = (string s) => s.Length == 1 ? s[0] : (char)uint.Parse(s[1..])
 		});
 	}
 	public Effect GetParticle(XY Position, XY Velocity = null) => new FadingTile(Position, new(foreground, background, glyph), lifetime);
