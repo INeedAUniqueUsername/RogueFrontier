@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using LibGamer;
 using System.IO;
+using System.Collections.Concurrent;
 namespace RogueFrontier;
 public interface ItemUse {
 	string GetDesc(PlayerShip player, Item item);
@@ -20,7 +21,6 @@ public record DeployShip : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) => $"Deploy {shipClass.name}";
 	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
-
 		var player = ctx.playerShip;
 		var w = new Wingmate(player);
 		var a = new AIShip(
@@ -56,8 +56,6 @@ public record DeployStation : ItemUse {
 		callback?.Invoke();
 	}
 }
-
-
 public record InstallWeapon : ItemUse {
 	public string GetDesc(PlayerShip player, Item item) =>
 		player.cargo.Contains(item) ? "Install this weapon" : "Remove this weapon";
@@ -129,27 +127,25 @@ public record DepleteTargetShields() : ItemUse {
 	}
 	public string GetDesc(PlayerShip player, Item item) =>
 		player.GetTarget(out var t) ? $"Deplete shields on {t.name}" : "Deplete shields on target";
-	void ItemUse.Invoke(SceneCtx ctx, Item item, Action callback = null) {
+	void ItemUse.Invoke (SceneCtx ctx, Item item, Action callback = null) {
 		var player = ctx.playerShip;
 		//var am = Common.Main.PreBind(player.AddMessage, (string s) => new Message(s));
-		var am = Main.PreBind((string s) => player.AddMessage(new Message(s)));
-		(
-			!player.GetTarget(out var t) ?
-				am($"No target available") :
-			!(t is IShip s) ?
-				am($"Target must be a ship") :
-			s.devices.Shield.Count == 0 ?
-				am($"Target does not have installed shields") :
-			!s.devices.Shield.Any(s => s.hp > 0) ?
-				am($"Target does not have active shields") + (() => { }) :
-			() => {
-				s.devices.Shield.ForEach(s => s.Deplete());
-				player.AddMessage(new Message($"Depleted shields on {s.name}"));
+		var m = (string s) => player.AddMessage(new Message(s));
+		if(!player.GetTarget(out var t))
+			m($"No target available");
+		else if(!(t is IShip s))
+			m($"Target must be a ship");
+		else if(s.devices.Shield.Count == 0)
+			m($"Target does not have installed shields");
+		else if(!s.devices.Shield.Any(s => s.hp > 0))
+			m($"Target does not have active shields");
+		else {
+			s.devices.Shield.ForEach(s => s.Deplete());
+			player.AddMessage(new Message($"Depleted shields on {s.name}"));
 
-				player.cargo.Remove(item);
-				callback?.Invoke();
-			}
-		).Invoke();
+			player.cargo.Remove(item);
+			callback?.Invoke();
+		}
 	}
 }
 public record ReplaceDevice() : ItemUse {
@@ -386,10 +382,11 @@ public record LauncherDesc {
 	public LauncherDesc() { }
 	public LauncherDesc(Assets types, XElement e) {
 		e.Initialize(this);
-		missiles = new();
+		missiles = [];
 		if(e.HasElements("Missile", out var xmlMissileArr)) {
-			missiles.AddRange(xmlMissileArr.Select(m => new LaunchDesc(types, m)));
+			missiles = [..from m in xmlMissileArr select new LaunchDesc(types, m)];
 		}
+		
 	}
 	public WeaponDesc weaponDesc => new() {
 		powerUse = powerUse,
@@ -443,7 +440,7 @@ public record WeaponDesc {
 			[nameof(leftRange)] = toRad,
 			[nameof(rightRange)] = toRad,
 
-			[nameof(ammoType)] = (string at) => types.Lookup<ItemType>(at),
+			[nameof(ammoType)] = (string s) => types.Lookup<ItemType>(s),
 			[nameof(sound)] = (string s) => Assets.GetAudio(s)
 		});
 
@@ -623,15 +620,15 @@ public record FragmentDesc {
 		}
 		*/
 		var burst = new Projectile.Burst();
-		burst.projectiles.AddRange(angles.Select(angle =>
+		burst.projectiles.AddRange(from rad in angles select
 			new Projectile(owner, this,
-				position + XY.Polar(angle),
-				owner.velocity + XY.Polar(angle, missileSpeed),
-				angle,
+				position + XY.Polar(rad),
+				owner.velocity + XY.Polar(rad, missileSpeed),
+				rad,
 				getManeuver?.Invoke(),
 				exclude
 				) { burst = burst }
-		));
+		);
 		return burst.projectiles;
 	}
 }

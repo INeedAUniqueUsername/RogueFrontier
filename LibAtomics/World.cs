@@ -12,10 +12,21 @@ public class World {
 	public double time;
 	public double lastUpdate;
 
-	private ConcurrentDictionary<(int, int), IEntity[]> _entityMap;
-	public ConcurrentDictionary<(int, int), IEntity[]> entityMap =>
-		_entityMap = _entityMap ?? new(entities.GroupBy(e => (e.pos.x, e.pos.y)).Select(g => (g.Key, g.ToArray())).ToDictionary());
+	private ConcurrentDictionary<(int, int), IEntity[]> _entityMap = new();
+	public ConcurrentDictionary<(int, int), IEntity[]> entityMap {
+		get {
+			if(updateMap) {
+				_entityMap.Clear();
+				foreach(var g in entities.GroupBy(e => (e.pos.x, e.pos.y))) {
+					_entityMap[g.Key] = g.ToArray();
+				}
+				updateMap = false;
+			}
+			return _entityMap;
+		}
+	}
 	bool busy = false;
+	bool updateMap = true;
 	public void AddEntity(IEntity e) {
 		entitiesRemove.Remove(e);
 		if(entities.Contains(e))
@@ -40,32 +51,26 @@ public class World {
 		entitiesAdd.Clear();
 		entitiesRemove.Clear();
 		actors = [..entities.OfType<IActor>()];
-		_entityMap = null;
+		updateMap = true;
 		lastUpdate = time;
 	}
-	public record Subticks (Action[][] lines, Action update, Action end) {
-		public HashSet<Action[]> remaining => [..from line in lines where subtick < line.Length select line];
+	public record Subticks (Action[][] lines = null, Action step = null, Action end = null) {
+		public List<Action[]> remaining = [.. lines ?? []];
 		public int length => lines.Max(line => line.Length);
 		public bool done => remaining.Count == 0;
 		public int subtick = 0;
 		public void Update() {
-			remaining.RemoveWhere(line => subtick >= line.Length);
-			foreach(var line in remaining) {
-				line[subtick]();
-			}
+			remaining.RemoveAll(line => subtick >= line.Length);
+			remaining.ForEach(line => line[subtick].Invoke());
+			step?.Invoke();
+			if(done)
+				end?.Invoke();
 			subtick++;
-			update();
-			if(done) {
-				end();
-			}
 		}
 	}
 	public Subticks UpdateStep() {
 		busy = true;
-		var s = new Subticks([..from a in actors select a.UpdateTick()], () => {
-			UpdatePresent();
-		}, () => {
-		});
+		var s = new Subticks([..from a in actors select a.UpdateTick()], UpdatePresent);
 		busy = false;
 		return s;
 	}

@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
@@ -23,11 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SfmlASECII", "SfmlASECII\Sf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GdFrontier", "GdFrontier\GdFrontier.csproj", "{A5629A93-DD2D-4584-B879-34DD40345138}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GdTerminator", "GdTerminator\GdTerminator.csproj", "{95A70518-2CEE-4568-879C-92D2303B4DD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GdAtomics", "GdTerminator\GdAtomics.csproj", "{95A70518-2CEE-4568-879C-92D2303B4DD9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SfmlTerminator", "SfmlTerminator\SfmlTerminator.csproj", "{0F88F4DB-81BA-4270-B6E4-FE9F9ADA02A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SfmlAtomics", "SfmlAtomics\SfmlAtomics.csproj", "{0F88F4DB-81BA-4270-B6E4-FE9F9ADA02A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibTerminator", "LibTerminator\LibTerminator.csproj", "{190FF905-A9A1-40FF-B748-7F19CE45E384}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibAtomics", "LibAtomics\LibAtomics.csproj", "{190FF905-A9A1-40FF-B748-7F19CE45E384}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtGodot", "ExtGodot\ExtGodot.csproj", "{2D3287C6-6849-48F6-81EF-41324EBE8D8D}"
 EndProject

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LibTerminator\LibTerminator.csproj" />
+    <ProjectReference Include="..\LibAtomics\LibAtomics.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
 	<ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />
   </ItemGroup>

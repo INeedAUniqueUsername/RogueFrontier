@@ -25,7 +25,7 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_orator_charm_silence"
-			name=		"Orator's Amulet of Silence"
+			name=		"SILENCE Charm (Orator)"
 			level=		"1"
 			mass=		"1000"
 			value=		"3000"
@@ -34,11 +34,11 @@
 			powerType=	"power_silence_orator"
 			charges=	"5"
 			
-			desc=		"This amulet contains concentrated energy from The Orator. Invoke this charm to release a shockwave attack."
+			desc=		"This item stores several charges of Orator's SILENCE."
 		>
 	</ItemType>
 	<ItemType	codename=	"item_dictator_charm_silence"
-		name=		"Dictator's Charm of Silence"
+		name=		"SILENCE Charm (Dictator)"
 		level=		"1"
 		mass=		"1000"
 
@@ -48,7 +48,7 @@
 		powerType=	"power_silence_dictator"
 		charges=	"5"
 			
-		desc=		"This charm contains concentrated energy from The Dictator. Invoke this charm to release a shockwave attack."
+		desc=		"This item stores several charges of Orator's SILENCE."
 		>
 	</ItemType>
 
