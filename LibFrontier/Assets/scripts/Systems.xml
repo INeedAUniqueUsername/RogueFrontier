@@ -3,8 +3,8 @@
 				name=		"Orion"
 		>
 		<SystemGroup>
-			<Star	 radius="75"/>
-			<Orbital radius="150" angle="random">
+			<Star	 radius="150"/>
+			<Orbital radius="300" angle="random">
 				<Group>
 					<Stargate gateId="Next"/>
 					<!--
@@ -17,11 +17,11 @@
 					-->
 				</Group>
 			</Orbital>
-			<Orbital radius="900"
+			<Orbital radius="1800"
 					 angle="random"
 					 >
 				<Sibling	count="5"
-							radius="1d20+900"
+							radius="1d900+900"
 							increment="8"
 					>
 					<At index="3">
@@ -43,7 +43,7 @@
 					-->
 				</Sibling>
 			</Orbital>
-			<Orbital radius="760"
+			<Orbital radius="1500"
 					 angle="random">
 				<!--Giant planet-->
 				<Planet radius="20"
@@ -124,25 +124,25 @@
 					</Group>
 				</Orbital>
 			</Orbital>
-			<Orbital radius="640" angle="random">
+			<Orbital radius="1280" angle="random">
 				<Station codename="station_beowulf_club"/>
 			</Orbital>
-			<Orbital radius="520" angle="random">
+			<Orbital radius="1040" angle="random">
 				<Station	codename="station_orion_warlords_stronghold"/>
 				<Sibling angleInc="12">
 					<Station	codename="station_orion_warlords_camp"/>	
 				</Sibling>
 			</Orbital>
-			<Orbital radius="420" angle="random">
+			<Orbital radius="840" angle="random">
 				<Asteroids angle="90" size="50"/>
 				<Orbital angleInc="-30-30">
 					<Station codename="station_iron_pirates_hideout"/>
 				</Orbital>
 			</Orbital>
-			<Orbital radius="320" angle="random">
+			<Orbital radius="640" angle="random">
 				
 			</Orbital>
-			<Orbital radius="240" angle="random">
+			<Orbital radius="480" angle="random">
 				<Group>
 					<Planet radius="8"/>
 					<Orbital radius="10" angle="random" increment="45-90">
@@ -151,13 +151,13 @@
 					</Orbital>
 				</Group>
 			</Orbital>
-			<Orbital radius="160" angle="random">
+			<Orbital radius="320" angle="random">
 				<Station codename="station_camper_outpost"/>
 			</Orbital>
-			<Orbital radius="100" angle="random">
+			<Orbital radius="200" angle="random">
 
 			</Orbital>
-			<Orbital radius="40" angle="random">
+			<Orbital radius="80" angle="random">
 
 			</Orbital>
 		</SystemGroup>
@@ -167,10 +167,10 @@
 				name=		"Orion"
 		>
 		<SystemGroup>
-			<Star	 radius="50"/>
+			<Star	 radius="100"/>
 
 
-			<Orbital radius="450" angle="random">
+			<Orbital radius="900" angle="random">
 				<Group>
 					<Stargate gateId="Next"/>
 					<Sibling angleInc="135" radiusInc="100">
@@ -180,14 +180,14 @@
 			</Orbital>
 
 
-			<Orbital radius="900" angle="random" increment="random" count="10"></Orbital>
-			<Orbital radius="760" angle="random">
+			<Orbital radius="1800" angle="random" increment="random" count="10"></Orbital>
+			<Orbital radius="1500" angle="random">
 				<Planet radius="20"/>
 				<Orbital radius="35" angle="random">
 					<Station codename="station_daughters_outpost"/>
 				</Orbital>
 			</Orbital>
-			<Orbital radius="640" angle="random">
+			<Orbital radius="1280" angle="random">
 				<Table>
 					<Station chance="1" codename="station_beowulf_club"/>
 					<Station chance="1" codename="station_camper_outpost"/>

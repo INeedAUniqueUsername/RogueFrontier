@@ -32,7 +32,7 @@ public class Mainframe : IScene {
 		level.entities.Add(player = new Player(level, (0, 0)));
 		level.entities.Add(new Roach(level, (10, 10)));
 
-		level.PlaceEntity();
+		level.TryUpdatePresent();
 	}
 
 	bool ready => player.ready && (subticks?.done ?? true);
@@ -69,7 +69,8 @@ public class Mainframe : IScene {
 		foreach(var x in 0..Width) {
 			foreach(var y in 0..Height) {
 				var loc = pov + (x, y) - center;
-				var t = player.visibleTiles.GetValueOrDefault(loc, new Tile(ABGR.SetA(ABGR.White, (byte)(r.NextFloat() * 5 + 51)), ABGR.Black, 'p' + 64));
+				if(!player.visibleTiles.TryGetValue(loc, out var t))
+					t = new Tile(ABGR.SetA(ABGR.White, (byte)(r.NextFloat() * 5 + 51)), ABGR.Black, 'p' + 64);
 				sf_main.Print(x, Height - y - 1, t);
 			}
 		}

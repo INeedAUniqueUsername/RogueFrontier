@@ -33,15 +33,15 @@ public class World {
 			return;
 		e.Removed += () => RemoveEntity(e);
 		entitiesAdd.Add(e);
-		PlaceEntity();
+		TryUpdatePresent();
 	}
 	public void RemoveEntity(IEntity e) {
 		entitiesAdd.Remove(e);
 		if(!entities.Contains(e)) return;
 		entitiesRemove.Add(e);
-		PlaceEntity();
+		TryUpdatePresent();
 	}
-	public void PlaceEntity () {
+	public void TryUpdatePresent () {
 		if(!busy)
 			UpdatePresent();
 	}
