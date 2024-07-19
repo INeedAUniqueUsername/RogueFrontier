@@ -30,15 +30,17 @@ public static class ImageLoader {
 		Console.WriteLine($"Reading {path}");
 		return ReadTile(File.ReadAllText(path));
 	}
-	public static Dictionary<(int X, int Y), TileTuple> ReadTile (string data) =>
-#if GODOT
-		DeserializeObject<HashSet<string>>(data).Select(t => {
+	public static Dictionary<(int X, int Y), TileTuple> ReadTile (string data) {
+		var f = (string t) => {
+			var p = (string s) => ABGR.FromRGBA(uint.Parse(s, NumberStyles.HexNumber));
 			var parts = t.Split(" ");
-			return ((int.Parse(parts[0]), int.Parse(parts[1])), (uint.Parse(parts[2]), uint.Parse(parts[3]), int.Parse(parts[4])));
-		}).ToDictionary();
-#else
-		DeserializeObject<HashSet<((int x, int y), TileTuple t)>>(data).ToDictionary();
-#endif
+			return (
+				(int.Parse(parts[0]), int.Parse(parts[1])),
+				(p(parts[2]), p(parts[3]), int.Parse(parts[4]))
+				);
+		};
+		return (from t in DeserializeObject<HashSet<string>>(data) select f(t)).ToDictionary();
+	}
 
 	public static Dictionary<(int X, int Y), Tile> Adjust(this Dictionary<(int X, int Y), Tile> img) {
 		var xMin = img.Min(pair => pair.Key.X);

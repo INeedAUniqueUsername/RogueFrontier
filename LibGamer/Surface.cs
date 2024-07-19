@@ -145,24 +145,24 @@ public class Sf {
 		} else if(dy == 1) {
 			var e = Box(n: Line.Single, s: Line.Single, w: width);
 			var w = Box(n: Line.Single, s: Line.Single, e: width);
-			p($"{w}{new string(hori, dx - 2)}{e}");
+			p($"{w}{$"{hori}".Repeat(dx - 2)}{e}");
 		} else {
 			var nw = Box(e: width, s: width, n: aboveWidth);
 			var ne = Box(w: width, s: width, n: aboveWidth);
 			var sw = Box(e: width, n: width, s: belowWidth);
 			var se = Box(w: width, n: width, s: belowWidth);
 			if(fill) {
-				p($"{nw}{new string(hori, dx - 2)}{ne}");
+				p($"{nw}{$"{hori}".Repeat(dx - 2)}{ne}");
 				foreach(var i in 0..Math.Max(0, dy - 2))
-					p($"{vert}{new string(' ', dx - 2)}{vert}");
-				p($"{sw}{new string(hori, dx - 2)}{se}");
+					p($"{vert}{" ".Repeat(dx - 2)}{vert}");
+				p($"{sw}{$"{hori}".Repeat(dx - 2)}{se}");
 			} else {
 				var x = xStart;
-				l(x, y, $"{nw}{new string(hori, dx - 2)}{ne}"); y++;
+				l(x, y, $"{nw}{$"{hori}".Repeat(dx - 2)}{ne}"); y++;
 				foreach(var i in 0..Math.Max(0, dy - 1)) {
 					c(x, y, vert); c(x + dx - 1, y, vert); y++;
 				}
-				l(x, y, $"{sw}{new string(hori, dx - 2)}{se}"); y++;
+				l(x, y, $"{sw}{$"{hori}".Repeat(dx - 2)}{se}"); y++;
 			}
 		}
 	}

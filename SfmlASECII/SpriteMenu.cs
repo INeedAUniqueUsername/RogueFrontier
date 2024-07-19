@@ -46,12 +46,12 @@ namespace ASECII {
 
             var tileModel = model.tiles;
             var paletteModel = model.palette;
-            var pickerModel = new PickerModel(16, 16, model);
+            var pickerModel = new PickerModel(32, 16, model);
 
             pickerModel.UpdateColors();
             pickerModel.UpdateBrushPoints(paletteModel);
             pickerModel.UpdatePalettePoints(paletteModel);
-            controlsMenu = new Console(16, Height) {
+            controlsMenu = new Console(32, Height) {
                 UseKeyboard = true,
                 UseMouse = true,
             };
@@ -182,8 +182,10 @@ namespace ASECII {
             };
             */
 
-            int rows = Font.TotalGlyphs / 16;
-            var glyphMenu = new GlyphMenu(32, rows, model, () => {
+            var width = 32;
+
+            int rows = Font.TotalGlyphs / 32;
+            var glyphMenu = new GlyphMenu(width, rows, model, () => {
                 tileModel.UpdateIndexes(model);
                 UpdateTileSetButtons();
             }) {
@@ -200,7 +202,7 @@ namespace ASECII {
             int yColor = 0;
 
             void AddPaletteMenu() {
-                var paletteMenu = new PaletteMenu(16, 4, model, paletteModel, () => {
+                var paletteMenu = new PaletteMenu(width, 4, model, paletteModel, () => {
                     tileModel.UpdateIndexes(model);
                     UpdateTileSetButtons();
                     pickerModel.UpdateBrushPoints(paletteModel);
@@ -226,7 +228,7 @@ namespace ASECII {
                     FocusOnMouseClick = true,
                     UseMouse = true
                 };
-                foregroundLabel = new ColorLabel(14, () => model.brush.foreground) {
+                foregroundLabel = new ColorLabel(width - 2, () => model.brush.foreground) {
                     Position = new Point(1, yColor)
                 };
                 foregroundAddButton = new CellButton(() => paletteModel.foregroundIndex == null, () => {
@@ -235,7 +237,7 @@ namespace ASECII {
 
                     PaletteChanged();
                 }, '+') {
-                    Position = new Point(15, yColor),
+                    Position = new Point(width - 1, yColor),
                     FocusOnMouseClick = true,
                     UseMouse = true
                 };
@@ -260,7 +262,7 @@ namespace ASECII {
                     FocusOnMouseClick = true,
                     UseMouse = true
                 };
-                backgroundLabel = new ColorLabel(14, () => model.brush.background) {
+                backgroundLabel = new ColorLabel(width - 2, () => model.brush.background) {
                     Position = new Point(1, yColor)
                 };
                 backgroundAddButton = new CellButton(() => {
@@ -270,7 +272,7 @@ namespace ASECII {
                     paletteModel.UpdateIndexes(model);
                     PaletteChanged();
                 }, '+') {
-                    Position = new Point(15, yColor),
+                    Position = new Point(width - 1, yColor),
                     FocusOnMouseClick = true,
                     UseMouse = true
                 };
@@ -285,7 +287,7 @@ namespace ASECII {
 
             }
             ChannelBar Bar(Channel c, Action a) =>
-                new(16, c, a) {
+                new(width, c, a) {
                     Position = new Point(0, yColor++),
                     FocusOnMouseClick = true,
                     UseMouse = true
@@ -321,7 +323,7 @@ namespace ASECII {
                             controlsMenu.Children.Add(colorMenu);
                         }
                         void AddRGB() {
-                            colorMenu = new(controlsMenu.Width, 16) { Position = new Point(0, yColorMenu) };
+                            colorMenu = new(width, 16) { Position = new Point(0, yColorMenu) };
                             yColor = 0;
                             colorMenu.Children.Add(new LabelButton("Color Bars: RGBA", ChangeBarMode) { Position = new Point(0, yColor++) });
                             AddPaletteMenu();
@@ -342,7 +344,7 @@ namespace ASECII {
                             AddPickerMenu();
                         }
                         void AddHSB() {
-                            colorMenu = new Console(controlsMenu.Width, 16) { Position = new Point(0, yColorMenu) };
+                            colorMenu = new Console(width, 16) { Position = new Point(0, yColorMenu) };
                             yColor = 0;
                             colorMenu.Children.Add(new LabelButton("Color Bars: HSBA", ChangeBarMode) { Position = new Point(0, yColor++) });
                             AddPaletteMenu();
@@ -365,7 +367,7 @@ namespace ASECII {
                         break;
                     }
                 case ColorMode.Grayscale: {
-                        colorMenu = new Console(controlsMenu.Width, 16) { Position = new Point(0, yColorMenu) };
+                        colorMenu = new Console(width, 16) { Position = new Point(0, yColorMenu) };
 
                         AddPaletteMenu();
 
@@ -411,7 +413,7 @@ namespace ASECII {
 
             void AddPickerMenu() {
 
-                var hueBar = new HueBar(16, 1, paletteModel, pickerModel) {
+                var hueBar = new HueBar(width, 1, paletteModel, pickerModel) {
                     Position = new Point(0, yColor),
                     FocusOnMouseClick = true,
                     UseMouse = true
@@ -420,7 +422,7 @@ namespace ASECII {
                 yColor++;
 
 
-                var pickerMenu = new PickerMenu(16, 16, model, pickerModel, () => {
+                var pickerMenu = new PickerMenu(width, 16, model, pickerModel, () => {
                     tileModel.UpdateIndexes(model);
                     UpdateTileSetButtons();
 
@@ -469,7 +471,7 @@ namespace ASECII {
             y++;
 
 
-            layerMenu = new LayerMenu(32, 8, model) {
+            layerMenu = new LayerMenu(width, 8, model) {
                 Position = new Point(0, y),
                 FocusOnMouseClick = true,
                 UseMouse = true
@@ -1166,8 +1168,7 @@ namespace ASECII {
         public void Save() {
             var fileName = Path.GetFullPath(Path.GetDirectoryName(filepath) + "/" + Path.GetFileNameWithoutExtension(filepath));
             File.WriteAllText($"{fileName}.asc", ASECIILoader.SerializeObject(this));
-			File.WriteAllText($"{fileName}.dat", ASECIILoader.SerializeObject(sprite.exportData));
-			File.WriteAllText($"{fileName}.dat_gd", ASECIILoader.SerializeObject(sprite.exportDataGd));
+			File.WriteAllText($"{fileName}.dat", ASECIILoader.SerializeObject(sprite.exportDataGd));
 			var preview = sprite.preview;
 			StringBuilder str = new StringBuilder();
             for (int y = sprite.origin.Y; y <= sprite.end.Y; y++) {

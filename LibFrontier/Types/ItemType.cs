@@ -285,9 +285,6 @@ public record ItemType : IDesignType {
 			[nameof(Invoke)] = (XElement e) => new InvokeFrom(tc, e).invoke
 		});
 		if(e.TryAtt("sprite", out var _sprite)) {
-#if GODOT
-			_sprite = $"{_sprite}_gd";
-#endif
 			sprite = ImageLoader.Adjust(ImageLoader.ReadTile(Assets.GetSprite(_sprite)).Select(pair => (pair.Key, new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph))).ToDictionary());
 		}
 	}

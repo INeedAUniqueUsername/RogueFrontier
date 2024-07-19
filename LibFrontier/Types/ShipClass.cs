@@ -101,9 +101,6 @@ public record PlayerSettings {
 	public PlayerSettings (XElement e, PlayerSettings source = null) {
 		e.Initialize(this);
 		if(e.TryAtt("hero", out var hero)) {
-#if GODOT
-			hero = $"{hero}_gd";
-#endif
 			heroImage = ImageLoader.ReadTile(Assets.GetSprite(hero)).ToDictionary(
 				pair => (X: pair.Key.X, Y: -pair.Key.Y),
 				pair => new Tile(pair.Value.Foreground, pair.Value.Background, pair.Value.Glyph));

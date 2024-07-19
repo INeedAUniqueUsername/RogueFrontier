@@ -7,6 +7,7 @@
 	<ItemGroup>
 		<None Remove="Assets\*.import">
 		</None>
+		
 		<None Include="Assets\*.font; Assets\*.png;">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -14,16 +15,8 @@
 		<PackageReference Include="CoreCLR-NCalc" Version="3.1.237" />
 		<PackageReference Include="Namotion.Reflection" Version="3.1.1" />
 
-		<PackageReference Include="SadConsole.Host.SFML" Version="10.4.0" />
+		<PackageReference Include="SadConsole.Host.SFML" Version="10.4.1" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
 		<ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="Assets\IBMCGA+.font">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Assets\IBMCGA+.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 </Project>

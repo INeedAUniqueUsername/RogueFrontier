@@ -5,17 +5,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using LibGamer;
+using Common;
 
 namespace ASECII {
     public class Sprite {
         public List<Layer> layers = new();
         public Point origin;
         public Point end;
-        public Dictionary<(int, int), TileValue> preview = new();
-        [IgnoreDataMember]
-        public HashSet<((int X,int Y) P, (uint F,uint B,int G) T)> exportData => [.. from p in preview select (p.Key, p.Value.Data)];
+        public Dictionary<(int X, int Y), TileValue> preview = new();
+
+        
 		[IgnoreDataMember]
-		public HashSet<string> exportDataGd => [..from p in exportData select $"{p.P.X} {p.P.Y} {p.T.F} {p.T.B} {p.T.G}"];
+        public HashSet<string> exportDataGd {
+            get {
+				string ToLine (KeyValuePair<(int X, int Y), TileValue> pair) {
+
+					string Hex (uint abgr) => ABGR.ToRGBA(abgr).ToString("X8");
+					var (X, Y) = pair.Key;
+					var (F, B, G) = pair.Value.Data;
+					return string.Join(' ', [X, Y, Hex(F), Hex(B), G]);
+				}
+                return [.. from p in preview select ToLine(p)];
+			}
+        }
 
         public static TileValue empty => new TileValue(Color.Transparent, Color.Transparent, 0);
         public Sprite() {}
@@ -392,7 +404,7 @@ namespace ASECII {
             this.Glyph = Glyph;
         }
 
-        public (uint, uint, int) Data => (Foreground.PackedValue, Background.PackedValue, Glyph);
+        public (uint F, uint B, int G) Data => (Foreground.PackedValue, Background.PackedValue, Glyph);
         public static implicit operator ColoredGlyph(TileValue tv) => new ColoredGlyph(tv.Foreground, tv.Background, tv.Glyph);
     }
 
