@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LibGamer.Sf;
-namespace LibTerminator;
+namespace LibAtomics;
 public class Mainframe : IScene {
 
 	public static readonly uint tint = ABGR.RGB(255, 0, 128);

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Common;
-using LibTerminator;
+using LibAtomics;
 using LibGamer;
-namespace LibTerminator;
+namespace LibAtomics;
 public class Wall : IEntity {
 	public XYI pos { get; set; } = (0, 0);
 	public Tile tile { get; set; } = new Tile(ABGR.White, ABGR.Black, '#');

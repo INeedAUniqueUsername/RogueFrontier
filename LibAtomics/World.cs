@@ -2,11 +2,15 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-namespace LibTerminator;
+namespace LibAtomics;
 public class World {
 	public HashSet<IEntity> entitiesAdd = [];
 	public HashSet<IEntity> entitiesRemove = [];
 	public HashSet<IEntity> entities = [];
+
+
+	
+
 	public IActor[] actors = [];
 
 	public double time;

@@ -1,7 +1,7 @@
 using Common;
 using LibGamer;
 using System;
-namespace LibTerminator;
+namespace LibAtomics;
 
 public class Marker : IEntity, IActor {
 

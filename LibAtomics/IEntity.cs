@@ -1,7 +1,7 @@
 ﻿using Common;
 using LibGamer;
 using System;
-namespace LibTerminator;
+namespace LibAtomics;
 public interface IEntity {
 	XYI pos { get; }
 	Tile tile { get; }

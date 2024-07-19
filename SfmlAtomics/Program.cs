@@ -1,4 +1,4 @@
-﻿using LibTerminator;
+﻿using LibAtomics;
 using LibGamer;
 using SadConsole;
 using SFML.Audio;

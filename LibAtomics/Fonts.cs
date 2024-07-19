@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibTerminator;
+namespace LibAtomics;
 public static class Fonts {
 #if GODOT
 	public static string ROOT = "Lib/LibFrontier/Assets";

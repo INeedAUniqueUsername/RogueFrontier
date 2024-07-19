@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace LibTerminator;
+namespace LibAtomics;
 public class Reticle : IEntity, IActor {
 	public XY _pos { get; set; } = (0, 0);
 	public XYI pos => _pos.roundDownI;

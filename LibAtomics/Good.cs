@@ -1,4 +1,4 @@
-﻿namespace LibTerminator;
+﻿namespace LibAtomics;
 public class Good {
 
 }

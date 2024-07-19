@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace LibTerminator;
+namespace LibAtomics;
 public class Vapor : IActor {
 	VaporDesc desc;
 }
