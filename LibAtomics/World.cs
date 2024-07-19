@@ -1,18 +1,10 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+using LibGamer;
 namespace LibAtomics;
 public class World {
-	public HashSet<IEntity> entitiesAdd = [];
-	public HashSet<IEntity> entitiesRemove = [];
-	public HashSet<IEntity> entities = [];
-
-
-	
-
+	public HashSet<IEntity> entities => _entities.items;
+	BufferedSet<IEntity> _entities = new();
 	public IActor[] actors = [];
-
 	public double time;
 	public double lastUpdate;
 
@@ -32,29 +24,23 @@ public class World {
 	bool busy = false;
 	bool updateMap = true;
 	public void AddEntity(IEntity e) {
-		entitiesRemove.Remove(e);
-		if(entities.Contains(e))
-			return;
-		e.Removed += () => RemoveEntity(e);
-		entitiesAdd.Add(e);
-		TryUpdatePresent();
+		if(_entities.Add(e, busy)) {
+			e.Removed += () => RemoveEntity(e);
+			TryUpdatePresent();
+		}
 	}
 	public void RemoveEntity(IEntity e) {
-		entitiesAdd.Remove(e);
-		if(!entities.Contains(e)) return;
-		entitiesRemove.Add(e);
-		TryUpdatePresent();
+		if(_entities.Remove(e, busy)) {
+			TryUpdatePresent();
+		}
 	}
 	public void TryUpdatePresent () {
 		if(!busy)
 			UpdatePresent();
 	}
 	private void UpdatePresent() {
-		entities.UnionWith(entitiesAdd);
-		entities.ExceptWith(entitiesRemove);
-		entitiesAdd.Clear();
-		entitiesRemove.Clear();
-		actors = [..entities.OfType<IActor>()];
+		_entities.Update();
+		actors = [.._entities.items.OfType<IActor>()];
 		updateMap = true;
 		lastUpdate = time;
 	}

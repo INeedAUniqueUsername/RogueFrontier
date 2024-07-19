@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LibGamer {
     public enum Line {
-        None, Single, Double
+        None = 0, Single = 1, Double = 2
     }
     public struct BoxGlyph {
         public Line n, e, s, w;
@@ -27,47 +27,52 @@ namespace LibGamer {
         public static BoxInfo IBMCGA;
         static BoxInfo() {
             IBMCGA = new BoxInfo();
-            Action<int, BoxGlyph> AddPair = IBMCGA.AddPair;
-            AddPair(179, new BoxGlyph { n = Line.Single, s = Line.Single });
-            AddPair(180, new BoxGlyph { n = Line.Single, s = Line.Single, w = Line.Single });
-            AddPair(181, new BoxGlyph { n = Line.Single, s = Line.Single, w = Line.Double });
-            AddPair(182, new BoxGlyph { n = Line.Double, s = Line.Double, w = Line.Single });
-            AddPair(183, new BoxGlyph { s = Line.Double, w = Line.Single });
-            AddPair(184, new BoxGlyph { s = Line.Single, w = Line.Double });
-            AddPair(185, new BoxGlyph { n = Line.Double, s = Line.Double, w = Line.Double });
-            AddPair(186, new BoxGlyph { n = Line.Double, s = Line.Double });
-            AddPair(187, new BoxGlyph { s = Line.Double, w = Line.Double });
-            AddPair(188, new BoxGlyph { n = Line.Double, w = Line.Double });
-            AddPair(189, new BoxGlyph { n = Line.Double, w = Line.Single });
-            AddPair(190, new BoxGlyph { n = Line.Single, w = Line.Double });
-            AddPair(191, new BoxGlyph { s = Line.Single, w = Line.Single });
-            AddPair(192, new BoxGlyph { n = Line.Single, e = Line.Single });
-            AddPair(193, new BoxGlyph { n = Line.Single, e = Line.Single, w = Line.Single });
-            AddPair(194, new BoxGlyph { e = Line.Single, s = Line.Single, w = Line.Single });
-            AddPair(195, new BoxGlyph { n = Line.Single, e = Line.Single, s = Line.Single });
-            AddPair(196, new BoxGlyph { e = Line.Single, w = Line.Single });
-            AddPair(197, new BoxGlyph { n = Line.Single, e = Line.Single, s = Line.Single, w = Line.Single });
-            AddPair(198, new BoxGlyph { n = Line.Single, e = Line.Double, s = Line.Single });
-            AddPair(199, new BoxGlyph { n = Line.Double, e = Line.Single, s = Line.Double });
-            AddPair(200, new BoxGlyph { n = Line.Double, e = Line.Double });
-            AddPair(201, new BoxGlyph { e = Line.Double, s = Line.Double });
-            AddPair(202, new BoxGlyph { n = Line.Double, e = Line.Double, w = Line.Double });
-            AddPair(203, new BoxGlyph { e = Line.Double, s = Line.Double, w = Line.Double });
-            AddPair(204, new BoxGlyph { n = Line.Double, e = Line.Double, s = Line.Double });
-            AddPair(205, new BoxGlyph { e = Line.Double, w = Line.Double });
-            AddPair(206, new BoxGlyph { n = Line.Double, e = Line.Double, s = Line.Double, w = Line.Double });
-            AddPair(207, new BoxGlyph { n = Line.Single, e = Line.Double, w = Line.Double });
-            AddPair(208, new BoxGlyph { n = Line.Double, e = Line.Single, w = Line.Single });
-            AddPair(209, new BoxGlyph { e = Line.Double, s = Line.Single, w = Line.Double });
-            AddPair(210, new BoxGlyph { e = Line.Single, s = Line.Double, w = Line.Single });
-            AddPair(211, new BoxGlyph { n = Line.Double, e = Line.Single });
-            AddPair(212, new BoxGlyph { n = Line.Single, e = Line.Double });
-            AddPair(213, new BoxGlyph { e = Line.Double, s = Line.Single });
-            AddPair(214, new BoxGlyph { e = Line.Single, s = Line.Double });
-            AddPair(215, new BoxGlyph { n = Line.Double, e = Line.Single, s = Line.Double, w = Line.Single });
-            AddPair(216, new BoxGlyph { n = Line.Single, e = Line.Double, s = Line.Single, w = Line.Double });
-            AddPair(217, new BoxGlyph { n = Line.Single, w = Line.Single });
-            AddPair(218, new BoxGlyph { e = Line.Single, s = Line.Single });
+            var AddPair = IBMCGA.AddPair;
+			
+			(int, BoxGlyph)[] pairs = [
+				(179, new() { n = Line.Single, s = Line.Single }),
+				(180, new BoxGlyph { n = Line.Single, s = Line.Single, w = Line.Single }),
+
+				(181, new BoxGlyph { n = Line.Single, s = Line.Single, w = Line.Double }),
+				(182, new BoxGlyph { n = Line.Double, s = Line.Double, w = Line.Single }),
+				(183, new BoxGlyph { s = Line.Double, w = Line.Single }),
+				(184, new BoxGlyph { s = Line.Single, w = Line.Double }),
+				(185, new BoxGlyph { n = Line.Double, s = Line.Double, w = Line.Double }),
+				(186, new BoxGlyph { n = Line.Double, s = Line.Double }),
+				(187, new BoxGlyph { s = Line.Double, w = Line.Double }),
+				(188, new BoxGlyph { n = Line.Double, w = Line.Double }),
+				(189, new BoxGlyph { n = Line.Double, w = Line.Single }),
+				(190, new BoxGlyph { n = Line.Single, w = Line.Double }),
+				(191, new BoxGlyph { s = Line.Single, w = Line.Single }),
+				(192, new BoxGlyph { n = Line.Single, e = Line.Single }),
+				(193, new BoxGlyph { n = Line.Single, e = Line.Single, w = Line.Single }),
+				(194, new BoxGlyph { e = Line.Single, s = Line.Single, w = Line.Single }),
+				(195, new BoxGlyph { n = Line.Single, e = Line.Single, s = Line.Single }),
+				(196, new BoxGlyph { e = Line.Single, w = Line.Single }),
+				(197, new BoxGlyph { n = Line.Single, e = Line.Single, s = Line.Single, w = Line.Single }),
+				(198, new BoxGlyph { n = Line.Single, e = Line.Double, s = Line.Single }),
+				(199, new BoxGlyph { n = Line.Double, e = Line.Single, s = Line.Double }),
+				(200, new BoxGlyph { n = Line.Double, e = Line.Double }),
+				(201, new BoxGlyph { e = Line.Double, s = Line.Double }),
+				(202, new BoxGlyph { n = Line.Double, e = Line.Double, w = Line.Double }),
+				(203, new BoxGlyph { e = Line.Double, s = Line.Double, w = Line.Double }),
+				(204, new BoxGlyph { n = Line.Double, e = Line.Double, s = Line.Double }),
+				(205, new BoxGlyph { e = Line.Double, w = Line.Double }),
+				(206, new BoxGlyph { n = Line.Double, e = Line.Double, s = Line.Double, w = Line.Double }),
+				(207, new BoxGlyph { n = Line.Single, e = Line.Double, w = Line.Double }),
+				(208, new BoxGlyph { n = Line.Double, e = Line.Single, w = Line.Single }),
+				(209, new BoxGlyph { e = Line.Double, s = Line.Single, w = Line.Double }),
+				(210, new BoxGlyph { e = Line.Single, s = Line.Double, w = Line.Single }),
+				(211, new BoxGlyph { n = Line.Double, e = Line.Single }),
+				(212, new BoxGlyph { n = Line.Single, e = Line.Double }),
+				(213, new BoxGlyph { e = Line.Double, s = Line.Single }),
+				(214, new BoxGlyph { e = Line.Single, s = Line.Double }),
+				(215, new BoxGlyph { n = Line.Double, e = Line.Single, s = Line.Double, w = Line.Single }),
+				(216, new BoxGlyph { n = Line.Single, e = Line.Double, s = Line.Single, w = Line.Double }),
+				(217, new BoxGlyph { n = Line.Single, w = Line.Single }),
+				(218, new BoxGlyph { e = Line.Single, s = Line.Single }),
+				];
+			foreach(var p in pairs) AddPair(p.Item1, p.Item2);
         }
         void AddPair(int c, BoxGlyph info) {
             glyphToInfo[c] = info;

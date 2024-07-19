@@ -3,26 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace LibGamer;
-class BufferedSet<T> {
+public class BufferedSet<T> {
 
-	public HashSet<T> items;
-	public HashSet<T> add;
-	public HashSet<T> remove;
+	public HashSet<T> items = [];
+	public HashSet<T> add = [];
+	public HashSet<T> remove = [];
 
-	public bool Add(T e) {
+	public bool Add(T e, bool busy = true) {
 		remove.Remove(e);
 		if(items.Contains(e))
 			return false;
-		add.Add(e);
+		if(busy) {
+			add.Add(e);
+		} else {
+			items.Add(e);
+		}
 		return true;
 	}
-	public bool Remove(T e) {
+	public bool Remove(T e, bool busy = true) {
 		add.Remove(e);
 		if(!items.Contains(e))
 			return false;
-		remove.Add(e);
+		if(busy) {
+			remove.Add(e);
+		} else {
+			items.Remove(e);
+		}
 		return true;
 	}
 	public void Update () {
