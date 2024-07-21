@@ -50,14 +50,10 @@ public static class Main {
 	public static Tile[] LerpString(this Tile[] str, double x, double fromMin, double fromMax, double gamma) =>
 		str[..(int)Lerp(x, fromMin, fromMax, 0, str.Length, gamma)];
 	public static Tile[] ConcatColored(Tile[][] parts) {
-		var r = new List<Tile>();
-		foreach(var cs in parts) {
-			r.AddRange(cs);
-		}
-		return [..r];
+		return [..parts.SelectMany(cs => cs)];
 	}
 	public static string Repeat(this string str, int times) =>
-		string.Join("", Enumerable.Range(0, times).Select(i => str));
+		string.Join("", from i in times select str);
 	public static string ExpectFile(string path) =>
 		 (File.Exists(path = Path.GetFullPath(path))) ? path :
 			throw new Exception($"File {path} does not exist");

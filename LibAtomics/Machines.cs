@@ -10,6 +10,8 @@ public class Roach : IEntity, IActor {
 
 	World world;
 
+	public int exciteTicks = 10;
+	public int runEnergy = 60;
 	public Roach(World world, XYI pos) {
 		this.world = world;
 		this.pos = pos;
@@ -35,7 +37,27 @@ public class Roach : IEntity, IActor {
 		}
 		var path = GetPath(pos, dest);
 
-		return [.. path.Take(Math.Min(3, path.Count)).Select<XYI, Action>(p => () => pos = p)];
+
+		bool run = false;
+
+		if(exciteTicks > 0 && runEnergy > 0) {
+			run = true;
+			exciteTicks--;
+		}
+
+		runEnergy += 1;
+
+		void Step(XYI to) {
+			pos = to;
+			if(run) {
+				runEnergy -= 1;
+			}
+		}
+		int runLimit = 6;
+		var dist = Math.Max(1, run ? runEnergy : 1);
+
+		dist = Enumerable.Min<int>([dist, runLimit, path.Count]);
+		return [.. path.Take(dist).Select<XYI, Action>(p => () => Step(p))];
 		/*
 		for(int i = 0; i < 1; i++) {
 			if(path.ElementAtOrDefault(i) is { } p) {

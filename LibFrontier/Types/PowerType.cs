@@ -164,7 +164,7 @@ public record Clonewall() : PowerEffect {
 			busy = true;
 			var targets = w.targeting?.GetMultiTarget().ToList();
 
-			foreach(var i in Enumerable.Range(0, offsets.Count)) {
+			foreach(var i in (0..offsets.Count)) {
 				var o = offsets[i];
 				var salvo = w.CreateProjectiles(owner, targets, directions[i], false);
 				foreach (var pp in salvo) {

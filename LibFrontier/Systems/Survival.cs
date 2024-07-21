@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Common.Main;
 using Newtonsoft.Json;
+using LibGamer;
 
 namespace RogueFrontier;
 
@@ -90,7 +91,7 @@ class Waves : Event {
                         null
                     };
             Func<int, int, int> r = world.karma.NextInteger;
-            ship.cargo.UnionWith(Enumerable.Range(0, r(3, 12))
+            ship.cargo.UnionWith(r(3, 12)
                 .Select(i => choices.GetRandom(world.karma))
                 .Where(t => t != null)
                 .Select(t => new Item(world.types.Lookup<ItemType>(t))));

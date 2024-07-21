@@ -3,7 +3,6 @@ using static LibGamer.KC;
 using LibGamer;
 using System.Collections.Generic;
 namespace RogueFrontier;
-
 public enum Control {
 	Thrust,
 	TurnRight,
@@ -23,8 +22,6 @@ public enum Control {
 	AutoAim
 }
 public class ShipControls {
-
-
 	public static ShipControls standard = new() {
 		controls = new() {
 			{ Thrust, Up },
@@ -45,10 +42,10 @@ public class ShipControls {
 			{ AutoAim, Z }
 		}
 	};
-
 	//Remember to update whenever we load game
 	public Dictionary<Control, KC> controls = new Dictionary<Control, KC>();
     public string GetString() {
+
         const int w = -16;
         return @$"[Controls]
 

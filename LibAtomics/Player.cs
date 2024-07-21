@@ -1,5 +1,6 @@
 ﻿using Common;
 using LibGamer;
+using RangeExtensions;
 using System.Collections.Concurrent;
 using System.Xml.Linq;
 namespace LibAtomics;
@@ -18,18 +19,21 @@ public class Player : IActor, IEntity {
 
 	public int delay = 0;
 
-	public Body body = new Body(Body.Parse(XElement.Parse(Body.human)));
+	public Body body = new Body(Body.Parse(XElement.Parse(Body.cockroach)));
 	public HashSet<Item> items = [];
 
 
 	public record Message (Tile[] str, double time, int tick) {
-
+		public int repeats = 1;
+		public bool once => repeats == 1;
 		public double fadeTime;
 		public string text => new string([.. from t in str select (char)t.Glyph]);
 	};
 	public List<Message> messages = [];
 	public void Tell(Message m) {
 		if(messages.LastOrDefault() is { }prev && prev.text == m.text && prev.tick == m.tick) {
+			var other = messages[^1];
+			m.repeats += other.repeats;
 			messages.RemoveAt(messages.Count - 1);
 		}
 		messages.Add(m);
@@ -75,7 +79,7 @@ public class Player : IActor, IEntity {
 		delay--;
 		busy = false;
 
-		HashSet<Action[]> r = [shoot.Act(this)];
+		HashSet<Action[]> r = [shoot?.Act(this)?? []];
 
 		IEnumerable<Action> Zip() {
 			HashSet<Action[]> remaining = r;
@@ -182,7 +186,7 @@ public class Shoot {
 	public XY target;
 	Reticle reticle;
 
-	bool precise = true;
+	bool precise = false;
 	bool locked = false;
 	public bool done = false;
 	public void Init(Player p) {
@@ -192,45 +196,78 @@ public class Shoot {
 	}
 	public Action[] Act(Player p) {
 		if(done) return [];
-		if(precise && !locked) {
-			p.Tell("acquiring target");
+
+
+
+		void Fire() {
+			var r = new Rand();
+			foreach(var i in 2) {
+
+				var spread = (reticle._pos - ((XY)p.pos)).magnitude / 8;
+				var loc = (reticle._pos + (r.NextDouble(-spread, spread), r.NextDouble(-spread, spread))).roundDownI;
+				p.level.AddEntity(new Splat(loc, new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
+
+				var hits = p.level.entityMap[loc].Where(e => e is not Splat and not Reticle and not Marker).ToList();
+				if(hits is { Count: > 0 } any) {
+
+
+					switch(any.GetRandom(r)) {
+						case Roach:
+							p.Tell("hit roach");
+							break;
+						case Floor:
+							p.Tell("miss");
+							break;
+						default:
+							break;
+					}
+				}
+			}
+		}
+		void Aim (XY to, double time) {
+			reticle._pos += (to - reticle._pos) / (time / 3);
+		}
+		void RemoveReticle () => p.level.RemoveEntity(reticle);
+		if(precise) {
+			if(!locked) {
+				p.Tell("acquiring target");
+				var from = (XY)p.pos;
+				var to = target;
+				locked = true;
+				//var disp = (to - from);
+				reticle.visible = true;
+
+				var Acquire = () => {
+					//reticle._pos = from + disp * i / 30f;
+					Aim(to, 30);
+				};
+				return [..from i in 30 select Acquire];
+			}
+
+			done = true;
+			bool msg = true;
+			var Attack = () => {
+				if(msg) {
+					p.Tell("firing weapon");
+					msg = false;
+				}
+				Fire();
+			};
+			return [..from i in 15 select Attack, RemoveReticle];
+		} else {
+			done = true;
 			var from = (XY)p.pos;
 			var to = target;
 			locked = true;
 			//var disp = (to - from);
 			reticle.visible = true;
-			return [
-				..Enumerable.Range(0, 30).Select<int,Action>(i => () => {
-					//reticle._pos = from + disp * i / 30f;
-					reticle._pos += (to - reticle._pos) / 10f;
-				}),
-			];
-		}
-		done = true;
-		bool msg = true;
-		var r = new Rand();
-		var a = () => {
-			if(msg) {
-				p.Tell("firing weapon");
-				msg = false;
-			}
-			foreach(var i in Enumerable.Range(0, 2)) {
+			var Attack = () => {
+				Aim(to, 20);
+				Fire();
+			};
+			return [..from i in 20 select Attack, RemoveReticle];
 
-				var spread = (reticle._pos - ((XY)p.pos)).magnitude / 8 ;
-				var loc = (reticle._pos + (r.NextDouble(-spread, spread), r.NextDouble(-spread, spread))).roundDownI;
-				p.level.AddEntity(new Splat(loc, new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
-				if(p.level.entityMap[loc] is { Length:>0} any) {
-					p.Tell($"hit {any.GetRandom(r) switch {
-						Roach => "roach",
-						Floor => "floor",
-						_ => "something"
-					}}");
-				}
-			}
-		};
-		return [
-			..Enumerable.Range(0, 20).Select(i => a),
-			() => p.level.RemoveEntity(reticle)
-			];
+		}
+
 	}
 }

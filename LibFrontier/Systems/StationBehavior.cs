@@ -137,7 +137,7 @@ public class ConstellationAstra : StationBehavior {
             owner.world.types.Lookup<StationType>("station_constellation_shipyard"),
             owner.world.types.Lookup<StationType>("station_constellation_bunker")
         };
-        reserves = new(Enumerable.Range(0, 16).Select(i => new AIShip(
+        reserves = new((0..16).Select(i => new AIShip(
             new(owner.world, owner.world.types.Lookup<ShipClass>("ship_beowulf"), owner.position),
             owner.sovereign,
             null,

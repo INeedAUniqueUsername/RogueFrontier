@@ -185,7 +185,7 @@ public class BaseShip {
             .Concat((damageSystem as LayeredArmor)?.layers.Select(l => l.source) ?? new List<Item>());
         wreck = new Wreck(owner, items);
         world.AddEntity(wreck);
-        foreach(var angle in Enumerable.Range(0, 16).Select(i => i * 2 * Math.PI / 16)) {
+        foreach(var angle in (0..16).Select(i => i * 2 * Math.PI / 16)) {
             var blast = new EffectParticle(position + XY.Polar(angle, 1),
                 velocity + XY.Polar(angle, 4),
                 new Tile(ABGR.Orange, ABGR.MA(ABGR.Orange) * 0 + 128, 'x'),

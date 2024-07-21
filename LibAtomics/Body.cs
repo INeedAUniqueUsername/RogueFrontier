@@ -10,6 +10,24 @@ public class Body {
 	}
 
 	public Body (HashSet<BodyPart> parts) => this.parts = parts;
+
+	public static readonly string cockroach = """
+
+		<Body>
+			<Part id="head"			name="Head"/>
+			<Part id="upperBody"	name="Upper Body"	heart="true"	connect="head"/>
+			<Part id="lowerBody"	name="Lower Body"					connect="upperBody"/>
+		
+			<Part id="leftLegA"		name="Left Foreleg"					connect="upperBody"/>
+			<Part id="rightLegA"	name="Right Foreleg"					connect="upperBody"/>
+			<Part id="leftLegB"		name="Left Midleg"					connect="lowerBody"/>
+			<Part id="rightLegB"	name="Right Midleg"					connect="lowerBody"/>
+			<Part id="leftLegC"		name="Left Hindleg"					connect="lowerBody"/>
+			<Part id="rightLegC"	name="Right Hindleg"					connect="lowerBody"/>
+		</Body>
+
+		""";
+
 	public static readonly string human = """
 <Body>
 	<Part id="head"			name="Head"/>

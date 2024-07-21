@@ -70,7 +70,7 @@ public class LayeredArmor : HullSystem {
             return;
         }
         p.hitHull = true;
-        foreach (var i in Enumerable.Range(0, layers.Count).Reverse()) {
+        foreach (var i in (0..layers.Count).AsEnumerable().Reverse()) {
             var layer = layers[i];
             if (layer == null)
                 continue;
@@ -89,7 +89,7 @@ public class LayeredArmor : HullSystem {
                 //3     40%
                 //4     20%
                 factor--;
-                foreach (var j in Enumerable.Range(i - factor, factor).Reverse().TakeWhile(j => j > -1)) {
+                foreach (var j in Enumerable.Range((i - factor), factor).AsEnumerable().Reverse().TakeWhile(j => j > -1)) {
                     var below = layers[j];
                     below.Damage(absorbed * factor / p.desc.shock);
                     below.lastDamageTick = tick;

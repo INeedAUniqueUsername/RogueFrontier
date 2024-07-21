@@ -69,7 +69,7 @@ public class ShipEntry : ShipGenerator {
                                         pod.patrolRadius),
             _ => i => owner.position
         };
-        var ships = Enumerable.Range(0, count).Select(
+        var ships = (0..count).Select(
             i => new AIShip(new(owner.world, shipClass, GetPos(i)), s, GetBehavior(), orderDesc.Value(owner))
             ).ToList();
         if (id.Any()) {
@@ -294,7 +294,7 @@ public record ItemEntry() : IGenerator<Item> {
         });
     }
     public List<Item> Generate(Assets tc) =>
-        new(Enumerable.Range(0, count.Roll()).Select(_ => new Item(type)));
+        new((0..count.Roll()).Select(_ => new Item(type)));
     //In case we want to make sure immediately that the type is valid
     public void ValidateEager(Assets tc) =>
         tc.Lookup<ItemType>(type.codename);

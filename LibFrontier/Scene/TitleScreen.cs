@@ -239,7 +239,7 @@ public class TitleScreen : IScene {
 					new Message(pov.name),
 				};
 		if(pov.hull is LayeredArmor las) {
-			povDesc.AddRange(las.GetDesc().Select((m, i) => new Message(new string([.. m.Select(t => (char)t.Glyph)]))));
+			povDesc.AddRange(las.GetDesc().Select((m, i) => new Message(string.Concat(m.Select(t => (char)t.Glyph)))));
 		} else if(pov.hull is HP hp) {
 			povDesc.Add(new Message($"HP: {hp}"));
 		}
@@ -304,8 +304,8 @@ public class TitleScreen : IScene {
 				descY++;
 			}
 		}
-		foreach(var x in Enumerable.Range(0, Width)) {
-			foreach(var y in Enumerable.Range(0, Height)) {
+		foreach(var x in Width) {
+			foreach(var y in Height) {
 				var g = sf.GetGlyph(x, y);
 				var offset = new XY(x, Height - y) - new XY(Width / 2, Height / 2);
 				var location = camera + offset;

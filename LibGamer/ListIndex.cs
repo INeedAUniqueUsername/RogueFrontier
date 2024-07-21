@@ -63,13 +63,13 @@ public class ListTracker<T> {
     }
     public List<T> GetNext(int count = 1) {
         if (list.Count == 0) return list;
-        var l = Enumerable.Range(index, count).Select(i => list[i%list.Count]).ToList();
+        var l = (index..count).Select(i => list[i%list.Count]).ToList();
         index += count;
         return l;
     }
     public List<T> GetAllNext() {
         if (list.Count == 0) return list;
-        var l = Enumerable.Range(index, list.Count).Select(i => list[i % list.Count]).ToList();
+        var l = (index..list.Count).Select(i => list[i % list.Count]).ToList();
         return l;
     }
     public T GetNext() {

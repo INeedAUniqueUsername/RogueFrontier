@@ -15,8 +15,8 @@ public static partial class SMenu {
 
     public static T Eval<T> (Func<T> f) => f();
 	public static void RenderBackground (this Sf c) {
-        foreach(var x in Enumerable.Range(0, c.Width)) {
-			foreach(var y in Enumerable.Range(0, c.Height)) {
+        foreach(var x in (0..c.Width)) {
+			foreach(var y in (0..c.Height)) {
                 c.Tile[x, y] = new Tile(Color.Black, Color.SetA(Color.Black, 128), ' ');
 			}
 		}

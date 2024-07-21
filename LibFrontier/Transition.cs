@@ -210,8 +210,8 @@ public class FadeIn : IScene {
     public void Render(TimeSpan delta) {
 		next.Render(delta);
         var t = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)(255 * (1 - alpha))), ' ');
-		foreach(var x in 0..sf.Width) {
-            foreach(var y in 0..sf.Height) {
+		foreach(var x in sf.Width) {
+            foreach(var y in sf.Height) {
 				sf.Print(x,y, t);
 			}
         }

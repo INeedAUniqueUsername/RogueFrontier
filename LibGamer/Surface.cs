@@ -139,7 +139,7 @@ public class Sf {
 			var n = Box(e: Line.Single, w: Line.Single, s: width, n: aboveWidth);
 			var s = Box(e: Line.Single, w: Line.Single, n: width, s: belowWidth);
 			p($"{n}");
-			foreach(var i in 0..Math.Max(0, dy - 1))
+			foreach(var i in Math.Max(0, dy - 1))
 				p($"{vert}");
 			p($"{s}");
 		} else if(dy == 1) {
@@ -153,13 +153,13 @@ public class Sf {
 			var se = Box(w: width, n: width, s: belowWidth);
 			if(fill) {
 				p($"{nw}{$"{hori}".Repeat(dx - 2)}{ne}");
-				foreach(var i in 0..Math.Max(0, dy - 2))
+				foreach(var i in Math.Max(0, dy - 2))
 					p($"{vert}{" ".Repeat(dx - 2)}{vert}");
 				p($"{sw}{$"{hori}".Repeat(dx - 2)}{se}");
 			} else {
 				var x = xStart;
 				l(x, y, $"{nw}{$"{hori}".Repeat(dx - 2)}{ne}"); y++;
-				foreach(var i in 0..Math.Max(0, dy - 1)) {
+				foreach(var i in Math.Max(0, dy - 1)) {
 					c(x, y, vert); c(x + dx - 1, y, vert); y++;
 				}
 				l(x, y, $"{sw}{$"{hori}".Repeat(dx - 2)}{se}"); y++;

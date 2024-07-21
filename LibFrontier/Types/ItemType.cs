@@ -594,7 +594,7 @@ public record FragmentDesc {
 		*/
 	}
 	public IEnumerable<double> GetAngles(double direction) =>
-		Enumerable.Range(0, count).Select(i => direction + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1));
+		(0..count).Select(i => direction + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1));
 	public List<Projectile> CreateProjectiles(ActiveObject owner, List<ActiveObject> targets, double direction, XY offset = null, HashSet<Entity> exclude = null /*, int projectilesPerTarget = 0*/) {
 		var position = owner.position + (offset ?? new(0, 0));
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;

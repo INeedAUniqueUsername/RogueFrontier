@@ -123,7 +123,7 @@ public record SystemTable() : SystemElement {
     }
     public void Generate(LocationContext lc, Assets tc, List<Entity> result = null) {
         if (replacement) {
-            Enumerable.Range(0, count.Roll()).ToList().ForEach(i => {
+            foreach(var i in count.Roll()) {
                 var c = lc.world.karma.NextDouble() * totalChance;
                 foreach ((var chance, var g) in generators) {
                     if (c < chance) {
@@ -134,12 +134,12 @@ public record SystemTable() : SystemElement {
                     }
                 }
                 throw new Exception("Unexpected roll");
-            });
+            }
         } else {
             List<(double chance, SystemElement element)> choicesLeft;
             double totalChanceLeft;
             ResetTable();
-            Enumerable.Range(0, count.Roll()).ToList().ForEach(i => {
+            foreach(var i in count.Roll()) {
                 if (totalChanceLeft > 0) {
                     ResetTable();
                 }
@@ -156,7 +156,7 @@ public record SystemTable() : SystemElement {
                     }
                 }
                 throw new Exception("Unexpected roll");
-            });
+            };
 
             void ResetTable() {
                 choicesLeft = new(generators);

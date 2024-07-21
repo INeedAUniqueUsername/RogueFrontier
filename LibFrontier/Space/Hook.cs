@@ -34,7 +34,7 @@ public class Hook : Entity {
             return;
         }
         var direction = offset.normal;
-        segments.AddRange(Enumerable.Range(1, distance).Select(
+        segments.AddRange((1..distance).Select(
             i => new Cable(this, source.position + direction * i)));
         segments.ForEach(attached.world.AddEntity);
     }

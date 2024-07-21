@@ -270,7 +270,7 @@ public static class ColorCommand {
 		return result.ToString();
 	}
 	public static string Undo () => "[c:u]";
-	public static string Repeat (string s, int n) => string.Join("", Enumerable.Range(0, n).Select(i => s));
+	public static string Repeat (string s, int n) => string.Join("", (0..n).Select(i => s));
 }
 #if false
 namespace Common {

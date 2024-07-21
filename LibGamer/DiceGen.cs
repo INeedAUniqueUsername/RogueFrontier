@@ -66,7 +66,7 @@ public record IntRange(int min, int max) :IDice{
 }
 public record DiceRange(int n, int m, int bonus) : IDice {
     public Rand r=new();
-    public int Value => Enumerable.Range(0, n).Select(i => (int)Math.Ceiling(r.NextDouble()*m)).Sum() + bonus;
+    public int Value => (0..n).Select(i => (int)Math.Ceiling(r.NextDouble()*m)).Sum() + bonus;
     public int Roll() => Value;
     public string str => $"{n}d{m}{IDice.strBonus(bonus)}";
     public int min => n + bonus;

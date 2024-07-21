@@ -16,7 +16,7 @@ public record FlashDesc(){
         world.AddEffect(center);
         int radius = (int)(Math.Sqrt(intensity) * 1.5);
         var particles = Enumerable.Range(-radius*2, radius * 2 * 2)
-            .SelectMany(x => Enumerable.Range(-radius*2, radius * 2 * 2).Select(y => new XY(x, y)))
+            .SelectMany(x => ((-radius*2) .. (radius * 2 * 2)).Select(y => new XY(x, y)))
             .Where(p => (p - position).magnitude > radius)
             .Select(p => new Particle(center, center.position + p))
             .Where(p => p.active)

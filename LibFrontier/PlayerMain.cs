@@ -724,11 +724,11 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     const float distScale = 1 / 16f;
     public SoundCtx button_press = new(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
     private ListTracker<SoundCtx>
-        _exhaust = new(new List<SoundCtx>(Enumerable.Range(0, 16).Select(i => new SoundCtx([], 10)))),
-        _gunfire = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
-        _damage = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 50)))),
-        _explosion = new(new List<SoundCtx>(Enumerable.Range(0, 4).Select(i => new SoundCtx([], 75)))),
-        _discovery = new(new List<SoundCtx>(Enumerable.Range(0, 8).Select(i => new SoundCtx([], 25))));
+        _exhaust = new(new List<SoundCtx>((0..16).Select(i => new SoundCtx([], 10)))),
+        _gunfire = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 50)))),
+        _damage = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 50)))),
+        _explosion = new(new List<SoundCtx>((0..4).Select(i => new SoundCtx([], 75)))),
+        _discovery = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 25))));
     private class Vol : Attribute {}
     [Vol]
     public SoundCtx targeting, autopilot, dock, powerCharge;
@@ -2039,8 +2039,8 @@ public class Minimap {
         alpha = 255;
 
         var center = new XY(Width, Height) / 2;
-        area = new(Enumerable.Range(0, Width)
-            .SelectMany(x => Enumerable.Range(0, Height).Select(y => (x, y)))
+        area = new(Width.AsEnumerable()
+            .SelectMany(x => (0..Height).Select(y => (x, y)))
             .Where(((int x, int y) p) => true || center.Dist(new(p.x, p.y)) < Width / 2));
     }
     public void Update(TimeSpan delta) {

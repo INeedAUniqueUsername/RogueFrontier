@@ -66,8 +66,8 @@ public class GateTransition : IScene {
         if (nextView != null) {
             BackdropConsole prevBack = new(prevView);
             BackdropConsole nextBack = new(nextView);
-            foreach (var y in Enumerable.Range(0, Height)) {
-                foreach (var x in Enumerable.Range(0, Width)) {
+            foreach (var y in (0..Height)) {
+                foreach (var x in (0..Width)) {
                     var p = (x, y);
                     (var view, var back) = rect.Contains(p) ? (nextView, nextBack) : (prevView, prevBack);
                     compositeBack.Tile[x, y] = back.GetTile(x, y);
@@ -77,11 +77,11 @@ public class GateTransition : IScene {
             }
         } else {
             var prevBack = new BackdropConsole(prevView);
-            foreach (var y in Enumerable.Range(0, Height)) {
-                foreach (var x in Enumerable.Range(0, Width)) {
+            foreach (var y in (0..Height)) {
+                foreach (var x in (0..Width)) {
                     var p = (x, y);
                     if (rect.Contains(p)) {
-                        compositeView.Tile[x, Height - y - 1] = new Tile(ABGR.Black, ABGR.Black, 0);
+                        compositeView.Tile[x, Height - y - 1] = (ABGR.Black, ABGR.Black, 0);
                     } else {
                         (var view, var back) = (prevView, prevBack);
                         compositeBack.Tile[x, y] = back.GetTile(x, y);

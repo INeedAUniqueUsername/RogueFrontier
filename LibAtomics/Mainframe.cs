@@ -45,8 +45,8 @@ public class Mainframe : IScene {
 		sf_portrait = new Sf(18, 18, Fonts.RF_8x8);
 		noise = new byte[Width, Height];
 		level = new World();
-		foreach(var x in 0..30) {
-			foreach(var y in 0..30) {
+		foreach(var x in 30) {
+			foreach(var y in 30) {
 				level.entities.Add(new Floor((x, y), r));
 			}
 		}
@@ -55,9 +55,9 @@ public class Mainframe : IScene {
 		player.body.parts.Last().hp = 50;
 
 		player.items.Add(new Item(new ItemType() { name = "Marrow Ring", tile = new(ABGR.White, ABGR.Black, 'o') }));
-		player.items.Add(new Item(new ItemType() { name = "Rattle Blade", tile = new(ABGR.LightGreen, ABGR.Black, '/') }));
+		player.items.Add(new Item(new ItemType() { name = "Rattle Blade", tile = new(ABGR.LightGreen, ABGR.Black, 'l') }));
 		player.items.Add(new Item(new ItemType() { name = "Miasma Grenade", tile = new(ABGR.Tan, ABGR.Black, 'g') }));
-		player.items.Add(new Item(new ItemType() { name = "Machine Gun", tile = new(ABGR.LightGray, ABGR.Black, 'R') }));
+		player.items.Add(new Item(new ItemType() { name = "Machine Gun", tile = new(ABGR.LightGray, ABGR.Black, 'm') }));
 		level.entities.Add(new Roach(level, (10, 10)));
 		level.TryUpdatePresent();
 	}
@@ -68,8 +68,8 @@ public class Mainframe : IScene {
 		marker.time += delta.TotalSeconds;
 		level.UpdateReal(delta);
 
-		foreach(var y in 0..Height) {
-			foreach(var x in 0..Width) {
+		foreach(var y in Height) {
+			foreach(var x in Width) {
 				noise[x, y] = (byte)(r.NextFloat() * 5 + 51);
 			}
 		}
@@ -105,8 +105,8 @@ public class Mainframe : IScene {
 		sf_main.Clear();
 		player.UpdateVision();
 		var pov = player.pos;
-		foreach(var y in 0..Height) {
-			foreach(var x in 0..Width) {
+		foreach(var y in Height) {
+			foreach(var x in Width) {
 				var loc = pov + (x, y) - center;
 				if(!player.visibleTiles.TryGetValue(loc, out var t))
 					t = new Tile(ABGR.SetA(ABGR.White, noise[x,y]), ABGR.Black, 'p' + 64);
@@ -179,7 +179,7 @@ public class Mainframe : IScene {
 			x++;
 			y++;
 			foreach(var m in _m[Math.Max(_m.Count - 29, 0)..].Reverse<Player.Message>()) {
-				IEnumerable<Tile> str = m.str;
+				IEnumerable<Tile> str = m.str.Concat([Tile.empty, .. (m.once ? [] : Tile.Arr($"x{m.repeats}"))]);
 				if(player.tick > m.tick) {
 					var ft = player.time - m.fadeTime;
 					str = from tile in str select tile with {
@@ -207,6 +207,7 @@ public class Mainframe : IScene {
 					Floor => "Floor",
 					Player => "Player",
 					Roach => "Roach",
+					Splat => "Bullet",
 					_ => "UNKNOWN"
 				}, -12}{(char)('a'+i)}");
 				y++;

@@ -1002,13 +1002,13 @@ namespace ASECII {
                     DrawBox(left + r.Width - 1, top + r.Height - 1, new BoxGlyph { n = Line.Single, w = Line.Single });
                 }
                 void DrawSidesX(Line style = Line.Single) {
-                    foreach (var x in Enumerable.Range(left, r.Width)) {
+                    foreach (var x in (left..r.Width)) {
                         DrawBox(x, top, new BoxGlyph { e = style, w = style });
                         DrawBox(x, top + r.Height - 1, new BoxGlyph { e = style, w = style });
                     }
                 }
                 void DrawSidesY(Line style = Line.Single) {
-                    foreach (var y in Enumerable.Range(top, r.Height)) {
+                    foreach (var y in (top..r.Height)) {
                         DrawBox(left, y, new BoxGlyph { n = style, s = style });
                         DrawBox(left + r.Width - 1, y, new BoxGlyph { n = style, s = style });
                     }
