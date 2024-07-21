@@ -37,7 +37,7 @@ public class HP : HullSystem {
             return;
         }
         p.hitHull = true;
-        var absorbed = Math.Min(hp, p.damageLeft);
+        var absorbed = Min(hp, p.damageLeft);
         hp -= absorbed;
         p.damageLeft -= absorbed;
         lastDamageTick = tick;

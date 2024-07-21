@@ -68,15 +68,15 @@ public class FlashTransition : IScene {
 								var R = ABGR.R;
                                 var G = ABGR.G;
                                 var B = ABGR.B;
-								int rAdjacent = Math.Min((int)1, (int)Math.Max(R(w), Math.Max(R(sw), R(nw))));
-                                int gAdjacent = Math.Min((int)1, (int)Math.Max(G(w), Math.Max(G(sw), G(nw))));
-                                int bAdjacent = Math.Min((int)1, (int)Math.Max(B(w), Math.Max(B(sw), B(nw))));
-                                background[x, y] = ABGR.RGB((byte)Math.Clamp(R(b) + rAdjacent, 0, 255), (byte)Math.Clamp(G(b) + gAdjacent, 0, 255), (byte)Math.Clamp(B(b) + bAdjacent, 0, 255));
+								int rAdjacent = Min((int)1, (int)Max(R(w), Max(R(sw), R(nw))));
+                                int gAdjacent = Min((int)1, (int)Max(G(w), Max(G(sw), G(nw))));
+                                int bAdjacent = Min((int)1, (int)Max(B(w), Max(B(sw), B(nw))));
+                                background[x, y] = ABGR.RGB((byte)Clamp(R(b) + rAdjacent, 0, 255), (byte)Clamp(G(b) + gAdjacent, 0, 255), (byte)Clamp(B(b) + bAdjacent, 0, 255));
                             }
                         }
 
                         foreach (var glyph in glyphs) {
-                            glyph.foregound = ABGR.SetA(glyph.foregound, (byte)Math.Clamp(ABGR.A(glyph.foregound) - 2, 0, 255));
+                            glyph.foregound = ABGR.SetA(glyph.foregound, (byte)Clamp(ABGR.A(glyph.foregound) - 2, 0, 255));
                         }
 
                         if (tick > 192) {
@@ -91,7 +91,7 @@ public class FlashTransition : IScene {
                         for (int x = 0; x < Width; x++) {
                             for (int y = 0; y < Height; y++) {
                                 var b = background[x, y];
-                                background[x, y] = ABGR.RGB((byte)Math.Clamp(ABGR.R(b) - 2, 0, 255), (byte)Math.Clamp(ABGR.G(b) - 2, 0, 255), (byte)Math.Clamp(ABGR.B(b) - 2, 0, 255));
+                                background[x, y] = ABGR.RGB((byte)Clamp(ABGR.R(b) - 2, 0, 255), (byte)Clamp(ABGR.G(b) - 2, 0, 255), (byte)Clamp(ABGR.B(b) - 2, 0, 255));
                                 if (ABGR.GetLightness(background[x, y]) > 0) {
                                     done = false;
                                 }

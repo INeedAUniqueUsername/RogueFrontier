@@ -128,7 +128,7 @@ public class Projectile : MovingObject {
         void UpdateMove() {
             maneuver?.Update(delta, this);
 
-            var dest = position + velocity * Math.Min(lifetime, delta);
+            var dest = position + velocity * Min(lifetime, delta);
             var inc = velocity.normal * 0.5;
             var steps = velocity.magnitude * 2 * delta;
 
@@ -319,12 +319,12 @@ public class Guidance {
                     p.velocity = farther;
 
                     var deltaVel = target.velocity - p.velocity;
-                    var deltaAngle = Math.Abs((offset.normal - deltaVel.normal).angleRad);
-                    var deltaAngleDeg = deltaAngle * 180 / Math.PI;
+                    var deltaAngle = Abs((offset.normal - deltaVel.normal).angleRad);
+                    var deltaAngleDeg = deltaAngle * 180 / PI;
 
 
                     var timeToHit = offset.magnitude / deltaVel.magnitude;
-                    var timeToTurn = Math.Min(Math.PI/2, deltaAngle) / (desc.maneuver * Constants.TICKS_PER_SECOND);
+                    var timeToTurn = Min(PI / 2, deltaAngle) / (desc.maneuver * Constants.TICKS_PER_SECOND);
 
                     if (timeToTurn < timeToHit) {
                         startApproach = true;

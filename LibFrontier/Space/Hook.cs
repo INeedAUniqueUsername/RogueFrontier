@@ -61,7 +61,7 @@ public class Hook : Entity {
                 active = false;
             }
         } else {
-            nextLength = Math.Max(nextLength, 5);
+            nextLength = Max(nextLength, 5);
             var dec = length - nextLength;
             if (dec > 0) {
                 segments.GetRange(length - dec, dec).ForEach(s => s.active = false);
@@ -130,7 +130,7 @@ public class LightningRod : Entity, Ob<Weapon.OnFire>, Ob<Projectile.OnHitActive
         if(target.world.tick%10 == 0) {
             var r = () => target.world.karma.NextDouble();
             target.world.AddEffect(new EffectParticle(
-                target.position, target.velocity + XY.Polar(r()*Math.PI*2, 4),
+                target.position, target.velocity + XY.Polar(r()* PI * 2, 4),
                 (ABGR.Red, ABGR.Transparent, '%'), 30));
         }
         lifetime--;

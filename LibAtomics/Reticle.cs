@@ -12,7 +12,7 @@ public class Reticle : IEntity, IActor {
 	public bool visible = false;
 	public Tile tile =>
 		visible ?
-			new Tile(Math.IEEERemainder(time, 0.2) < 0 ? ABGR.Yellow : ABGR.SetA(ABGR.Yellow, 128), ABGR.Black, '+') :
+			new Tile(IEEERemainder(time, 0.2) < 0 ? ABGR.Yellow : ABGR.SetA(ABGR.Yellow, 128), ABGR.Black, '+') :
 			Tile.empty;
 	public Action Removed { get; set; }
 	double time = 0;

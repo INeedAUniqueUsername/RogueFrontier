@@ -65,7 +65,7 @@ public class ShipEntry : ShipGenerator {
         var count = this.count.Roll();
         Func<int, XY> GetPos = orderDesc switch {
             PatrolOrbitDesc pod => i => owner.position + XY.Polar(
-                                        Math.PI * 2 * i / count,
+										PI * 2 * i / count,
                                         pod.patrolRadius),
             _ => i => owner.position
         };
@@ -396,7 +396,7 @@ public record WeaponEntry() : IGenerator<Device>, IGenerator<Weapon> {
     [Par(construct = false)] public XY offset;
     [Par] public ModRoll mod;
     public WeaponEntry(XElement e) : this() {
-        var toRad = (double d) => d * Math.PI / 180;
+        var toRad = (double d) => d * PI / 180;
         e.Initialize(this, transform: new() {
             [nameof(angle)] = toRad,
             [nameof(leftRange)] = toRad,

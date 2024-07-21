@@ -124,7 +124,7 @@ public class StationType : IDesignType {
 								var m = new MultiPointFrom(xmlSegment);
 								XY offset = new(m.offsetX, m.offsetY);
 								for (int angle = 0; angle < 360; angle += m.angleInc) {
-									segments.Add(new SegmentDesc(offset.Rotate(angle * Math.PI / 180), m.tile));
+									segments.Add(new SegmentDesc(offset.Rotate(angle * PI / 180), m.tile));
 								}
 								break;
 							}
@@ -170,7 +170,7 @@ public class StationType : IDesignType {
 							var y = xmlPart.ExpectAttDouble("offsetY");
 							var offset = new XY(x, y);
 							for (int angle = 0; angle < 360; angle += angleInc) {
-								dockPoints.Add(offset.Rotate(angle * Math.PI / 180));
+								dockPoints.Add(offset.Rotate(angle * PI / 180));
 							}
 							break;
 						}

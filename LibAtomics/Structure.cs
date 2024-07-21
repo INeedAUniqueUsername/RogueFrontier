@@ -23,7 +23,7 @@ public class Floor : IEntity {
 }
 public class Door : IEntity {
 	public XYI pos { get; set; }
-	public Tile tile => new Tile(ABGR.White, ABGR.Black, closed ? '!' : '.');
+	public Tile tile => new(ABGR.White, ABGR.Black, closed ? '!' : '.');
 	public Action Removed { get; set; }
 	public bool closed;
 }

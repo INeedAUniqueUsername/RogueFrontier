@@ -60,7 +60,7 @@ public class OrionWarlordOutpost : StationBehavior, Ob<Station.Destroyed>, Ob<Gu
                     .Where(a => owner.CanTarget(a))
                     .Shuffle();
                 foreach (var enemy in enemies) {
-                    XY p = enemy.position + XY.Polar(k.NextDouble() * Math.PI * 2, k.NextInteger(80, 200));
+                    XY p = enemy.position + XY.Polar(k.NextDouble() * PI * 2, k.NextInteger(80, 200));
                     if (enemies.All(a => (a.position - p).magnitude > 70) && enemies.Any(a => (a.position - p).magnitude < 200)) {
 
                         owner.cargo.Remove(turretItem);

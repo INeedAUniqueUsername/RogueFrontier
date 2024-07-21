@@ -200,7 +200,7 @@ public class Dialog : IScene {
 			foreach(var (c, i) in charge.Select((c, i) => (c, i))) {
 				var en = navigation[i].enabled;
 				if(en) {
-					surf.Print(x, y + i, Tile.Arr(arrow[0..(int)(barLength * Math.Clamp(c / maxCharge, 0, 1))], ABGR.Gray, ABGR.Black));
+					surf.Print(x, y + i, Tile.Arr(arrow[0..(int)(barLength * Clamp(c / maxCharge, 0, 1))], ABGR.Gray, ABGR.Black));
 				}
 				
 				surf.Print(x + 4, y + i, Tile.Arr(navigation[i].name,
@@ -215,7 +215,7 @@ public class Dialog : IScene {
 					surf.Print(x, y + navIndex, Tile.Arr(headless, ABGR.Gray, ABGR.Black));
 				}
 				var ch = charge[navIndex];
-				surf.Print(x, y + navIndex, Tile.Arr(arrow.Substring(0, (int)(barLength * Math.Clamp(ch / maxCharge, 0, 1))), ch < maxCharge ? ABGR.Yellow : ABGR.Orange, ABGR.Black));
+				surf.Print(x, y + navIndex, Tile.Arr(arrow.Substring(0, (int)(barLength * Clamp(ch / maxCharge, 0, 1))), ch < maxCharge ? ABGR.Yellow : ABGR.Orange, ABGR.Black));
 			}
 		}
 		Draw?.Invoke(surf);

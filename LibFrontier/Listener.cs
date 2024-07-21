@@ -23,8 +23,8 @@ public class NotifyStationDestroyed : Ob<Station.Destroyed> {
 public class Camera {
 	public XY position;
 	//For now we don't allow shearing
-	public double rotation { get => Math.Atan2(right.y, right.x); set => right = XY.Polar(value, 1); }
-	public XY up => right.Rotate(Math.PI / 2);
+	public double rotation { get => Atan2(right.y, right.x); set => right = XY.Polar(value, 1); }
+	public XY up => right.Rotate(PI / 2);
 	public XY right;
 	public Camera (XY position) {
 		this.position = position;
@@ -38,8 +38,6 @@ public class Camera {
 		right = right.Rotate(angle);
 	}
 }
-
-
 public class SilenceListener : IWeaponListener {
 	public void Observe (IWeaponListener.WeaponFired ev) => Add(ev.proj);
 	private void Add (List<Projectile> p) =>

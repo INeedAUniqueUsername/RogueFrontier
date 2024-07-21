@@ -65,7 +65,7 @@ public class Message : IPlayerMessage {
     }
     public void Update(double delta) {
         if (index < message.Length) {
-            index += Math.Max(20, 3 * (message.Length - index)) * delta;
+            index += Max(20, 3 * (message.Length - index)) * delta;
         } else if (timeRemaining > 0) {
             timeRemaining -= delta;
         }
@@ -76,8 +76,8 @@ public class Message : IPlayerMessage {
     public bool Scrolling => index < message.Length;
     public bool Active => timeRemaining > 0;
     public Tile[] Draw() {
-        var a = (byte)Math.Min(255, timeRemaining * 255);
-        var result = Tile.WithA(message[0..(int)Math.Min(index, message.Length)], a, a);
+        var a = (byte)Min(255, timeRemaining * 255);
+        var result = Tile.WithA(message[0..(int)Min(index, message.Length)], a, a);
         if (flash > 0) {
             byte value = 255;
             result = result.Select(t => t with { Background = ABGR.RGB(value, 0, 0) }).ToList();

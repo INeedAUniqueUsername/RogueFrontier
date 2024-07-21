@@ -107,7 +107,10 @@ public class BodyPart {
 		hpDelta = 0;
 		if(!heart) {
 			var minHp = connected.Min(bp => bp.hp);
-			hpDelta = -Math.Min(hp, (hp - minHp) / 30);
+			hpDelta = -Min(hp, (hp - minHp) / 30);
 		}
+	}
+	public void Damage(int amt) {
+		hp = Math.Clamp(hp - amt, 0, 100);
 	}
 }

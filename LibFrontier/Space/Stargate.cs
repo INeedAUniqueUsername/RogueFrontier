@@ -48,28 +48,28 @@ public class Stargate : ActiveObject {
         var tile = new Tile(ABGR.White, ABGR.Black, '+');
 
         int radius = 8;
-        double circumference = 2 * Math.PI * radius;
+        double circumference = 2 * PI * radius;
         for (int i = 0; i < circumference; i++) {
             Segments.Add(new Segment(this, new SegmentDesc(
-                XY.Polar(2 * Math.PI * i / circumference, radius), tile
+                XY.Polar(2 * PI * i / circumference, radius), tile
                 )));
             Segments.Add(new Segment(this, new SegmentDesc(
-                XY.Polar(2 * Math.PI * i / circumference, radius - 0.5), tile
+                XY.Polar(2 * PI * i / circumference, radius - 0.5), tile
                 )));
         }
 
         foreach (var i in Enumerable.Range(1 + radius, 5)) {
             Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(0, i), tile)));
-            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(Math.PI / 2, i), tile)));
-            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(Math.PI, i), tile)));
-            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(Math.PI * 3 / 2, i), tile)));
+            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(PI / 2, i), tile)));
+            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(PI, i), tile)));
+            Segments.Add(new Segment(this, new SegmentDesc(XY.Polar(PI * 3 / 2, i), tile)));
         }
 
         Rand r = new Rand();
         radius--;
         for (int i = 0; i < circumference; i++) {
             Segments.Add(new Segment(this, new SegmentDesc(
-                XY.Polar(2 * Math.PI * i / circumference, radius),
+                XY.Polar(2 * PI * i / circumference, radius),
                 new Tile(
                     ABGR.SetA(ABGR.Violet, (byte)(204 + r.NextInteger(-51, 51))),
                     ABGR.SetA(ABGR.Blue, (byte)(204 + r.NextInteger(-51, 51))),

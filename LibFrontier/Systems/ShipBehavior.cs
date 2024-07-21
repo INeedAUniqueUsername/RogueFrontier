@@ -307,7 +307,7 @@ public class FollowShipAtAngle : IShipOrder {
         this.approach = new(target, offset);
     }
     public void Update(double delta, AIShip owner) {
-        approach.offset = baseOffset.Rotate(target.stoppingRotation * Math.PI / 180);
+        approach.offset = baseOffset.Rotate(target.stoppingRotation * PI / 180);
 #if DEBUG
         //Heading.Crosshair(owner.world, target.position + offset);
 #endif
@@ -336,7 +336,7 @@ public class FollowShip : IShipOrder {
         if (!owner.velocity.isZero) {
             stoppingPoint += owner.velocity.normal * stoppingDistance;
         }
-        var formationPoint = target.position + this.offset.Rotate(target.stoppingRotation * Math.PI / 180);
+        var formationPoint = target.position + this.offset.Rotate(target.stoppingRotation * PI / 180);
         var dest = formationPoint + (target.velocity * stoppingTime);
         var offset = dest - owner.position;
 #if DEBUG
@@ -354,7 +354,7 @@ public class FollowShip : IShipOrder {
             //var Face = new FaceOrder(Helper.CalcFireAngle(target.Position - owner.Position, target.Velocity - owner.Velocity, owner.ShipClass.thrust * 30, out _));
             face.Update(delta, owner);
             //If we're facing close enough
-            if (Math.Abs(Main.AngleDiffDeg(owner.rotationDeg, offset.angleRad * 180 / Math.PI)) < 10 && (velProjection.magnitude < offset.magnitude / 2 || velDiff.magnitude == 0)) {
+            if (Abs(Main.AngleDiffDeg(owner.rotationDeg, offset.angleRad * 180 / PI)) < 10 && (velProjection.magnitude < offset.magnitude / 2 || velDiff.magnitude == 0)) {
                 //Go
                 owner.SetThrusting(true);
             }
@@ -362,7 +362,7 @@ public class FollowShip : IShipOrder {
             owner.velocity = target.velocity;
             owner.position = formationPoint;
             //Match the target's facing
-            face.targetRads = target.rotationDeg * Math.PI / 180;
+            face.targetRads = target.rotationDeg * PI / 180;
             face.Update(delta, owner);
         }
     }
@@ -804,7 +804,7 @@ public class AttackTarget : IShipOrder {
         if (dist < minDist) {
             //If we are too close, then move away
             //Face away from the target
-            face.targetRads = offset.angleRad + Math.PI;
+            face.targetRads = offset.angleRad + PI;
             face.Update(delta, owner);
             //Get moving!
             owner.SetThrusting(true);
@@ -815,7 +815,7 @@ public class AttackTarget : IShipOrder {
                 //Aim at the target
                 aim.missileSpeed = primary.projectileDesc.missileSpeed;
                 aim.Update(delta, owner);
-                if (Math.Abs(aim.GetAngleDiff(owner)) < 10
+                if (Abs(aim.GetAngleDiff(owner)) < 10
                     && (owner.velocity - target.velocity).magnitude2 < 5 * 5) {
                     owner.SetThrusting(true);
                 }
@@ -823,7 +823,7 @@ public class AttackTarget : IShipOrder {
                     owner.SetThrusting(true);
                 }
                 //Fire if we are close enough
-                if (primary.aiming != null || Math.Abs(aim.GetAngleDiff(owner)) * dist < 6) {
+                if (primary.aiming != null || Abs(aim.GetAngleDiff(owner)) * dist < 6) {
                     SetFiringPrimary();
                 } else {
                     aimWaitingTicks++;
@@ -905,11 +905,11 @@ public class PatrolAt : IShipOrder {
         var offsetFromTarget = (owner.position - patrolTarget.position);
         var dist = offsetFromTarget.magnitude;
         var deltaDist = patrolRadius - dist;
-        var nextDist = Math.Abs(deltaDist) > 10 ?
-            dist + Math.Sign(deltaDist) * 10 :
+        var nextDist = Abs(deltaDist) > 10 ?
+            dist + Sign(deltaDist) * 10 :
             patrolRadius;
         var nextOffset = offsetFromTarget
-            .Rotate(2 * Math.PI / 16)
+            .Rotate(2 * PI / 16)
             .WithMagnitude(nextDist);
         var deltaOffset = nextOffset - offsetFromTarget;
         var Face = new TurnToAngle(deltaOffset.angleRad);
@@ -986,11 +986,11 @@ public class PatrolAround : IShipOrder {
             patrolRadius += (nearestFriend.position - patrolTarget.position).magnitude;
         }
         var deltaDist = patrolRadius - dist;
-        var nextDist = Math.Abs(deltaDist) > 25 ?
-            dist + Math.Sign(deltaDist) * 25 :
+        var nextDist = Abs(deltaDist) > 25 ?
+            dist + Sign(deltaDist) * 25 :
             patrolRadius;
         var nextOffset = offsetFromTarget
-            .Rotate(2 * Math.PI / 16)
+            .Rotate(2 * PI / 16)
             .WithMagnitude(nextDist);
         var deltaOffset = nextOffset - offsetFromTarget;
         face.targetRads = deltaOffset.angleRad;
@@ -1024,7 +1024,7 @@ public class SnipeAt : IShipOrder {
         //Aim at the target
         aim.Update(delta, owner);
         //Fire if we are close enough
-        if (weapon.projectileDesc.omnidirectional || Math.Abs(aim.GetAngleDiff(owner)) < 30) {
+        if (weapon.projectileDesc.omnidirectional || Abs(aim.GetAngleDiff(owner)) < 30) {
             weapon.SetFiring(true, target);
         }
     }
@@ -1050,7 +1050,7 @@ public class Approach : IShipOrder {
         var speedTowards = (owner.velocity - target.velocity).Dot(currentOffset.normal);
         if (speedTowards < 0) {
             //Decelerate
-            face.targetRads = Math.PI + owner.velocity.angleRad;
+            face.targetRads = PI + owner.velocity.angleRad;
             face.Update(delta, owner);
             owner.SetThrusting(true);
         } else {
@@ -1059,7 +1059,7 @@ public class Approach : IShipOrder {
             face.targetRads = currentOffset.angleRad;
             face.Update(delta, owner);
             //If we're facing close enough
-            if (Math.Abs(Helper.AngleDiffDeg(owner.rotationDeg, currentOffset.angleRad * 180 / Math.PI)) < 10) {
+            if (Abs(Helper.AngleDiffDeg(owner.rotationDeg, currentOffset.angleRad * 180 / PI)) < 10) {
                 //Go
                 owner.SetThrusting(true);
             }
@@ -1076,7 +1076,7 @@ public class TurnToFace : IShipOrder {
     }
     public void Update(double delta, AIShip owner) {
         order.Update(delta, owner);
-        Active = Math.Abs(order.GetAngleDiff(owner)) > 1;
+        Active = Abs(order.GetAngleDiff(owner)) > 1;
     }
 
     public bool Active { get; private set; }
@@ -1085,7 +1085,7 @@ public class AimAt : IShipOrder {
     public MovingObject target;
     public double missileSpeed;
     public double GetTargetRads(AIShip owner) => Helper.CalcFireAngle(target.position - owner.position, target.velocity - owner.velocity, missileSpeed, out var _);
-    public double GetAngleDiff(AIShip owner) => Helper.AngleDiffDeg(owner.rotationDeg, GetTargetRads(owner) * 180 / Math.PI);
+    public double GetAngleDiff(AIShip owner) => Helper.AngleDiffDeg(owner.rotationDeg, GetTargetRads(owner) * 180 / PI);
     public AimAt(MovingObject target, double missileSpeed) {
         this.target = target;
         this.missileSpeed = missileSpeed;
@@ -1093,10 +1093,10 @@ public class AimAt : IShipOrder {
     public bool Active => true;
     public void Update(double delta, AIShip owner) {
         var targetRads = GetTargetRads(owner);
-        var facingRads = owner.stoppingRotation * Math.PI / 180;
+        var facingRads = owner.stoppingRotation * PI / 180;
 
-        var ccw = (XY.Polar(facingRads + 1 * Math.PI / 180) - XY.Polar(targetRads)).magnitude2;
-        var cw = (XY.Polar(facingRads - 1 * Math.PI / 180) - XY.Polar(targetRads)).magnitude2;
+        var ccw = (XY.Polar(facingRads + 1 * PI / 180) - XY.Polar(targetRads)).magnitude2;
+        var cw = (XY.Polar(facingRads - 1 * PI / 180) - XY.Polar(targetRads)).magnitude2;
         if (ccw < cw) {
             owner.SetRotating(Rotating.CCW);
         } else if (cw < ccw) {
@@ -1110,10 +1110,10 @@ public class TurnToAngle : IShipOrder {
         this.targetRads = targetRads;
     }
     public void Update(double delta, AIShip owner) {
-        var facingRads = owner.ship.stoppingRotationWithCounterTurn * Math.PI / 180;
+        var facingRads = owner.ship.stoppingRotationWithCounterTurn * PI / 180;
 
-        var ccw = (XY.Polar(facingRads + 1 * Math.PI / 180) - XY.Polar(targetRads)).magnitude2;
-        var cw = (XY.Polar(facingRads - 1 * Math.PI / 180) - XY.Polar(targetRads)).magnitude2;
+        var ccw = (XY.Polar(facingRads + 1 * PI / 180) - XY.Polar(targetRads)).magnitude2;
+        var cw = (XY.Polar(facingRads - 1 * PI / 180) - XY.Polar(targetRads)).magnitude2;
         if (ccw < cw) {
             owner.SetRotating(Rotating.CCW);
         } else if (cw < ccw) {

@@ -1,4 +1,5 @@
-﻿using Common;
+﻿global using static System.Math;
+using Common;
 using LibGamer;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ public class Mainframe : IScene {
 	public XYI center => (sf_main.Width / 2, sf_main.Height / 2);
 	public Sf sf_ui;
 	public Sf sf_portrait;
-	Rand r = new Rand();
+	Rand r = new();
 	World level;
 	Player player;
 	private IScene _dialog;
@@ -29,7 +30,7 @@ public class Mainframe : IScene {
 			if(_dialog is { } prev) {
 				prev.Draw -= Draw;
 				prev.Go -= Go;
-				prev.PlaySound += PlaySound;
+				prev.PlaySound -= PlaySound;
 			}
 			_dialog = value;
 			if(value is { } v) {
@@ -40,9 +41,9 @@ public class Mainframe : IScene {
 		}
 	}
 	public Mainframe (int Width, int Height) {
-		sf_main = new Sf(Width, Height, Fonts.IBMCGA_8x8);
-		sf_ui = new Sf(Width, Height, Fonts.IBMCGA_6x8);
-		sf_portrait = new Sf(18, 18, Fonts.RF_8x8);
+		sf_main = new(Width, Height, Fonts.IBMCGA_8x8);
+		sf_ui = new(Width, Height, Fonts.IBMCGA_6x8);
+		sf_portrait = new(18, 18, Fonts.RF_8x8);
 		noise = new byte[Width, Height];
 		level = new World();
 		foreach(var x in 30) {
@@ -115,9 +116,8 @@ public class Mainframe : IScene {
 		}
 		sf_ui.Clear();
 		{
-			var x = 24;
-			var y = 0;
-			Sf.DrawRect(sf_ui, x, y, 32, 3, new() {
+			var (x, y) = (24, 0);
+			DrawRect(sf_ui, x, y, 32, 3, new() {
 				f = PINK,
 				b = BACK
 			});
@@ -126,24 +126,22 @@ public class Mainframe : IScene {
 			sf_ui.Print(x,y, $"Tick: {player.tick}");
 		}
 		{
-			var x = 0;
-			var y = 18;
-			Sf.DrawRect(sf_ui, x, y, 32, 15, new() {
+			var (x, y) = (0, 18);
+			DrawRect(sf_ui, x, y, 32, 15, new() {
 				f = PINK,
 				b = BACK
 			});
 			x++;
 			y++;
 
-			var a = (byte)Main.Lerp(Math.IEEERemainder(player.time, 1), 0, 0.5, 255, 0, 1);
+			var a = (byte)Main.Lerp(IEEERemainder(player.time, 1), 0, 0.5, 255, 0, 1);
 			foreach(var part in player.body.parts) {
 				sf_ui.Print(x, y++, $"{part.name,-12} {part.hp, 5:00.0}", ABGR.Blend(ABGR.White, ABGR.SetA(PINK, a)), BACK);
 			}
 		}
 		{
-			var x = 0;
-			var y = 33;
-			Sf.DrawRect(sf_ui, x, y, 32, 26, new() {
+			var (x, y) = (0, 33);
+			DrawRect(sf_ui, x, y, 32, 26, new() {
 				f = PINK,
 				b = BACK
 			});
@@ -172,13 +170,13 @@ public class Mainframe : IScene {
 		{
 			var x = 0; var y = Height - 31;
 			var _m = player.messages;
-			Sf.DrawRect(sf_ui, x, y, 32, 31, new() {
+			DrawRect(sf_ui, x, y, 32, 31, new() {
 				f = PINK,
 				b = BACK
 			});
 			x++;
 			y++;
-			foreach(var m in _m[Math.Max(_m.Count - 29, 0)..].Reverse<Player.Message>()) {
+			foreach(var m in _m[Max(_m.Count - 29, 0)..].Reverse<Player.Message>()) {
 				IEnumerable<Tile> str = m.str.Concat([Tile.empty, .. (m.once ? [] : Tile.Arr($"x{m.repeats}"))]);
 				if(player.tick > m.tick) {
 					var ft = player.time - m.fadeTime;
@@ -195,7 +193,7 @@ public class Mainframe : IScene {
 		}
 		if(level.entities.Contains(marker)){
 			int x = 32, y = 33;
-			Sf.DrawRect(sf_ui, x, y, 32, 26, new() {
+			DrawRect(sf_ui, x, y, 32, 26, new() {
 				f = PINK,
 				b = BACK
 			});
@@ -214,7 +212,7 @@ public class Mainframe : IScene {
 			}
 		}
 		sf_portrait.Clear();
-		Sf.DrawRect(sf_portrait, 0, 0, 18, 18, new() {
+		DrawRect(sf_portrait, 0, 0, 18, 18, new() {
 			f = PINK,
 			b = BACK
 		});
@@ -256,7 +254,7 @@ public class Mainframe : IScene {
 
 		}
 	}
-	Marker marker = new Marker();
+	Marker marker = new();
 	void IScene.HandleMouse(HandState mouse) {
 		if(!mouse.on) {
 			level.RemoveEntity(marker);

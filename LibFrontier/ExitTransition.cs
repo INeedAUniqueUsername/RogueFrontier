@@ -36,7 +36,7 @@ public class ExitTransition : IScene {
                     x = x,
                     y = -1,
                     destY = y,
-                    delay = (1 + Math.Sin(Math.Sin(x) + Math.Sin(y))) * 3 / 2
+                    delay = (1 + Sin(Sin(x) + Sin(y))) * 3 / 2
                 });
             }
         }
@@ -46,7 +46,7 @@ public class ExitTransition : IScene {
                     x = x,
                     y = sf.Height,
                     destY = y,
-                    delay = (1 + Math.Sin(Math.Sin(x) + Math.Sin(y))) * 3 / 2
+                    delay = (1 + Sin(Sin(x) + Sin(y))) * 3 / 2
                 });
             }
         }
@@ -70,7 +70,7 @@ public class ExitTransition : IScene {
                     p.delay -= delta.TotalSeconds * 2 / 3;
                 } else {
                     var offset = (p.destY - p.y);
-                    p.y += Math.MinMagnitude(offset, Math.MaxMagnitude(Math.Sign(offset), offset * delta.TotalSeconds / 2));
+                    p.y += MinMagnitude(offset, MaxMagnitude(Sign(offset), offset * delta.TotalSeconds / 2));
                 }
             }
         } else {

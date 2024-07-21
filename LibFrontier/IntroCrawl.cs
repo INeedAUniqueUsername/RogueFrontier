@@ -93,7 +93,7 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
         //spinner = new LoadingSymbol(16);
         clouds = new List<CloudParticle>();
 
-        byte b (int value) => (byte)Math.Clamp(value, 0, 255);
+        byte b (int value) => (byte)Clamp(value, 0, 255);
         uint Front(int value) {
             return ABGR.RGBA(b(255 - value / 2), b(255 - value), 255, b(255 - value / 4));
             //return new Color(128 + value / 2, 128 + value/4, 255);

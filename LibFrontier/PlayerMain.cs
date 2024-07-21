@@ -348,7 +348,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             //networkMap.Update(delta);
             return;
         }
-        var gameDelta = delta.TotalSeconds * (playerShip.autopilot ? 3 : 1) * Math.Max(0, 1 - playerShip.ship.silence);
+        var gameDelta = delta.TotalSeconds * (playerShip.autopilot ? 3 : 1) * Max(0, 1 - playerShip.ship.silence);
         if(playerShip is { active:true, mortalTime: > 0 }) {
             playerShip.mortalTime -= gameDelta;
             gameDelta /= (1 + playerShip.mortalTime/2);
@@ -359,7 +359,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             world.UpdateActive(gameDelta);
             
             silenceSystem.UpdatePresent();
-            silenceSystem.UpdateActive(delta.TotalSeconds * Math.Min(1, playerShip.ship.silence));
+            silenceSystem.UpdateActive(delta.TotalSeconds * Min(1, playerShip.ship.silence));
             
             systems.GetNext(1).ForEach(s => {
                 if (s != world) {
@@ -408,7 +408,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     }
     public void UpdateUI(TimeSpan delta) {
         var d = Main.AngleDiffRad(camera.rotation, targetCameraRotation);
-        if (Math.Abs(d) < 0.01) {
+        if (Abs(d) < 0.01) {
             camera.rotation += d;
         } else {
             camera.rotation += d / 10;
@@ -557,10 +557,10 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             var d = kb.IsDown;
             if (d(KC.LeftShift) || d(KC.RightShift)) {
                 if (p(KC.OemOpenBrackets)) {
-                    targetCameraRotation += Math.PI/2;
+                    targetCameraRotation += PI / 2;
                 }
                 if (p(KC.OemCloseBrackets)) {
-                    targetCameraRotation -= Math.PI/2;
+                    targetCameraRotation -= PI / 2;
                 }
             } else {
                 if (d(KC.OemOpenBrackets)) {
@@ -642,7 +642,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                     var facing = XY.Polar(playerShip.rotationRad, radius);
                     var aim = playerShip.position + facing;
                     var off = (mouseWorldPos - aim).magnitude;
-                    var tolerance = Math.Sqrt(radius) / 3;
+                    var tolerance = Sqrt(radius) / 3;
                     uint c = off < tolerance ? ABGR.White : ABGR.SetA(ABGR.White, 255 * 3 / 5);
                     EffectParticle.DrawArrow(world, mouseWorldPos, playerOffset, c);
                     //EffectParticle.DrawArrow(World, aim, facing, Color.Yellow);
@@ -864,7 +864,7 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
     }
     private void PlayWorldSound(SoundCtx s, byte[] sb) {
         s.data = sb;
-        s.volume = regular_volumes[s] * (float)Math.Max(0, 1 - player.ship.silence);
+        s.volume = regular_volumes[s] * (float)Max(0, 1 - player.ship.silence);
         PlaySound?.Invoke(s);
     }
 }
@@ -930,7 +930,7 @@ public class Megamap {
         screenSize = new(Width, Height);
         screenCenter = screenSize / 2;
     }
-    public double delta => Math.Min(targetViewScale / (2 * 30), 1);
+    public double delta => Min(targetViewScale / (2 * 30), 1);
     public void HandleKey(KB kb) {
         var p = kb.IsPress;
         var d = kb.IsDown;
@@ -964,7 +964,7 @@ public class Megamap {
             if(targetViewScale >= 16) {
                 targetViewScale = 1.0;
             } else {
-                targetViewScale = Math.Floor(targetViewScale)*4;
+                targetViewScale = Floor(targetViewScale)*4;
             }
         }
     }
@@ -977,8 +977,8 @@ public class Megamap {
             viewScale += d / 10;
         }
         */
-        viewScale += Math.MaxMagnitude(Math.MinMagnitude(d, Math.Sign(d)*0.1), d / 10);
-        alpha = (byte)(255 * Math.Min(1, viewScale - 1));
+        viewScale += MaxMagnitude(MinMagnitude(d, Sign(d)*0.1), d / 10);
+        alpha = (byte)(255 * Min(1, viewScale - 1));
         time += delta.TotalSeconds;
 #nullable enable
         scaledEntities = player.world.entities.TransformSelectList<(Entity entity, double distance)?>(
@@ -992,7 +992,7 @@ public class Megamap {
         var alpha = this.alpha;
         if (alpha > 0) {
             if(alpha < 128) {
-                alpha = (byte)(128 * Math.Sqrt(alpha / 128f));
+                alpha = (byte)(128 * Sqrt(alpha / 128f));
             }
             for (int x = 0; x < Width; x++) {
                 for (int y = 0; y < Height; y++) {
@@ -1127,7 +1127,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             lightningHit = 5;
         }
         if (pr.desc.blind?.Roll() is int db) {
-            flash = Math.Max(db, flash);
+            flash = Max(db, flash);
         }
     }
     public void Observe(PlayerShip.Destroyed ev) {
@@ -1203,7 +1203,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             p.lifetime--;
             p.Velocity -= p.Velocity / 15;
 
-            p.tile = p.tile with { Foreground = ABGR.SetA(p.tile.Foreground, (byte)(255 * Math.Min(p.lifetime / 30f, 1))) };
+            p.tile = p.tile with { Foreground = ABGR.SetA(p.tile.Foreground, (byte)(255 * Min(p.lifetime / 30f, 1))) };
         });
         particles.RemoveWhere(p => !p.active);
         lightningHit--;
@@ -1221,37 +1221,37 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         var borderSize = 2d;
 
         if (glowAlpha > 0) {
-            var v = ABGR.SetA(glowColor, (byte)(255 * (float)Math.Min(1, glowAlpha * 1.5)));
+            var v = ABGR.SetA(glowColor, (byte)(255 * (float)Min(1, glowAlpha * 1.5)));
             borderColor = ABGR.Premultiply(ABGR.Blend(borderColor, v));
             borderSize += 12 * glowAlpha;
         }
 
 		if(player.mortalTime > 0) {
-			borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Red, (byte)(Math.Min(1, player.mortalTime / 4.5) * 255)));
-			var fraction = player.mortalTime - Math.Truncate(player.mortalTime);
+			borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Red, (byte)(Min(1, player.mortalTime / 4.5) * 255)));
+			var fraction = player.mortalTime - Truncate(player.mortalTime);
 			borderSize += 6 * fraction;
 		}
 		
         if (flash > 0) {
-            borderSize += Math.Min(8, 8 * flash / 30f);
-            borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Gray,(byte)Math.Min(255, 255 * flash / 30)));
+            borderSize += Min(8, 8 * flash / 30f);
+            borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Gray,(byte)Min(255, 255 * flash / 30)));
         } else if (player.ship.disruption?.ticksLeft > 0) {
             var ticks = player.ship.disruption.ticksLeft;
-            var strength = Math.Min(ticks / 60f, 1);
+            var strength = Min(ticks / 60f, 1);
             borderSize += 5 * strength;
             borderColor = ABGR.Blend(borderColor, ABGR.SetA(ABGR.Cyan, (byte)(128 * strength)));
         } else {
             var b = player.world.backdrop.starlight.GetBackgroundFixed(player.position);
             var br = 255 * ABGR.GetLightness(b);
-            borderSize += (0 * 5f * Math.Pow(br / 255, 1.4));
+            borderSize += (0 * 5f * Pow(br / 255, 1.4));
             borderColor = ABGR.Blend(borderColor, ABGR.SetA(b,(byte)(br)));
         }
-        borderSize = Math.Clamp(borderSize, 0, 16);
+        borderSize = Clamp(borderSize, 0, 16);
         //Cover the border in visual snow
         if (player.ship.blindTicks > 0) {
             for (int i = 0; i < borderSize; i++) {
                 var d = 1d * i / borderSize;
-                d = Math.Pow(d, 1.4);
+                d = Pow(d, 1.4);
                 byte alpha = (byte)(255 - d * 255 / 2);
                 var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
                 foreach (var point in screenPerimeter.Perimeter) {
@@ -1266,7 +1266,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         } else {
             for (int i = 0; i < borderSize; i++) {
                 var d = 1d * i / borderSize;
-                d = Math.Pow(d, 1.4);
+                d = Pow(d, 1.4);
                 byte alpha = (byte)(255 - 255 * d);
                 var c = ABGR.SetA(borderColor, alpha);
                 var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
@@ -1288,7 +1288,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         }
         if (armorDecay) {
             var i = 2;
-            var c = ABGR.RGBA(255, 255, 0, (byte)(255 - 48 + (int)(Math.Sin(ticks / 5f) * 24)));
+            var c = ABGR.RGBA(255, 255, 0, (byte)(255 - 48 + (int)(Sin(ticks / 5f) * 24)));
             foreach (var p in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
                 var (x, y) = p;
                 sf.Back[x, y] = c;
@@ -1304,7 +1304,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         if(silence > 0) {
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    var alpha = (byte)(255 * Math.Min(1, silence / silenceGrid[x, y]));
+                    var alpha = (byte)(255 * Min(1, silence / silenceGrid[x, y]));
                     if(alpha < 2) {
                         continue;
                     }
@@ -1375,7 +1375,7 @@ public class Readout {
         void DrawTargetArrow(ActiveObject target, uint c) {
             var o = (target.position - player.position);
             var offset = o / viewScale;
-            if (Math.Abs(offset.x) > Width / 2 - 6 || Math.Abs(offset.y) > Height / 2 - 6) {
+            if (Abs(offset.x) > Width / 2 - 6 || Abs(offset.y) > Height / 2 - 6) {
                 var offsetNormal = offset.normal.flipY;
                 //var p = screenCenter + offsetNormal * arrowDistance;
                 var smallScreen = screenSize - (20, 20);
@@ -1454,13 +1454,13 @@ public class Readout {
                 */
                 var offset = (sourcePos - player.position) * (4/3f, 1) + (0, 0);
                 var offsetLeft = new XY(0, 0);
-                bool truncateX = Math.Abs(offset.x) > Width / 2 - 3;
-                bool truncateY = Math.Abs(offset.y) > Height / 2 - 3;
+                bool truncateX = Abs(offset.x) > Width / 2 - 3;
+                bool truncateY = Abs(offset.y) > Height / 2 - 3;
                 if (truncateX || truncateY) {
                     var sourcePosEdge = Main.GetBoundaryPoint(screenSize, offset.angleRad) - screenSize / 2 + player.position;
                     offset = sourcePosEdge - player.position;
-                    if (truncateX) { offset.x -= Math.Sign(offset.x) * (i + 2); }
-                    if (truncateY) { offset.y -= Math.Sign(offset.y) * (i + 2); }
+                    if (truncateX) { offset.x -= Sign(offset.x) * (i + 2); }
+                    if (truncateY) { offset.y -= Sign(offset.y) * (i + 2); }
                     offsetLeft = sourcePos - sourcePosEdge;
                 }
                 offset += player.position - messagePos;
@@ -1473,16 +1473,16 @@ public class Readout {
                         w = lineWidth,
                         e = offset.y == 0 ? lineWidth : Line.None
                     }]);
-                    screenY -= Math.Sign(screenLineY);
-                    screenLineY -= Math.Sign(screenLineY);
+                    screenY -= Sign(screenLineY);
+                    screenLineY -= Sign(screenLineY);
 
                     while (screenLineY != 0) {
 						sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             n = lineWidth,
                             s = lineWidth
                         }]);
-                        screenY -= Math.Sign(screenLineY);
-                        screenLineY -= Math.Sign(screenLineY);
+                        screenY -= Sign(screenLineY);
+                        screenLineY -= Sign(screenLineY);
                     }
                 }
                 if (screenLineX != 0) {
@@ -1493,16 +1493,16 @@ public class Readout {
                         e = offset.x > 0 ? lineWidth : offset.x < 0 ? Line.None : Line.Single,
                         w = offset.x < 0 ? lineWidth : offset.x > 0 ? Line.None : Line.Single
                     }]);
-                    screenX += Math.Sign(screenLineX);
-                    screenLineX -= Math.Sign(screenLineX);
+                    screenX += Sign(screenLineX);
+                    screenLineX -= Sign(screenLineX);
 
                     while (screenLineX != 0) {
 						sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                             e = lineWidth,
                             w = lineWidth
                         }]);
-                        screenX += Math.Sign(screenLineX);
-                        screenLineX -= Math.Sign(screenLineX);
+                        screenX += Sign(screenLineX);
+                        screenLineX -= Sign(screenLineX);
                     }
                 }
                 /*
@@ -1554,14 +1554,14 @@ public class Readout {
                             > 0 => ('>', ABGR.Cyan),
                             _   => ('=', ABGR.White)
                         };
-                        int length = (int)Math.Ceiling(BAR * reactor.energy / reactor.desc.capacity);
+                        int length = (int)Ceiling(BAR * reactor.energy / reactor.desc.capacity);
                         bar = [..Tile.Arr(new string('=', length - 1) + arrow, f, b),
                             ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)];
                     } else {
                         bar = Tile.Arr(new string('=', BAR), ABGR.Gray, b);
                     }
 
-                    int l = (int)Math.Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
+                    int l = (int)Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
                     Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
 
                     sf_ui.Print(x, y, [
@@ -1575,8 +1575,8 @@ public class Readout {
                 }
                 if (solars.Any()) {
                     foreach (var s in solars) {
-                        int length = (int)Math.Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
-                        int sublength = s.maxOutput > 0 ? (int)Math.Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
+                        int length = (int)Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
+                        int sublength = s.maxOutput > 0 ? (int)Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
                         Tile[] bar = [
                             ..Tile.Arr(new string('=', sublength), ABGR.Yellow, ABGR.DarkKhaki),
                             ..Tile.Arr(new string('=', length - sublength), ABGR.Cyan, b),
@@ -1673,9 +1673,9 @@ public class Readout {
                                     !armor.allowRecovery ?
                                         ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Yellow, 128)) :
                                         b;
-                                int available = BAR * Math.Min(armor.maxHP, armor.desc.maxHP) / Math.Max(1, armor.desc.maxHP);
+                                int available = BAR * Min(armor.maxHP, armor.desc.maxHP) / Max(1, armor.desc.maxHP);
 
-                                int active = available * Math.Min(armor.hp, armor.maxHP) / Math.Max(1, armor.maxHP);
+                                int active = available * Min(armor.hp, armor.maxHP) / Max(1, armor.maxHP);
                                 
                                 sf_ui.Print(x, y, [
                                     ..Tile.Arr("[", f, b),
@@ -1729,7 +1729,7 @@ public class Readout {
                         > 0 => ('>', ABGR.Cyan),
                         _   => ('=', ABGR.White),
                     };
-                    int length = (int)Math.Ceiling(BAR * totalFuel / maxFuel);
+                    int length = (int)Ceiling(BAR * totalFuel / maxFuel);
                     bar = [
                         ..Tile.Arr(new string('=', length - 1) + arrow, f, b),
                         ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)
@@ -1740,10 +1740,10 @@ public class Readout {
                 int totalUsed = player.energy.totalOutputUsed,
                     totalMax = player.energy.totalOutputMax;
                 int l;
-                l = (int)Math.Ceiling(BAR * (double)totalUsed / Math.Max(1, totalMax));
+                l = (int)Ceiling(BAR * (double)totalUsed / Max(1, totalMax));
 
                 Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
-                l = (int)Math.Min(bar.Length, Math.Ceiling(BAR * (double)totalSolar / Math.Max(1, totalMax)));
+                l = (int)Min(bar.Length, Ceiling(BAR * (double)totalSolar / Max(1, totalMax)));
 
 				Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkCyan }).ToArray(), bar, l);
                 sf_ui.Print(x, y++, [
@@ -1764,7 +1764,7 @@ public class Readout {
                             > 0 => ('>', ABGR.Cyan),
                             _ => ('=', ABGR.White)
                         };
-                        int length = (int)Math.Ceiling(BAR * reactor.energy / reactor.desc.capacity);
+                        int length = (int)Ceiling(BAR * reactor.energy / reactor.desc.capacity);
                         bar = [
                             ..Tile.Arr(new string('=', length - 1) + arrow, f, b),
                             ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)
@@ -1786,7 +1786,7 @@ public class Readout {
                     ];
 
 
-					int l = (int)Math.Ceiling(BAR * (double)-reactor.energyDelta / reactor.maxOutput);
+					int l = (int)Ceiling(BAR * (double)-reactor.energyDelta / reactor.maxOutput);
                     for (int i = 0; i < l; i++) {
                         ref var e = ref entry[i + 1];
                         e = e with { Background = ABGR.DarkKhaki };
@@ -1798,8 +1798,8 @@ public class Readout {
             }
             if (solars.Any()) {
                 foreach (var s in solars) {
-                    int length = (int)Math.Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
-                    int sublength = s.maxOutput > 0 ? (int)Math.Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
+                    int length = (int)Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
+                    int sublength = s.maxOutput > 0 ? (int)Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
                     var f = ABGR.White;
                     Tile[] line = [
                         new Tile(f, b, '['),
@@ -1808,7 +1808,7 @@ public class Readout {
                         ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b),
                         new Tile(f, b, ']'),
                         Tile.empty,
-						..Tile.Arr($"{Math.Abs(s.energyDelta),3}/{s.maxOutput,3}", f, b),
+						..Tile.Arr($"{Abs(s.energyDelta),3}/{s.maxOutput,3}", f, b),
                         Tile.empty,
                         ..Tile.Arr(s.source.type.name, f, b)
 						];
@@ -1913,8 +1913,8 @@ public class Readout {
                                 armor.canAbsorb ?
 									ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.White,51)) :
                                     b;
-                            var available = BAR * Math.Min(armor.maxHP, armor.desc.maxHP) / Math.Max(1, armor.desc.maxHP);
-                            var active = available * Math.Min(armor.hp, armor.maxHP) / Math.Max(1, armor.maxHP);
+                            var available = BAR * Min(armor.maxHP, armor.desc.maxHP) / Max(1, armor.desc.maxHP);
+                            var active = available * Min(armor.hp, armor.maxHP) / Max(1, armor.maxHP);
 
                             var hp = armor.hp;
                             var bonus = armor.apparentHP - hp;
@@ -2160,13 +2160,13 @@ public class CommunicationsWidget {
 			//this.player = player;
 			this.subject = subject;
             EscortShip GetEscortOrder(int i) {
-                int root = (int)Math.Sqrt(i);
+                int root = (int)Sqrt(i);
                 int lower = root * root;
                 int upper = (root + 1) * (root + 1);
                 int range = upper - lower;
                 int index = i - lower;
                 return new EscortShip(player, XY.Polar(
-                        -(Math.PI * index / range), root * 2));
+                        -(PI * index / range), root * 2));
             }
             commands = new();
             switch(subject.behavior) {
@@ -2419,7 +2419,7 @@ public class PowerWidget {
 					..Tile.Arr("]", wh, bl)
                     ]);
             } else if (p.invokeCharge > 0) {
-                var chargeMeter = (int)Math.Min(16, 16 * p.invokeCharge / p.invokeDelay);
+                var chargeMeter = (int)Min(16, 16 * p.invokeCharge / p.invokeDelay);
 
                 var c = ABGR.Yellow;
                 if (p.invokeCharge >= p.invokeDelay && ticks % 30 < 15) {

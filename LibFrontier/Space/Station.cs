@@ -263,7 +263,7 @@ public class Station : ActiveObject, ITrader, IDockable {
         if(world.tick%15 == 0) {
             stealth = type.stealth;
             if (weapons.Any()) {
-                stealth *= Math.Min(1, weapons.Min(w => w.timeSinceLastFire));
+                stealth *= Min(1, weapons.Min(w => w.timeSinceLastFire));
             }
             if(construction != null) {
                 construction.time -= 15;

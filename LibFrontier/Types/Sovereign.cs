@@ -20,11 +20,11 @@ public class Sovereign : IDesignType {
             this.self = self;
         }
         [JsonIgnore]
-        public AutoSovereign Value => s => s == self ? Disposition.Friend : Disposition.Enemy;
+        public AutoSovereign Value => s => s == self ? Friend : Enemy;
     }
     public class AutoEnemy : Lis<AutoSovereign> {
         [JsonIgnore]
-        public AutoSovereign Value => s => Disposition.Enemy;
+        public AutoSovereign Value => s => Enemy;
     }
     public class AutoNeutral : Lis<AutoSovereign> {
         [JsonIgnore]
@@ -62,7 +62,7 @@ public class Sovereign : IDesignType {
                 {DestructiveChaos, Enemy },
             }}, {ConstructiveChaos, new Dictionary<BasicAlignment, Disposition>{
                 {ConstructiveOrder, Disposition.Neutral },
-                {ConstructiveChaos, Disposition.Friend },
+                {ConstructiveChaos, Friend },
                 {BasicAlignment.Neutral, Disposition.Neutral },
                 {DestructiveOrder, Enemy },
                 {DestructiveChaos, Enemy }
@@ -71,7 +71,7 @@ public class Sovereign : IDesignType {
                 {ConstructiveChaos, Disposition.Neutral },
                 {BasicAlignment.Neutral, Disposition.Neutral },
                 {DestructiveOrder, Disposition.Neutral },
-                {DestructiveChaos, Disposition.Enemy }
+                {DestructiveChaos, Enemy }
             }}, {DestructiveOrder, new Dictionary<BasicAlignment, Disposition>{
                 {ConstructiveOrder, Enemy },
                 {ConstructiveChaos, Enemy },
@@ -126,7 +126,7 @@ public class Sovereign : IDesignType {
             return sovDispositions[other.codename];
         }
     }
-    public bool IsEnemy(Sovereign other) => GetDisposition(other) == Disposition.Enemy;
+    public bool IsEnemy(Sovereign other) => GetDisposition(other) == Enemy;
     public Disposition GetDisposition(ActiveObject other) {
         if (entityDispositions.TryGetValue(other.id, out Disposition d)
             //|| (parent?.entityDispositions.TryGetValue(other, out d) == true)

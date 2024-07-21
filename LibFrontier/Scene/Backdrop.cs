@@ -47,7 +47,7 @@ public class Backdrop {
     }
     public Tile GetTile(XY point, XY camera) {
         //ColoredGlyph result = new ColoredGlyph(Color.Transparent, Color.Black, ' ');
-        var (f, b, g) = (ABGR.Transparent, ABGR.Transparent, 0u);
+        var (f, b, g) = (Transparent, Transparent, 0u);
 
         for (int i = layers.Count - 1; i > -1; i--) {
             Blend(layers[i].GetTile(point, camera));
@@ -84,11 +84,11 @@ public class GridLayer : ILayer {
     }
     public Tile GetTile (XY point, XY camera) {
         var apparent = point - camera * (1 - parallaxFactor);
-        return tiles.TryGetValue(apparent.roundDown, out var result) ? result : new Tile(ABGR.Transparent, ABGR.Transparent, ' ');
+        return tiles.TryGetValue(apparent.roundDown, out var result) ? result : new Tile(Transparent, Transparent, ' ');
     }
     public uint GetBackground(XY point, XY camera) {
         var apparent = point - camera * (1 - parallaxFactor);
-        return tiles.TryGetValue(apparent.roundDown, out var result) ? result.Background : ABGR.Transparent;
+        return tiles.TryGetValue(apparent.roundDown, out var result) ? result.Background : Transparent;
     }
 }
 public class CompositeLayer : ILayer {
@@ -96,7 +96,7 @@ public class CompositeLayer : ILayer {
     public CompositeLayer() { }
     public uint GetBackgroundFixed(XY point) => GetBackground(point, XY.Zero);
     public uint GetBackground (XY point, XY camera) {
-		uint result = ABGR.Black;
+		uint result = Black;
         foreach (var layer in layers) {
             result = Blend(result, layer.GetTile(point, camera).Background);
         }
@@ -122,7 +122,7 @@ public class CompositeLayer : ILayer {
             }
             return new Tile(f, b, g);
         } else {
-            return new Tile(ABGR.Transparent, ABGR.Transparent, ' ');
+            return new Tile(Transparent, Transparent, ' ');
         }
     }
     public Tile GetTileFixed(XY point) => GetTile(point, XY.Zero);
@@ -182,15 +182,15 @@ public class SpaceGenerator : IGridGenerator<Tile> {
         }
         (r, g, b) = (r / count, g / count, b / count);
         var a = (byte)random.NextInteger(25, 104);
-        var background = ABGR.RGBA((byte)r, (byte)g, (byte)b, a);
+        var background = RGBA((byte)r, (byte)g, (byte)b, a);
 
         if (random.NextDouble() * 100 < (1 / (parallaxFactor + 1))) {
             const string vwls = "?&%~=+;";
             var star = vwls[random.NextInteger(vwls.Length)];
-            var foreground = ABGR.RGBA(255, (byte)random.NextInteger(204, 230), (byte)random.NextInteger(204, 230), (byte)(225 * Math.Sqrt(parallaxFactor)));
+            var foreground = RGBA(255, (byte)random.NextInteger(204, 230), (byte)random.NextInteger(204, 230), (byte)(225 * Sqrt(parallaxFactor)));
             return new Tile(foreground, background, star);
         } else {
-            return new Tile(ABGR.Transparent, background, ' ');
+            return new Tile(Transparent, background, ' ');
         }
     }
 }

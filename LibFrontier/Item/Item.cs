@@ -139,10 +139,10 @@ public class Armor : Device {
     public HashSet<Corrode> corrode = [];
     public int powerUse { get; private set; }
     public bool allowRecovery;
-    public bool hasRecovery => allowRecovery && Math.Max(hpToRecover, Math.Max(desc.freeRegenRate, killHP)) >= 1;
-    public int maxHP => Math.Max(0, desc.maxHP - (int)(desc.lifetimeDegrade * lifetimeDamageAbsorbed) + (int)titanHP);
-    public bool canAbsorb => hp > 0 || Math.Min(maxHP, desc.minAbsorb) > 0;
-    public int apparentHP => Math.Min(maxHP, Math.Max(killHP, desc.minAbsorb));
+    public bool hasRecovery => allowRecovery && Max(hpToRecover, Max(desc.freeRegenRate, killHP)) >= 1;
+    public int maxHP => Max(0, desc.maxHP - (int)(desc.lifetimeDegrade * lifetimeDamageAbsorbed) + (int)titanHP);
+    public bool canAbsorb => hp > 0 || Min(maxHP, desc.minAbsorb) > 0;
+    public int apparentHP => Min(maxHP, Max(killHP, desc.minAbsorb));
     public double valueFactor => (0.5 * hp / desc.maxHP) + (0.5 * maxHP / desc.maxHP);
     public Armor() { }
     public Armor(Item source, ArmorDesc desc) {
@@ -153,7 +153,7 @@ public class Armor : Device {
     }
     public Armor Copy(Item source) => desc.GetArmor(source);
     public void Repair(RepairArmor ra) {
-        hp = Math.Min(maxHP, hp + ra.repairHP);
+        hp = Min(maxHP, hp + ra.repairHP);
     }
     public void Update(double delta, IShip owner) {
         UpdateCommon(delta, owner, owner.hull);
@@ -205,7 +205,7 @@ public class Armor : Device {
                     }
                 }
                 if (corrodeHP >= 1) {
-                    var deltaHP = Math.Min(hp, (int)corrodeHP);
+                    var deltaHP = Min(hp, (int)corrodeHP);
                     hp -= deltaHP;
                     lastDamageTick = owner.world.tick;
 
@@ -222,9 +222,9 @@ public class Armor : Device {
         }
         if (titanHP > 0) {
             if (titanDuration > 0) {
-                titanDuration = Math.Max(0, titanDuration - delta);
+                titanDuration = Max(0, titanDuration - delta);
             } else {
-                titanHP = Math.Max(0, titanHP - delta * desc.Titan.decay);
+                titanHP = Max(0, titanHP - delta * desc.Titan.decay);
             }
         }
         if(desc.radioRegenRate > 0 && maxHP > desc.radioThreshold) {
@@ -281,23 +281,23 @@ public class Armor : Device {
             }
         }
         if (hp > 0 && killHP < desc.killHP) {
-            killHP = Math.Min(maxHP, desc.killHP);
+            killHP = Min(maxHP, desc.killHP);
         }
         if (killHP > 0) {
             powerUse = desc.powerUse;
         }
     }
     private void UpdateHP() {
-        hp = Math.Min(hp, maxHP);
+        hp = Min(hp, maxHP);
     }
     private void OnAbsorb(int absorbed, int damageDelay = 0) {
         lifetimeDamageAbsorbed += absorbed;
         if (desc.Titan is { } t) {
-            titanHP = Math.Min(desc.maxHP * t.factor, titanHP + absorbed * t.gain);
+            titanHP = Min(desc.maxHP * t.factor, titanHP + absorbed * t.gain);
             titanDuration = t.duration;
         }
         hpToRecover += (absorbed * desc.recoveryFactor);
-        this.damageDelay = Math.Max(damageDelay, 30);
+        this.damageDelay = Max(damageDelay, 30);
     }
     public void Damage(int amount) {
         if(hp == 0 || amount < 1) {
@@ -315,7 +315,7 @@ public class Armor : Device {
             }
             return;
         }
-        var absorbed = Math.Min(hp, amount);
+        var absorbed = Min(hp, amount);
         hp -= absorbed;
         OnAbsorb(absorbed);
         if (killHP > 0 && absorbed > killHP) {
@@ -326,7 +326,7 @@ public class Armor : Device {
         if (p.damageLeft < 1)
             return 0;
         //If we have a minAbsorb, then we absorb damage even at 0 hp
-        int damageWall = Math.Min(maxHP, desc.minAbsorb);
+        int damageWall = Min(maxHP, desc.minAbsorb);
         if(hp is 0) {
             //If we're down and have nothing to absorb, then give up
             if (damageWall == 0) {
@@ -344,7 +344,7 @@ public class Armor : Device {
             }
             //If we still have something to absorb, do it now
             if (damageWall > 0) {
-                var deltaHP = Math.Min(p.damageLeft, damageWall);
+                var deltaHP = Min(p.damageLeft, damageWall);
                 p.damageLeft -= deltaHP;
                 lifetimeDamageAbsorbed += deltaHP * 5;
 
@@ -387,7 +387,7 @@ public class Armor : Device {
         var multiplier = p.desc.armorFactor;// + lifetimeDamageAbsorbed * desc.lifetimeDegrade;
 
         var totalDamage = p.damageLeft * multiplier;
-        var absorbed = (int)Math.Min(totalDamage, hp);
+        var absorbed = (int)Min(totalDamage, hp);
         if(desc.maxAbsorb > -1 && desc.maxAbsorb < absorbed) {
             absorbed = desc.maxAbsorb;
             //lifetimeDamageAbsorbed += (absorbed - desc.maxAbsorb) * 5;
@@ -397,7 +397,7 @@ public class Armor : Device {
 			lifetimeDamageAbsorbed += (absorbed - desc.damageWall) * 5;
             p.damageLeft = 0;
 		}
-		hp = Math.Max(0, hp - absorbed);
+		hp = Max(0, hp - absorbed);
         OnAbsorb(absorbed, p.desc.armorDisrupt);
         if (killHP > 0 && absorbed >= killHP) {
             killHP = 0;
@@ -409,7 +409,7 @@ public class Armor : Device {
             p.hitReflected = true;
             return absorbed;
         }
-        p.damageLeft = Math.Max(0, p.damageLeft - (int)Math.Ceiling(Math.Max(absorbed, damageWall) / multiplier));
+        p.damageLeft = Max(0, p.damageLeft - (int)Ceiling(Max(absorbed, damageWall) / multiplier));
         return absorbed;
 
         void ApplyDecay() {
@@ -446,7 +446,7 @@ public class Engine : Device {
         UpdateBrake();
         void UpdateThrust() {
             if (thrusting) {
-                var rotationRads = rotationDeg * Math.PI / 180;
+                var rotationRads = rotationDeg * PI / 180;
 
                 var exhaust = new EffectParticle(ship.position + XY.Polar(rotationRads, -1),
                     ship.velocity + XY.Polar(rotationRads, -sc.thrust),
@@ -488,18 +488,18 @@ public class Engine : Device {
                     }
                     rv -= sc.rotationAccel * delta;
                 }
-                rv = Math.Min(Math.Abs(rv), sc.rotationMaxSpeed) * Math.Sign(rv);
+                rv = Min(Abs(rv), sc.rotationMaxSpeed) * Sign(rv);
                 ship.rotating = Rotating.None;
             } else {
                 Decel();
             }
-            void Decel() => ship.rotatingVel -= Math.Min(Math.Abs(ship.rotatingVel), sc.rotationDecel * delta) * Math.Sign(ship.rotatingVel); ;
+            void Decel() => ship.rotatingVel -= Min(Abs(ship.rotatingVel), sc.rotationDecel * delta) * Sign(ship.rotatingVel); ;
         }
         void UpdateRotation() => ship.rotationDeg += ship.rotatingVel;
         void UpdateBrake() {
             if (ship.decelerating) {
                 if (ship.velocity.magnitude > 0.05) {
-                    ship.velocity -= ship.velocity.normal * Math.Min(ship.velocity.magnitude, sc.thrust * delta * Constants.TICKS_PER_SECOND / 2);
+                    ship.velocity -= ship.velocity.normal * Min(ship.velocity.magnitude, sc.thrust * delta * Constants.TICKS_PER_SECOND / 2);
                 } else {
                     ship.velocity = new XY();
                 }
@@ -582,7 +582,7 @@ public class Reactor : Device, PowerSource {
     //public int maxOutput => energy > 0 ? (int)Math.Max(0, desc.maxOutput - Math.Floor(desc.lifetimeDegrade * lifetimeOutput)) : 0;
     public int maxOutput => energy > 0 ? desc.maxOutput : 0;
     public double lifetimeOutput;
-    public double efficiency => desc.efficiency - 0.01 * desc.lifetimeDegrade * Math.Max(0, lifetimeOutput - desc.degradeDelay);
+    public double efficiency => desc.efficiency - 0.01 * desc.lifetimeDegrade * Max(0, lifetimeOutput - desc.degradeDelay);
     public Reactor() { }
     public Reactor(Item source, ReactorDesc desc) {
         this.source = source;
@@ -603,8 +603,8 @@ public class Reactor : Device, PowerSource {
             var efficiencyAdj = (efficiency - 1) * (-effectiveDelta / desc.maxOutput);
             effectiveDelta /= 1 + efficiencyAdj;
         }
-        energy = Math.Clamp(energy + effectiveDelta * delta, 0, desc.capacity);
-        lifetimeOutput += Math.Max(0, prevEnergy - energy);
+        energy = Clamp(energy + effectiveDelta * delta, 0, desc.capacity);
+        lifetimeOutput += Max(0, prevEnergy - energy);
     }
 }
 public class Service : Device {
@@ -720,7 +720,7 @@ public class Shield : Device {
     }
     public void Absorb(Projectile p) {
         var multiplier = p.desc.shieldFactor;
-        var absorbed = (int)Math.Clamp(p.damageLeft * (1 - p.desc.shieldDrill) * absorbFactor * multiplier, 0, maxAbsorb);
+        var absorbed = (int)Clamp(p.damageLeft * (1 - p.desc.shieldDrill) * absorbFactor * multiplier, 0, maxAbsorb);
         if (absorbed > 0) {
             hp -= absorbed;
             lifetimeDamageAbsorbed += absorbed;
@@ -731,7 +731,7 @@ public class Shield : Device {
                 p.hitReflected = true;
                 return;
             }
-            p.damageLeft -= (int)Math.Ceiling(absorbed / multiplier);
+            p.damageLeft -= (int)Ceiling(absorbed / multiplier);
         }
     }
 }
@@ -771,7 +771,7 @@ public class Solar : Device, PowerSource {
                 }
                 break;
             case > 1:
-                durability = (int)Math.Max(1, durability + energyDelta * delta);
+                durability = (int)Max(1, durability + energyDelta * delta);
                 Update();
                 break;
             default: throw new Exception($"Invalid durability value {durability}");
@@ -863,14 +863,14 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         var fireBar = (int)(BAR * (double)(desc.fireCooldown - delay) / desc.fireCooldown);
         Tile[] bar;
         if (capacitor != null && capacitor.desc.minChargeToFire > 0) {
-            var chargeBar = (int)(BAR * Math.Min(1, capacitor.charge / capacitor.desc.minChargeToFire));
+            var chargeBar = (int)(BAR * Min(1, capacitor.charge / capacitor.desc.minChargeToFire));
             bar = [
                 ..Tile.Arr(new('>', chargeBar), ABGR.Gray, ABGR.Black),
                 ..Tile.Arr(new(' ', BAR - chargeBar), ABGR.Transparent, ABGR.Black)];
         } else {
             bar = Tile.Arr(new('>', BAR), ABGR.Gray, ABGR.Black);
         }
-        var l = Math.Min(fireBar, bar.Length);
+        var l = Min(fireBar, bar.Length);
 
 		Array.Copy(Enumerable.ToArray(from t in bar[..l] select t with { Foreground = ABGR.White }), bar, l);
 
@@ -925,7 +925,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
             }
             bool CheckSpray() {
                 direction = desc.spray ? aiming switch {
-                    Omnidirectional => new Random().NextDouble() * 2 * Math.PI,
+                    Omnidirectional => new Random().NextDouble() * 2 * PI,
                     Swivel s => angle + new Random().NextDouble() * (s.leftRange + s.rightRange) - s.leftRange,
                     _ => angle
                 } : direction;
@@ -1028,7 +1028,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                 return false;
             }
             bool CheckSpray() {
-                direction = desc.spray ? new Random().NextDouble() * 2 * Math.PI : direction;
+                direction = desc.spray ? new Random().NextDouble() * 2 * PI : direction;
                 return desc.spray;
             }
             if (!(firing = CheckProjectile() || CheckSpray() || hasAimAngle)) {
@@ -1065,7 +1065,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
         Fire(owner, direction);
         //Apply on next tick (create a delta-momentum variable)
         if (desc.recoil > 0) {
-            owner.velocity += XY.Polar(direction + Math.PI, desc.recoil);
+            owner.velocity += XY.Polar(direction + PI, desc.recoil);
         }
         goto Done;
     Cancel:
@@ -1159,7 +1159,7 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                 void HandlePlayer(PlayerShip pl) {
                     var time = projectileDesc.tracker;
                     if (pl.tracking.TryGetValue(hit, out var t)) {
-                        time = Math.Max(t, time);
+                        time = Max(t, time);
                     }
                     pl.tracking[hit] = time;
                 }
@@ -1195,7 +1195,7 @@ public class Capacitor {
     public void CheckFire(ref bool firing) => firing = firing && AllowFire;
     public bool AllowFire => desc.minChargeToFire <= charge;
     public void Update(Weapon w) =>
-        charge = Math.Min(desc.maxCharge, charge +
+        charge = Min(desc.maxCharge, charge +
             ((desc.requireReady && w.delay > 0) ? 0: desc.rechargePerTick));
     public FragmentMod mod => new() {
         damageHP =      new(inc: (int)(charge * desc.bonusDamagePerCharge)),
@@ -1217,7 +1217,7 @@ public class Capacitor {
         };
     */
     public void OnFire() =>
-        charge = Math.Max(0, charge - desc.dischargeOnFire);
+        charge = Max(0, charge - desc.dischargeOnFire);
     public void Clear() => charge = 0;
 }
 public class Targeting : IDestroyedListener {

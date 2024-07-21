@@ -48,12 +48,12 @@ class CloneBarrier : ProjectileBarrier {
         //other.velocity = other.velocity.WithMagnitude(400);
         var world = owner.world;
 
-        Clone(offset.angleRad + Math.PI / 8);
-        Clone(offset.angleRad - Math.PI / 8);
-        Clone(offset.angleRad + Math.PI * 2 / 8);
-        Clone(offset.angleRad - Math.PI * 2 / 8);
-        Clone(offset.angleRad + Math.PI * 3 / 8);
-        Clone(offset.angleRad - Math.PI * 3 / 8);
+        Clone(offset.angleRad + PI / 8);
+        Clone(offset.angleRad - PI / 8);
+        Clone(offset.angleRad + PI * 2 / 8);
+        Clone(offset.angleRad - PI * 2 / 8);
+        Clone(offset.angleRad + PI * 3 / 8);
+        Clone(offset.angleRad - PI * 3 / 8);
 
         /*
         for(double angle = offset.angleRad - Math.PI / 2; angle = offset.angleRad + Math.PI / 2; angle++) {

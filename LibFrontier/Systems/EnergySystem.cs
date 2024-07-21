@@ -126,7 +126,7 @@ public class EnergySystem {
                 continue;
             }
 
-            int delta = Math.Min(battery.desc.maxInput, maxGeneratorOutputLeft);
+            int delta = Min(battery.desc.maxInput, maxGeneratorOutputLeft);
             battery.energyDelta = delta;
 
             totalOutputUsed += delta;

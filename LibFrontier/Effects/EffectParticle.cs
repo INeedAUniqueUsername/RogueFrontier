@@ -23,7 +23,7 @@ public class EffectParticle : Effect {
         world.AddEffect(new EffectParticle(worldPos, new Tile(color, ABGR.Transparent, 7), 1));
         //Draw a trail leading back to the player
         var trailNorm = offset.normal;
-        var trailLength = Math.Min(3, offset.magnitude / 4) + 1;
+        var trailLength = Min(3, offset.magnitude / 4) + 1;
         for (int i = 1; i < trailLength; i++) {
             world.AddEffect(new EffectParticle(worldPos - trailNorm * i, new Tile(color, ABGR.Transparent, (char)249), 1));
         }
@@ -63,8 +63,8 @@ public class FadingTile : Effect {
     private Tile _Tile;
     public Tile tile => new Tile(
 
-        ABGR.SetA(_Tile.Foreground, (byte) Math.Min(255, 255f * Lifetime / 10)),
-        ABGR.SetA(_Tile.Background, (byte)Math.Min(255, 255f * Lifetime / 10)),
+        ABGR.SetA(_Tile.Foreground, (byte)Min(255, 255f * Lifetime / 10)),
+        ABGR.SetA(_Tile.Background, (byte)Min(255, 255f * Lifetime / 10)),
         _Tile.Glyph);
 
     public void Update(double delta) {

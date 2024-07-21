@@ -34,7 +34,7 @@ public record LocationContext {
     public System world;
     public XY pos;
     public double angle;
-    public double angleRad => angle * Math.PI / 180;
+    public double angleRad => angle * PI / 180;
     public double radius;
     public XY focus;
     public int index;
@@ -57,7 +57,7 @@ public record LocationMod {
     }
     public LocationContext Adjust(LocationContext lc) {
         Get(lc, out var r, out var a);
-        var p = lc.focus + XY.Polar(a * Math.PI / 180, r);
+        var p = lc.focus + XY.Polar(a * PI / 180, r);
         return lc with { radius = r, angle = a, pos = p };
     }
 }
@@ -242,7 +242,7 @@ public record SystemOrbital() : SystemElement {
                     angle = angle,
                     radius = radius,
                     focus = lc.pos,
-                    pos = lc.pos + XY.Polar(angle * Math.PI / 180, radius),
+                    pos = lc.pos + XY.Polar(angle * PI / 180, radius),
                     index = i
                 };
                 sub.Generate(loc, tc, result);
@@ -281,9 +281,9 @@ public record SystemPlanet() : SystemElement {
         var r = lc.world.karma;
         Tile[,] tiles = new Tile[diameter, diameter];
         for (int x = 0; x < diameter; x++) {
-            var xOffset = Math.Abs(x - radius);
-            var yRange = Math.Sqrt(radius2 - (xOffset * xOffset));
-            var yStart = radius - (int)Math.Round(yRange, MidpointRounding.AwayFromZero);
+            var xOffset = Abs(x - radius);
+            var yRange = Sqrt(radius2 - (xOffset * xOffset));
+            var yStart = radius - (int)Round(yRange, MidpointRounding.AwayFromZero);
             var yEnd = radius + yRange;
             for (int y = yStart; y < yEnd; y++) {
                 var pos = lc.pos + (new XY(x, y) - center);
@@ -298,15 +298,15 @@ public record SystemPlanet() : SystemElement {
                 //lc.world.AddEffect(new FixedTile(tile, pos));
             }
         }
-        var circ = radius * 2 * Math.PI;
+        var circ = radius * 2 * PI;
         for (int x = 0; x < diameter; x++) {
-            var xOffset = Math.Abs(x - radius);
-            var yRange = Math.Sqrt(radius2 - (xOffset * xOffset));
-            var yStart = radius - (int)Math.Round(yRange, MidpointRounding.AwayFromZero);
+            var xOffset = Abs(x - radius);
+            var yRange = Sqrt(radius2 - (xOffset * xOffset));
+            var yStart = radius - (int)Round(yRange, MidpointRounding.AwayFromZero);
             var yEnd = radius + yRange;
             for (int y = yStart; y < yEnd; y++) {
                 var loc = r.NextDouble() * circ * (radius - 2);
-                var from = center + XY.Polar(loc % 2 * Math.PI, loc / circ);
+                var from = center + XY.Polar(loc % 2 * PI, loc / circ);
                 ref var t = ref tiles[x, y];
                 t = t with { Foreground = ABGR.Blend(t.Foreground, ABGR.SetA(tiles[from.xi, from.yi].Foreground, (byte)r.NextInteger(0, 51))) };
             }
@@ -335,13 +335,13 @@ public record SystemAsteroids() : SystemElement {
     [Req] public int size;
     public SystemAsteroids(XElement e) : this() {
         e.Initialize(this);
-        angle *= Math.PI / 180;
+        angle *= PI / 180;
     }
     public void Generate(LocationContext lc, Assets tc, List<Entity> result = null) {
         double arc = lc.radius * angle;
         double halfArc = arc / 2;
         for (double i = -halfArc; i < halfArc; i++) {
-            int localSize = (int)(size * Math.Abs(Math.Abs(i) - halfArc) / halfArc);
+            int localSize = (int)(size * Abs(Abs(i) - halfArc) / halfArc);
             for (int j = -localSize / 2; j < localSize / 2; j++) {
                 if (lc.world.karma.NextDouble() > 0.02) {
                     continue;
@@ -357,13 +357,13 @@ public record SystemNebula() : SystemElement {
     [Req] public int size;
     public SystemNebula(XElement e) : this() {
         e.Initialize(this);
-        angle *= Math.PI / 180;
+        angle *= PI / 180;
     }
     public void Generate(LocationContext lc, Assets tc, List<Entity> result = null) {
         double arc = lc.radius * angle;
         double halfArc = arc / 2;
         for (double i = -halfArc; i < halfArc; i += 0.1) {
-            int localSize = (int)(lc.world.karma.NextDouble() * 2 * size * Math.Abs(Math.Abs(i) - halfArc) / halfArc);
+            int localSize = (int)(lc.world.karma.NextDouble() * 2 * size * Abs(Abs(i) - halfArc) / halfArc);
 
             for (int j = -localSize / 2; j < localSize / 2; j++) {
                 var p = XY.Polar(lc.angleRad + i / lc.radius, lc.radius + j);
@@ -390,7 +390,7 @@ public record SystemSibling() : SystemElement {
         var sub_lc = lc with {
             angle = a,
             radius = r,
-            pos = lc.focus + XY.Polar(a * Math.PI / 180, r)
+            pos = lc.focus + XY.Polar(a * PI / 180, r)
         };
 
         Generate:
@@ -402,7 +402,7 @@ public record SystemSibling() : SystemElement {
             sub_lc = lc with {
                 angle = a,
                 radius = r,
-                pos = lc.focus + XY.Polar(a * Math.PI / 180, r)
+                pos = lc.focus + XY.Polar(a * PI / 180, r)
             };
             goto Generate;
         }
@@ -417,7 +417,7 @@ public record LightGenerator() : IGridGenerator<uint> {
     }
     public uint Generate ((long, long) p) {
         //var xy = new XY(p);
-        return ABGR.RGBA(255, 255, 204, (byte)Math.Clamp(radius * 255 / ((lc.pos - p).magnitude + 1), 0, 255));
+        return ABGR.RGBA(255, 255, 204, (byte)Clamp(radius * 255 / ((lc.pos - p).magnitude + 1), 0, 255));
     }
 }
 public record SystemStar() : SystemElement {

@@ -5,29 +5,23 @@ using System.Collections.Concurrent;
 using System.Xml.Linq;
 namespace LibAtomics;
 public class Player : IActor, IEntity {
-
 	public World level;
-	public Tile tile => new Tile(Mainframe.PINK, ABGR.Black, '@');
+	public Tile tile => new(Mainframe.PINK, ABGR.Black, '@');
 	public XYI pos { get; set; }
 	public Action Removed { get; set; }
 	public bool ready => !busy && delay < 1;
 	public bool busy;
-
 	public double lastUpdateTime;
 	public double time;
 	public int tick;
-
 	public int delay = 0;
-
-	public Body body = new Body(Body.Parse(XElement.Parse(Body.cockroach)));
+	public Body body = new(Body.Parse(XElement.Parse(Body.cockroach)));
 	public HashSet<Item> items = [];
-
-
 	public record Message (Tile[] str, double time, int tick) {
 		public int repeats = 1;
 		public bool once => repeats == 1;
 		public double fadeTime;
-		public string text => new string([.. from t in str select (char)t.Glyph]);
+		public string text => new([.. from t in str select (char)t.Glyph]);
 	};
 	public List<Message> messages = [];
 	public void Tell(Message m) {
@@ -61,19 +55,15 @@ public class Player : IActor, IEntity {
 		busy = true;
 		delay = 1;
 	}
-
 	public Shoot shoot;
 	Action[] IActor.UpdateTick () {
-
 		foreach(var m in Enumerable.Reverse(messages)) {
 			if(m.tick != tick) {
 				break;
 			}
 			m.fadeTime = time;
 		}
-
 		tick++;
-
 		body.UpdateTick();
 		UpdateVision();
 		delay--;
@@ -95,7 +85,6 @@ public class Player : IActor, IEntity {
 				}
 			}
 		}
-
 		lastUpdateTime = time;
 		return [..Zip()];
 		return [
@@ -190,27 +179,20 @@ public class Shoot {
 	bool locked = false;
 	public bool done = false;
 	public void Init(Player p) {
-		reticle = new Reticle() { _pos = (XY)p.pos, visible = true };
+		reticle = new () { _pos = (XY)p.pos, visible = true };
 		p.level.AddEntity(reticle);
 		p.Tell("selecting target");
 	}
 	public Action[] Act(Player p) {
 		if(done) return [];
-
-
-
 		void Fire() {
 			var r = new Rand();
 			foreach(var i in 2) {
-
 				var spread = (reticle._pos - ((XY)p.pos)).magnitude / 8;
 				var loc = (reticle._pos + (r.NextDouble(-spread, spread), r.NextDouble(-spread, spread))).roundDownI;
 				p.level.AddEntity(new Splat(loc, new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
-
 				var hits = p.level.entityMap[loc].Where(e => e is not Splat and not Reticle and not Marker).ToList();
 				if(hits is { Count: > 0 } any) {
-
-
 					switch(any.GetRandom(r)) {
 						case Roach:
 							p.Tell("hit roach");
@@ -266,8 +248,6 @@ public class Shoot {
 				Fire();
 			};
 			return [..from i in 20 select Attack, RemoveReticle];
-
 		}
-
 	}
 }

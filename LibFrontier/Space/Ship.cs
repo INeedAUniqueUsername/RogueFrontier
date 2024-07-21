@@ -69,7 +69,7 @@ public interface IShip : ActiveObject {
     HullSystem hull { get; }
     bool thrusting { get; }
     double rotationDeg { get; }
-    double rotationRad => rotationDeg * Math.PI / 180;
+    double rotationRad => rotationDeg * PI / 180;
     public double stoppingRotation { get; }
 #nullable enable
     Docking dock { get; set; }
@@ -86,16 +86,16 @@ public class BaseShip {
     [JsonIgnore]
     public double stoppingRotation {
         get {
-            var stoppingTime = Constants.TICKS_PER_SECOND * Math.Abs(rotatingVel) / (shipClass.rotationDecel);
-            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((shipClass.rotationDecel / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
+            var stoppingTime = Constants.TICKS_PER_SECOND * Abs(rotatingVel) / (shipClass.rotationDecel);
+            return rotationDeg + (rotatingVel * stoppingTime) + Sign(rotatingVel) * ((shipClass.rotationDecel / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
         }
     }
     [JsonIgnore]
     public double stoppingRotationWithCounterTurn {
         get {
             var stoppingRate = shipClass.rotationDecel + shipClass.rotationAccel;
-            var stoppingTime = Math.Abs(Constants.TICKS_PER_SECOND * rotatingVel / stoppingRate);
-            return rotationDeg + (rotatingVel * stoppingTime) + Math.Sign(rotatingVel) * ((stoppingRate / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
+            var stoppingTime = Abs(Constants.TICKS_PER_SECOND * rotatingVel / stoppingRate);
+            return rotationDeg + (rotatingVel * stoppingTime) + Sign(rotatingVel) * ((stoppingRate / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
         }
     }
     public System world;
@@ -156,7 +156,7 @@ public class BaseShip {
     public void ReduceDamage(Projectile p) {
         var dmgMatched = (int)(p.damageLeft * p.desc.CalcSilenceRatio(silence));
         //var dmgSilence = p.damageHP - dmgMatched;
-        var silenceInc = p.desc.silenceInflict * p.damageLeft * Math.Min(1, 1 - silence);
+        var silenceInc = p.desc.silenceInflict * p.damageLeft * Min(1, 1 - silence);
         p.damageLeft = dmgMatched;
 
         if (devices.Shield.Any()) {
@@ -165,7 +165,7 @@ public class BaseShip {
                 if (p.hitHandled) return;
                 s.Absorb(p);
 
-                s.delay = Math.Max(s.delay, p.desc.shieldDelay);
+                s.delay = Max(s.delay, p.desc.shieldDelay);
             }
 
             if (p.hitHandled) return;
@@ -173,9 +173,9 @@ public class BaseShip {
         silence += silenceInc;
         if (p.desc.blind is IDice blind) {
             blindTicks += blind.Roll();
-            blindTicks = Math.Min(blindTicks, 300);
+            blindTicks = Min(blindTicks, 300);
         }
-        int knockback = p.desc.knockback * p.damageLeft / Math.Max(1, dmgMatched);
+        int knockback = p.desc.knockback * p.damageLeft / Max(1, dmgMatched);
         velocity += (p.velocity - velocity).WithMagnitude(knockback);
         disruption = p.desc.Disrupt?.GetHijack() ?? disruption;
     }
@@ -185,7 +185,7 @@ public class BaseShip {
             .Concat((damageSystem as LayeredArmor)?.layers.Select(l => l.source) ?? new List<Item>());
         wreck = new Wreck(owner, items);
         world.AddEntity(wreck);
-        foreach(var angle in (0..16).Select(i => i * 2 * Math.PI / 16)) {
+        foreach(var angle in (0..16).Select(i => i * 2 * PI / 16)) {
             var blast = new EffectParticle(position + XY.Polar(angle, 1),
                 velocity + XY.Polar(angle, 4),
                 new Tile(ABGR.Orange, ABGR.MA(ABGR.Orange) * 0 + 128, 'x'),
@@ -202,13 +202,13 @@ public class BaseShip {
                     + (damageSystem as LayeredArmor)?.layers.LastOrDefault(a => a.hp > 0)?.stealth ?? 0;
             var weapons = devices.Weapon;
             if (weapons.Any()) {
-                stealth *= Math.Min(1, weapons.Min(w => w.timeSinceLastFire));
+                stealth *= Min(1, weapons.Min(w => w.timeSinceLastFire));
             }
 
-            stealth = Math.Max(stealth, 0);
+            stealth = Max(stealth, 0);
         }
 
-        silence = Math.Max(0, silence - delta / 20);
+        silence = Max(0, silence - delta / 20);
 
         UpdateControl(delta);
         UpdateMotion(delta);
@@ -245,7 +245,7 @@ public class BaseShip {
         UpdateBrake();
         void UpdateThrust() {
             if (thrusting) {
-                var rotationRads = rotationDeg * Math.PI / 180;
+                var rotationRads = rotationDeg * PI / 180;
 
                 var exhaust = new EffectParticle(position + XY.Polar(rotationRads, -1),
                     velocity + XY.Polar(rotationRads, -shipClass.thrust),
@@ -284,17 +284,17 @@ public class BaseShip {
                     }
                     rotatingVel -= shipClass.rotationAccel * delta;
                 }
-                rotatingVel = Math.Min(Math.Abs(rotatingVel), shipClass.rotationMaxSpeed) * Math.Sign(rotatingVel);
+                rotatingVel = Min(Abs(rotatingVel), shipClass.rotationMaxSpeed) * Sign(rotatingVel);
             } else {
                 Decel();
             }
-            void Decel() => rotatingVel -= Math.Min(Math.Abs(rotatingVel), shipClass.rotationDecel * delta) * Math.Sign(rotatingVel); ;
+            void Decel() => rotatingVel -= Min(Abs(rotatingVel), shipClass.rotationDecel * delta) * Sign(rotatingVel); ;
         }
         void UpdateRotation() => rotationDeg += rotatingVel * delta * Constants.TICKS_PER_SECOND;
         void UpdateBrake() {
             if (decelerating) {
                 if (velocity.magnitude > 0.05) {
-                    velocity -= velocity.normal * Math.Min(velocity.magnitude, shipClass.thrust * (delta * Constants.TICKS_PER_SECOND) / 2);
+                    velocity -= velocity.normal * Min(velocity.magnitude, shipClass.thrust * (delta * Constants.TICKS_PER_SECOND) / 2);
                 } else {
                     velocity = new XY();
                 }
@@ -393,7 +393,7 @@ public class AIShip : IShip {
         ship.damageSystem.Damage(world.tick, p, () => Destroy(p.source));
         if(p.hitHull) {
             if (p.desc.shieldSuppress > 0) {
-                ship.devices.Shield.ForEach(s => s.delay = Math.Max(s.delay, p.desc.shieldSuppress));
+                ship.devices.Shield.ForEach(s => s.delay = Max(s.delay, p.desc.shieldSuppress));
             }
         }
     }
@@ -417,7 +417,7 @@ public class AIShip : IShip {
         ship.UpdatePhysics(delta);
         dock.Update(delta, this);
         if(world.tick%30 == 0 && dock.Target is Station st) {
-            ship.stealth = Math.Max(ship.stealth, st.stealth);
+            ship.stealth = Max(ship.stealth, st.stealth);
         }
         //We update the ship's devices as ourselves because they need to know who the exact owner is
         //In case someone other than us needs to know who we are through our devices
@@ -475,7 +475,7 @@ public class PlayerShip : IShip {
     [JsonIgnore]
     public double rotationDeg => ship.rotationDeg;
     [JsonIgnore]
-    public double rotationRad => ship.rotationDeg * Math.PI / 180;
+    public double rotationRad => ship.rotationDeg * PI / 180;
     [JsonIgnore]
     public double stoppingRotation => ship.stoppingRotation;
     [JsonIgnore]
@@ -552,10 +552,10 @@ public class PlayerShip : IShip {
     public void SetFiringPrimary(bool firingPrimary = true) => this.firingPrimary = firingPrimary;
     public void SetFiringSecondary(bool firingSecondary = true) => this.firingSecondary = firingSecondary;
     public void SetRotatingToFace(double targetRads) {
-        var facingRads = ship.stoppingRotationWithCounterTurn * Math.PI / 180;
+        var facingRads = ship.stoppingRotationWithCounterTurn * PI / 180;
         var dest = XY.Polar(targetRads);
-        var ccw = (XY.Polar(facingRads + 3 * Math.PI / 180) - dest).magnitude;
-        var cw = (XY.Polar(facingRads - 3 * Math.PI / 180) - dest).magnitude;
+        var ccw = (XY.Polar(facingRads + 3 * PI / 180) - dest).magnitude;
+        var cw = (XY.Polar(facingRads - 3 * PI / 180) - dest).magnitude;
         if (ccw < cw) {
             SetRotating(Rotating.CCW);
         } else if (cw < ccw) {

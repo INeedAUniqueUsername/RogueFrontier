@@ -69,7 +69,7 @@ class Waves : Event {
             AIShip create() =>
                 new AIShip(new BaseShip(world,
                     shipClass,
-                    playerShip.position + XY.Polar(world.karma.NextDouble(0, 2 * Math.PI), 200)),
+                    playerShip.position + XY.Polar(world.karma.NextDouble(0, 2 * PI), 200)),
                     Sovereign.Gladiator,
                     behavior
                     );
@@ -80,7 +80,7 @@ class Waves : Event {
                 ship = create();
                 leader = ship;
             } else {
-                behavior.orders.Add(new EscortShip(leader, XY.Polar(world.karma.NextDouble(0, 2 * Math.PI), 10)));
+                behavior.orders.Add(new EscortShip(leader, XY.Polar(world.karma.NextDouble(0, 2 * PI), 10)));
                 ship = create();
             }
             i++;

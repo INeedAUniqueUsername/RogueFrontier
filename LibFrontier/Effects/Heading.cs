@@ -100,7 +100,7 @@ public class Heading : Effect {
         const int interval = 30;
         XY from = parent.position;
         int step = 2;
-        XY inc = XY.Polar(parent.rotationDeg * Math.PI / 180, 1) * step;
+        XY inc = XY.Polar(parent.rotationDeg * PI / 180, 1) * step;
         if (ticks == 0) {
 
             //Idea: Highlight a segment of the aimline based on the firetime left on the weapon
@@ -109,7 +109,7 @@ public class Heading : Effect {
             particles = new EffectParticle[count];
             for (int i = 0; i < count; i++) {
 				var here = from + inc * (i + 1);
-                var value = (byte)(153 - Math.Max(1, i) * 153 / length);
+                var value = (byte)(153 - Max(1, i) * 153 / length);
 
 				var cg = new Tile(ABGR.RGB(value, value, value), ABGR.Transparent, g);
                 var particle = new EffectParticle(here, cg, interval + 1);
@@ -121,7 +121,7 @@ public class Heading : Effect {
                 var here = from + inc * (i + 1);
 				var prev = here - inc;
 				var next = here + inc;
-				var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
+				var c = (double x) => (int)Round(Clamp(x, -1, 1));
 				var _c = ((double x, double y) p) => (c(p.x), c(p.y));
 				var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
 				var g = Connectors.GetValueOrDefault(__c((prev.roundDown - here.roundDown), (next.roundDown - here.roundDown)), 249);
@@ -148,7 +148,7 @@ public class Heading : Effect {
 
 			var prev = here - inc;
 			var next = here + inc;
-			var c = (double x) => (int)Math.Round(Math.Clamp(x, -1, 1));
+			var c = (double x) => (int)Round(Clamp(x, -1, 1));
 			var _c = ((double x, double y) p) => (c(p.x), c(p.y));
 			var __c = ((double x, double y) prev, (double x, double y) next) => (_c(prev), _c(next));
 			var g = Connectors.GetValueOrDefault(__c((prev.roundDown - here.roundDown), (next.roundDown - here.roundDown)), 249);

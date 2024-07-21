@@ -201,7 +201,7 @@ public static partial class SMenu {
 					},
 					w.aiming switch {
 						Omnidirectional =>  Tile.Arr($"Turret:       Omnidirectional"),
-						Swivel s =>         Tile.Arr($"Turret:       {(int)((s.leftRange + s.rightRange) * 180 / Math.PI)}-degree swivel"),
+						Swivel s =>         Tile.Arr($"Turret:       {(int)((s.leftRange + s.rightRange) * 180 / PI)}-degree swivel"),
 						_ => null
 					}
 					], [null]));
@@ -482,7 +482,7 @@ public static partial class SMenu {
                 return;
             }
             var before = a.hp;
-            var repairHP = Math.Min(repair.repairHP, a.maxHP - a.hp);
+            var repairHP = Min(repair.repairHP, a.maxHP - a.hp);
             if (repairHP > 0) {
                 a.hp += repairHP;
                 player.cargo.Remove(source);
@@ -531,7 +531,7 @@ public static partial class SMenu {
             );
         void Invoke(Reactor r) {
             var before = r.energy;
-            var refuelEnergy = Math.Min(refuel.energy, r.desc.capacity - r.energy);
+            var refuelEnergy = Min(refuel.energy, r.desc.capacity - r.energy);
 
             if (refuelEnergy > 0) {
                 r.energy += refuelEnergy;
@@ -762,8 +762,8 @@ public static partial class SMenu {
             a => new(
                 Eval(() => {
 					var BAR = 8;
-					int available = BAR * Math.Min(a.maxHP, a.desc.maxHP) / Math.Max(1, a.desc.maxHP);
-					int active = available * Math.Min(a.hp, a.maxHP) / Math.Max(1, a.maxHP);
+					int available = BAR * Min(a.maxHP, a.desc.maxHP) / Max(1, a.desc.maxHP);
+					int active = available * Min(a.hp, a.maxHP) / Max(1, a.maxHP);
 					return $"[{new string('=', active)}{new string('.', available - active)}{new string(' ', BAR - available)}] [{a.hp}/{a.maxHP}] {a.source.type.name}";
 				}
                 ),
@@ -1166,7 +1166,7 @@ public static partial class SMenu {
                 void Invoke(Item i) {
                     var refuel = i.type.Invoke as Refuel;
                     var before = r.energy;
-                    var refuelEnergy = Math.Min(refuel.energy, r.desc.capacity - r.energy);
+                    var refuelEnergy = Min(refuel.energy, r.desc.capacity - r.energy);
                     if (refuelEnergy > 0) {
                         r.energy += refuelEnergy;
                         player.cargo.Remove(i);
@@ -1296,7 +1296,7 @@ public class ListControl<T> {
         }
         scroll.count = count;
         if(count > 0) {
-            index = Math.Min(index ?? 0, count - 1);
+            index = Min(index ?? 0, count - 1);
         } else {
             index = null;
         }
@@ -1350,7 +1350,7 @@ public class ListControl<T> {
                 default:
                     if(char.ToLower((char)key) is var ch and >= 'a' and <= 'z') {
 						PlaySound?.Invoke(Tones.pressed);
-                        int start = Math.Max((index ?? 0) - 13, 0);
+                        int start = Max((index ?? 0) - 13, 0);
                         var letterIndex = start + SMenu.letterToIndex(ch);
                         if (letterIndex == index) {
                             invoke?.Invoke(currentItem);
@@ -1422,7 +1422,7 @@ public class ListControl<T> {
                 if (active && i == highlight) {
                     if (n.Length > lineWidth) {
                         double initialDelay = 1;
-                        int index = time < initialDelay ? 0 : (int)Math.Min((time - initialDelay) * 15, n.Length - lineWidth);
+                        int index = time < initialDelay ? 0 : (int)Min((time - initialDelay) * 15, n.Length - lineWidth);
 
                         n = n.Substring(index);
                     }
@@ -1475,10 +1475,10 @@ public class DescPane<T> {
     public double time;
     public void Update(TimeSpan delta) {
         if(entry == null) {
-            time = Math.Min(0.1, time) - delta.TotalSeconds;
+            time = Min(0.1, time) - delta.TotalSeconds;
         } else {
 
-			time = Math.Max(0, time) + delta.TotalSeconds;
+			time = Max(0, time) + delta.TotalSeconds;
 		}
         
     }
@@ -1489,7 +1489,7 @@ public class DescPane<T> {
 		entry = new(name, [..desc.SelectMany(line => line.SplitLine(38))]);
 	public void Render (TimeSpan delta) {
 		var (x, y) = pos;
-		Sf.DrawRect(on, x, y, 36, (int)Common.Main.Lerp(time, 0, 0.1, 0, 30, 1), new() {
+		Sf.DrawRect(on, x, y, 36, (int)Main.Lerp(time, 0, 0.1, 0, 30, 1), new() {
 		});
 		if(entry is null) return;
         x += 2;
@@ -1513,8 +1513,8 @@ public class ScrollBar {
         this.windowSize = windowSize;
     }
     public (int, int) GetIndexRange() {
-        int start = Math.Max(index, 0),
-            end = Math.Min(count, start + 26);
+        int start = Max(index, 0),
+            end = Min(count, start + 26);
         return (start, end);
     }
     public (int barStart, int barEnd) GetBarRange() {
@@ -1522,18 +1522,18 @@ public class ScrollBar {
             return (0, windowSize - 1);
         }
         var (start, end) = GetIndexRange();
-        return (windowSize * start / count, Math.Min(windowSize - 1, windowSize * end / count));
+        return (windowSize * start / count, Min(windowSize - 1, windowSize * end / count));
     }
     public void ScrollToShow(int index) {
         if(index < this.index) {
             this.index = index;
         } else if(index >= this.index + 25) {
-            this.index = Math.Max(0, index - 25);
+            this.index = Max(0, index - 25);
         }
     }
     public void Scroll(int delta) {
         index += delta * count / windowSize;
-        index = Math.Clamp(index, 0, Math.Max(0, count - 25));
+        index = Clamp(index, 0, Max(0, count - 25));
     }
     bool mouseOnArea;
     bool clickOnArea;
@@ -1559,9 +1559,9 @@ public class ScrollBar {
                     mouseOnArea = clickOnArea = true;
                     mouseOnBar = clickOnBar = false;
                     if (y < barStart) {
-                        Scroll(Math.Sign(y - barStart));
+                        Scroll(Sign(y - barStart));
                     } else if (y > barEnd) {
-                        Scroll(Math.Sign(y - barEnd));
+                        Scroll(Sign(y - barEnd));
                     } else {
                         prevClick = y;
                         mouseOnBar = clickOnBar = true;
@@ -1737,13 +1737,13 @@ public static class SListWidget {
                 return;
             }
             EscortShip GetEscortOrder(int i) {
-                int root = (int)Math.Sqrt(i);
+                int root = (int)Sqrt(i);
                 int lower = root * root;
                 int upper = (root + 1) * (root + 1);
                 int range = upper - lower;
                 int index = i - lower;
                 return new EscortShip(player, XY.Polar(
-                        -(Math.PI * index / range), root * 2));
+                        -(PI * index / range), root * 2));
             }
             switch (s.behavior) {
                 case Wingmate w:

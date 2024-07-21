@@ -76,7 +76,7 @@ public record PowerRechargeWeapon() : PowerEffect {
 	public void Invoke(PlayerShip player) {
 		if(player.devices.Weapon.FirstOrDefault(w => w.desc == weaponType) is Weapon w) {
 			ref int c = ref ((ChargeAmmo)w.ammo).charges;
-			c = Math.Max(c, maxCharges);
+			c = Max(c, maxCharges);
 		}
 	}
 }
@@ -138,8 +138,8 @@ public record Clonewall() : PowerEffect {
 			directions = new double[offsets.Count];
 		}
 		private void UpdateOffsets() {
-			XY  up = XY.Polar(owner.rotationRad - Math.PI / 2),
-				down = XY.Polar(owner.rotationRad + Math.PI / 2);
+			XY  up = XY.Polar(owner.rotationRad - PI / 2),
+				down = XY.Polar(owner.rotationRad + PI / 2);
 			offsets = new() {
 				up * 3, down * 3,
 				up * 6, down * 6,
@@ -233,7 +233,7 @@ public record PowerReveal() : PowerEffect {
 		foreach (var e in enemies) {
 			var time = 1800;
 			if(player.tracking.TryGetValue(e, out var t)) {
-				time = Math.Max(time, t);
+				time = Max(time, t);
 			}
 			player.tracking[e] = time;
 		}
@@ -265,7 +265,7 @@ public record PowerBarrier() : PowerEffect {
 	public void Invoke(PlayerShip player) => Invoke((ActiveObject)player);
 	public void Invoke(ActiveObject owner) {
 		var world = owner.world;
-		var end = 2 * Math.PI;
+		var end = 2 * PI;
 		ConstructBarrier construct = null;
 		switch (barrierType) {
 			case BarrierType.shield: {
@@ -316,7 +316,7 @@ public record PowerBarrier() : PowerEffect {
 						var next = points[i];
 						while(n != next) {
 							result.Add(n);
-							n += Math.Sign(next - n);
+							n += Sign(next - n);
 						}
 						i++;
 					}

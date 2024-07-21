@@ -192,7 +192,7 @@ class PlayerCreator : IScene {
 
                 var g = sf_img.GetGlyph(x, y);
                 if (g == 0 || g == ' ') {
-                    var a = (byte)Math.Clamp(51 * Math.Sin(time * Math.Sin(x - y) + Math.Sin(x) * 5 + Math.Sin(y) * 5), 0, 255);
+                    var a = (byte)Clamp(51 * Sin(time * Sin(x - y) + Sin(x) * 5 + Sin(y) * 5), 0, 255);
 					sf_img.SetTile(x, y, new Tile(ABGR.SetA(ABGR.White, a), ABGR.Black, '='));
                 }
             }

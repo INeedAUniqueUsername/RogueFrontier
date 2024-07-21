@@ -430,7 +430,7 @@ public record WeaponDesc {
 	public Weapon GetWeapon(Item i) => new(i, this);
 	public WeaponDesc() { }
 	public WeaponDesc(Assets types, XElement e) {
-		var toRad = (double d) => d * Math.PI / 180;
+		var toRad = (double d) => d * PI / 180;
 		e.Initialize(this, transform:new() {
 			[nameof(angle)] = toRad,
 			[nameof(sweep)] = toRad,
@@ -516,10 +516,10 @@ public record FragmentDesc {
 	[Sub] public CorrodeDesc Corrode;
 	[Sub] public DisruptDesc Disrupt;
 	public GuidanceDesc guidanceDesc;
-	public double CalcSilenceRatio(double targetSilence) => FragmentDesc.GetSilenceMatch(silenceFactor, targetSilence);
+	public double CalcSilenceRatio(double targetSilence) => GetSilenceMatch(silenceFactor, targetSilence);
 	/// <summary>Calculates the total damage dealt (silent plus non-silent)</summary>
 	public static double GetSilenceMatch(double silenceFactor, double targetSilence) {
-		var s = Math.Min(1, targetSilence);
+		var s = Min(1, targetSilence);
 		return (silenceFactor * s) + ((1 - silenceFactor) * (1 - s));
 		//0.0 * 1.0 + 1.0 * 1.0
 
@@ -559,14 +559,14 @@ public record FragmentDesc {
 		e.Initialize(this, transform: new() {
 			[nameof(count)] = (int c) => {
 				//init default
-				this.spreadAngle = count == 1 ? 0 : 3 * Math.PI / 180;
+				this.spreadAngle = count == 1 ? 0 : 3 * PI / 180;
 				return c;
 			},
 			[nameof(detonateSound)] = (string s) => Assets.GetAudio(s),
-			[nameof(spreadAngle)] = (double d) => d * Math.PI / 180,
-			[nameof(fragmentSpin)] = (double d) => d * Math.PI / 180,
+			[nameof(spreadAngle)] = (double d) => d * PI / 180,
+			[nameof(fragmentSpin)] = (double d) => d * PI / 180,
 			[nameof(spreadOmni)] = (bool b) => {
-				spreadAngle = 2 * Math.PI / count;
+				spreadAngle = 2 * PI / count;
 				return b;
 			},
 		});
@@ -636,7 +636,7 @@ public record GuidanceDesc {
 	[Opt] public double maneuverRadius;
 	public GuidanceDesc (XElement e) => e.Initialize(this, transform: new() {
 		[nameof(maneuver)] = (double d) => {
-			return d * Math.PI / 180;
+			return d * PI / 180;
 		},
 	});
 	public Guidance Create (ActiveObject target) => target is { } t ? new(t, this) : null;

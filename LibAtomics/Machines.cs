@@ -24,7 +24,12 @@ public class Roach : IEntity, IActor {
 
 		var d = target.pos - pos;
 		if(d.manhattan < 2) {
-			target.Tell(new Player.Message(Tile.Arr($"Roachbot bites Player"), target.time, target.tick));
+
+
+			var on = target.body.parts.GetRandom(r);
+			on.Damage(5);
+			target.Tell(new Player.Message(Tile.Arr($"Roachbot bites You at {on.name} for {5} damage"), target.time, target.tick));
+			
 			//target.delay = 5;
 		}
 		//var dest = target.pos + new XYI((int)(nf() * d.x - d.x / 2), (int)(nf() * d.y - d.y / 2));
@@ -54,7 +59,7 @@ public class Roach : IEntity, IActor {
 			}
 		}
 		int runLimit = 6;
-		var dist = Math.Max(1, run ? runEnergy : 1);
+		var dist = Max(1, run ? runEnergy : 1);
 
 		dist = Enumerable.Min<int>([dist, runLimit, path.Count]);
 		return [.. path.Take(dist).Select<XYI, Action>(p => () => Step(p))];
@@ -96,7 +101,7 @@ public class Roach : IEntity, IActor {
 	}
 	//Roamer
 	public void Expire () {
-		string me = "Roach bot";
+		string me = "Roachbot";
 		var msg = $"{me} flips over.";
 	}
 

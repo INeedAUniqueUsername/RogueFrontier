@@ -415,7 +415,7 @@ class IntroTraining : IPlayerInteraction {
         this.drones = new AIShip[3];
         var k = station.world.karma;
         for (int i = 0; i < 3; i++) {
-            var d = new AIShip(new(w, shipClass, station.position + XY.Polar(k.NextDouble() * 2 * Math.PI, k.NextDouble() * 25 + 25)),
+            var d = new AIShip(new(w, shipClass, station.position + XY.Polar(k.NextDouble() * 2 * PI, k.NextDouble() * 25 + 25)),
                 sovereign, new SnipeAt(player));
             drones[i] = d;
         }

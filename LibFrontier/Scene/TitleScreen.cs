@@ -259,7 +259,7 @@ public class TitleScreen : IScene {
 		while(World.entities.all.OfType<IShip>().Count() < 100) {
 			var shipClasses = World.types.Get<ShipClass>();
 			var shipClass = shipClasses.ElementAt(World.karma.NextInteger(shipClasses.Count));
-			var angle = World.karma.NextDouble() * Math.PI * 2;
+			var angle = World.karma.NextDouble() * PI * 2;
 			var distance = World.karma.NextInteger(10, 20);
 			var center = World.entities.all.FirstOrDefault()?.position ?? new XY(0, 0);
 			var ship = new BaseShip(World, shipClass, center + XY.Polar(angle, distance));

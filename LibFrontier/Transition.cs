@@ -53,7 +53,7 @@ public class TitleSlideOpening : IScene {
             for (int x = 0; x < this.x; x++) {
                 sf.SetTile(x, y, new Tile(0, 0, 0));
             }
-            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 16); x++) {
+            for (int x = Max(0, this.x); x < Min(Width, this.x + 16); x++) {
 				var value = (byte)(255 - 255 / 16 * (x - this.x));
 				sf.Tile[x, y] = new Tile(0, ABGR.SetA(0, value), ' ');
             }
@@ -113,7 +113,7 @@ public class TitleSlideOut : IScene {
             for (int x = 0; x < this.x; x++) {
                 sf.SetTile(x, y, sf_prev.GetTile(x, y));
             }
-            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 2); x++) {
+            for (int x = Max(0, this.x); x < Min(Width, this.x + 2); x++) {
                 var glyph = sf_next.GetGlyph(x, y);
                 var value = (byte)(255 - 255 / 16 * (x - this.x));
                 sf.SetTile(x, y, new Tile(0, ABGR.SetA(0, value), ' '));
@@ -169,12 +169,12 @@ public class TitleSlideIn : IScene {
         Draw?.Invoke(prev.sf);
         var blank = new Tile(ABGR.Black, ABGR.Black, ' ');
         for (int y = 0; y < Height; y++) {
-            for (int x = 0; x < Math.Min(Width, this.x); x++) {
+            for (int x = 0; x < Min(Width, this.x); x++) {
                 //this.SetCellAppearance(x, y, blank);
                 sf.Tile[x, y] = next.sf.Tile[(x, y)];
             }
             //Fading opacity edge
-            for (int x = Math.Max(0, this.x); x < Math.Min(Width, this.x + 2); x++) {
+            for (int x = Max(0, this.x); x < Min(Width, this.x + 2); x++) {
                 var glyph = prev.sf.GetGlyph(x, y);
                 var value = (byte)(255 - 255 / 2 * (x - this.x));
                 var fore = prev.sf.Front[x, y];

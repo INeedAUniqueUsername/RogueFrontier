@@ -50,7 +50,7 @@ public class ScanTransition : IScene {
         } else {
             sf.Clear();
         }
-        var last = (int)Math.Min(this.y - 1, Height - 1);
+        var last = (int)Min(this.y - 1, Height - 1);
 
         int y;
         for (y = 0; y < last; y++) {

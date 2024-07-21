@@ -12,11 +12,12 @@ public record FlashDesc(){
         e.Initialize(this);
     }
     public void Create(Sys world, XY position) {
-        var center = new Center(position, (int)(255 * Math.Sqrt(intensity)), lifetime);
+        var center = new Center(position, (int)(255 * Sqrt(intensity)), lifetime);
         world.AddEffect(center);
-        int radius = (int)(Math.Sqrt(intensity) * 1.5);
-        var particles = Enumerable.Range(-radius*2, radius * 2 * 2)
-            .SelectMany(x => ((-radius*2) .. (radius * 2 * 2)).Select(y => new XY(x, y)))
+        int radius = (int)(Sqrt(intensity) * 1.5);
+        var rng = Enumerable.Range(-radius * 2, radius * 2 * 2);
+		var particles = rng
+            .SelectMany(x => rng.Select(y => new XY(x, y)))
             .Where(p => (p - position).magnitude > radius)
             .Select(p => new Particle(center, center.position + p))
             .Where(p => p.active)
@@ -28,7 +29,7 @@ public record FlashDesc(){
         public int maxBrightness;
         public int maxLifetime;
         public double lifetime;
-        public int brightness => (int) (maxBrightness * Math.Sqrt(lifetime / maxLifetime));
+        public int brightness => (int) (maxBrightness * Sqrt(lifetime / maxLifetime));
         public bool active => brightness>128;
         public Tile tile => (ABGR.Transparent, ABGR.RGBA(255, 255, 255, (byte)brightness), ' ');
         public Center(XY position, int brightness, int lifetime) {
@@ -45,7 +46,7 @@ public record FlashDesc(){
         public Center parent;
         public XY position { get; set; }
         public double distance;
-        public byte brightness => (byte)Math.Min(255, parent.brightness / distance);
+        public byte brightness => (byte)Min(255, parent.brightness / distance);
         public bool active => brightness > 128 && parent.active;
         public Tile tile => delay > 0 ? null : (ABGR.Transparent, ABGR.RGBA(255, 255, 255, brightness), ' ');
 
@@ -53,7 +54,7 @@ public record FlashDesc(){
         public Particle(Center parent, XY position) {
             this.parent = parent;
             this.position = position;
-            distance = Math.Max(1, (parent.position - position).magnitude);
+            distance = Max(1, (parent.position - position).magnitude);
             delay = distance / 64;
         }
         public void Update(double delta) {
