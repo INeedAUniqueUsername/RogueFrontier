@@ -13,6 +13,11 @@ using JsonIgnoreAttribute = Newtonsoft.Json.JsonIgnoreAttribute;
 using TileTuple = (uint Foreground, uint Background, int Glyph);
 namespace LibGamer;
 
+
+public record Col(byte R, byte G, byte B, byte A) {
+
+}
+
 public record ABGR(uint packed) {
 
 	public static uint TryAttColor (XElement e, string key, uint fallback) => e.TryAtt(key, out var c) ? Parse(c) : fallback;

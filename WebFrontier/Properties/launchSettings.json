@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "WebGL.Sample": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:7010;http://localhost:5076",
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/debug?browser={browserInspectUri}"
+    }
+  }
+}

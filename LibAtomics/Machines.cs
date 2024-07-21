@@ -22,7 +22,7 @@ public class Roach : IEntity, IActor {
 
 		var d = target.pos - pos;
 		if(d.manhattan < 2) {
-			target.AddMessage(new Player.Message(Tile.Arr($"Roachbot bites Player"), target.time, target.tick));
+			target.Tell(new Player.Message(Tile.Arr($"Roachbot bites Player"), target.time, target.tick));
 			//target.delay = 5;
 		}
 		//var dest = target.pos + new XYI((int)(nf() * d.x - d.x / 2), (int)(nf() * d.y - d.y / 2));

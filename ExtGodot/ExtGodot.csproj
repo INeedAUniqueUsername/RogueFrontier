@@ -6,6 +6,6 @@
   </PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-		<ProjectReference Include="..\..\glyphdot\glyphdot.csproj" />
+		<ProjectReference Include="D:\glyphdot\glyphdot.csproj" />
 	</ItemGroup>
 </Project>

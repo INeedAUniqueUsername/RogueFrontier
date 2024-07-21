@@ -117,7 +117,7 @@ public class Sf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
-	public static void DrawRect (Sf sf, int xStart, int yStart, int dx, int dy, RectOptions op) {
+	public static void DrawRect ( Sf sf, int xStart, int yStart, int dx, int dy, RectOptions op) {
 		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>
 			(char)BoxInfo.IBMCGA.glyphFromInfo[new(n, e, s, w)];
 		var width = op.width;

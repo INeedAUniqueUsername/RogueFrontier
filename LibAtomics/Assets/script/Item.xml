@@ -1,0 +1,14 @@
+﻿<Module>
+	<ItemType codename="item_machine_gun"
+		name=	"Machine Gun"
+		desc=	""
+		>
+	</ItemType>
+	<ItemType codename="item_copper_pipe_device"
+		name=	"Copper Pipe Device"
+		desc=	""
+		>
+	</ItemType>
+
+	<!--Eyerus-->
+</Module>

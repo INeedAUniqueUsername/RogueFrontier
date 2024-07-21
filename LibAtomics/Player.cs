@@ -1,32 +1,41 @@
 ﻿using Common;
 using LibGamer;
 using System.Collections.Concurrent;
+using System.Xml.Linq;
 namespace LibAtomics;
 public class Player : IActor, IEntity {
+
 	public World level;
-	public Tile tile => new Tile(Mainframe.tint, ABGR.Black, '@');
+	public Tile tile => new Tile(Mainframe.PINK, ABGR.Black, '@');
 	public XYI pos { get; set; }
 	public Action Removed { get; set; }
 	public bool ready => !busy && delay < 1;
 	public bool busy;
+
+	public double lastUpdateTime;
 	public double time;
 	public int tick;
 
 	public int delay = 0;
 
-	public record Message (Tile[] msg, double time, int tick) {
-		public string text => new string([.. from t in msg select (char)t.Glyph]);
+	public Body body = new Body(Body.Parse(XElement.Parse(Body.human)));
+	public HashSet<Item> items = [];
+
+
+	public record Message (Tile[] str, double time, int tick) {
+
+		public double fadeTime;
+		public string text => new string([.. from t in str select (char)t.Glyph]);
 	};
 	public List<Message> messages = [];
-	public void AddMessage(Message m) {
-		if(messages.LastOrDefault()?.text == m.text) {
-			//messages.RemoveAt(messages.Count - 1);
+	public void Tell(Message m) {
+		if(messages.LastOrDefault() is { }prev && prev.text == m.text && prev.tick == m.tick) {
+			messages.RemoveAt(messages.Count - 1);
 		}
 		messages.Add(m);
 	}
-	public void Tell(string msg) {
-		AddMessage(new Message(Tile.Arr(msg), time, tick));
-	}
+	public void Tell(string msg) =>
+		Tell(new Message(Tile.Arr(msg), time, tick));
 	public Player (World level, XYI pos) {
 		this.level = level;
 		this.pos = pos;
@@ -35,11 +44,13 @@ public class Player : IActor, IEntity {
 		var dest = pos + dir;
 		var ent = level.entityMap.GetValueOrDefault(dest, []);
 		if(!ent.OfType<Floor>().Any()) {
-			AddMessage(new(Tile.Arr("Err_Floor_Not_Found", ABGR.White), time, tick));
+			string msg = true ? "cannot walk there." : "ERROR_FLOOR_NOT_FOUND";
+			Tell((Message)new(Tile.Arr(msg, ABGR.White), time, tick));
 			return;
 		}
 		if(ent.OfType<Wall>().Any()) {
-			AddMessage(new Message(Tile.Arr("Err_Access_Blocked", ABGR.White), time, tick));
+			string msg = true ? "blocked by wall." : "ERROR_ACCESS_DENIED_BY_WALL";
+			Tell(new Message(Tile.Arr(msg, ABGR.White), time, tick));
 			return;
 		}
 		pos = dest;
@@ -49,12 +60,22 @@ public class Player : IActor, IEntity {
 
 	public Shoot shoot;
 	Action[] IActor.UpdateTick () {
+
+		foreach(var m in Enumerable.Reverse(messages)) {
+			if(m.tick != tick) {
+				break;
+			}
+			m.fadeTime = time;
+		}
+
 		tick++;
+
+		body.UpdateTick();
 		UpdateVision();
 		delay--;
 		busy = false;
 
-		HashSet<Action[]> r = [];
+		HashSet<Action[]> r = [shoot.Act(this)];
 
 		IEnumerable<Action> Zip() {
 			HashSet<Action[]> remaining = r;
@@ -70,17 +91,16 @@ public class Player : IActor, IEntity {
 				}
 			}
 		}
-		if(shoot != null) {
-			r.Add(shoot.Act(this));
-		}
+
+		lastUpdateTime = time;
 		return [..Zip()];
 		return [
 
-			() => AddMessage(new Message(Tile.Arr("subtick 1"), time, tick)),
-			() => AddMessage(new Message(Tile.Arr("subtick 2"), time, tick)),
-			() => AddMessage(new Message(Tile.Arr("subtick 3"), time, tick)),
-			() => AddMessage(new Message(Tile.Arr("subtick 4"), time, tick)),
-			() => AddMessage(new Message(Tile.Arr("subtick 5"), time, tick)),
+			() => Tell(new Message(Tile.Arr("subtick 1"), time, tick)),
+			() => Tell(new Message(Tile.Arr("subtick 2"), time, tick)),
+			() => Tell(new Message(Tile.Arr("subtick 3"), time, tick)),
+			() => Tell(new Message(Tile.Arr("subtick 4"), time, tick)),
+			() => Tell(new Message(Tile.Arr("subtick 5"), time, tick)),
 			];
 	}
 	void IActor.UpdateReal(System.TimeSpan delta) {
@@ -150,24 +170,34 @@ public class Player : IActor, IEntity {
 		}
 	}
 }
+
+interface IShootTarget { XYI pos { get; } }
+public record ShootEntity(IEntity target) : IShootTarget {
+	XYI IShootTarget.pos => target.pos;
+}
+public record ShootLoc(XYI loc) : IShootTarget {
+	XYI IShootTarget.pos => loc;
+}
 public class Shoot {
 	public XY target;
 	Reticle reticle;
+
+	bool precise = true;
 	bool locked = false;
 	public bool done = false;
 	public void Init(Player p) {
 		reticle = new Reticle() { _pos = (XY)p.pos, visible = true };
 		p.level.AddEntity(reticle);
-		p.Tell("Attack_Select_Target");
+		p.Tell("selecting target");
 	}
 	public Action[] Act(Player p) {
 		if(done) return [];
-		if(!locked) {
-			p.Tell("Attack_Calibrate_Aim");
+		if(precise && !locked) {
+			p.Tell("acquiring target");
 			var from = (XY)p.pos;
 			var to = target;
 			locked = true;
-			var disp = (to - from);
+			//var disp = (to - from);
 			reticle.visible = true;
 			return [
 				..Enumerable.Range(0, 30).Select<int,Action>(i => () => {
@@ -181,16 +211,25 @@ public class Shoot {
 		var r = new Rand();
 		var a = () => {
 			if(msg) {
-				p.Tell("Attack_Fire_Weapon");
+				p.Tell("firing weapon");
 				msg = false;
 			}
-			foreach(var i in Enumerable.Range(0, 2)) {	
-				p.level.AddEntity(new Splat(reticle.pos + (r.NextInteger(-2, 3), r.NextInteger(-2, 3)), new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
+			foreach(var i in Enumerable.Range(0, 2)) {
+
+				var spread = (reticle._pos - ((XY)p.pos)).magnitude / 8 ;
+				var loc = (reticle._pos + (r.NextDouble(-spread, spread), r.NextDouble(-spread, spread))).roundDownI;
+				p.level.AddEntity(new Splat(loc, new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
+				if(p.level.entityMap[loc] is { Length:>0} any) {
+					p.Tell($"hit {any.GetRandom(r) switch {
+						Roach => "roach",
+						Floor => "floor",
+						_ => "something"
+					}}");
+				}
 			}
 		};
 		return [
-			a,a,a,a,a,
-			a,a,a,a,a,
+			..Enumerable.Range(0, 20).Select(i => a),
 			() => p.level.RemoveEntity(reticle)
 			];
 	}

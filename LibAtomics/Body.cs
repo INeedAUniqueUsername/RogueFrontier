@@ -1,78 +1,43 @@
-﻿namespace LibAtomics;
+﻿using Common;
+using System.Xml.Linq;
+
+namespace LibAtomics;
 public class Body {
-	public HashSet<BodyPart> active;
-	public BodyPart[] vision;
-	public BodyPart[] hearing;
-	public BodyPart[] grasping;
+	public HashSet<BodyPart> parts;
 
+	public void UpdateTick() {
+		foreach(var p in parts) p.UpdateTick();
+	}
 
-	static BodyPart makeArm () {
-		var arm = new BodyPart("Arm");
-		var hand = new BodyPart("Hand");
-		BodyPart.Connect(arm, hand);
-		return arm;
+	public Body (HashSet<BodyPart> parts) => this.parts = parts;
+	public static readonly string human = """
+<Body>
+	<Part id="head"			name="Head"/>
+	<Part id="upperBody"	name="Upper Body"	heart="true"	connect="head"/>
+	<Part id="lowerBody"	name="Lower Body"					connect="upperBody"/>
+
+	<Part id="leftArm"		name="Left Arm"						connect="upperBody"/>
+	<Part id="rightArm"		name="Right Arm"					connect="upperBody"/>
+	<Part id="leftLeg"		name="Left Leg"						connect="lowerBody"/>
+	<Part id="rightLeg"		name="Right Leg"					connect="lowerBody"/>
+</Body>
+""";
+	public static HashSet<BodyPart> Parse(XElement el) {
+		Action pass = () => { };
+		Dictionary<string, BodyPart> parts = [];
+		foreach(var e in el.Elements()) {
+			var id = e.Att("id");
+
+			var pA = parts[id] = new();
+			pass += () => {
+				pA.Init(e, parts);
+			};
+		}
+		pass();
+		return [.. parts.Values];
 	}
-	static BodyPart makeLeg () {
-		var arm = new BodyPart("Leg");
-		var hand = new BodyPart("Foot");
-		BodyPart.Connect(arm, hand);
-		return arm;
-	}
-	public HashSet<BodyPart> human => new Lazy<HashSet<BodyPart>>(() => {
-		var b = (string s) => new BodyPart(s);
-		BodyPart
-			head		= b("Head"),
-			body		= b("Body"),
-			arm_l		= makeArm(),
-			arm_r		= makeArm(),
-			leg_l		= makeLeg(),
-			leg_r		= makeLeg()
-			;
-		Dictionary<BodyPart, BodyPart[]> parts = new(){
-			[head] = [body],
-			[body] = [arm_l, arm_r, leg_l, leg_r],
-		};
-		return head.GetGraph();
-	}).Value;
-	public HashSet<BodyPart> insect => new Lazy<HashSet<BodyPart>>(() => {
-		var b = (string s) => new BodyPart(s);
-		BodyPart
-			head = b("Head"),
-			body = b("Body"),
-			arm_l_i = makeArm(),
-			arm_r_i = makeArm(),
-			arm_l_ii = makeArm(),
-			arm_r_ii = makeArm(),
-			leg_l = makeLeg(),
-			leg_r = makeLeg()
-			;
-		Dictionary<BodyPart, BodyPart[]> parts = new() {
-			[head] = [body],
-			[body] = [arm_l_i, arm_r_i, arm_l_ii, arm_r_ii, leg_l, leg_r],
-		};
-		return head.GetGraph();
-	}).Value;
 }
 public class BodyPart {
-	public static void ConnectAll(Dictionary<BodyPart, BodyPart[]> parts) {
-		foreach(var (key, val) in parts) {
-			foreach(var v in val) {
-				Connect(key, v);
-			}
-		}
-	}
-	public static void ConnectAll (BodyPart[][] parts) {
-		foreach(var line in parts) ConnectAll(line);
-	}
-	public static void ConnectAll(BodyPart[] pair) {
-		foreach(var (i,p) in pair.Index().Skip(1)) {
-			Connect(pair[i-1], p);
-		}
-	}
-	public static void Connect(BodyPart left, BodyPart right) {
-		left.connected.Add(right);
-		right.connected.Add(left);
-	}
 	public bool IsConnected(BodyPart dest) {
 		HashSet<BodyPart> seen = [];
 		bool Check(BodyPart start) {
@@ -90,21 +55,41 @@ public class BodyPart {
 
 	public HashSet<BodyPart> GetGraph() {
 		HashSet<BodyPart> seen = [];
-		void Check (BodyPart start) {
+		void Visit (BodyPart start) {
 			if(seen.Contains(start)) {
 				return;
 			}
 			seen.Add(start);
 			foreach(var b in start.connected)
-				Check(b);
+				Visit(b);
 		}
-		Check(this);
+		Visit(this);
 		return seen;
 	}
 
-	string name;
+	/// <summary>Determines the max HP that this part can maintain. If bloodflow is low, then the body part starts atrophying</summary>
+	public double bloodflow;
+	public double hp = 100;
+	public double hpDelta = 0;
+
+	[Req] public string name;
+	[Opt] public bool heart = false;
 	public HashSet<BodyPart> connected = [];
-	public BodyPart(string name) {
-		this.name = name;
+	public BodyPart () { }
+
+	public void Init(XElement e, Dictionary<string, BodyPart> map) {
+		e.Initialize(this);
+		foreach(var other in e.TryAtt("connect", "").Split(",", StringSplitOptions.RemoveEmptyEntries).Select(s => map[s])) {
+			other.connected.Add(this);
+			connected.Add(other);
+		}
+	}
+	public void UpdateTick () {
+		hp += hpDelta;
+		hpDelta = 0;
+		if(!heart) {
+			var minHp = connected.Min(bp => bp.hp);
+			hpDelta = -Math.Min(hp, (hp - minHp) / 30);
+		}
 	}
 }
