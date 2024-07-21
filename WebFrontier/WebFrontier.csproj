@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CoroutineScheduler" Version="0.3.0" />
+    <PackageReference Include="TrippyGL" Version="1.2.1" />
     <PackageReference Include="Verlite.MsBuild" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Silk.NET.OpenGLES" Version="2.17.1" />
     <TrimmableAssembly Include="Silk.NET.Maths" />

@@ -4,6 +4,7 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 
 using Silk.NET.OpenGLES;
+using TrippyGL;
 
 [assembly: SupportedOSPlatform("browser")]
 
@@ -85,14 +86,12 @@ public static class Test
 
 		var gl = GL.GetApi(EGL.GetProcAddress);
 
+		Demo = new MeshDemo(gl);
+
 		Interop.Initialize();
 		ArgumentNullException.ThrowIfNull(BaseAddress);
 
-		Demo = await MeshDemo.LoadAsync(gl, BaseAddress);
-		Demo?.CanvasResized(CanvasWidth, CanvasHeight);
-
-		unsafe
-		{
+		unsafe {
 			Emscripten.RequestAnimationFrameLoop((delegate* unmanaged<double, nint, int>)&Frame, nint.Zero);
 		}
 	}
