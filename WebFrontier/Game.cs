@@ -14,8 +14,9 @@ using Silk.NET.OpenGLES;
 namespace WebGL.Sample;
 
 
-using DVertex = System.Numerics.Vector2;
-using DColor = System.Numerics.Vector3;
+using DVertex = Vector2;
+using DColor = Vector4;
+using DTex = Vector2;
 using Debug = System.Diagnostics.Debug;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "POD")]
@@ -24,6 +25,7 @@ public record struct VertexShaderInput
 {
 	public DVertex Vertex;
 	public DColor Color;
+	public DTex Tex;
 };
 public class Assets {
 	private static async Task<HttpContent> Get(HttpClient client, string path) {
@@ -108,8 +110,8 @@ public class Game {
 		}
 		{
 			// setup the vertex buffer to draw
-			buf_vertex = new VertexShaderInput[MeshData.TriangleVerts.Length];
-			buf_index = new ushort[MeshData.TriangleIndices.Length];
+			buf_vertex = new VertexShaderInput[1];
+			buf_index = new ushort[1];
 
 			var vbos = (Span<uint>)stackalloc uint[2];
 			gl.GenBuffers(vbos);
@@ -123,12 +125,15 @@ public class Game {
 
 			gl.EnableVertexAttribArray(0); // vertex
 			gl.EnableVertexAttribArray(1); // color
+			gl.EnableVertexAttribArray(2); // tex
 
 			var sz_vertex = Marshal.SizeOf<DVertex>();
 			var sz_color = Marshal.SizeOf<DColor>();
+			var sz_tex = Marshal.SizeOf<DTex>();
 
 			gl.VertexAttribPointer(0, sz_vertex / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(0));
 			gl.VertexAttribPointer(1, sz_color / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(sz_vertex));
+			gl.VertexAttribPointer(2, sz_tex / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(sz_tex));
 
 			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
 			gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(ushort) * buf_index.Length), null, BufferUsageARB.StreamDraw);
@@ -143,7 +148,11 @@ public class Game {
 		fixed(byte* pixels = assets.tex_missing) {
 			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		}
-		
+		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
+		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.ClampToEdge);
+		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
+		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
+
 		/*
 		var pixels = stackalloc int[64];
 		var texture = gl.GenTexture();
@@ -183,10 +192,10 @@ public class Game {
 		var sw = new Vector2(-1, -1);
 		var se = new Vector2(+1, -1);
 		buf_vertex = [
-			new(){Vertex = nw, Color = new(1, 1, 1)},
-			new(){Vertex = ne, Color = new(1, 1, 1)},
-			new(){Vertex = sw, Color = new(1, 1, 1)},
-			new(){Vertex = se, Color = new(1, 1, 1)}
+			new(){Vertex = nw, Color = new(1, 0, 0, 1)},
+			new(){Vertex = ne, Color = new(0, 1, 0,1)},
+			new(){Vertex = sw, Color = new(0, 0, 1,1)},
+			new(){Vertex = se, Color = new(1, 1, 1,1)}
 		];
 		buf_index = [
 			2,1,0,
