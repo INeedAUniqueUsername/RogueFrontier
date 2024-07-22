@@ -66,13 +66,13 @@ public class Game {
 
 		var iProgram = gl.CreateProgram();
 
-		Console.WriteLine(assets.src_vertex);
 		var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
 		gl.ShaderSource(sh_vertex, assets.src_vertex);
 		gl.CompileShader(sh_vertex);
 		gl.GetShader(sh_vertex, ShaderParameterName.CompileStatus, out int res);
 		//gl.GetShaderInfoLog(VertexShader, out string log);
 		Debug.Assert(res != 0, "sh_vertex");
+		gl.AttachShader(iProgram, sh_vertex);
 
 		var sh_fragment = gl.CreateShader(ShaderType.FragmentShader);
 		gl.ShaderSource(sh_fragment, assets.src_fragment);
@@ -80,13 +80,18 @@ public class Game {
 		gl.GetShader(sh_fragment, ShaderParameterName.CompileStatus, out res);
 		//gl.GetShaderInfoLog(FragmentShader, out log);
 		Debug.Assert(res != 0, "sh_fragment");
-
-		gl.AttachShader(iProgram, sh_vertex);
 		gl.AttachShader(iProgram, sh_fragment);
+
 		gl.LinkProgram(iProgram);
 		gl.GetProgram(iProgram, ProgramPropertyARB.LinkStatus, out res);
+		
+		if(res == 0) {
+			gl.GetProgramInfoLog(iProgram, out string info);
+			Console.WriteLine(info);
+		}
 		Debug.Assert(res != 0, $"GetProgram error: {res}");
 		gl.UseProgram(iProgram);
+		
 		//gl.GetProgramInfoLog(ShaderProgram, out log);
 		
 
