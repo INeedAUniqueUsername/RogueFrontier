@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <!-- https://github.com/emepetres/dotnet-wasm-sample/blob/main/src/console-native/Wasm.ConsoleNative.Sample.csproj -->
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -40,17 +40,15 @@
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
     <WasmExtraFilesToDeploy Include="$(MSBuildThisFileDirectory)Assets\**" TargetPath="Assets/%(RecursiveDir)%(Filename)%(Extension)" />
+	  <WasmExtraFilesToDeploy Include="$(MSBuildThisFileDirectory)shader\**" TargetPath="shader/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CoroutineScheduler" Version="0.3.0" />
-    <PackageReference Include="TrippyGL" Version="1.2.1" />
     <PackageReference Include="Verlite.MsBuild" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Silk.NET.OpenGLES" Version="2.17.1" />
     <TrimmableAssembly Include="Silk.NET.Maths" />
 
-
     <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
-    <ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "WebGL.Sample": {
+    "WebFrontier": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
