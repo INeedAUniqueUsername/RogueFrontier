@@ -45,8 +45,8 @@ public class Assets {
 		};
 		var getStr = async (string s) => await GetStr(client, s);
 		var getBytes = async (string s) => await GetBytes(client, s);
-		src_vertex = await getStr("shader/Vert.glsl");
-		src_fragment = await getStr("shader/Frag.glsl");
+		src_vertex = await getStr("shader/vertex.glsl");
+		src_fragment = await getStr("shader/fragment.glsl");
 		tex_missing = await getBytes("shader/missing.rgba");
 	}
 }
