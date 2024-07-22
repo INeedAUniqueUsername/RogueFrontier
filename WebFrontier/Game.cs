@@ -62,35 +62,40 @@ public class Game {
 		this.assets = assets;
 	}
 	public unsafe void Init () {
-			var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
-			gl.ShaderSource(sh_vertex, assets.src_vertex);
-			gl.CompileShader(sh_vertex);
-			gl.GetShader(sh_vertex, ShaderParameterName.CompileStatus, out int res);
-			//gl.GetShaderInfoLog(VertexShader, out string log);
-			Debug.Assert(res != 0);
+		Console.WriteLine($"A");
 
-			var sh_fragment = gl.CreateShader(ShaderType.FragmentShader);
-			gl.ShaderSource(sh_fragment, assets.src_fragment);
-			gl.CompileShader(sh_fragment);
-			gl.GetShader(sh_fragment, ShaderParameterName.CompileStatus, out res);
-			//gl.GetShaderInfoLog(FragmentShader, out log);
-			Debug.Assert(res != 0);
+		var iProgram = gl.CreateProgram();
 
-				// create the shader
-				var ShaderProgram = gl.CreateProgram();
-				gl.AttachShader(ShaderProgram, sh_vertex);
-				gl.AttachShader(ShaderProgram, sh_fragment);
-				gl.LinkProgram(ShaderProgram);
-				gl.GetProgram(ShaderProgram, ProgramPropertyARB.LinkStatus, out res);
-				gl.UseProgram(ShaderProgram);
-				//gl.GetProgramInfoLog(ShaderProgram, out log);
-				Debug.Assert(res != 0);
+		Console.WriteLine(assets.src_vertex);
+		var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
+		gl.ShaderSource(sh_vertex, assets.src_vertex);
+		gl.CompileShader(sh_vertex);
+		gl.GetShader(sh_vertex, ShaderParameterName.CompileStatus, out int res);
+		//gl.GetShaderInfoLog(VertexShader, out string log);
+		Debug.Assert(res != 0, "sh_vertex");
 
-				Debug.Assert(gl.GetError() == GLEnum.NoError, "GetUniformLocation()");
+		var sh_fragment = gl.CreateShader(ShaderType.FragmentShader);
+		gl.ShaderSource(sh_fragment, assets.src_fragment);
+		gl.CompileShader(sh_fragment);
+		gl.GetShader(sh_fragment, ShaderParameterName.CompileStatus, out res);
+		//gl.GetShaderInfoLog(FragmentShader, out log);
+		Debug.Assert(res != 0, "sh_fragment");
+
+		gl.AttachShader(iProgram, sh_vertex);
+		gl.AttachShader(iProgram, sh_fragment);
+		gl.LinkProgram(iProgram);
+		gl.GetProgram(iProgram, ProgramPropertyARB.LinkStatus, out res);
+		Debug.Assert(res != 0, $"GetProgram error: {res}");
+		gl.UseProgram(iProgram);
+		//gl.GetProgramInfoLog(ShaderProgram, out log);
+		
+
+		Debug.Assert(gl.GetError() == GLEnum.NoError, "GetUniformLocation()");
 
 		{
+			Console.WriteLine($"C");
 			//Configure shader
-			var viewProjectionLoc = gl.GetUniformLocation(ShaderProgram, "viewprojection"u8);
+			var viewProjectionLoc = gl.GetUniformLocation(iProgram, "viewprojection"u8);
 			var vp = Matrix3x2.Identity;
 			var matrix = (Span<float>)[
 				vp.M11, vp.M21, vp.M31,
@@ -101,11 +106,13 @@ public class Game {
 
 		}
 		{
+			Console.WriteLine("D");
 			// create the VAO
 			vao = gl.GenVertexArray();
 			gl.BindVertexArray(vao);
 		}
 		{
+			Console.WriteLine("E");
 			// setup the vertex buffer to draw
 			buf_vertex = new VertexShaderInput[1];
 			buf_index = new ushort[1];
@@ -124,6 +131,8 @@ public class Game {
 			gl.EnableVertexAttribArray(1); // color
 			gl.EnableVertexAttribArray(2); // tex
 
+
+			Console.WriteLine("F");
 			var sz_vertex = Marshal.SizeOf<DVertex>();
 			var sz_color = Marshal.SizeOf<DColor>();
 			var sz_tex = Marshal.SizeOf<DTex>();
@@ -136,8 +145,10 @@ public class Game {
 			gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(ushort) * buf_index.Length), null, BufferUsageARB.StreamDraw);
 
 			gl.BindVertexArray(0);
-			Debug.Assert(gl.GetError() is GLEnum.NoError);
+			Debug.Assert(gl.GetError() is GLEnum.NoError, "VertexAttribPointer");
 		}
+
+		Console.WriteLine("F");
 		//
 		//Make example texture
 		var t0 = gl.GenTexture();
@@ -146,7 +157,8 @@ public class Game {
 			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		}
 
-		var samplerLoc = gl.GetUniformLocation(ShaderProgram, "uSampler"u8);
+		Console.Write("E");
+		var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
 		gl.Uniform1(samplerLoc, t0);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.ClampToEdge);
