@@ -411,3 +411,4 @@ healthchecksdb
 /WebFrontier/Assets/Vert.glsl
 /WebFrontier/Assets/Vert.glsl
 /WebFrontier/Assets/Frag.glsl
+*.import
