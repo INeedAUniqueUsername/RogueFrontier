@@ -62,7 +62,6 @@ public class Game {
 		this.assets = assets;
 	}
 	public unsafe void Init () {
-		{
 			var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
 			gl.ShaderSource(sh_vertex, assets.src_vertex);
 			gl.CompileShader(sh_vertex);
@@ -77,7 +76,6 @@ public class Game {
 			//gl.GetShaderInfoLog(FragmentShader, out log);
 			Debug.Assert(res != 0);
 
-			{
 				// create the shader
 				var ShaderProgram = gl.CreateProgram();
 				gl.AttachShader(ShaderProgram, sh_vertex);
@@ -90,18 +88,17 @@ public class Game {
 
 				Debug.Assert(gl.GetError() == GLEnum.NoError, "GetUniformLocation()");
 
-				{
-					//Configure shader
-					var viewProjectionLoc = gl.GetUniformLocation(ShaderProgram, "viewprojection"u8);
-					var vp = Matrix3x2.Identity;
-
-					var matrix = (Span<float>)[
-						vp.M11, vp.M21, vp.M31,
+		{
+			//Configure shader
+			var viewProjectionLoc = gl.GetUniformLocation(ShaderProgram, "viewprojection"u8);
+			var vp = Matrix3x2.Identity;
+			var matrix = (Span<float>)[
+				vp.M11, vp.M21, vp.M31,
 						vp.M12, vp.M22, vp.M32
-					];
-					gl.UniformMatrix2x3(viewProjectionLoc, false, matrix);
-				}
-			}
+			];
+			gl.UniformMatrix2x3(viewProjectionLoc, false, matrix);
+
+
 		}
 		{
 			// create the VAO
@@ -133,7 +130,7 @@ public class Game {
 
 			gl.VertexAttribPointer(0, sz_vertex / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(0));
 			gl.VertexAttribPointer(1, sz_color / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(sz_vertex));
-			gl.VertexAttribPointer(2, sz_tex / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(sz_tex));
+			gl.VertexAttribPointer(2, sz_tex / sizeof(float), VertexAttribPointerType.Float, false, (uint)stride, (void*)(sz_vertex + sz_color));
 
 			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
 			gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(sizeof(ushort) * buf_index.Length), null, BufferUsageARB.StreamDraw);
@@ -141,13 +138,16 @@ public class Game {
 			gl.BindVertexArray(0);
 			Debug.Assert(gl.GetError() is GLEnum.NoError);
 		}
-
-
+		//
+		//Make example texture
 		var t0 = gl.GenTexture();
 		gl.BindTexture(GLEnum.Texture2D, t0);
 		fixed(byte* pixels = assets.tex_missing) {
 			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		}
+
+		var samplerLoc = gl.GetUniformLocation(ShaderProgram, "uSampler"u8);
+		gl.Uniform1(samplerLoc, t0);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
@@ -187,10 +187,10 @@ public class Game {
 		}
 
 		new Tile(0, 0, 'A');
-		var nw = new Vector2(-1, +1);
-		var ne = new Vector2(+1, +1);
-		var sw = new Vector2(-1, -1);
-		var se = new Vector2(+1, -1);
+		var nw = new DVertex(-1, +1);
+		var ne = new DVertex(+1, +1);
+		var sw = new DVertex(-1, -1);
+		var se = new DVertex(+1, -1);
 		buf_vertex = [
 			new(){Vertex = nw, Color = new(1, 0, 0, 1)},
 			new(){Vertex = ne, Color = new(0, 1, 0,1)},
