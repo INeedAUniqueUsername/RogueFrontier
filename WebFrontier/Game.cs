@@ -153,7 +153,7 @@ public class Game {
 			Debug.Assert(gl.GetError() is GLEnum.NoError, "VertexAttribPointer");
 		}
 
-		Console.WriteLine("F");
+		Console.WriteLine("G");
 		//
 		//Make example texture
 		var t0 = gl.GenTexture();
@@ -162,7 +162,7 @@ public class Game {
 			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		}
 
-		Console.Write("E");
+		Console.WriteLine("H");
 		var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
 		gl.Uniform1(samplerLoc, t0);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
