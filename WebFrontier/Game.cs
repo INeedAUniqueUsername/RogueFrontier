@@ -1,5 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Net.Http;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -7,6 +10,7 @@ using System.Threading.Tasks;
 using CoroutineScheduler;
 using LibGamer;
 using Silk.NET.OpenGLES;
+
 namespace WebGL.Sample;
 
 
@@ -21,26 +25,27 @@ public record struct VertexShaderInput
 	public DVertex Vertex;
 	public DColor Color;
 };
-
 public class Assets {
-	private static async Task<string> DownloadFile (
-		HttpClient client,
-		string path) {
+	private static async Task<HttpContent> Get(HttpClient client, string path) {
 		var response = await client.GetAsync(new Uri(path, UriKind.Relative));
 		if(!response.IsSuccessStatusCode)
 			throw new Exception();
-		return await response.Content.ReadAsStringAsync();
+		return response.Content;
 	}
-
+	private static async Task<string> GetStr (HttpClient client, string path) => await (await Get(client, path)).ReadAsStringAsync();
+	private static async Task<byte[]> GetBytes (HttpClient client, string path) => await (await Get(client, path)).ReadAsByteArrayAsync();
 	public string src_vertex;
 	public string src_fragment;
+	public byte[] tex_missing;
 	public async Task Init(Uri baseAddr) {
 		var client = new HttpClient() {
 			BaseAddress = baseAddr,
 		};
-		src_vertex = await DownloadFile(client, "shader/Vert.glsl");
-		src_fragment = await DownloadFile(client, "shader/Frag.glsl");
-
+		var getStr = async (string s) => await GetStr(client, s);
+		var getBytes = async (string s) => await GetBytes(client, s);
+		src_vertex = await getStr("shader/Vert.glsl");
+		src_fragment = await getStr("shader/Frag.glsl");
+		tex_missing = await getBytes("shader/missing.rgba");
 	}
 }
 public class Game {
@@ -131,6 +136,14 @@ public class Game {
 			gl.BindVertexArray(0);
 			Debug.Assert(gl.GetError() is GLEnum.NoError);
 		}
+
+
+		var t0 = gl.GenTexture();
+		gl.BindTexture(GLEnum.Texture2D, t0);
+		fixed(byte* pixels = assets.tex_missing) {
+			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
+		}
+		
 		/*
 		var pixels = stackalloc int[64];
 		var texture = gl.GenTexture();

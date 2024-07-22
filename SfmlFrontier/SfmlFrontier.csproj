@@ -8,6 +8,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="System.Drawing.Common" Version="9.0.0-preview.6.24327.6" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
 		<ProjectReference Include="..\LibGamer\LibGamer.csproj" />
 		<ProjectReference Include="..\LibSadConsole\ExtSadConsole.csproj" />

@@ -6,10 +6,13 @@ using System.Collections.Concurrent;
 using SFML.Audio;
 using ExtSadConsole;
 using RogueFrontier;
+using System.Drawing;
 const int WIDTH = Runner.WIDTH, HEIGHT = Runner.HEIGHT;
 string main = ExpectFile($"{Assets.ROOT}/scripts/Main.xml");
 string cover = ExpectFile($"{Assets.ROOT}/sprites/game_title.dat");
 string splash = ExpectFile($"{Assets.ROOT}/sprites/game_splash_background.dat");
+
+
 
 SadConsole.Settings.WindowTitle = $"Rogue Frontier";
 Runner.Run(RogueFrontier.Fonts.IBMCGA_8X8_FONT, r => {

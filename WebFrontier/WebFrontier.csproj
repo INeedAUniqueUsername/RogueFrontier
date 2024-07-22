@@ -42,12 +42,20 @@
     <WasmExtraFilesToDeploy Include="$(MSBuildThisFileDirectory)Assets\**" TargetPath="Assets/%(RecursiveDir)%(Filename)%(Extension)" />
 	  <WasmExtraFilesToDeploy Include="$(MSBuildThisFileDirectory)shader\**" TargetPath="shader/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
+    </COMReference>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CoroutineScheduler" Version="0.3.0" />
     <PackageReference Include="Verlite.MsBuild" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Silk.NET.OpenGLES" Version="2.17.1" />
     <TrimmableAssembly Include="Silk.NET.Maths" />
-
     <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
   </ItemGroup>
