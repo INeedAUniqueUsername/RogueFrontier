@@ -9,5 +9,5 @@ uniform sampler2D uSampler;
 
 void main() {	
 	diffuse = _rgba;
-	//diffuse = texture(uSampler, tex)
+	//diffuse = texture(uSampler, _tex);
 }

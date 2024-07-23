@@ -15,8 +15,8 @@ public static partial class SMenu {
 
     public static T Eval<T> (Func<T> f) => f();
 	public static void RenderBackground (this Sf c) {
-        foreach(var x in (0..c.Width)) {
-			foreach(var y in (0..c.Height)) {
+        foreach(var x in (0..c.GridWidth)) {
+			foreach(var y in (0..c.GridHeight)) {
                 c.Tile[x, y] = new Tile(Color.Black, Color.SetA(Color.Black, 128), ' ');
 			}
 		}
@@ -267,7 +267,7 @@ public static partial class SMenu {
 				return;
 			}
 			var im = GetImage(i);
-			Sf.DrawRect(img, 0, 0, img.Width, img.Height, new() {
+			Sf.DrawRect(img, 0, 0, img.GridWidth, img.GridHeight, new() {
 
 			});
 			foreach(var (p, t) in im) {

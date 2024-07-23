@@ -17,7 +17,7 @@ public class TradeMenu : IScene {
 
 
 	public TradeMenu((IScene scene, Sf sf) prev, PlayerShip playerShip, ITrader docked, GetPrice GetBuyPrice, GetPrice GetSellPrice) {
-        this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_6x8);
+        this.sf = new Sf(prev.sf.GridWidth, prev.sf.GridHeight, Fonts.FONT_6x8);
 		this.prev = prev.scene;
         this.player = playerShip.person;
         

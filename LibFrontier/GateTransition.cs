@@ -15,7 +15,7 @@ public class GateTransition : IScene {
     Rect rect;
     public Action next;
 
-    Sf compositeView;int Width => compositeView.Width;int Height => compositeView.Height;
+    Sf compositeView;int Width => compositeView.GridWidth;int Height => compositeView.GridHeight;
 
     class Particle {
         public int lifetime;

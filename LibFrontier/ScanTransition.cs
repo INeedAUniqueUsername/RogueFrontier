@@ -8,8 +8,8 @@ public class ScanTransition : IScene {
 	IScene next;
     Sf sf_next;
     Sf sf;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     double y;
     public ScanTransition(IScene next, Sf sf_next) {
         y = 0;
@@ -26,8 +26,8 @@ public class ScanTransition : IScene {
     }
     public void Update(TimeSpan delta) {
         next.Update(delta);
-        if (y < sf.Height) {
-            y += delta.TotalSeconds * sf.Height * 3;
+        if (y < sf.GridHeight) {
+            y += delta.TotalSeconds * sf.GridHeight * 3;
         } else {
             Transition();
         }

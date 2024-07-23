@@ -16,12 +16,12 @@ public class EpitaphScreen : IScene {
 	public EpitaphScreen(Mainframe playerMain, Epitaph epitaph) {
         this.playerMain = playerMain;
         this.epitaph = epitaph;
-        this.sf_ui = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_6x8);
-		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height * 3 / 4 - 4), "Resurrect", Resurrect));
-		controls.Add(new SfLink(sf_ui, (1, sf_ui.Height * 3 / 4 - 2), "TitleScreen", Exit));
+        this.sf_ui = new Sf(playerMain.sf.GridWidth, playerMain.sf.GridHeight, Fonts.FONT_6x8);
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.GridHeight * 3 / 4 - 4), "Resurrect", Resurrect));
+		controls.Add(new SfLink(sf_ui, (1, sf_ui.GridHeight * 3 / 4 - 2), "TitleScreen", Exit));
 
 		var size = epitaph.deathFrame.GetLength(0);
-        sf_img = new Sf(size, size, Fonts.FONT_8x8) { pos = (playerMain.sf.Width - size, 0) };
+        sf_img = new Sf(size, size, Fonts.FONT_8x8) { pos = (playerMain.sf.GridWidth - size, 0) };
 	}
     public void Resurrect() {
         var playerShip = playerMain.playerShip;
@@ -93,7 +93,7 @@ public class EpitaphScreen : IScene {
         */
         TitleScreen();
         void TitleScreen() {
-            var ts = new TitleScreen(sf_ui.Width, sf_ui.Height, new System(playerMain.world.universe));
+            var ts = new TitleScreen(sf_ui.GridWidth, sf_ui.GridHeight, new System(playerMain.world.universe));
             Go(new TitleSlideOpening(ts, ts.sf));
         }
     }
@@ -132,7 +132,7 @@ public class IntermissionScreen : IScene {
 	Sf Surface;
 
 	public IntermissionScreen(Mainframe playerMain, LiveGame game, string desc) {
-        this.Surface = new Sf(playerMain.sf.Width, playerMain.sf.Height, Fonts.FONT_8x8);
+        this.Surface = new Sf(playerMain.sf.GridWidth, playerMain.sf.GridHeight, Fonts.FONT_8x8);
         this.playerMain = playerMain;
         this.game = game;
         this.desc = desc;
@@ -157,7 +157,7 @@ public class IntermissionScreen : IScene {
     }
     public void Exit() {
         game.Save();
-        var ts = new TitleScreen(Surface.Width, Surface.Height, new System(playerMain.world.universe));
+        var ts = new TitleScreen(Surface.GridWidth, Surface.GridHeight, new System(playerMain.world.universe));
 		Go(new TitleSlideOpening(ts, ts.sf));
     }
     public void Render(TimeSpan delta) {

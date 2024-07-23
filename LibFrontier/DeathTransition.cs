@@ -20,7 +20,7 @@ public class DeathPause : IScene {
         this.prev = prev;
         this.next = next;
         //this.sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
-        view = new Viewport(prev.sf.Width, prev.sf.Height, prev.monitor);
+        view = new Viewport(prev.sf.GridWidth, prev.sf.GridHeight, prev.monitor);
         view.Update(new());
         view.Draw += sf => Draw?.Invoke(sf);
 
@@ -42,8 +42,8 @@ public class DeathTransition : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 	Sf sf;
 	IScene prev, next;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
 	public class Particle {
         public int x, destY;
         public double y, delay;

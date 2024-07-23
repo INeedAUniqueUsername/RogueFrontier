@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace LibGamer;
 public interface SfContainer {
 	Sf sf { get; set; }
-	int Width => sf.Width;
-	int Height => sf.Height;
+	int Width => sf.GridWidth;
+	int Height => sf.GridHeight;
 }
 /// <summary>
 /// Surface of Tiles. Wrapper for array of tiles.
@@ -22,11 +22,12 @@ public class Sf {
 	public Tf font;
 	public int GlyphWidth => font.GlyphWidth;
 	public int GlyphHeight => font.GlyphHeight;
-	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * Width, GlyphHeight * Height);
+	public (int w, int h) GlyphSize => font.GlyphSize;
+	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * GridWidth, GlyphHeight * GridHeight);
 	public Rect SubRect (int x, int y, int w, int h) => new Rect((pos.xi + x) * GlyphWidth, (y + pos.yi) * GlyphHeight, w * GlyphWidth, h * GlyphHeight);
 	public Sf(int Width, int Height, Tf font) {
-		this.Width = Width;
-		this.Height = Height;
+		this.GridWidth = Width;
+		this.GridHeight = Height;
 		this.font = font;
 		Data = (Tile[])Array.CreateInstance(typeof(Tile), Width * Height);
 		Array.Fill(Data, LibGamer.Tile.empty);
@@ -41,18 +42,24 @@ public class Sf {
 		}
 		return sf;
 	}
-	public static Sf From (Sf sf) => new Sf(sf.Width, sf.Height, sf.font);
+	public static Sf From (Sf sf) => new Sf(sf.GridWidth, sf.GridHeight, sf.font);
 	public Sf Clone => Sf.From(this);
-	public int Width { get; }
-	public int Height { get; }
-	public int Count => Width * Height;
+	public int GridWidth { get; }
+	public int GridHeight { get; }
+
+	public (int x, int y) GridSize => (GridWidth, GridHeight);
+	public int TileCount => GridWidth * GridHeight;
 	public Tile[] Data;
 	public HashSet<(int x,int y)> Active = new();
 	public Grid<uint> Front { get; }
 	public Grid<uint> Back { get; }
 	public Grid<Tile> Tile { get; }
-	public bool IsValid (int x, int y) => GetIndex(x, y) is > -1 and { } i && i < Count;
-	public int GetIndex (int x, int y) => y * Width + x;
+	public bool IsValid (int x, int y) => GetIndex(x, y) is > -1 and { } i && i < TileCount;
+	public int GetIndex (int x, int y) => y * GridWidth + x;
+
+	public IEnumerable<(int x, int y)> Positions =>
+		GridHeight.AsEnumerable().SelectMany(y => GridWidth.Select(x => (x, y)));
+
 	public void Clear (Tile t = null) {
 		redraw = true;
 		Active.Clear();
@@ -98,7 +105,7 @@ public class Sf {
 		var i = GetIndex(x, y);
 		foreach(var t in str) {
 			Data[i] = t;
-			Active.Add((i % Width, i / Width));
+			Active.Add((i % GridWidth, i / GridWidth));
 			i++;
 		}
 	}

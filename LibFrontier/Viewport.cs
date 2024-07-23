@@ -5,8 +5,8 @@ using System.Collections.Generic;
 namespace RogueFrontier;
 public class Viewport {
     public Action<Sf> Draw { get; set; }
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     public Camera camera;
     public System world;
     public Dictionary<(int, int), Tile> tiles = [];

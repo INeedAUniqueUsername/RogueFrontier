@@ -47,8 +47,8 @@ public partial class Runner : Node2D {
 			var s = surface.Instantiate<Surface>();
 			AddChild(s);
 			s.Show();
-			s.GridWidth = sf.Width;
-			s.GridHeight = sf.Height;
+			s.GridWidth = sf.GridWidth;
+			s.GridHeight = sf.GridHeight;
 			s.ResetGrid();
 			var pos = sf.pos * sf.font.GlyphSize;
 			s.Position = new Vector2(pos.xf, pos.yf);

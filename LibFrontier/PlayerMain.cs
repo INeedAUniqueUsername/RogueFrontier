@@ -28,8 +28,8 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     }
     public ShipControls Settings;
     public Sf sf;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     public System world => playerShip.world;
     public Camera camera { get; private set; }
 	public Profile profile;
@@ -242,7 +242,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         playerShip.ship.silence = 0;
         HideAll();
         //Get a snapshot of the player
-        var size = sf.Height;
+        var size = sf.GridHeight;
         var deathFrame = new Tile[size, size];
         var center = new XY(size / 2, size / 2);
         for (int y = 0; y < size; y++) {
@@ -612,7 +612,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                 playerControls.input.UsingMouse = true;
             }
 
-            var centerOffset = new XY(mouseScreenPos.x, sf.Height - mouseScreenPos.y) - new XY(sf.Width / 2, sf.Height / 2);
+            var centerOffset = new XY(mouseScreenPos.x, sf.GridHeight - mouseScreenPos.y) - new XY(sf.GridWidth / 2, sf.GridHeight / 2);
             centerOffset *= uiMegamap.viewScale;
             mouseWorldPos = (centerOffset.Rotate(camera.rotation) + camera.position);
             ActiveObject t;
@@ -870,8 +870,8 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
 }
 public class BackdropConsole {
     public Action<Sf> Draw { set; get; }
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     public Camera camera;
     private readonly XY screenCenter;
     private Backdrop backdrop;
@@ -910,8 +910,8 @@ public class BackdropConsole {
 }
 public class Megamap {
 	public Action<Sf> Draw { set; get; }
-	int Width => sf.Width;
-    int Height => sf.Height;
+	int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
     Camera camera;
     PlayerShip player;
     GeneratedLayer background;
@@ -1097,8 +1097,8 @@ public class Megamap {
 public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
 	public Action<Sf> Draw { set; get; }
 	public Sf sf;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     PlayerShip player;
     public float glowAlpha;
     public bool armorDecay;
@@ -1331,8 +1331,8 @@ public class Readout {
     public double viewScale;
 
     public int arrowDistance;
-    public int Width => sf_ui.Width;
-    public int Height => sf_ui.Height;
+    public int Width => sf_ui.GridWidth;
+    public int Height => sf_ui.GridHeight;
     XY screenSize => new XY(Width, Height);
     XY screenCenter => screenSize / 2;
     public Sf sf_ui;
@@ -1956,8 +1956,8 @@ public class Readout {
 }
 public class Edgemap {
 	public Action<Sf> Draw { set; get; }
-	public int Width => sf.Width;
-    public int Height => sf.Height;
+	public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
     Camera camera;
     PlayerShip player;
     public double viewScale;
@@ -2025,8 +2025,8 @@ public class Minimap {
     public byte alpha;
     List<(int x, int y)> area = new();
     public Sf sf;
-    int Width => sf.Width;
-    int Height=>sf.Height;
+    int Width => sf.GridWidth;
+    int Height=>sf.GridHeight;
 	XY screenSize, screenCenter;
     public Minimap(Monitor m) {
         this.player = m.playerShip;
@@ -2388,7 +2388,7 @@ public class PowerWidget {
         int index = 0;
         sf.Clear();
 
-        Sf.DrawRect(sf, x++, y++, sf.Width, sf.Height, new() {
+        Sf.DrawRect(sf, x++, y++, sf.GridWidth, sf.GridHeight, new() {
 
         });
         var foreground = ABGR.White;

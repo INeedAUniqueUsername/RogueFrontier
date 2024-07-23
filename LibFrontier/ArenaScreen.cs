@@ -32,8 +32,8 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	bool passTime = true;
 	Sf sf_world;
 	Sf sf_ui;
-	int Width => sf_world.Width;
-	int Height => sf_world.Height;
+	int Width => sf_world.GridWidth;
+	int Height => sf_world.GridHeight;
 
 	public List<SfControl> controls = new();
 

@@ -19,7 +19,7 @@ public record SceneCtx {
 		playerShip = main.playerShip;
 	}
     public SceneCtx(IScene prev, LibGamer.Sf sf, PlayerShip pl) {
-        (Width, Height) = (sf.Width, sf.Height);
+        (Width, Height) = (sf.GridWidth, sf.GridHeight);
         this.prev = prev;
         this.playerShip = pl;
     }

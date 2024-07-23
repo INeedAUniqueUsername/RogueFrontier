@@ -26,8 +26,8 @@ class OutroCrawl : IScene {
     Sf cloudLayer;
 
     Sf sf;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
 
 
 	private IScene sub;
@@ -192,14 +192,14 @@ public class Slide : IScene {
     public Action<SoundCtx> PlaySound {set; get;}
     public Sf prev, next;
     Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
     public Action done;
     int x = 0;
     public Slide(Sf prev, Sf next, Action done) {
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf((prev ?? next).Width, (prev ?? next).Height, Fonts.FONT_8x8);
+        this.sf = new Sf((prev ?? next).GridWidth, (prev ?? next).GridHeight, Fonts.FONT_8x8);
         this.done = done;
     }
     public void Update(TimeSpan delta) {

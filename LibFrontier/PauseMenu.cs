@@ -14,8 +14,8 @@ public class PauseScreen : IScene {
     public Sf sf;
     public List<SfControl> controls = [];
     public bool visible;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
 
 	public PauseScreen(Mainframe playerMain) {
         sf = new(playerMain.Width * 4/3, playerMain.Height, Fonts.FONT_6x8);

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -39,6 +41,10 @@ public class Assets {
 	public string src_vertex;
 	public string src_fragment;
 	public byte[] tex_missing;
+	public bool[] tex_missing_b;
+
+	public byte[] ibmcga_8x8;
+	public bool[] ibmcga_8x8_b;
 	public async Task Init(Uri baseAddr) {
 		var client = new HttpClient() {
 			BaseAddress = baseAddr,
@@ -48,6 +54,10 @@ public class Assets {
 		src_vertex = await getStr("shader/vertex.glsl");
 		src_fragment = await getStr("shader/fragment.glsl");
 		tex_missing = await getBytes("shader/missing.rgba");
+
+		tex_missing_b = [..from i in tex_missing.Length/4 select tex_missing[i*4] != 0];
+		ibmcga_8x8 = await getBytes("Assets/font/IBMCGA+_8x8.rgba");
+		ibmcga_8x8_b = [..from i in ibmcga_8x8.Length / 4 select ibmcga_8x8[i * 4] != 0];
 	}
 }
 public class Game {
@@ -71,14 +81,25 @@ public class Game {
 		gl.CompileShader(sh_vertex);
 		gl.GetShader(sh_vertex, ShaderParameterName.CompileStatus, out int res);
 		//gl.GetShaderInfoLog(VertexShader, out string log);
+
+		if(res == 0) {
+			gl.GetShaderInfoLog(sh_vertex, out string info);
+			Console.WriteLine(info);
+		}
 		Debug.Assert(res != 0, "sh_vertex");
 		gl.AttachShader(iProgram, sh_vertex);
+
 
 		var sh_fragment = gl.CreateShader(ShaderType.FragmentShader);
 		gl.ShaderSource(sh_fragment, assets.src_fragment);
 		gl.CompileShader(sh_fragment);
 		gl.GetShader(sh_fragment, ShaderParameterName.CompileStatus, out res);
 		//gl.GetShaderInfoLog(FragmentShader, out log);
+
+		if(res == 0) {
+			gl.GetShaderInfoLog(sh_fragment, out string info);
+			Console.WriteLine(info);
+		}
 		Debug.Assert(res != 0, "sh_fragment");
 		gl.AttachShader(iProgram, sh_fragment);
 
@@ -154,17 +175,35 @@ public class Game {
 		}
 
 		Console.WriteLine("G");
-		//
-		//Make example texture
-		var t0 = gl.GenTexture();
-		gl.BindTexture(GLEnum.Texture2D, t0);
-		fixed(byte* pixels = assets.tex_missing) {
-			gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
+		if(false) {
+			//Make example texture
+			var t0 = gl.GenTexture();
+			gl.BindTexture(GLEnum.Texture2D, t0);
+			fixed(byte* missing = assets.tex_missing) {
+				gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 800, 450, 0, GLEnum.Rgba, GLEnum.UnsignedByte, missing);
+
+				var err = gl.GetError();
+				if(err != GLEnum.NoError) {
+					Console.WriteLine($"GLError: {err}");
+				}
+				Debug.Assert(err == GLEnum.NoError);
+			}
+
+
+
+			Console.WriteLine("H");
+			var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
+			gl.Uniform1(samplerLoc, t0);
 		}
 
-		Console.WriteLine("H");
-		var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
-		gl.Uniform1(samplerLoc, t0);
+		sf = new Sf(150, 90, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 1 };
+
+		var r = new Random();
+		foreach(var p in sf.Positions) {
+			var nf = () => (byte)r.Next(0, 255);
+			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), 255), ABGR.RGBA(nf(), nf(), nf(), 255), 'a');
+		}
+
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
@@ -177,6 +216,7 @@ public class Game {
 		gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		*/
 	}
+	Sf sf;
 	public unsafe void Render() {
 		// iterate our logic thread
 		//Scheduler.Resume();
@@ -199,51 +239,112 @@ public class Game {
 			};
 		}
 #endif
-		void Render(Sf sf) {
+
+		var li_vertex = new List<VertexShaderInput>();
+		var li_index = new List<ushort>();
+		void AddPolygon (VertexShaderInput[] inp, ushort[] ind) {
+			var sz = li_vertex.Count;
+			li_index.AddRange(from i in ind select (ushort)(i + sz));
+			li_vertex.AddRange(inp);
+		}
+		void AddSquare(DVertex pos, DVertex size, DColor color) {
+			AddPolygon([
+				new(){ Vertex = pos + 2*size * new DVertex(0,0), Color = color }, //nw
+				new(){ Vertex = pos + 2*size * new DVertex(1,0), Color = color }, //ne
+				new(){ Vertex = pos + 2*size * new DVertex(0,1), Color = color }, //sw
+				new(){ Vertex = pos + 2*size * new DVertex(1,1), Color = color }, //se
+			], [
+				0,1,2,
+				1,2,3
+			]);
 
 		}
 
-		new Tile(0, 0, 'A');
+		DColor MakeVector(ABGR from) =>
+			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a);
+		
+		void RenderSf(Sf sf) {
+			var r = new Random();
+			var scale = (float)sf.scale;
+			var sz_pixel = new DVertex(scale / width, scale / height);
+			var sz_tile = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * sz_pixel;
+			foreach(var pos_cell in sf.Positions) {
+				var pos_screen = new DVertex(
+					2f * pos_cell.x * sz_tile.X - 1f,
+					2f * pos_cell.y * sz_tile.Y - 1f
+					);
+				var t = sf.Tile[pos_cell];
+				var back = MakeVector(new ABGR(t.Background));
+				AddSquare(pos_screen, sz_tile, back);
+
+				/*
+				var front = MakeVector(new ABGR(t.Foreground));
+				foreach(var(x,y) in sf.TileHeight.AsEnumerable().SelectMany(y => sf.TileWidth.Select(x => (x, y)))) {
+					if(assets.ibmcga_8x8_b[x + y * sf.TileWidth]) {
+						AddSquare(pos_screen + new DVertex(x, y) * sz_pixel, sz_pixel, front);
+					}
+				}
+				*/
+			}
+		}
+		Console.WriteLine("Render");
+		RenderSf(sf);
+		foreach(var inp in li_vertex) {
+			//Console.WriteLine(inp);
+			//Console.WriteLine(inp.Vertex.ToString());
+		}
+		buf_vertex = [.. li_vertex];
+		buf_index = [.. li_index];
+		/*
 		var nw = new DVertex(-1, +1);
 		var ne = new DVertex(+1, +1);
 		var sw = new DVertex(-1, -1);
 		var se = new DVertex(+1, -1);
 		buf_vertex = [
-			new(){Vertex = nw, Color = new(1, 0, 0, 1)},
-			new(){Vertex = ne, Color = new(0, 1, 0,1)},
-			new(){Vertex = sw, Color = new(0, 0, 1,1)},
-			new(){Vertex = se, Color = new(1, 1, 1,1)}
+			new(){Vertex = nw, Color = new(1, 0, 0, 1), Tex = new(0, 0)},
+			new(){Vertex = ne, Color = new(0, 1, 0,1), Tex = new(1, 0)},
+			new(){Vertex = sw, Color = new(0, 0, 1,1), Tex = new(0, 1)},
+			new(){Vertex = se, Color = new(1, 1, 1,1), Tex = new(1, 1)}
 		];
 		buf_index = [
 			2,1,0,
 			//4,3,2
 		];
+		*/
 #if false
 		for(int i = 0; i < MeshData.TriangleIndices.Length; i++)
 			buf_index[i] = MeshData.TriangleIndices[i];
 #endif
-
-		void BindVAO () {
+		void Bind(uint vao, uint vbo, uint vbi) {
 			gl.BindVertexArray(vao);
 			gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
 			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
-			Debug.Assert(gl.GetError() is GLEnum.NoError);
-		}
-		void UnbindVAO () {
-			gl.BindVertexArray(0);
-			gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
-			Debug.Assert(gl.GetError() is GLEnum.NoError);
-		}
 
+			CheckError($"{vao}, {vbo}, {vbi}");
+		}
+		void UnbindVAO () => Bind(0, 0, 0);
+		void BindVAO () => Bind(vao, vbo, vbi);
 		BindVAO();
 		gl.BufferData<VertexShaderInput>(BufferTargetARB.ArrayBuffer, buf_vertex, BufferUsageARB.StreamDraw);
 		gl.BufferData<ushort>(BufferTargetARB.ElementArrayBuffer, buf_index, BufferUsageARB.StreamDraw);
 		gl.DrawElements(PrimitiveType.Triangles, (uint)buf_index.Length, DrawElementsType.UnsignedShort, (void*)0);
+		CheckError("DrawElements");
 		UnbindVAO();
 
+		void CheckError (string msg) {
+			var err = gl.GetError();
+			if(err != GLEnum.NoError) {
+				Console.WriteLine($"[{msg}] GL error: {err}");
+			}
+			Debug.Assert(err is GLEnum.NoError);
+		}
 	}
+
+	int width, height;
 	public void CanvasResized(int width, int height) {
+		(this.width, this.height) = (width, height);
+
+		Console.WriteLine($"Canvas size: {width},{height}");
 		gl.Viewport(0, 0, (uint)width, (uint)height);
 		// note: in a real game, aspect ratio corrections should be applies
 		// to your projection transform, not your model transform

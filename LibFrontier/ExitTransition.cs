@@ -25,13 +25,13 @@ public class ExitTransition : IScene {
         this.prev = prev;
         this.sf_prev = sf_prev;
         this.next = next;
-        this.sf = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
+        this.sf = new Sf(sf_prev.GridWidth, sf_prev.GridHeight, Fonts.FONT_8x8);
         InitParticles();
     }
     public void InitParticles() {
         particles = new HashSet<Particle>();
-        for (int y = 0; y < sf.Height / 2; y++) {
-            for (int x = 0; x < sf.Width; x++) {
+        for (int y = 0; y < sf.GridHeight / 2; y++) {
+            for (int x = 0; x < sf.GridWidth; x++) {
                 particles.Add(new Particle() {
                     x = x,
                     y = -1,
@@ -40,11 +40,11 @@ public class ExitTransition : IScene {
                 });
             }
         }
-        for (int y = sf.Height / 2; y < sf.Height; y++) {
-            for (int x = 0; x < sf.Width; x++) {
+        for (int y = sf.GridHeight / 2; y < sf.GridHeight; y++) {
+            for (int x = 0; x < sf.GridWidth; x++) {
                 particles.Add(new Particle() {
                     x = x,
-                    y = sf.Height,
+                    y = sf.GridHeight,
                     destY = y,
                     delay = (1 + Sin(Sin(x) + Sin(y))) * 3 / 2
                 });

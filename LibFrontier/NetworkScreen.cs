@@ -13,8 +13,8 @@ public class GalaxyMap {
     Hand mouse=new();
     private XY center;
     public Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
 
     public bool visible;
     public GalaxyMap(Mainframe prev) {

@@ -32,8 +32,8 @@ class PlayerCreator : IScene {
     private ref GenomeType playerGenome => ref context.playerGenome;
     public Sf sf_img;
     public Sf sf_tile;
-    int Width => sf_img.Width;
-    int Height => sf_img.Height;
+    int Width => sf_img.GridWidth;
+    int Height => sf_img.GridHeight;
 
     public Sf sf_icon;
     public Sf sf_ui;
@@ -47,7 +47,7 @@ class PlayerCreator : IScene {
 
     public List<SfControl> controls = [];
     public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
-        sf_img = new Sf(sf_prev.Width, sf_prev.Height, Fonts.FONT_8x8);
+        sf_img = new Sf(sf_prev.GridWidth, sf_prev.GridHeight, Fonts.FONT_8x8);
         sf_ui = new Sf(Width * 4 / 3, Height, Fonts.FONT_6x8);
         sf_icon = new Sf(1, 1, Fonts.FONT_8x8) { scale = 2, pos = (17, 17) };
         this.prev = prev;
@@ -126,10 +126,10 @@ class PlayerCreator : IScene {
         });
         controls.Add(identityButton); {
             string back = "[Escape] Back";
-            controls.Add(new SfLink(sf_ui, (sf_ui.Width - back.Length, 1), back, Back));
+            controls.Add(new SfLink(sf_ui, (sf_ui.GridWidth - back.Length, 1), back, Back));
         } {
             string start = "[Enter] Start";
-            controls.Add(new SfLink(sf_ui, (sf_ui.Width - start.Length, Height - 1), start, Start));
+            controls.Add(new SfLink(sf_ui, (sf_ui.GridWidth - start.Length, Height - 1), start, Start));
         } PlaceArrows();
     }
     public void Update(TimeSpan delta) {
@@ -240,13 +240,13 @@ class PlayerCreator : IScene {
 
         string left = "<===  [Left Arrow]";
         if (showLeft) {
-            int x = sf_ui.Width / 4 - left.Length - 1;
+            int x = sf_ui.GridWidth / 4 - left.Length - 1;
             controls.Add(leftArrow = new SfLink(sf_ui, (x, shipDescY), left, SelectLeft));
         }
 
         string right = "[Right Arrow] ===>";
         if (showRight) {
-            var x = sf_ui.Width * 3 / 4 + 1;
+            var x = sf_ui.GridWidth * 3 / 4 + 1;
             controls.Add(rightArrow = new SfLink(sf_ui, (x, shipDescY), right, SelectRight));
         }
     }

@@ -17,11 +17,11 @@ class ShipMenu : IScene {
     public List<SfControl> controls = [];
 	//Idea: Show an ASCII-art map of the ship where the player can walk around
 	public ShipMenu(IScene prev, Sf sf_prev, PlayerShip playerShip, Timeline story) {
-        this.sf = new Sf(sf_prev.Width * 4 / 3, sf_prev.Height, Fonts.FONT_6x8);
+        this.sf = new Sf(sf_prev.GridWidth * 4 / 3, sf_prev.GridHeight, Fonts.FONT_6x8);
         this.prev = prev;
         this.playerShip = playerShip;
         this.story = story;
-        int x = 1, y = sf.Height - 9;
+        int x = 1, y = sf.GridHeight - 9;
 
         controls = [
 			new SfLink(sf, (x,y++), "[A]ctive Devices", ShowPower),
@@ -44,7 +44,7 @@ class ShipMenu : IScene {
         sf.Clear();
         sf.RenderBackground();
         var name = playerShip.shipClass.name;
-        var x = sf.Width / 4 - name.Length / 2;
+        var x = sf.GridWidth / 4 - name.Length / 2;
         var y = 4;
         void Print(int x, int y, string s) =>
             sf.Print(x, y, s, ABGR.White, ABGR.Black);
@@ -59,7 +59,7 @@ class ShipMenu : IScene {
         Print(x, y, $"{$"Max Speed: {playerShip.shipClass.maxSpeed}",-16}{$"Rotate deceleration: {playerShip.shipClass.rotationDecel,3} deg/s^2"}");
         y++;
         Print(x, y, $"{"",-16}{$"Rotate max speed:    {playerShip.shipClass.rotationMaxSpeed * 30,3} deg/s^2"}");
-        x = sf.Width / 2;
+        x = sf.GridWidth / 2;
         y = 2;
         var pl = playerShip.person;
         Print(x, y++, "[Player]");
@@ -118,7 +118,7 @@ class ShipMenu : IScene {
             Print(x, y++, "[Messages]");
             foreach (var m in playerShip.messages) {
                 
-                sf.Print(x, Min(sf.Height - 3, y++), m.Draw());
+                sf.Print(x, Min(sf.GridHeight - 3, y++), m.Draw());
             }
             y++;
         }

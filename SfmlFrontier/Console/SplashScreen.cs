@@ -14,8 +14,8 @@ public class SplashScreen : IScene {
     double time = 8;
 
     Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
 
 	public SplashScreen(int Width, int Height, Action next) {
         this.next = next;

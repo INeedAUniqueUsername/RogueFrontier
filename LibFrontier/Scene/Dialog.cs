@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace RogueFrontier;
 public interface IRender {
 	Sf sf { get; }
-	public int Width => sf.Width;
-	public int Height => sf.Height;
+	public int Width => sf.GridWidth;
+	public int Height => sf.GridHeight;
 }
 
 public enum NavFlags : long {
@@ -171,7 +171,7 @@ public class Dialog : IScene {
 		} catch(Exception e) {
 
 		}
-		int descX = surf.Width / 2 + 8, descY = 8;
+		int descX = surf.GridWidth / 2 + 8, descY = 8;
 
 		int left = descX;
 		int top = descY;

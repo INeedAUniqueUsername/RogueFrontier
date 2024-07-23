@@ -27,8 +27,8 @@ public class TitleScreen : IScene {
 	public Dictionary<(int, int), Tile> tiles;
 	public byte[] titleMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Title.wav");
 	public byte[] crawlMusic = File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav");
-	public int Width => sf.Width;
-	public int Height => sf.Height;
+	public int Width => sf.GridWidth;
+	public int Height => sf.GridHeight;
 	public Sf sf;
 	private List<SfLink> buttons = [];
 	public TitleScreen(int Width, int Height, System World) {
@@ -112,7 +112,7 @@ public class TitleScreen : IScene {
 				RogueFrontier.IntroCrawl crawl = null;
 
 				var next = CreateWorld();
-				pc.Go?.Invoke(crawl = new(sf.Width, sf.Height, next));
+				pc.Go?.Invoke(crawl = new(sf.GridWidth, sf.GridHeight, next));
 
 				pc.PlaySound?.Invoke(new SoundCtx(File.ReadAllBytes($"{Assets.ROOT}/music/Crawl.wav"), 33));
 				//Task.Run(CreateWorld);

@@ -13,9 +13,9 @@ public class Mainframe : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	public Sf sf_main;
-	int Width => sf_main.Width;
-	int Height=> sf_main.Height;
-	public XYI center => (sf_main.Width / 2, sf_main.Height / 2);
+	int Width => sf_main.GridWidth;
+	int Height=> sf_main.GridHeight;
+	public XYI center => (sf_main.GridWidth / 2, sf_main.GridHeight / 2);
 	public Sf sf_ui;
 	public Sf sf_portrait;
 	Rand r = new();

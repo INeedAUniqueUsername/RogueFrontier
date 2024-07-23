@@ -8,8 +8,8 @@ public class TitleSlideOpening : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	public Sf sf { get; }
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
 	public IScene next;
     int x = 0;
     double time = 0;
@@ -17,8 +17,8 @@ public class TitleSlideOpening : IScene {
     bool fast;
     bool updateNext;
     public TitleSlideOpening(IScene next, Sf nextSf, bool updateNext = true) {
-        this.sf = new Sf(nextSf.Width, nextSf.Height, Fonts.FONT_8x8);
-        x = nextSf.Width;
+        this.sf = new Sf(nextSf.GridWidth, nextSf.GridHeight, Fonts.FONT_8x8);
+        x = nextSf.GridWidth;
         this.next = next;
         this.next.Draw += sf => Draw?.Invoke(sf);
         this.updateNext = updateNext;
@@ -74,8 +74,8 @@ public class TitleSlideOut : IScene {
 	public IScene prev, next;
     public Sf sf_prev, sf_next;
     public Sf sf;
-    public int Width => sf.Width;
-    public int Height => sf.Height;
+    public int Width => sf.GridWidth;
+    public int Height => sf.GridHeight;
 	int x = 0;
     double time = 0;
     double interval;
@@ -85,7 +85,7 @@ public class TitleSlideOut : IScene {
         this.sf_next = sf_next;
         this.prev = prev;
         this.next = next;
-        this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
+        this.sf = new Sf(sf_next.GridWidth, sf_next.GridHeight, Fonts.FONT_8x8);
 		x = Width;
 		interval = 4f / Width;
         //Draw one frame now so that we don't cut out for one frame
@@ -135,10 +135,10 @@ public class TitleSlideIn : IScene {
     public (Sf sf, IScene scene) next;
     int x = -16;
     Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
 	public TitleSlideIn((Sf sf, IScene scene) prev, (Sf sf, IScene scene) next) {
-        sf = new Sf(prev.sf.Width, prev.sf.Height, Fonts.FONT_8x8);
+        sf = new Sf(prev.sf.GridWidth, prev.sf.GridHeight, Fonts.FONT_8x8);
         this.prev = prev;
         this.next = next;
         next.scene.Render(new TimeSpan());
@@ -196,7 +196,7 @@ public class FadeIn : IScene {
     float alpha;
 	public FadeIn(IScene next, Sf sf_next) {
         this.next = next;
-        this.sf = new Sf(sf_next.Width, sf_next.Height, Fonts.FONT_8x8);
+        this.sf = new Sf(sf_next.GridWidth, sf_next.GridHeight, Fonts.FONT_8x8);
         next.Draw += sf => Draw?.Invoke(sf);
         Render(new TimeSpan());
     }
@@ -210,8 +210,8 @@ public class FadeIn : IScene {
     public void Render(TimeSpan delta) {
 		next.Render(delta);
         var t = new Tile(ABGR.Black, ABGR.RGBA(0, 0, 0, (byte)(255 * (1 - alpha))), ' ');
-		foreach(var x in sf.Width) {
-            foreach(var y in sf.Height) {
+		foreach(var x in sf.GridWidth) {
+            foreach(var y in sf.GridHeight) {
 				sf.Print(x,y, t);
 			}
         }
@@ -228,11 +228,11 @@ public class FadeOut : IScene {
     int time;
 
     Sf sf;
-    int Width => sf.Width;
-    int Height => sf.Height;
+    int Width => sf.GridWidth;
+    int Height => sf.GridHeight;
     public FadeOut(Sf prev, Action next, int time = 4) {
         this.prev = prev;
-        this.sf = new Sf(prev.Width, prev.Height, Fonts.FONT_8x8);
+        this.sf = new Sf(prev.GridWidth, prev.GridHeight, Fonts.FONT_8x8);
         this.next = next;
         this.time = time;
         Render(new TimeSpan());

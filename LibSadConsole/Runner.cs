@@ -63,7 +63,7 @@ public class Runner {
 				font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
 				GameHost.Instance.Fonts[f.name] = font;
 			}
-			var c = new SadConsole.ScreenSurface(sf.Width, sf.Height) {
+			var c = new SadConsole.ScreenSurface(sf.GridWidth, sf.GridHeight) {
 				Position = new(sf.pos.xi, sf.pos.yi),
 				Font = font,
 			};

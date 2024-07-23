@@ -41,7 +41,7 @@ public static class SScene {
 	}
 	public static Dictionary<XYI, U> CenterVertical<U> (this Dictionary<XYI, U> image, Sf c, int deltaX = 0) {
 		var result = new Dictionary<XYI, U>();
-		int deltaY = (c.Height - (image.Max(pair => pair.Key.Y) - image.Min(pair => pair.Key.Y))) / 2;
+		int deltaY = (c.GridHeight - (image.Max(pair => pair.Key.Y) - image.Min(pair => pair.Key.Y))) / 2;
 		foreach(((var x, var y), var u) in image) {
 			result[(x + deltaX, y + deltaY)] = u;
 		}
