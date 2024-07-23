@@ -8,6 +8,6 @@ layout(location = 0) out highp vec4 diffuse;
 uniform sampler2D uSampler;
 
 void main() {	
-	diffuse = _rgba;
-	//diffuse = texture(uSampler, _tex);
+	//diffuse = _rgba;
+	diffuse = texture(uSampler, _tex) * _rgba;
 }
