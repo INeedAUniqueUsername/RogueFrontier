@@ -128,9 +128,9 @@ public class Game {
 						vp.M12, vp.M22, vp.M32
 			];
 			gl.UniformMatrix2x3(viewProjectionLoc, false, matrix);
-
-
 		}
+
+		
 		{
 			Console.WriteLine("D");
 			// create the VAO
@@ -174,9 +174,8 @@ public class Game {
 			Debug.Assert(gl.GetError() is GLEnum.NoError, "VertexAttribPointer");
 		}
 
-		Console.WriteLine("G");
-		if(true) {
-			//Make example texture
+if(false){
+			Console.WriteLine("G");
 			var t = gl.GenTexture();
 			gl.BindTexture(GLEnum.Texture2D, t);
 			gl.TexStorage2D(GLEnum.Texture2D, 1, GLEnum.Rgba8, 800, 450);
@@ -187,16 +186,6 @@ public class Game {
 				Console.WriteLine($"GLError: {err}");
 			}
 			Debug.Assert(err == GLEnum.NoError);
-			/*
-			gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureBaseLevel, 0);
-			gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMaxLevel, 0);
-			fixed(byte* missing = assets.tex_missing)
-				gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 800, 450, 0, GLEnum.Rgba, GLEnum.UnsignedByte, missing);
-			
-			*/
-
-
-
 
 			Console.WriteLine("H");
 			var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
@@ -285,30 +274,7 @@ public class Game {
 
 				var front = MakeVector(new ABGR(t.Foreground));
 				var fontPos = sf.font.GetImagePos((int)t.Glyph);
-
-
-				next += () => {
-					foreach(var pixelPos in sf.GlyphHeight.AsEnumerable().SelectMany(y => sf.GlyphWidth.Select(x => (x, y)))) {
-						var bitPos = (x: fontPos.x + pixelPos.x, y: fontPos.y + pixelPos.y);
-						if(assets.ibmcga_8x8_b[bitPos.x + bitPos.y * sf.GlyphWidth]) {
-							AddSquare(pos_screen + new DVertex(pixelPos.x, pixelPos.y) * sz_pixel, sz_pixel, front);
-						}
-					}
-				};
-
-				/*
-				var fontPos = sf.font.GetImagePos((int)t.Glyph);
-
-				foreach(var pixelPos in sf.GlyphHeight.AsEnumerable().SelectMany(y => sf.GlyphWidth.Select(x => (x:x * fontPos.x, y:y * fontPos.y)))) {
-
-					
-					if(assets.ibmcga_8x8_b[pixelPos.x + pixelPos.y * sf.font.ImageWidth]) {
-						AddSquare(pos_screen + new DVertex(pixelPos.x, pixelPos.y) * sz_pixel, sz_pixel, front);
-					}
-				}
-				 */
 			}
-			//next();
 		}
 		//Console.WriteLine("Render");
 		RenderSf(sf);
