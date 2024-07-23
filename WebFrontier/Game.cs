@@ -73,6 +73,11 @@ public class Game {
 	}
 	public unsafe void Init () {
 		Console.WriteLine($"A");
+
+
+		gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+		gl.Enable( GLEnum.Blend);
+
 		var iProgram = gl.CreateProgram();
 
 		var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
@@ -165,17 +170,21 @@ public class Game {
 			gl.TexStorage2D(GLEnum.Texture2D, 1, GLEnum.Rgba8, 256, 256);
 			fixed(byte* pixels = assets.ibmcga_8x8)
 				gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, 256, 256, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
-			gl.GenerateMipmap(GLEnum.Texture2D);
+			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
+			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapR, (int)GLEnum.ClampToEdge);
+			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
+			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
+			//gl.GenerateMipmap(GLEnum.Texture2D);
 			CheckError(gl, "texture");
 			Console.WriteLine("H");
 			gl.Uniform1(gl.GetUniformLocation(iProgram, "uSampler"u8), 0);
 			CheckError(gl, "uSampler");
 		}
-		sf = new Sf(150 / 2, 90 / 2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 2 };
+		sf = new Sf(150/2, 90/2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 4 };
 		var r = new Random();
 		foreach(var p in sf.Positions) {
 			var nf = () => (byte)r.Next(0, 255);
-			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), nf()), ABGR.RGBA(nf(), nf(), nf(), nf()), '*');
+			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), nf()), ABGR.RGBA(nf(), nf(), nf(), nf()), r.Next('A', 'Z'));
 		}
 
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
@@ -220,40 +229,42 @@ public class Game {
 			li_index.AddRange(from i in ind select (ushort)(i + sz));
 			li_vertex.AddRange(inp);
 		}
-		void AddSquare((DVertex pos, DVertex size) vertex, DColor color, (DTex pos, DTex size)? tex = null) {
-			var tex_size = new DTex(8 * 1 / 256f, 8 * 1 / 256f);
-			var tex_pos = tex_size * new DVertex(8, 2);
+		void AddSquare((DVertex pos, DVertex size) vertex, DColor color, (DTex pos, DTex size) tex) {
 			AddPolygon([
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Color = color, Tex = tex_pos + tex_size*new DTex(0, 0) }, //nw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Color = color, Tex = tex_pos + tex_size*new DTex(1, 0) }, //ne
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,1), Color = color, Tex = tex_pos + tex_size*new DTex(0, 1) }, //sw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,1), Color = color, Tex = tex_pos + tex_size*new DTex(1, 1) }, //se
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Color = color, Tex = tex.pos + tex.size*new DTex(0, 1) }, //nw
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Color = color, Tex = tex.pos + tex.size*new DTex(1, 1) }, //ne
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,1), Color = color, Tex = tex.pos + tex.size*new DTex(0, 0) }, //sw
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,1), Color = color, Tex = tex.pos + tex.size*new DTex(1, 0) }, //se
 			], [
 				0,1,2,
 				1,2,3
 			]);
 		}
-		DVertex Vec ((int x, int y) p) => new DVertex(p.x, p.y);
+		DVertex Vec ((int x, int y) p) => new(p.x, p.y);
 		DColor MakeVector(ABGR from) =>
 			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a);
 		void RenderSf(Sf sf) {
-			var r = new Random();
-			var scale = (float)sf.scale * 2;
-			var sz_pixel = new DVertex(scale / width, scale / height);
-			var sz_tile = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * sz_pixel;
+			var scale = (float)sf.scale;
+			var szPixelVert = new DVertex(scale / width, scale / height);
+			var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
 
-			var next = () => { };
-			foreach(var pos_cell in sf.Positions) {
-				var pos_screen = new DVertex(
-					2f * pos_cell.x * sz_tile.X - 1f,
-					2f * pos_cell.y * sz_tile.Y - 1f
+			var szTileTex = new DTex(1f * sf.font.GlyphWidth / sf.font.ImageWidth, 1f * sf.font.GlyphHeight / sf.font.ImageHeight);
+			foreach(var posTile in sf.Positions) {
+				var posTileVert = new DVertex(
+					2f * posTile.x * szTileVert.X - 1f,
+					2f * posTile.y * szTileVert.Y - 1f
 					);
-				var t = sf.Tile[pos_cell];
+				var t = sf.Tile[posTile];
 				var back = MakeVector(new ABGR(t.Background));
-				AddSquare((pos_screen, sz_tile), back);
+
+				var backTex = Vec(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / Vec(sf.font.GridSize);
+				AddSquare((posTileVert, szTileVert), back, (backTex, szTileTex));
 
 				var front = MakeVector(new ABGR(t.Foreground));
-				var fontPos = Vec(sf.font.GetImagePos((int)t.Glyph)) / Vec(sf.font.GlyphSize);
+				var frontTex = Vec(sf.font.GetGlyphPos((int)t.Glyph)) / Vec(sf.font.GridSize);
+				//var fontPos = Vec(sf.font.GetGlyphPos((int)t.Glyph)) * tex_size;
+
+				AddSquare((posTileVert, szTileVert), front, (frontTex, szTileTex));
 			}
 		}
 		//Console.WriteLine("Render");

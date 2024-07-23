@@ -1,4 +1,5 @@
 ﻿global using static System.Math;
+global using TileImg = System.Collections.Generic.Dictionary<(int X, int Y), (uint F, uint B, int G)>;
 using Common;
 using LibGamer;
 using System;
@@ -6,6 +7,26 @@ using System.Collections.Generic;
 using System.Linq;
 using static LibGamer.Sf;
 namespace LibAtomics;
+
+
+public class TitleScreen : IScene {
+	public Action<IScene> Go { get; set; }
+	public Action<Sf> Draw { get; set; }
+	public Action<SoundCtx> PlaySound { get; set; }
+
+	TileImage title = new(ImageLoader.LoadTile("Assets/sprite/title.dat"));
+	Sf sf;
+	public TitleScreen (int Width, int Height) {
+		sf = new Sf(Width / 3, Height / 3, Fonts.RF_8x8) { scale = 3 };
+	}
+	void IScene.Update(System.TimeSpan delta) {
+
+	}
+	void IScene.Render(System.TimeSpan delta) {
+		title.Render(sf, (0, 0));
+		Draw?.Invoke(sf);
+	}
+}
 public class Mainframe : IScene {
 	public static readonly uint PINK = ABGR.RGB(255, 0, 128);
 	public static readonly uint BACK = ABGR.SetA(ABGR.Black, 128);

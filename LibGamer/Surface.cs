@@ -13,7 +13,7 @@ public interface SfContainer {
 	int Height => sf.GridHeight;
 }
 /// <summary>
-/// Surface of Tiles. Wrapper for array of tiles.
+/// Wrapper for array of tiles.
 /// </summary>
 public class Sf {
 	public bool redraw = false;
@@ -175,12 +175,14 @@ public class Sf {
 	}
 }
 public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
+
+	public (int x, int y) GridSize => (cols, rows);
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
 	public int ImageWidth => GlyphWidth * cols;
 	public int ImageHeight=>GlyphHeight * rows;
 
-	public (int x, int y) GetImagePos(int index) {
-		return(ImageWidth * index % cols, ImageHeight * index / cols);
+	public (int x, int y) GetGlyphPos(int index) {
+		return(index % cols, index / cols);
 	}
 }
 public class RectOptions {
