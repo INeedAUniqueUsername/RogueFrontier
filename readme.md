@@ -1,5 +1,15 @@
 # Rogue Frontier
-![Cover](LibFrontier/Assets/Poster.png)
+![Cover](LibFrontier/Assets/unused/Poster.png)
+
+This repository is the home of all projects related to the  _Rogue Frontier_ universe, including *Rogue Atomics*
+- `ExtGodot`, `ExtSadConsole`: shared code for adapters
+- `GdFrontier`, `GdAtomics`: Godot adapter for Rogue Frontier / Rogue Atomics
+- `LibAtomics`: game code for Rogue Atomics
+- `LibFrontier`: game code for Rogue Frontier
+- `LibGamer`: shared code for LibFrontier, LibAtomics
+- `SfmlASECII`: Sprite editor
+- `SfmlFrontier`, `SfmlAtomics`: SFML adapter for Rogue Frontier / Rogue Atomics
+- `WebFrontier`: Web adapter for Rogue Frontier
 
 _Rogue Frontier_ is an ambitious ASCII-style space adventure set in an alternate timeline of *Transcendence* (and its predecessor, *Frontier*) - a space-opera roguelike by George Moromisato. The player receives an invitation from a deity known as The Orator to travel towards the Galactic Core. 
 
