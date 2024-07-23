@@ -53,7 +53,7 @@ public partial class Runner : Node2D {
 			var pos = sf.pos * sf.font.GlyphSize;
 			s.Position = new Vector2(pos.xf, pos.yf);
 			s.font = fonts.GetOrAdd(sf.font, f => {
-				var i = Image.Create(f.Width, f.Height, false, Image.Format.Rgba8);
+				var i = Image.Create(f.ImageWidth, f.ImageHeight, false, Image.Format.Rgba8);
 				i.LoadPngFromBuffer(f.data);
 				return new SurfaceFont() {
 					GlyphWidth = f.GlyphWidth,

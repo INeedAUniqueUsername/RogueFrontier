@@ -176,8 +176,12 @@ public class Sf {
 }
 public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
-	public int Width => GlyphWidth * cols;
-	public int Height=>GlyphHeight * rows;
+	public int ImageWidth => GlyphWidth * cols;
+	public int ImageHeight=>GlyphHeight * rows;
+
+	public (int x, int y) GetImagePos(int index) {
+		return(ImageWidth * index % cols, ImageHeight * index / cols);
+	}
 }
 public class RectOptions {
 	public bool connectBelow, connectAbove;

@@ -175,33 +175,40 @@ public class Game {
 		}
 
 		Console.WriteLine("G");
-		if(false) {
+		if(true) {
 			//Make example texture
-			var t0 = gl.GenTexture();
-			gl.BindTexture(GLEnum.Texture2D, t0);
-			fixed(byte* missing = assets.tex_missing) {
-				gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 800, 450, 0, GLEnum.Rgba, GLEnum.UnsignedByte, missing);
-
-				var err = gl.GetError();
-				if(err != GLEnum.NoError) {
-					Console.WriteLine($"GLError: {err}");
-				}
-				Debug.Assert(err == GLEnum.NoError);
+			var t = gl.GenTexture();
+			gl.BindTexture(GLEnum.Texture2D, t);
+			gl.TexStorage2D(GLEnum.Texture2D, 1, GLEnum.Rgba8, 800, 450);
+			fixed(byte* pixels = assets.tex_missing)
+				gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, 800, 450, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
+			var err = gl.GetError();
+			if(err != GLEnum.NoError) {
+				Console.WriteLine($"GLError: {err}");
 			}
+			Debug.Assert(err == GLEnum.NoError);
+			/*
+			gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureBaseLevel, 0);
+			gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMaxLevel, 0);
+			fixed(byte* missing = assets.tex_missing)
+				gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 800, 450, 0, GLEnum.Rgba, GLEnum.UnsignedByte, missing);
+			
+			*/
+
 
 
 
 			Console.WriteLine("H");
 			var samplerLoc = gl.GetUniformLocation(iProgram, "uSampler"u8);
-			gl.Uniform1(samplerLoc, t0);
+			gl.Uniform1(samplerLoc, t);
 		}
 
-		sf = new Sf(150, 90, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 1 };
+		sf = new Sf(150/2, 90/2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 2 };
 
 		var r = new Random();
 		foreach(var p in sf.Positions) {
 			var nf = () => (byte)r.Next(0, 255);
-			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), 255), ABGR.RGBA(nf(), nf(), nf(), 255), 'a');
+			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), nf()), ABGR.RGBA(nf(), nf(), nf(), nf()), '*');
 		}
 
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
@@ -257,17 +264,16 @@ public class Game {
 				0,1,2,
 				1,2,3
 			]);
-
 		}
-
 		DColor MakeVector(ABGR from) =>
 			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a);
-		
 		void RenderSf(Sf sf) {
 			var r = new Random();
-			var scale = (float)sf.scale;
+			var scale = (float)sf.scale * 2;
 			var sz_pixel = new DVertex(scale / width, scale / height);
 			var sz_tile = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * sz_pixel;
+
+			var next = () => { };
 			foreach(var pos_cell in sf.Positions) {
 				var pos_screen = new DVertex(
 					2f * pos_cell.x * sz_tile.X - 1f,
@@ -277,17 +283,34 @@ public class Game {
 				var back = MakeVector(new ABGR(t.Background));
 				AddSquare(pos_screen, sz_tile, back);
 
-				/*
 				var front = MakeVector(new ABGR(t.Foreground));
-				foreach(var(x,y) in sf.TileHeight.AsEnumerable().SelectMany(y => sf.TileWidth.Select(x => (x, y)))) {
-					if(assets.ibmcga_8x8_b[x + y * sf.TileWidth]) {
-						AddSquare(pos_screen + new DVertex(x, y) * sz_pixel, sz_pixel, front);
+				var fontPos = sf.font.GetImagePos((int)t.Glyph);
+
+
+				next += () => {
+					foreach(var pixelPos in sf.GlyphHeight.AsEnumerable().SelectMany(y => sf.GlyphWidth.Select(x => (x, y)))) {
+						var bitPos = (x: fontPos.x + pixelPos.x, y: fontPos.y + pixelPos.y);
+						if(assets.ibmcga_8x8_b[bitPos.x + bitPos.y * sf.GlyphWidth]) {
+							AddSquare(pos_screen + new DVertex(pixelPos.x, pixelPos.y) * sz_pixel, sz_pixel, front);
+						}
+					}
+				};
+
+				/*
+				var fontPos = sf.font.GetImagePos((int)t.Glyph);
+
+				foreach(var pixelPos in sf.GlyphHeight.AsEnumerable().SelectMany(y => sf.GlyphWidth.Select(x => (x:x * fontPos.x, y:y * fontPos.y)))) {
+
+					
+					if(assets.ibmcga_8x8_b[pixelPos.x + pixelPos.y * sf.font.ImageWidth]) {
+						AddSquare(pos_screen + new DVertex(pixelPos.x, pixelPos.y) * sz_pixel, sz_pixel, front);
 					}
 				}
-				*/
+				 */
 			}
+			//next();
 		}
-		Console.WriteLine("Render");
+		//Console.WriteLine("Render");
 		RenderSf(sf);
 		foreach(var inp in li_vertex) {
 			//Console.WriteLine(inp);
