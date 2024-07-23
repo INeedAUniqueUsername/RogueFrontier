@@ -1,5 +1,5 @@
 # Rogue Frontier
-![Cover](LibFrontier/Assets/Poster.png)
+![Cover](LibFrontier/Assets/unused/Poster.png)
 
 This repository is the home of all projects related to the  _Rogue Frontier_ universe, including *Rogue Atomics*
 - ExtGodot, ExtSadConsole: compatibility layer for Godot and SFML exports
