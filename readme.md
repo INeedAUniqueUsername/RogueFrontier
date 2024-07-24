@@ -20,8 +20,13 @@ There are three main themes in the design of Rogue Frontier:
 
 This game is in early development and set to release at least prior to the heat death of the universe.
 
-_Transcendence_ is property of Kronosaur Productions. _Rogue Frontier_ is an independent fangame.
 
+## Attribution
+- _Transcendence_ is property of Kronosaur Productions. _Rogue Frontier_ is an independent fangame.
+- MIT License
+  - dotnet-webgl-sample
+    - Copyright (c) 2021 Javi Carnero
+    - Copyright (c) 2021 Ashleigh Adams
 ## Play
 Download and extract the ZIP archive. Run RogueFrontier.exe to play.
 
