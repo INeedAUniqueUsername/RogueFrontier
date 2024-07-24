@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using CoroutineScheduler;
 using LibGamer;
 using Silk.NET.OpenGLES;
-
+using LibAtomics;
 namespace WebGL.Sample;
 
 
@@ -29,15 +29,13 @@ public record struct VertexShaderInput
 	public DColor Color;
 	public DTex Tex;
 };
-public class Assets {
+public class Downloader {
 	private static async Task<HttpContent> Get(HttpClient client, string path) {
 		var response = await client.GetAsync(new Uri(path, UriKind.Relative));
 		if(!response.IsSuccessStatusCode)
 			throw new Exception();
 		return response.Content;
 	}
-	private static async Task<string> GetStr (HttpClient client, string path) => await (await Get(client, path)).ReadAsStringAsync();
-	private static async Task<byte[]> GetBytes (HttpClient client, string path) => await (await Get(client, path)).ReadAsByteArrayAsync();
 	public string src_vertex;
 	public string src_fragment;
 	public byte[] tex_missing;
@@ -45,41 +43,41 @@ public class Assets {
 
 	public byte[] ibmcga_8x8;
 	public bool[] ibmcga_8x8_b;
-	public async Task Init(Uri baseAddr) {
+	public async Task<GetDataAsync> Init(Uri baseAddr) {
 		var client = new HttpClient() {
 			BaseAddress = baseAddr,
 		};
-		var getStr = async (string s) => await GetStr(client, s);
-		var getBytes = async (string s) => await GetBytes(client, s);
+		var getStr = async (string s) => {
+			Console.WriteLine($"Downloading {s} from server");
+			return await (await Get(client, s)).ReadAsStringAsync();
+		};
+		var getBytes = async (string s) => {
+			Console.WriteLine($"Downloading {s} from server");
+			return await (await Get(client, s)).ReadAsByteArrayAsync();
+		};
 		src_vertex = await getStr("shader/vertex.glsl");
 		src_fragment = await getStr("shader/fragment.glsl");
 		tex_missing = await getBytes("shader/missing.rgba");
-
 		tex_missing_b = [..from i in tex_missing.Length/4 select tex_missing[i*4] != 0];
 		ibmcga_8x8 = await getBytes("Assets/font/IBMCGA+_8x8.rgba");
 		ibmcga_8x8_b = [..from i in ibmcga_8x8.Length / 4 select ibmcga_8x8[i * 4] != 0];
+		return new GetDataAsync(getStr, getBytes);
 	}
 }
-public class Game {
+public class Runner {
 	private GL gl { get; }
-	private Assets assets;
 	private Scheduler Scheduler { get; }
 	VertexShaderInput[] buf_vertex;
 	ushort[] buf_index;
 	uint vao, vbo, vbi;
-	public unsafe Game(GL gl, Assets assets){
+	public Runner(GL gl){
 		this.gl = gl;
-		this.assets = assets;
 	}
-	public unsafe void Init () {
+	public unsafe void Init (Downloader assets) {
 		Console.WriteLine($"A");
-
-
 		gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
-		gl.Enable( GLEnum.Blend);
-
+		gl.Enable(GLEnum.Blend);
 		var iProgram = gl.CreateProgram();
-
 		var sh_vertex = gl.CreateShader(ShaderType.VertexShader);
 		gl.ShaderSource(sh_vertex, assets.src_vertex);
 		gl.CompileShader(sh_vertex);
@@ -108,14 +106,14 @@ public class Game {
 		if(res == 0) {
 			gl.GetProgramInfoLog(iProgram, out string info);
 			Console.WriteLine(info);
+			Debug.Assert(res != 0, $"GetProgram error: {res}");
 		}
-		Debug.Assert(res != 0, $"GetProgram error: {res}");
 		gl.UseProgram(iProgram);
 		//gl.GetProgramInfoLog(ShaderProgram, out log);
 		Debug.Assert(gl.GetError() == GLEnum.NoError, "GetUniformLocation()");
 
+		Console.WriteLine($"C");
 		{
-			Console.WriteLine($"C");
 			//Configure shader
 			var viewProjectionLoc = gl.GetUniformLocation(iProgram, "viewprojection"u8);
 			var vp = Matrix3x2.Identity;
@@ -127,10 +125,6 @@ public class Game {
 		}
 
 		// setup the vertex buffer to draw
-		buf_vertex = new VertexShaderInput[1];
-		buf_index = new ushort[1];
-
-
 		Console.WriteLine("D");
 		vao = gl.GenVertexArray();
 		gl.BindVertexArray(vao);
@@ -139,6 +133,9 @@ public class Game {
 		gl.GenBuffers(vbos);
 		vbo = vbos[0];
 		vbi = vbos[1];
+
+		buf_vertex = new VertexShaderInput[1];
+		buf_index = new ushort[1];
 
 		int stride = Marshal.SizeOf<VertexShaderInput>();
 		gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
@@ -161,26 +158,25 @@ public class Game {
 		gl.BindVertexArray(0);
 		Debug.Assert(gl.GetError() is GLEnum.NoError, "VertexAttribPointer");
 
+		Console.WriteLine("G");
+		var t = gl.GenTexture();
+		gl.ActiveTexture(GLEnum.Texture0);
+		gl.BindTexture(GLEnum.Texture2D, t);
+		gl.TexStorage2D(GLEnum.Texture2D, 1, GLEnum.Rgba8, 256, 256);
+		fixed(byte* pixels = assets.ibmcga_8x8)
+			gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, 256, 256, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
+		gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
+		gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapR, (int)GLEnum.ClampToEdge);
+		gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
+		gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
+		//gl.GenerateMipmap(GLEnum.Texture2D);
+		CheckError(gl, "texture");
+		Console.WriteLine("H");
+		gl.Uniform1(gl.GetUniformLocation(iProgram, "uSampler"u8), 0);
+		CheckError(gl, "uSampler");
 
-		if(true) {
-			Console.WriteLine("G");
-			var t = gl.GenTexture();
-			gl.ActiveTexture(GLEnum.Texture0);
-			gl.BindTexture(GLEnum.Texture2D, t);
-			gl.TexStorage2D(GLEnum.Texture2D, 1, GLEnum.Rgba8, 256, 256);
-			fixed(byte* pixels = assets.ibmcga_8x8)
-				gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, 256, 256, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
-			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
-			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapR, (int)GLEnum.ClampToEdge);
-			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
-			gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest);
-			//gl.GenerateMipmap(GLEnum.Texture2D);
-			CheckError(gl, "texture");
-			Console.WriteLine("H");
-			gl.Uniform1(gl.GetUniformLocation(iProgram, "uSampler"u8), 0);
-			CheckError(gl, "uSampler");
-		}
-		sf = new Sf(150/2, 90/2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 4 };
+
+		sf = new Sf(150 / 2, 90 / 2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 4 };
 		var r = new Random();
 		foreach(var p in sf.Positions) {
 			var nf = () => (byte)r.Next(0, 255);

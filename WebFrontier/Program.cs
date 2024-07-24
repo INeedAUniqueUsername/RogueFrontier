@@ -2,16 +2,16 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
+using LibAtomics;
 using Silk.NET.OpenGLES;
 
 [assembly: SupportedOSPlatform("browser")]
 
 namespace WebGL.Sample;
 
-public static class Test
-{
+public static class Program {
 	public static Uri? BaseAddress { get; internal set; }
-	private static Game? Demo { get; set;  }
+	private static Runner? Demo { get; set;  }
 	[UnmanagedCallersOnly]
 	public static int Frame(double time, nint userData) {
 		//Console.WriteLine("Frame");
@@ -71,10 +71,16 @@ public static class Test
 
 		Interop.Initialize();
 		ArgumentNullException.ThrowIfNull(BaseAddress);
-		var assets = new Assets();
-		await assets.Init(BaseAddress);
-		Demo = new Game(gl, assets);
-		Demo.Init();
+
+		var shaders = new Downloader();
+		var dataSrc = await shaders.Init(BaseAddress);
+
+		Console.WriteLine("Assets");
+		var assets = await Assets.CreateAsync(dataSrc);
+		//var titleScreen = new TitleScreen(150 / 2, 90 / 2, assets);
+
+		Demo = new Runner(gl);
+		Demo.Init(shaders);
 		Demo.CanvasResized(CanvasWidth, CanvasHeight);
 
 		unsafe { Emscripten.RequestAnimationFrameLoop((delegate* unmanaged<double, nint, int>)&Frame, nint.Zero); }

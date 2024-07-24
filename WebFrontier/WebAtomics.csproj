@@ -56,7 +56,7 @@
     <PackageReference Include="Verlite.MsBuild" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Silk.NET.OpenGLES" Version="2.17.1" />
     <TrimmableAssembly Include="Silk.NET.Maths" />
-    <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
+    <ProjectReference Include="..\LibAtomics\LibAtomics.csproj" />
     <ProjectReference Include="..\LibGamer\LibGamer.csproj" />
   </ItemGroup>
 </Project>

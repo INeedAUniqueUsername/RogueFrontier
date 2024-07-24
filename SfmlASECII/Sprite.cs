@@ -337,11 +337,22 @@ namespace ASECII {
             cells = updated;
             pos = new Point(0, 0);
         }
-
         //To do: Test with both layers moved
         public void Flatten(Layer from) {
             foreach ((var p, var t) in from.cells) {
-                this[p + from.pos] = t;
+                if(this[p + from.pos] is TileValue tv) {
+                    if(from.applyGlyph) {
+                        tv.Glyph = t.Glyph;
+                    }
+                    if(from.applyBackground) {
+                        tv.Background = t.Background;
+                    }
+                    if(from.applyForeground) {
+                        tv.Foreground = t.Foreground;
+                    }
+                } else if(from.applyGlyph && from.applyBackground && from.applyForeground) {
+					this[p + from.pos] = t;
+				}
             }
         }
     }

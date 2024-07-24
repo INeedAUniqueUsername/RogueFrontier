@@ -38,13 +38,13 @@ internal static partial class Interop
 	[JSExport]
 	public static void OnCanvasResize(float width, float height, float devicePixelRatio)
 	{
-		Test.CanvasResized((int)width, (int)height);
+		Program.CanvasResized((int)width, (int)height);
 	}
 
 	[JSExport]
 	public static void SetRootUri(string uri)
 	{
-		Test.BaseAddress = new Uri(uri);
+		Program.BaseAddress = new Uri(uri);
 	}
 
 	[JSExport]

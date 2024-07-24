@@ -13,9 +13,7 @@
 	  </None>
     <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="QuikGraph" Version="2.5.0" />
   </ItemGroup>
-
 </Project>

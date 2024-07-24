@@ -8,13 +8,18 @@ using LibGamer;
 using static LibGamer.Tile;
 namespace Common;
 public class TileImage {
-    public Dictionary<(int x, int y), Tile> Sprite;
+    public Dictionary<(int x, int y), Tile> Sprite = new();
     public XYI Size;
+    bool transparent;
+
+    public int Width, Height;
     public TileImage(Dictionary<PI, TileTuple> Sprite) {
         int left = Sprite.Keys.Min(p => p.X);
         int top = Sprite.Keys.Min(p => p.Y);
         int right = Sprite.Keys.Max(p => p.X);
         int bottom = Sprite.Keys.Max(p => p.Y);
+
+        (this.Width, this.Height) = (right - left, top - bottom);
         Size = new(right - left, bottom - top);
         PI origin = (left, top);
         this.Sprite = new();

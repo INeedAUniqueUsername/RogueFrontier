@@ -1,2 +1,2 @@
-mklink /D Assets ..\LibFrontier\Assets
+mklink /D Assets ..\LibAtomics\Assets
 pause

@@ -1,5 +1,10 @@
 *.rsuser
 
+
+
+
+
+
 # User-specific files
 *.suo
 *.user
@@ -407,8 +412,6 @@ healthchecksdb
 /TranscendenceRL/Notes
 /ANSIMon
 /*/addons/*
-/WebFrontier/Assets/Frag.glsl
-/WebFrontier/Assets/Vert.glsl
-/WebFrontier/Assets/Vert.glsl
-/WebFrontier/Assets/Frag.glsl
+/WebFrontier/Assets/*
+/WebAtomics/Assets/*
 *.import

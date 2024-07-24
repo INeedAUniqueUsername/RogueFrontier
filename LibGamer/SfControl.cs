@@ -49,7 +49,12 @@ public class SfLink : SfControl{
 	public bool enabled;
 	public Sf on;
 
-	public Rect rect => new Rect(pos.x * on.GlyphWidth, pos.y * on.font.GlyphHeight, text.Length * on.GlyphWidth, 1 * on.font.GlyphHeight);
+	public Rect rect => new Rect(
+		(int)(pos.x * on.GlyphWidth * on.scale),
+		(int)(pos.y * on.font.GlyphHeight * on.scale),
+		(int)(text.Length * on.GlyphWidth * on.scale),
+		(int)(on.font.GlyphHeight * on.scale)
+		);
 	public SfLink (Sf on, (int,int) pos, string text, Action leftClick = null, Action rightClick = null, bool enabled = true) {
 		this.on = on;
 		this.pos = pos;

@@ -3,27 +3,114 @@ global using TileImg = System.Collections.Generic.Dictionary<(int X, int Y), (ui
 using Common;
 using LibGamer;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using static LibGamer.Sf;
 namespace LibAtomics;
 
-
 public class TitleScreen : IScene {
+
+
+	class Particle {
+		public double x, y;
+		public double speed;
+		public bool active = true;
+	}
+
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 
-	TileImage title = new(ImageLoader.LoadTile("Assets/sprite/title.dat"));
 	Sf sf;
-	public TitleScreen (int Width, int Height) {
-		sf = new Sf(Width / 3, Height / 3, Fonts.RF_8x8) { scale = 3 };
+	List<SfControl> controls = [];
+
+	Assets assets;
+	public TitleScreen (int Width, int Height, Assets assets) {
+		this.assets = assets;
+		sf = new Sf(Width / 2, Height / 2, Fonts.RF_8x8) { scale = 2 };
+
+
+
+		var str = "New Adventure";
+		controls.Add(new SfLink(sf, (sf.GridWidth/2- str.Length/2, sf.GridHeight/2-4), str, () => {
+			Go(new Mainframe(Width, Height));
+		}));
+
+
+		foreach(var pos in sf.Positions) {
+			glow[pos] = 0;
+		}
 	}
+
+	void IScene.HandleMouse(LibGamer.HandState mouse) {
+		foreach(var c in controls) c.HandleMouse(mouse);
+	}
+
+	List<Particle> particles = [];
 	void IScene.Update(System.TimeSpan delta) {
 
-	}
+		var r = new Rand();
+		for(var i = particles.Count; i < 50; i++) {
+			var x = r.NextBool() ? 0 : sf.GridWidth - 1;
+			particles.Add(new() {
+				x = x,
+				y = r.NextInteger(sf.GridHeight),
+				speed = (x > 0 ? -1 : 1) * r.NextInteger(5, 10)
+			});
+		}
+
+		ConcurrentDictionary<(int x, int y), HashSet<Particle>> d = [];
+		particles.ForEach(p => {
+			p.x += p.speed * delta.TotalSeconds;
+
+			if(p.x > sf.GridWidth - 1 || p.x < 0) {
+				p.active = false;
+				return;
+			}
+
+			glow[((int)p.x, (int)p.y)] = 255;
+
+
+
+
+			var others = d.GetOrAdd(((int)p.x, (int)p.y), []);
+			others.Add(p);
+			if(others.Count > 1) {
+				foreach(var o in others)
+					o.active = false;
+				foreach(var y in sf.GridHeight) {
+					glow[((int)p.x, y)] = 255;
+				}
+			}
+		});
+		particles.RemoveAll(p => !p.active);
+
+		time += delta.TotalSeconds;
+
+		foreach(var(p, t) in assets.hive.Sprite) {
+			assets.hive.Sprite[p] = t with { Foreground = ABGR.SetA(t.Foreground, (byte)Main.Lerp(IEEERemainder(time, 1), 0, 1, 255, 51, 1)) };
+		}
+    }
+	double time;
+	Dictionary<(int x, int y), double> glow = [];
 	void IScene.Render(System.TimeSpan delta) {
-		title.Render(sf, (0, 0));
+		var r = new Random();
+		foreach(var pos in sf.Positions) {
+			var dest = r.Next(0, 102);
+			var g = glow[pos];
+			g += (dest - g) / 15;
+			glow[pos] = g;
+			sf.Tile[pos] = new Tile(ABGR.SetA(ABGR.DeepPink, (byte)g), ABGR.Black, '=');
+		}
+		/*
+		foreach(var p in particles) {
+			sf.Front[(int)p.x, (int)p.y] = ABGR.DeepPink;
+		}
+		*/
+		assets.title.Render(sf, (sf.GridWidth/2 - assets.title.Width/2, 8));
+		assets.hive.Render(sf, (sf.GridWidth / 2- assets.hive.Width / 2, 24));
+		foreach(var c in controls) c.Render(delta);		
 		Draw?.Invoke(sf);
 	}
 }
