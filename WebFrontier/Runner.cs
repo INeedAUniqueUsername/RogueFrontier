@@ -193,13 +193,18 @@ public class Runner {
 		set {
 			if(_current is { } prev) {
 				prev.Draw -= Draw;
+				prev.Go -= Go;
 			}
 			_current = value;
 			if(value is { } next) {
 				next.Draw += Draw;
+				next.Go += Go;
 			}
 			void Draw(Sf sf) {
 				RenderSf(sf);
+			}
+			void Go(IScene to) {
+				current = to;
 			}
 		}
 	}
@@ -237,17 +242,16 @@ public class Runner {
 			new(p.x, p.y);
 		DColor VecABGR (ABGR from) =>
 			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a / 255f);
-
-		var scale = (float)sf.scale;
+		var scale = (float)sf.scale  * 1f;
 		var szPixelVert = new DVertex(scale / width, scale / height);
 		var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
 		var szTileTex = new DTex(1f * sf.font.GlyphWidth / sf.font.ImageWidth, 1f * sf.font.GlyphHeight / sf.font.ImageHeight);
 		foreach(var posTile in sf.Positions) {
 			var posTileVert = new DVertex(
 				2f * posTile.x * szTileVert.X - 1f,
-				2f * posTile.y * szTileVert.Y - 1f
-				);
-			var t = sf.Tile[(posTile.x, sf.GridHeight - posTile.y-1)];
+				-(2f * posTile.y * szTileVert.Y - 1f)
+				) - szTileVert * new DVertex(0, 2);
+			var t = sf.Tile[(posTile.x, posTile.y)];
 			var back = VecABGR(new ABGR(t.Background));
 
 			var backTex = VecXYI(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / VecXYI(sf.font.GridSize);
@@ -265,7 +269,7 @@ public class Runner {
 	Canvas canvas = new();
 
 	DateTime prevRender = DateTime.Now;
-	public unsafe void Render() {
+	public unsafe void Update() {
 		// iterate our logic thread
 		//Scheduler.Resume();
 		gl.ClearColor(0f, 0f, 0f, 1.0f);

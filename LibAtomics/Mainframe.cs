@@ -34,7 +34,7 @@ public class TitleScreen : IScene {
 
 		var str = "New Adventure";
 		controls.Add(new SfLink(sf, (sf.GridWidth/2- str.Length/2, sf.GridHeight/2-4), str, () => {
-			Go(new Mainframe(Width, Height, assets));
+			Go?.Invoke(new Mainframe(Width, Height, assets));
 		}));
 
 
@@ -157,7 +157,9 @@ public class Mainframe : IScene {
 			}
 		}
 	}
+	Assets assets;
 	public Mainframe (int Width, int Height, Assets assets) {
+		this.assets = assets;
 		sf_main = new(Width, Height, assets.IBMCGA_8x8);
 		sf_ui = new(Width, Height, assets.IBMCGA_6x8);
 		sf_portrait = new(18, 18, assets.RF_8x8);
@@ -334,8 +336,8 @@ public class Mainframe : IScene {
 			b = BACK
 		});
 
-		foreach(var pair in playerImg) {
-			sf_portrait.Tile[(pair.Key.X + 1, pair.Key.Y + 1)] = pair.Value;
+		foreach(var (pos, tile) in assets.giantCockroachRobot.Sprite) {
+			sf_portrait.Tile[(pos.x + 1, pos.y + 1)] = tile;
 		}
 		Draw?.Invoke(sf_main);
 		Draw?.Invoke(sf_ui);
@@ -343,7 +345,6 @@ public class Mainframe : IScene {
 		if(dialog is { })
 			dialog.Render(delta);
 	}
-	Dictionary<(int X, int Y), (uint F, uint B, int G)> playerImg = ImageLoader.LoadTile("Assets/sprite/giant_cockroach_robot.dat");
 	void IScene.HandleKey(KB kb) {
 
 		if(dialog is { }d) {

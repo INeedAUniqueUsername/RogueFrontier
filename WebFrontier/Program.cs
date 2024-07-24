@@ -13,7 +13,7 @@ public static class Program {
 	public static int Frame(double time, nint userData) {
 		//Console.WriteLine("Frame");
 		//ArgumentNullException.ThrowIfNull(Demo);
-		runner.Render();
+		runner.Update();
 		return 1;
 	}
 	private static int CanvasWidth { get; set; }

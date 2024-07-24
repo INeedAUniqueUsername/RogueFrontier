@@ -6,12 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 namespace LibAtomics;
-public record GetDataAsync (Func<string, Task<string>> GetStringAsync, Func<string, Task<byte[]>> GetBytesAsync) { }
+public record GetDataAsync (Func<string, Task<string>> getString, Func<string, Task<byte[]>> getBytes) { }
 public class Assets {
  	private Assets () { }
 	public TileImage title;
 	public TileImage hive;
 
+	public TileImage giantCockroachRobot;
 
 
 #if GODOT
@@ -33,11 +34,15 @@ public class Assets {
 	}
 	private async Task InitAsync (GetDataAsync dl) {
 		Console.WriteLine("Initializing Assets");
-		title = new(ImageLoader.ReadTile(await dl.GetStringAsync($"{ROOT}/sprite/title.dat")));
-		hive = new(ImageLoader.ReadTile(await dl.GetStringAsync($"{ROOT}/sprite/icon.dat")));
 
-		IBMCGA_8x8 = new Tf(await dl.GetBytesAsync($"{ROOT}/font/IBMCGA+_8x8.png"), "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219);//
-		IBMCGA_6x8 = new Tf(await dl.GetBytesAsync($"{ROOT}/font/IBMCGA+_6x8.png"), "IBMCGA+_6x8", 6, 8, 192 / 6, 64 / 8, 219);
-		RF_8x8 = new Tf(await dl.GetBytesAsync($"{ROOT}/font/RF_8x8.png"), "RF_8x8", 8, 8, 256 / 8, 256 / 8, 219);
+		var (getString, getBytes) = dl;
+		title = new(ImageLoader.ReadTile(await getString($"{ROOT}/sprite/title.dat")));
+		hive = new(ImageLoader.ReadTile(await getString($"{ROOT}/sprite/icon.dat")));
+		giantCockroachRobot = new(ImageLoader.ReadTile(await getString("Assets/sprite/giant_cockroach_robot.dat")));
+
+
+		IBMCGA_8x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_8x8.png"), "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219);//
+		IBMCGA_6x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_6x8.png"), "IBMCGA+_6x8", 6, 8, 192 / 6, 64 / 8, 219);
+		RF_8x8 = new Tf(await getBytes($"{ROOT}/font/RF_8x8.png"), "RF_8x8", 8, 8, 256 / 8, 256 / 8, 219);
 	}
 }
