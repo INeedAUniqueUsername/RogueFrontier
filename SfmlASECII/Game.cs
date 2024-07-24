@@ -22,7 +22,7 @@ namespace ASECII {
             SadConsole.Settings.UseDefaultExtendedFont = true;
             Settings.WindowTitle = "ASECII";
 
-            var f = false ? "IBMCGA+_8x8.font" : "RF_8x8.font";
+            var f = true ? "IBMCGA+_8x8.font" : "RF_8x8.font";
 
 #if true
             var loc = Path.GetFullPath($"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}/Assets/{f}").Replace("\\", "/");

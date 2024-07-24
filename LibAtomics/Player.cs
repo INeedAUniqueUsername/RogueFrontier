@@ -185,10 +185,15 @@ public class Shoot {
 	}
 	public Action[] Act(Player p) {
 		if(done) return [];
-		void Fire() {
+		void Fire(bool precise) {
 			var r = new Rand();
 			foreach(var i in 2) {
 				var spread = (reticle._pos - ((XY)p.pos)).magnitude / 8;
+				if(precise) {
+					spread /= 2;
+				}
+
+
 				var loc = (reticle._pos + (r.NextDouble(-spread, spread), r.NextDouble(-spread, spread))).roundDownI;
 				p.level.AddEntity(new Splat(loc, new Tile(ABGR.Blanca, ABGR.Transparent, '*')));
 				var hits = p.level.entityMap[loc].Where(e => e is not Splat and not Reticle and not Marker).ToList();
@@ -233,7 +238,7 @@ public class Shoot {
 					p.Tell("firing weapon");
 					msg = false;
 				}
-				Fire();
+				Fire(true);
 			};
 			return [..from i in 15 select Attack, RemoveReticle];
 		} else {
@@ -243,11 +248,14 @@ public class Shoot {
 			locked = true;
 			//var disp = (to - from);
 			reticle.visible = true;
-			var Attack = () => {
+
+			var Attack = (int i) => {
 				Aim(to, 20);
-				Fire();
+				if(i < 5)
+					return;
+				Fire(false);
 			};
-			return [..from i in 20 select Attack, RemoveReticle];
+			return [..from i in 20 select new Action(() => Attack(i)), RemoveReticle];
 		}
 	}
 }

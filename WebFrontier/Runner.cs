@@ -208,11 +208,9 @@ public class Runner {
 			}
 		}
 	}
-
 	record Canvas {
 		public List<VertexShaderInput> li_vertex = [];
 		public List<ushort> li_index = [];
-
 		public void Clear () {
 			li_vertex.Clear();
 			li_index.Clear();
@@ -234,9 +232,6 @@ public class Runner {
 			]);
 		}
 	}
-
-	
-
 	void RenderSf (Sf sf) {
 		DVertex VecXYI ((int x, int y) p) =>
 			new(p.x, p.y);

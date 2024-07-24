@@ -3,26 +3,18 @@
 			   alignment="ConstructiveChaos"
 	></Sovereign>
 	<StationType codename=	"station_daughters_outpost"
-				 name=		"Daughters of the Orator"
+				 name=		"Shrine of the Orator"
 				 sovereign=	"sovereign_daughters"
 
 				 behavior=  "daughtersOutpost"
 
 				 glyph=		"S"
 				 foreground="Magenta"
+				 
+				structure=	"station_orator_outpost.dat"
 		>
 
 		<HP	maxHP="400"/>
-		<Segments>
-			<Point offsetX="-1"
-				   offsetY="0"
-				   glyph="&lt;"
-				   foreground="Yellow"/>
-			<Point offsetX="1"
-				   offsetY="0"
-				   glyph="&gt;"
-				   foreground="Yellow"/>
-		</Segments>
 		<Guards>
 			<Ship	codename="ship_templar"/>
 			<Ship	codename="ship_templar"/>

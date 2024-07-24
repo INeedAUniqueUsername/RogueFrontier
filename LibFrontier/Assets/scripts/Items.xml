@@ -230,30 +230,30 @@
 	</ItemType>
 
 	<ItemType	codename=	"item_klaw_missile"
-				name=		"Klaw missile"
+				name=		"Claw missile"
 				level=		"2"
 				mass=		"200"
 				value=		"8"
 				
-				desc=		"The Klaw is the standard homing missile of the Beowulf gunship."
+				desc=		"The Claw is the standard homing missile of the Beowulf gunship."
 		>
 	</ItemType>
 	<ItemType	codename=	"item_klaw_missile_launcher"
-				name=		"Klaw launcher"
+				name=		"Claw launcher"
 				level=		"2"
 				mass=		"2000"
 				value=		"400"
 
 				invoke=		"installWeapon"
 				
-				desc=		"The Klaw missile launcher fires two quick tracking missiles at a time."
+				desc=		"The Claw missile launcher fires two quick tracking missiles at a time."
 		>
 		<Weapon	powerUse=		"10"
-				fireCooldown=	"45"
+				fireCooldown=	"40"
 				ammoType=		"item_klaw_missile"
 				sound=			"klaw_launcher.wav"
 			>
-			<Projectile	count=			"2"
+			<Projectile	count=			"3"
 						spreadAngle=	"30"
 						maneuver=		"4"
 						missileSpeed=	"60"
@@ -547,7 +547,7 @@
 		>
 		<Weapon	
 			powerUse=		"10"
-			fireCooldown=	"30"
+			fireCooldown=	"20"
 			ammoType=		"item_dynamite_charge"
 			sound=			"generic_missile.wav"
 			>
@@ -559,7 +559,7 @@
 				glyph=			"\235"
 				foreground=		"Red"
 				
-				detonateFailChance="0.25"
+				detonateFailChance="0.20"
 				
 				detonateSound=	"dynamite.wav"
 				>
