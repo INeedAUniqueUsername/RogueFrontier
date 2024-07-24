@@ -28,13 +28,13 @@ public class TitleScreen : IScene {
 	Assets assets;
 	public TitleScreen (int Width, int Height, Assets assets) {
 		this.assets = assets;
-		sf = new Sf(Width / 2, Height / 2, Fonts.RF_8x8) { scale = 2 };
+		sf = new Sf(Width / 2, Height / 2, assets.RF_8x8) { scale = 2 };
 
 
 
 		var str = "New Adventure";
 		controls.Add(new SfLink(sf, (sf.GridWidth/2- str.Length/2, sf.GridHeight/2-4), str, () => {
-			Go(new Mainframe(Width, Height));
+			Go(new Mainframe(Width, Height, assets));
 		}));
 
 
@@ -45,6 +45,15 @@ public class TitleScreen : IScene {
 
 	void IScene.HandleMouse(LibGamer.HandState mouse) {
 		foreach(var c in controls) c.HandleMouse(mouse);
+
+		var pos = mouse.pos;
+		pos = sf.GetMousePos(pos);
+
+		if(pos.x >= 0 && pos.x < sf.GridWidth && pos.y >= 0 && pos.y < sf.GridHeight) {
+			glow[pos] = 255;
+		}
+
+		return;
 	}
 
 	List<Particle> particles = [];
@@ -148,10 +157,10 @@ public class Mainframe : IScene {
 			}
 		}
 	}
-	public Mainframe (int Width, int Height) {
-		sf_main = new(Width, Height, Fonts.IBMCGA_8x8);
-		sf_ui = new(Width, Height, Fonts.IBMCGA_6x8);
-		sf_portrait = new(18, 18, Fonts.RF_8x8);
+	public Mainframe (int Width, int Height, Assets assets) {
+		sf_main = new(Width, Height, assets.IBMCGA_8x8);
+		sf_ui = new(Width, Height, assets.IBMCGA_6x8);
+		sf_portrait = new(18, 18, assets.RF_8x8);
 		noise = new byte[Width, Height];
 		level = new World();
 		foreach(var x in 30) {

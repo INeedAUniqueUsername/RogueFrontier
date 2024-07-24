@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 namespace LibGamer;
 public interface SfContainer {
 	Sf sf { get; set; }
@@ -20,6 +21,12 @@ public class Sf {
 	public XY pos = (0, 0);
 	public double scale = 1;
 	public Tf font;
+
+	public (int x, int y) GetMousePos ((int x, int y) p) {
+
+		var r = font.GetMousePos(p);
+		return ((int)(r.x / scale), (int)(r.y / scale));
+	}
 	public int GlyphWidth => font.GlyphWidth;
 	public int GlyphHeight => font.GlyphHeight;
 	public (int w, int h) GlyphSize => font.GlyphSize;
@@ -184,6 +191,8 @@ public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int
 	public (int x, int y) GetGlyphPos(int index) {
 		return(index % cols, index / cols);
 	}
+
+	public (int x, int y) GetMousePos ((int x, int y) p) => (p.x / GlyphWidth, p.y / GlyphHeight);
 }
 public class RectOptions {
 	public bool connectBelow, connectAbove;

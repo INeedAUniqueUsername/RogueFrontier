@@ -4,19 +4,16 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using LibAtomics;
 using Silk.NET.OpenGLES;
-
 [assembly: SupportedOSPlatform("browser")]
-
-namespace WebGL.Sample;
-
+namespace WebAtomics;
 public static class Program {
 	public static Uri? BaseAddress { get; internal set; }
-	private static Runner? Demo { get; set;  }
+	private static Runner? runner { get; set;  }
 	[UnmanagedCallersOnly]
 	public static int Frame(double time, nint userData) {
 		//Console.WriteLine("Frame");
 		//ArgumentNullException.ThrowIfNull(Demo);
-		Demo.Render();
+		runner.Render();
 		return 1;
 	}
 	private static int CanvasWidth { get; set; }
@@ -24,7 +21,7 @@ public static class Program {
 	public static void CanvasResized(int width, int height) {
 		CanvasWidth = width;
 		CanvasHeight = height;
-		Demo?.CanvasResized(CanvasWidth, CanvasHeight);
+		runner?.CanvasResized(CanvasWidth, CanvasHeight);
 	}
 	public async static Task Main(string[] args) {
 		Console.WriteLine($"Hello from dotnet!");
@@ -77,12 +74,11 @@ public static class Program {
 
 		Console.WriteLine("Assets");
 		var assets = await Assets.CreateAsync(dataSrc);
-		//var titleScreen = new TitleScreen(150 / 2, 90 / 2, assets);
-
-		Demo = new Runner(gl);
-		Demo.Init(shaders);
-		Demo.CanvasResized(CanvasWidth, CanvasHeight);
-
+		
+		runner = new Runner(gl);
+		runner.Init(shaders);
+		runner.CanvasResized(CanvasWidth, CanvasHeight);
+		runner.current = new TitleScreen(150, 90, assets);
 		unsafe { Emscripten.RequestAnimationFrameLoop((delegate* unmanaged<double, nint, int>)&Frame, nint.Zero); }
 	}
 }

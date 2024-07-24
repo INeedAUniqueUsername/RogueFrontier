@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "WebFrontier": {
+    "WebAtomics": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

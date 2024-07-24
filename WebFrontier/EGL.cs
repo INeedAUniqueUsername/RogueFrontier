@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace WebGL.Sample;
+namespace WebAtomics;
 
 internal static class EGL
 {

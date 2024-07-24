@@ -13,8 +13,7 @@ using CoroutineScheduler;
 using LibGamer;
 using Silk.NET.OpenGLES;
 using LibAtomics;
-namespace WebGL.Sample;
-
+namespace WebAtomics;
 
 using DVertex = Vector2;
 using DColor = Vector4;
@@ -59,7 +58,7 @@ public class Downloader {
 		src_fragment = await getStr("shader/fragment.glsl");
 		tex_missing = await getBytes("shader/missing.rgba");
 		tex_missing_b = [..from i in tex_missing.Length/4 select tex_missing[i*4] != 0];
-		ibmcga_8x8 = await getBytes("Assets/font/IBMCGA+_8x8.rgba");
+		ibmcga_8x8 = await getBytes("Assets/font/RF_8x8.rgba");
 		ibmcga_8x8_b = [..from i in ibmcga_8x8.Length / 4 select ibmcga_8x8[i * 4] != 0];
 		return new GetDataAsync(getStr, getBytes);
 	}
@@ -175,14 +174,6 @@ public class Runner {
 		gl.Uniform1(gl.GetUniformLocation(iProgram, "uSampler"u8), 0);
 		CheckError(gl, "uSampler");
 
-
-		sf = new Sf(150 / 2, 90 / 2, new Tf(assets.ibmcga_8x8, "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219)) { scale = 4 };
-		var r = new Random();
-		foreach(var p in sf.Positions) {
-			var nf = () => (byte)r.Next(0, 255);
-			sf.Tile[p] = new(ABGR.RGBA(nf(), nf(), nf(), nf()), ABGR.RGBA(nf(), nf(), nf(), nf()), r.Next('A', 'Z'));
-		}
-
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)GLEnum.ClampToEdge);
 		//gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest);
@@ -195,37 +186,38 @@ public class Runner {
 		gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 8, 8, 0, GLEnum.Rgba, GLEnum.UnsignedByte, pixels);
 		*/
 	}
-	Sf sf;
-	public unsafe void Render() {
-		// iterate our logic thread
-		//Scheduler.Resume();
-		gl.ClearColor(0f, 0f, 0f, 1.0f);
-		gl.Clear(ClearBufferMask.ColorBufferBit);
 
-#if false
-		// update the vertex buffer
-		var modelMatrix =
-			Matrix3x2.CreateScale(Vector2.One) *
-			Matrix3x2.CreateRotation(0) *
-			Matrix3x2.CreateTranslation(Vector2.Zero);
-
-		for(int i = 0; i < MeshData.TriangleVerts.Length; i++) {
-			ref var from = ref MeshData.TriangleVerts[i];
-			ref var to = ref buf_vertex[i];
-			to = to with {
-				Vertex = Vector2.Transform(from.Vertex, modelMatrix),
-				Color = from.Color
-			};
+	private IScene _current;
+	public IScene current {
+		get => _current;
+		set {
+			if(_current is { } prev) {
+				prev.Draw -= Draw;
+			}
+			_current = value;
+			if(value is { } next) {
+				next.Draw += Draw;
+			}
+			void Draw(Sf sf) {
+				RenderSf(sf);
+			}
 		}
-#endif
-		var li_vertex = new List<VertexShaderInput>();
-		var li_index = new List<ushort>();
-		void AddPolygon (VertexShaderInput[] inp, ushort[] ind) {
+	}
+
+	record Canvas {
+		public List<VertexShaderInput> li_vertex = [];
+		public List<ushort> li_index = [];
+
+		public void Clear () {
+			li_vertex.Clear();
+			li_index.Clear();
+		}
+		public void AddPolygon (VertexShaderInput[] inp, ushort[] ind) {
 			var sz = li_vertex.Count;
 			li_index.AddRange(from i in ind select (ushort)(i + sz));
 			li_vertex.AddRange(inp);
 		}
-		void AddSquare((DVertex pos, DVertex size) vertex, DColor color, (DTex pos, DTex size) tex) {
+		public void AddSquare ((DVertex pos, DVertex size) vertex, DColor color, (DTex pos, DTex size) tex) {
 			AddPolygon([
 				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Color = color, Tex = tex.pos + tex.size*new DTex(0, 1) }, //nw
 				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Color = color, Tex = tex.pos + tex.size*new DTex(1, 1) }, //ne
@@ -236,41 +228,65 @@ public class Runner {
 				1,2,3
 			]);
 		}
-		DVertex Vec ((int x, int y) p) => new(p.x, p.y);
-		DColor MakeVector(ABGR from) =>
-			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a);
-		void RenderSf(Sf sf) {
-			var scale = (float)sf.scale;
-			var szPixelVert = new DVertex(scale / width, scale / height);
-			var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
+	}
 
-			var szTileTex = new DTex(1f * sf.font.GlyphWidth / sf.font.ImageWidth, 1f * sf.font.GlyphHeight / sf.font.ImageHeight);
-			foreach(var posTile in sf.Positions) {
-				var posTileVert = new DVertex(
-					2f * posTile.x * szTileVert.X - 1f,
-					2f * posTile.y * szTileVert.Y - 1f
-					);
-				var t = sf.Tile[posTile];
-				var back = MakeVector(new ABGR(t.Background));
+	
 
-				var backTex = Vec(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / Vec(sf.font.GridSize);
-				AddSquare((posTileVert, szTileVert), back, (backTex, szTileTex));
+	void RenderSf (Sf sf) {
+		DVertex VecXYI ((int x, int y) p) =>
+			new(p.x, p.y);
+		DColor VecABGR (ABGR from) =>
+			new DColor(from.r / 255f, from.g / 255f, from.b / 255f, from.a / 255f);
 
-				var front = MakeVector(new ABGR(t.Foreground));
-				var frontTex = Vec(sf.font.GetGlyphPos((int)t.Glyph)) / Vec(sf.font.GridSize);
-				//var fontPos = Vec(sf.font.GetGlyphPos((int)t.Glyph)) * tex_size;
+		var scale = (float)sf.scale;
+		var szPixelVert = new DVertex(scale / width, scale / height);
+		var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
+		var szTileTex = new DTex(1f * sf.font.GlyphWidth / sf.font.ImageWidth, 1f * sf.font.GlyphHeight / sf.font.ImageHeight);
+		foreach(var posTile in sf.Positions) {
+			var posTileVert = new DVertex(
+				2f * posTile.x * szTileVert.X - 1f,
+				2f * posTile.y * szTileVert.Y - 1f
+				);
+			var t = sf.Tile[(posTile.x, sf.GridHeight - posTile.y-1)];
+			var back = VecABGR(new ABGR(t.Background));
 
-				AddSquare((posTileVert, szTileVert), front, (frontTex, szTileTex));
-			}
+			var backTex = VecXYI(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / VecXYI(sf.font.GridSize);
+			canvas.AddSquare((posTileVert, szTileVert), back, (backTex, szTileTex));
+
+			var front = VecABGR(new ABGR(t.Foreground));
+			var frontTex = VecXYI(sf.font.GetGlyphPos((int)t.Glyph)) / VecXYI(sf.font.GridSize);
+			//var fontPos = Vec(sf.font.GetGlyphPos((int)t.Glyph)) * tex_size;
+
+			canvas.AddSquare((posTileVert, szTileVert), front, (frontTex, szTileTex));
 		}
-		//Console.WriteLine("Render");
-		RenderSf(sf);
-		foreach(var inp in li_vertex) {
-			//Console.WriteLine(inp);
-			//Console.WriteLine(inp.Vertex.ToString());
-		}
-		buf_vertex = [.. li_vertex];
-		buf_index = [.. li_index];
+	}
+
+	KB kb = new();
+	Canvas canvas = new();
+
+	DateTime prevRender = DateTime.Now;
+	public unsafe void Render() {
+		// iterate our logic thread
+		//Scheduler.Resume();
+		gl.ClearColor(0f, 0f, 0f, 1.0f);
+		gl.Clear(ClearBufferMask.ColorBufferBit);
+
+		canvas.Clear();
+
+		var now = DateTime.Now;
+		var delta = (now - prevRender);
+		kb.Update(Interop.down);
+
+		Console.WriteLine(string.Join(",", Interop.down));
+		current?.Update(delta);
+		current?.HandleKey(kb);
+		current?.HandleMouse(Interop.hand);
+		current?.Render(delta);
+
+		prevRender = now;
+
+		buf_vertex = [.. canvas.li_vertex];
+		buf_index = [.. canvas.li_index];
 		/*
 		var nw = new DVertex(-1, +1);
 		var ne = new DVertex(+1, +1);
@@ -322,7 +338,7 @@ public class Runner {
 	public void CanvasResized(int width, int height) {
 		(this.width, this.height) = (width, height);
 
-		Console.WriteLine($"Canvas size: {width},{height}");
+		//Console.WriteLine($"Canvas size: {width},{height}");
 		gl.Viewport(0, 0, (uint)width, (uint)height);
 		// note: in a real game, aspect ratio corrections should be applies
 		// to your projection transform, not your model transform
