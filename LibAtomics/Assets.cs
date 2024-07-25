@@ -39,10 +39,14 @@ public class Assets {
 		title = new(ImageLoader.ReadTile(await getString($"{ROOT}/sprite/title.dat")));
 		hive = new(ImageLoader.ReadTile(await getString($"{ROOT}/sprite/icon.dat")));
 		giantCockroachRobot = new(ImageLoader.ReadTile(await getString("Assets/sprite/giant_cockroach_robot.dat")));
-
-
-		IBMCGA_8x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_8x8.png"), "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219);//
-		IBMCGA_6x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_6x8.png"), "IBMCGA+_6x8", 6, 8, 192 / 6, 64 / 8, 219);
-		RF_8x8 = new Tf(await getBytes($"{ROOT}/font/RF_8x8.png"), "RF_8x8", 8, 8, 256 / 8, 256 / 8, 219);
+		IBMCGA_8x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_8x8.png"), "IBMCGA+_8x8", 8, 8, 256 / 8, 256 / 8, 219) {
+			rgba = await getBytes($"{ROOT}/font/IBMCGA+_8x8.rgba")
+		};
+		IBMCGA_6x8 = new Tf(await getBytes($"{ROOT}/font/IBMCGA+_6x8.png"), "IBMCGA+_6x8", 6, 8, 192 / 6, 64 / 8, 219) {
+			rgba = await getBytes($"{ROOT}/font/IBMCGA+_6x8.rgba")
+		};
+		RF_8x8 = new Tf(await getBytes($"{ROOT}/font/RF_8x8.png"), "RF_8x8", 8, 8, 256 / 8, 256 / 8, 219) {
+			rgba = await getBytes($"{ROOT}/font/RF_8x8.rgba")
+		};
 	}
 }

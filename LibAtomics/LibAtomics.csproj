@@ -7,8 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <None Remove="Preview/*; Assets/sprite/*.png;  Assets/sprite/*.asc; Assets/sprite/*.import; Assets/sprite/*.ttf; Assets/sprite/*.zip; Assets/sound/*.cpt; Assets/sound/*.wav.import; Assets/unused/*; Assets/slide/*; Assets/music/*.import; Assets/music/*.mscz; Assets/music/*.flac; Assets/music/*.mp3; Assets/manual/*; Assets/meta/*; " />
-	  <None Include=" Assets\font\*; Assets\sprite\*.dat;  Assets\script\*.xml; Assets\sound\*.wav; Assets\music\*.wav;">
+	  <None Remove="
+			Preview/*; 
+			Assets/font/*.import;
+			Assets/sprite/*.png;  
+			Assets/sprite/*.asc; 
+			Assets/sprite/*.import; 
+			Assets/sprite/*.ttf; 
+			Assets/sprite/*.zip; 
+			Assets/sound/*.cpt; 
+			Assets/sound/*.wav.import; 
+			Assets/unused/*; Assets/slide/*; Assets/music/*.import; Assets/music/*.mscz; Assets/music/*.flac; Assets/music/*.mp3; Assets/manual/*; Assets/meta/*; " />
+	  <None Include=" Assets\font\*.dat; Assets\font\*.rgba; Assets\sprite\*.dat;  Assets\script\*.xml; Assets\sound\*.wav; Assets\music\*.wav;">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
     <ProjectReference Include="..\LibFrontier\LibFrontier.csproj" />

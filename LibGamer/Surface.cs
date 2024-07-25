@@ -181,13 +181,17 @@ public class Sf {
 		}
 	}
 }
-public record Tf (byte[] data, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
+public record Tf (byte[] png, string name, int GlyphWidth, int GlyphHeight, int cols, int rows, int solidGlyphIndex) {
+
+	/// <summary>
+	/// WebGL
+	/// </summary>
+	public byte[] rgba;
 
 	public (int x, int y) GridSize => (cols, rows);
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
 	public int ImageWidth => GlyphWidth * cols;
 	public int ImageHeight=>GlyphHeight * rows;
-
 	public (int x, int y) GetGlyphPos(int index) {
 		return(index % cols, index / cols);
 	}

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.JavaScript;
 using LibGamer;
 using Silk.NET.OpenGLES;
-
 namespace WebAtomics;
-
 internal static partial class Interop
 {
 	[JSImport("initialize", "main.js")]

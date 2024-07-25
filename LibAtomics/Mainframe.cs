@@ -10,55 +10,44 @@ using static LibGamer.Sf;
 namespace LibAtomics;
 
 public class TitleScreen : IScene {
-
-
 	class Particle {
 		public double x, y;
 		public double speed;
 		public bool active = true;
 	}
-
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-
 	Sf sf;
 	List<SfControl> controls = [];
-
 	Assets assets;
+
+
+	SfLink start;
+
 	public TitleScreen (int Width, int Height, Assets assets) {
 		this.assets = assets;
 		sf = new Sf(Width / 2, Height / 2, assets.RF_8x8) { scale = 2 };
-
-
-
 		var str = "New Adventure";
-		controls.Add(new SfLink(sf, (sf.GridWidth/2- str.Length/2, sf.GridHeight/2-4), str, () => {
+		start = new SfLink(sf, (sf.GridWidth / 2 - str.Length / 2, sf.GridHeight / 2 - 4), str, () => {
 			Go?.Invoke(new Mainframe(Width, Height, assets));
-		}));
+		});
+		controls.Add(start);
 
-
+		glow = new double[Width, Height];
 		foreach(var pos in sf.Positions) {
-			glow[pos] = 0;
+			glow[pos.x, pos.y] = 0;
 		}
 	}
-
 	void IScene.HandleMouse(LibGamer.HandState mouse) {
 		foreach(var c in controls) c.HandleMouse(mouse);
-
-		var pos = mouse.pos;
-		pos = sf.GetMousePos(pos);
-
+		var pos = sf.GetMousePos(mouse.pos);
 		if(pos.x >= 0 && pos.x < sf.GridWidth && pos.y >= 0 && pos.y < sf.GridHeight) {
-			glow[pos] = 255;
+			glow[pos.x, pos.y] = 255;
 		}
-
-		return;
 	}
-
 	List<Particle> particles = [];
 	void IScene.Update(System.TimeSpan delta) {
-
 		var r = new Rand();
 		for(var i = particles.Count; i < 50; i++) {
 			var x = r.NextBool() ? 0 : sf.GridWidth - 1;
@@ -68,55 +57,56 @@ public class TitleScreen : IScene {
 				speed = (x > 0 ? -1 : 1) * r.NextInteger(5, 10)
 			});
 		}
-
-		ConcurrentDictionary<(int x, int y), HashSet<Particle>> d = [];
+		var d = new ConcurrentDictionary<(int x, int y), HashSet<Particle>>();
 		particles.ForEach(p => {
 			p.x += p.speed * delta.TotalSeconds;
-
 			if(p.x > sf.GridWidth - 1 || p.x < 0) {
 				p.active = false;
 				return;
 			}
-
-			glow[((int)p.x, (int)p.y)] = 255;
-
-
-
-
+			glow[(int)p.x, (int)p.y] = 255;
 			var others = d.GetOrAdd(((int)p.x, (int)p.y), []);
 			others.Add(p);
 			if(others.Count > 1) {
 				foreach(var o in others)
 					o.active = false;
 				foreach(var y in sf.GridHeight) {
-					glow[((int)p.x, y)] = 255;
+					glow[(int)p.x, y] = 255;
 				}
 			}
 		});
 		particles.RemoveAll(p => !p.active);
-
 		time += delta.TotalSeconds;
 
+		hiveAlpha = (byte)Main.Lerp(IEEERemainder(time, 1), 0, 1, 255, 51, 1);
 		foreach(var(p, t) in assets.hive.Sprite) {
-			assets.hive.Sprite[p] = t with { Foreground = ABGR.SetA(t.Foreground, (byte)Main.Lerp(IEEERemainder(time, 1), 0, 1, 255, 51, 1)) };
+			assets.hive.Sprite[p] = t with { Foreground = ABGR.SetA(t.Foreground, hiveAlpha) };
 		}
     }
+
+	byte hiveAlpha = 0;
 	double time;
-	Dictionary<(int x, int y), double> glow = [];
+	double[,] glow = new double[0,0];
+
+	double factor = 1;
 	void IScene.Render(System.TimeSpan delta) {
 		var r = new Random();
+		var factorDest = 1;
+		if(start.mouse.nowOn) {
+			factorDest = 0;
+		}
+
+		factor += (factorDest - factor) * delta.TotalSeconds * 4;
 		foreach(var pos in sf.Positions) {
+			ref var g = ref glow[pos.x, pos.y];
 			var dest = r.Next(0, 102);
-			var g = glow[pos];
-			g += (dest - g) / 15;
-			glow[pos] = g;
-			sf.Tile[pos] = new Tile(ABGR.SetA(ABGR.DeepPink, (byte)g), ABGR.Black, '=');
+			g += (dest - g) * delta.TotalSeconds * 4;
+			sf.Tile[pos] = new(
+				ABGR.SetA(ABGR.DeepPink, (byte)(g * factor)),
+				ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.DeepPink, (byte)((1 - factor) * hiveAlpha/10))),
+				'=');
 		}
-		/*
-		foreach(var p in particles) {
-			sf.Front[(int)p.x, (int)p.y] = ABGR.DeepPink;
-		}
-		*/
+
 		assets.title.Render(sf, (sf.GridWidth/2 - assets.title.Width/2, 8));
 		assets.hive.Render(sf, (sf.GridWidth / 2- assets.hive.Width / 2, 24));
 		foreach(var c in controls) c.Render(delta);		
@@ -165,10 +155,8 @@ public class Mainframe : IScene {
 		sf_portrait = new(18, 18, assets.RF_8x8);
 		noise = new byte[Width, Height];
 		level = new World();
-		foreach(var x in 30) {
-			foreach(var y in 30) {
-				level.entities.Add(new Floor((x, y), r));
-			}
+		foreach(var (y,x) in 30.Product(30)) {
+			level.entities.Add(new Floor((x, y), r));
 		}
 		level.entities.Add(player = new Player(level, (0, 0)));
 
@@ -187,13 +175,9 @@ public class Mainframe : IScene {
 	void IScene.Update(TimeSpan delta) {
 		marker.time += delta.TotalSeconds;
 		level.UpdateReal(delta);
-
-		foreach(var y in Height) {
-			foreach(var x in Width) {
-				noise[x, y] = (byte)(r.NextFloat() * 5 + 51);
-			}
+		foreach(var(y,x) in Height.Product(Width)) {
+			noise[x, y] = (byte)(r.NextFloat() * 5 + 51);
 		}
-
 		if(dialog is { } d) {
 			d.Update(delta);
 			return;
@@ -205,7 +189,6 @@ public class Mainframe : IScene {
 		if(subticks is { done:false }) {
 			subticks.Update();
 			if(!subticks.done) {
-				//delay = 0.025;
 				return;
 			}
 		}
@@ -255,7 +238,7 @@ public class Mainframe : IScene {
 
 			var a = (byte)Main.Lerp(IEEERemainder(player.time, 1), 0, 0.5, 255, 0, 1);
 			foreach(var part in player.body.parts) {
-				sf_ui.Print(x, y++, $"{part.name,-12} {part.hp, 5:00.0}", ABGR.Blend(ABGR.White, ABGR.SetA(PINK, a)), BACK);
+				sf_ui.Print(x, y++, $"{part.name,-12} {part.hp, 5:00.0}", ABGR.Blend(ABGR.White, ABGR.SetA(PINK, 0)), BACK);
 			}
 		}
 		{
@@ -270,7 +253,6 @@ public class Mainframe : IScene {
 				sf_ui.Print(x, y++, [item.type.tile, Tile.empty, ..Tile.Arr($"{item.type.name,-27}{(char)('a' + i)}")]);
 			}
 		}
-
 #if false
 		{
 			var x = 0;

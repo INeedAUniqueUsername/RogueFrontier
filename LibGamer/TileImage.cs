@@ -29,9 +29,13 @@ public class TileImage {
     }
     public void Render(Sf onto, PI pos) {
         foreach ((var p, var t) in Sprite) {
-            (var x, var y) = (pos.X + p.x, pos.Y + p.y);
-            onto.Tile[x, y] = t;
+            onto.Tile[pos.X + p.x, pos.Y + p.y] = t;
         }
     }
+    public void Render(Sf onto, PI pos, Func<Tile,Tile> f) {
+		foreach((var p, var t) in Sprite) {
+			onto.Tile[pos.X + p.x, pos.Y + p.y] = f(t);
+		}
+	}
     public static TileImage FromFile(string file) => new TileImage(ImageLoader.LoadTile(file));
 }

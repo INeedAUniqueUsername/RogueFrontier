@@ -1364,9 +1364,7 @@ public class ListControl<T> {
             }
         }
     }
-
     bool mouseOnItem;
-
     public Hand hand = new();
     public void HandleMouse(HandState state) {
         scroll.HandleMouse(state);
@@ -1393,20 +1391,17 @@ public class ListControl<T> {
     public void Render(TimeSpan delta) {
         var (x, y) = pos;
         int w = lineWidth + 7;
-
         var t = title;
         if(time < 0) {
             w = (int) Main.Lerp(time, -0.1, -0.0, 0, w, 1);
-            t = title.LerpString(time, -0.1, 0, 1);
+            t = t.LerpString(time, -0.1, 0, 1);
         }
         Sf.DrawRect(on, x, y, w, 3, new());
-
         on.Print(x + 2, y + 1, Tile.Arr(t, active ? Color.Yellow : Color.White, Color.Black));
         Sf.DrawRect(on,x, y + 2, w, 26 + 2, new() { connectAbove = true });
         x += 2;
         y += 3;
         if (count > 0) {
-
             int? highlight = index;
             Func<int, string> nameAt =
                 groupMode ?
@@ -1423,7 +1418,6 @@ public class ListControl<T> {
                     if (n.Length > lineWidth) {
                         double initialDelay = 1;
                         int index = time < initialDelay ? 0 : (int)Min((time - initialDelay) * 15, n.Length - lineWidth);
-
                         n = n.Substring(index);
                     }
                     (f, b) = (Color.Yellow, Color.Blend(Color.Black, Color.SetA(Color.Yellow,51)));

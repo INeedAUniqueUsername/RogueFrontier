@@ -45,7 +45,7 @@ public class SfLink : SfControl{
 	public Action leftHold;
 	public Action rightHold;
 
-	Hand mouse;
+	public Hand mouse;
 	public bool enabled;
 	public Sf on;
 

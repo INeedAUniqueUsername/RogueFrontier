@@ -59,7 +59,7 @@ public class Runner {
 		var c = consoles.GetOrAdd(sf, sf => {
 			var f = sf.font;
 			if(!GameHost.Instance.Fonts.TryGetValue(f.name, out var font)) {
-				var t = GameHost.Instance.GetTexture(new MemoryStream(f.data));
+				var t = GameHost.Instance.GetTexture(new MemoryStream(f.png));
 				font = new SadFont(f.GlyphWidth, f.GlyphHeight, 0, f.rows, f.cols, f.solidGlyphIndex, t, f.name);
 				GameHost.Instance.Fonts[f.name] = font;
 			}

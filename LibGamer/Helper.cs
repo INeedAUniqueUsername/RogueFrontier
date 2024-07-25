@@ -17,4 +17,20 @@ public static class IntExtension {
 	public static SelectRange<T> Select<T> (this int end, Func<int, T> selector) {
 		return (..end).AsEnumerable().Select(selector);
 	}
+
+	public static IEnumerable<T> SelectMany<T>(this int end, Func<int, IEnumerable<T>> select) {
+		return end.AsEnumerable().SelectMany(select);
+	}
+
+	public static IEnumerable<T> SelectMany<T> (this Range range, Func<int, IEnumerable<T>> select) {
+		return range.AsEnumerable().SelectMany(select);
+	}
+
+	public static IEnumerable<(int x, int y)> Product (this Range a, Range b) {
+		return a.SelectMany(x => b.Select(y => (x, y)));
+	}
+
+	public static IEnumerable<(int x, int y)> Product (this int a, int b) {
+		return (..a).Product(..b);
+	}
 }
