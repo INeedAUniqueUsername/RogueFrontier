@@ -15,6 +15,7 @@ using Silk.NET.OpenGLES;
 using LibAtomics;
 using QuikGraph.Algorithms.MaximumFlow;
 using System.Runtime.CompilerServices;
+using RogueFrontier;
 namespace WebAtomics;
 
 using DVertex = Vector2;
@@ -89,6 +90,7 @@ record TexMaker(GL gl) {
 record TexInfo(int slot) {
 	public void BindSampler(GL gl, uint program, string uniform) {
 		gl.Uniform1(gl.GetUniformLocation(program, uniform), slot);
+		Runner.CheckError(gl, "uSampler");
 	}
 }
 
@@ -100,12 +102,15 @@ public class Runner {
 	private Scheduler Scheduler { get; }
 
 	uint vao, vbo, vbi;
+
+	TexMaker tm;
 	public Runner(GL gl){
 		this.gl = gl;
+		tm = new TexMaker(gl);
 	}
 
 
-
+	uint iProgram;
 
 	public unsafe void Init (Downloader assets) {
 		Console.WriteLine($"A");
@@ -113,7 +118,7 @@ public class Runner {
 		gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
 		gl.Enable(GLEnum.Blend);
 
-		var iProgram = gl.CreateProgram();
+		iProgram = gl.CreateProgram();
 		
 		MakeShader(ShaderType.VertexShader, assets.src_vertex);
 		MakeShader(ShaderType.FragmentShader, assets.src_fragment);
@@ -142,60 +147,7 @@ public class Runner {
 		}
 		// setup the vertex buffer to draw
 		Console.WriteLine("D");
-		vao = gl.GenVertexArray();
-		gl.BindVertexArray(vao);
-
-		var vbos = (Span<uint>)stackalloc uint[2];
-		gl.GenBuffers(vbos);
-		vbo = vbos[0];
-		vbi = vbos[1];
 		
-		BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-		BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
-		Console.WriteLine("F");
-
-		(uint stride, uint index, int pointer, Action<int, uint> add) vap = default;
-		vap = (
-			stride: (uint)Marshal.SizeOf<VertexShaderInput>(),
-			index: 0,
-			pointer: 0,
-			add: (int sz, uint divisor = 0) => {
-				gl.EnableVertexAttribArray(vap.index);
-				gl.VertexAttribPointer(vap.index, sz / sizeof(float), VertexAttribPointerType.Float, false, vap.stride, (void*)vap.pointer);
-				if(divisor > 0)
-					gl.VertexAttribDivisor(vap.index, divisor);
-				vap.index += 1;
-				vap.pointer += sz;
-			}
-		);
-		Enumerable.ToList([
-			Marshal.SizeOf<DVertex>(),
-			Marshal.SizeOf<DTex>()
-		]).ForEach(i => vap.add(i, 0));
-		Enumerable.ToList([
-			Marshal.SizeOf<DVertex>(),
-			Marshal.SizeOf<DTex>(),
-			Marshal.SizeOf<DColor>()
-		]).ForEach(i => vap.add(i, 1));
-
-		gl.BindVertexArray(0);
-		CheckError(gl, "VertexAttribPointer");
-
-		Console.WriteLine("G");
-
-		TexMaker tm = new(gl);
-		
-		var t0 = tm.MakeTexture(assets.rf_8x8, 256, 256);
-		var t1 = tm.MakeTexture(assets.ibmcga_6x8, 192, 256);
-
-		Console.WriteLine("H");
-		t0.BindSampler(gl, iProgram, "uSampler");
-		CheckError(gl, "uSampler");
-
-		void BindBuffer (BufferTargetARB target, uint i) {
-			gl.BindBuffer(target, i);
-			gl.BufferData(target, 0, 0, BufferUsageARB.StreamDraw);
-		};
 		void MakeShader (ShaderType type, string src) {
 			var shader = gl.CreateShader(type);
 			gl.ShaderSource(shader, src);
@@ -255,7 +207,6 @@ public class Runner {
 			]);
 		}
 		public void AddRect(VertexShaderInput pos, VertexShaderInput size) {
-
 			var si = (DVertex vfactor, DTex tfactor) => new VertexShaderInput {
 				Vertex = pos.Vertex + 2 * size.Vertex * vfactor,
 				Tex = pos.Tex + size.Tex * tfactor
@@ -271,10 +222,8 @@ public class Runner {
 			]);
 		}
 	}
-
-
-	Dictionary<Tf, uint> vaoOf = [];
-	void RenderSf (Sf sf) {
+	Dictionary<Tf, (uint vao, TexInfo tex)> fontData = [];
+	unsafe void RenderSf (Sf sf) {
 		DVertex VecXYI ((int x, int y) p) =>
 			new(p.x, p.y);
 		DColor VecABGR (uint c) =>
@@ -284,20 +233,58 @@ public class Runner {
 		var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
 		var szTileTex = new DTex(sf.font.GlyphWidth, sf.font.GlyphHeight) / new DVertex(sf.font.ImageWidth, sf.font.ImageHeight);
 
+		
+		if(!fontData.TryGetValue(sf.font, out var data)) {
+			data.vao = gl.GenVertexArray();
+			gl.BindVertexArray(data.vao);
 
-		if(vaoOf.TryGetValue(sf.font, out var vao)) {
-			vao = gl.GenVertexArray();
-			gl.BindVertexArray(vao);
+			var vbos = (Span<uint>)stackalloc uint[2];
+			gl.GenBuffers(vbos);
+			vbo = vbos[0];
+			vbi = vbos[1];
+
+			BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+			BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
+
+			void BindBuffer (BufferTargetARB target, uint i) {
+				gl.BindBuffer(target, i);
+				gl.BufferData(target, 0, 0, BufferUsageARB.StreamDraw);
+			};
+
+			(uint stride, uint index, int pointer, Action<int, uint> add) vap = default;
+			vap = (
+				stride: (uint)Marshal.SizeOf<VertexShaderInput>(),
+				index: 0,
+				pointer: 0,
+				add: (int sz, uint divisor = 0) => {
+					gl.EnableVertexAttribArray(vap.index);
+					gl.VertexAttribPointer(vap.index, sz / sizeof(float), VertexAttribPointerType.Float, false, vap.stride, (void*)vap.pointer);
+					if(divisor > 0)
+						gl.VertexAttribDivisor(vap.index, divisor);
+					vap.index += 1;
+					vap.pointer += sz;
+				}
+			);
+			Enumerable.ToList([
+				Marshal.SizeOf<DVertex>(),
+				Marshal.SizeOf<DTex>()
+			]).ForEach(i => vap.add(i, 0));
+			Enumerable.ToList([
+				Marshal.SizeOf<DVertex>(),
+				Marshal.SizeOf<DTex>(),
+				Marshal.SizeOf<DColor>()
+			]).ForEach(i => vap.add(i, 1));
+
+			gl.BindVertexArray(0);
+			CheckError(gl, "VertexAttribPointer");
 
 
-
-			vaoOf[sf.font] = vao;
-
+			data.tex = tm.MakeTexture(sf.font.rgba, (uint)sf.font.ImageWidth, (uint)sf.font.ImageHeight);
+			fontData[sf.font] = data;
 		}
 
+		data.tex.BindSampler(gl, iProgram, "uSampler");
 		//canvas.AddSquare((posTileVert, szTileVert), (backTex, szTileTex));
-
-
 
 		foreach(var (i, posTile) in sf.Positions.Index()) {
 			var posTileVert = new DVertex(
