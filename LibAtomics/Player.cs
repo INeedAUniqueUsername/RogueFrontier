@@ -163,7 +163,6 @@ public class Player : IActor, IEntity {
 		}
 	}
 }
-
 interface IShootTarget { XYI pos { get; } }
 public record ShootEntity(IEntity target) : IShootTarget {
 	XYI IShootTarget.pos => target.pos;
@@ -199,7 +198,7 @@ public class Shoot {
 				var hits = p.level.entityMap[loc].Where(e => e is not Splat and not Reticle and not Marker).ToList();
 				if(hits is { Count: > 0 } any) {
 					switch(any.GetRandom(r)) {
-						case Roach:
+						case Tankroach:
 							p.Tell("hit roach");
 							break;
 						case Floor:

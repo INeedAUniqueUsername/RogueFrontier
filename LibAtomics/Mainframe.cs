@@ -2,6 +2,7 @@
 global using TileImg = System.Collections.Generic.Dictionary<(int X, int Y), (uint F, uint B, int G)>;
 using Common;
 using LibGamer;
+using RogueFrontier;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -147,12 +148,39 @@ public class Mainframe : IScene {
 			}
 		}
 	}
+
+	SfPane pane_sprite;
+	SfPane pane_look;
+	SfPane pane_cargo;
+	SfPane pane_body;
+	SfPane pane_log;
+
 	Assets assets;
 	public Mainframe (int Width, int Height, Assets assets) {
 		this.assets = assets;
 		sf_main = new(Width, Height, assets.IBMCGA_8x8);
 		sf_ui = new(Width, Height, assets.IBMCGA_6x8);
-		sf_portrait = new(18, 18, assets.RF_8x8);
+		sf_portrait = new(20, 20, assets.RF_8x8);
+
+		pane_body = new SfPane(sf_ui, new Rect(27, 0, 32, 20), new() {
+			f = ABGR.DeepPink,
+			b = ABGR.SetA(ABGR.Black, 128),
+		});
+
+		pane_cargo = new SfPane(sf_ui, new Rect(0, 20, 26, 26), new() {
+			f = ABGR.DeepPink,
+			b = ABGR.SetA(ABGR.Black, 128),
+		});
+		pane_look = new SfPane(sf_ui, new Rect(0, 46, 26, 20), new() {
+			f = ABGR.DeepPink,
+			b = ABGR.SetA(ABGR.Black, 128)
+		});
+		pane_log = new SfPane(sf_ui, new Rect(0, Height - 24, 64, 24), new() {
+			f = ABGR.DeepPink,
+			b = ABGR.SetA(ABGR.Black, 128),
+		});
+
+
 		noise = new byte[Width, Height];
 		level = new World();
 		foreach(var (y,x) in 30.Product(30)) {
@@ -166,8 +194,10 @@ public class Mainframe : IScene {
 		player.items.Add(new Item(new ItemType() { name = "Rattle Blade", tile = new(ABGR.LightGreen, ABGR.Black, 'l') }));
 		player.items.Add(new Item(new ItemType() { name = "Miasma Grenade", tile = new(ABGR.Tan, ABGR.Black, 'g') }));
 		player.items.Add(new Item(new ItemType() { name = "Machine Gun", tile = new(ABGR.LightGray, ABGR.Black, 'm') }));
-		level.entities.Add(new Roach(level, (10, 10)));
+		level.entities.Add(new Tankroach(level, (10, 10)));
 		level.TryUpdatePresent();
+
+
 	}
 	bool ready => player.ready && (subticks?.done ?? true);
 	double delay = 0;
@@ -217,41 +247,14 @@ public class Mainframe : IScene {
 			}
 		}
 		sf_ui.Clear();
-		{
-			var (x, y) = (24, 0);
-			DrawRect(sf_ui, x, y, 32, 3, new() {
-				f = PINK,
-				b = BACK
-			});
-			x++;
-			y++;
-			sf_ui.Print(x,y, $"Tick: {player.tick}");
-		}
-		{
-			var (x, y) = (0, 18);
-			DrawRect(sf_ui, x, y, 32, 15, new() {
-				f = PINK,
-				b = BACK
-			});
-			x++;
-			y++;
 
-			var a = (byte)Main.Lerp(IEEERemainder(player.time, 1), 0, 0.5, 255, 0, 1);
-			foreach(var part in player.body.parts) {
-				sf_ui.Print(x, y++, $"{part.name,-12} {part.hp, 5:00.0}", ABGR.Blend(ABGR.White, ABGR.SetA(PINK, 0)), BACK);
-			}
+		pane_body.Render(delta);
+		foreach(var (i, part) in player.body.parts.Index()) {
+			pane_body.Print(i, Tile.Arr($"{part.name,-12} {part.hp,5:00.0}", ABGR.Blend(ABGR.White, ABGR.SetA(PINK, 0)), BACK));
 		}
-		{
-			var (x, y) = (0, 33);
-			DrawRect(sf_ui, x, y, 32, 26, new() {
-				f = PINK,
-				b = BACK
-			});
-			x++;
-			y++;
-			foreach(var (i,item) in player.items.Index()) {
-				sf_ui.Print(x, y++, [item.type.tile, Tile.empty, ..Tile.Arr($"{item.type.name,-27}{(char)('a' + i)}")]);
-			}
+		pane_cargo.Render(delta);
+		foreach(var (i, item) in player.items.Index()) {
+			pane_cargo.Print(i, [item.type.tile, new Tile(0, ABGR.Black, 0), .. Tile.Arr($"{item.type.name}")]);
 		}
 #if false
 		{
@@ -268,59 +271,38 @@ public class Mainframe : IScene {
 			sf_ui.Print(x, y, "Goal: Calibrate Aim", ABGR.White, ABGR.Black);
 		}
 #endif
-		{
-			var x = 0; var y = Height - 31;
-			var _m = player.messages;
-			DrawRect(sf_ui, x, y, 32, 31, new() {
-				f = PINK,
-				b = BACK
-			});
-			x++;
-			y++;
-			foreach(var m in _m[Max(_m.Count - 29, 0)..].Reverse<Player.Message>()) {
-				IEnumerable<Tile> str = m.str.Concat([Tile.empty, .. (m.once ? [] : Tile.Arr($"x{m.repeats}"))]);
-				if(player.tick > m.tick) {
-					var ft = player.time - m.fadeTime;
-					str = from tile in str select tile with {
-						Foreground = ABGR.SetA(tile.Foreground, (byte)Main.Lerp(ft, 0, 0.4, 255, 128, 1)) };
-				}
-				var bt = player.time - m.time;
-				if(bt < 0.4) {
-					str = from tile in str select tile with {
-						Background = ABGR.Blend(sf_ui.Tile[x,y].Background, ABGR.SetA(PINK, (byte)Main.Lerp(bt, 0, 0.4, 255, 0, 1))) };
-				} 
-				sf_ui.Print(x, y++, [..str]);
+		pane_log.Render(delta);
+		foreach(var (i, m) in player.messages.TakeLast(Math.Min(pane_log.rect.height - 2, player.messages.Count)).Reverse().Index()) {
+			var str = m.str.Concat([new Tile(0, ABGR.Black, 0), .. (m.once ? [] : Tile.Arr($"x{m.repeats}"))]);
+			if(player.tick > m.tick) {
+				var ft = player.time - m.fadeTime;
+				str = str.Select(tile => tile with {
+					Foreground = ABGR.Blend(ABGR.Black, ABGR.SetA(tile.Foreground, (byte)Main.Lerp(ft, 0, 0.4, 255, 128, 1)))
+				});
 			}
+			if(player.time - m.time is < 0.4 and { } bt) {
+				str = str.Select(tile => tile with {
+					Background = ABGR.SetA(ABGR.DeepPink, (byte)Main.Lerp(bt, 0, 0.4, 255, 0, 1))
+				});
+			}
+			pane_log.Print(i, [.. str]);
 		}
+
+		pane_look.Render(delta);
 		if(level.entities.Contains(marker)){
-			int x = 32, y = 33;
-			DrawRect(sf_ui, x, y, 32, 26, new() {
-				f = PINK,
-				b = BACK
-			});
-			x++;
-			y++;
 			foreach(var (i, e) in level.entityMap.GetValueOrDefault(marker.pos, []).Except([marker]).Index()) {
-				sf_ui.Print(x, y, e.tile);
-				sf_ui.Print(x + 2, y, $"{e switch {
+				pane_look.Print(i, [e.tile, new Tile(0, ABGR.Black, 0), ..Tile.Arr(e switch {
 					Floor => "Floor",
 					Player => "Player",
-					Roach => "Roach",
+					Tankroach => "Tankroach",
 					Splat => "Bullet",
 					_ => "UNKNOWN"
-				}, -12}{(char)('a'+i)}");
-				y++;
+				}, ABGR.White, ABGR.Black)]);
 			}
 		}
 		sf_portrait.Clear();
-		DrawRect(sf_portrait, 0, 0, 18, 18, new() {
-			f = PINK,
-			b = BACK
-		});
-
-		foreach(var (pos, tile) in assets.giantCockroachRobot.Sprite) {
-			sf_portrait.Tile[(pos.x + 1, pos.y + 1)] = tile;
-		}
+		DrawBorder(sf_portrait, new() { f = PINK, b = BACK, width = Line.Double });
+		assets.giantCockroachRobot.Render(sf_portrait, (2, 2));
 		Draw?.Invoke(sf_main);
 		Draw?.Invoke(sf_ui);
 		Draw?.Invoke(sf_portrait);
@@ -328,7 +310,6 @@ public class Mainframe : IScene {
 			dialog.Render(delta);
 	}
 	void IScene.HandleKey(KB kb) {
-
 		if(dialog is { }d) {
 			d.HandleKey(kb);
 			return;
@@ -346,31 +327,59 @@ public class Mainframe : IScene {
 			} else if(p(KC.Left)) {
 				player.Walk((-1, 0));
 			} else if(p(KC.S)) {
-				dialog = new AimDialog(player);
-			}
-			if(kb.IsDown(KC.OemPeriod)) {
+				dialog = new ShootDialog(Width, Height, assets, player);
+			} else if(p(KC.W)) {
+				//dialog = new WearDialog(player);
+			} else if(kb.IsDown(KC.OemPeriod)) {
 				player.busy = true;
 			}
-
 		}
 	}
 	Marker marker = new();
+	Hand hand = new();
 	void IScene.HandleMouse(HandState mouse) {
-		if(!mouse.on) {
+		hand.Update(mouse);
+		bool look = hand.nowOn;
+
+		pane_cargo.HandleMouse(mouse.OnRect(pane_cargo.screenRect));
+		if(pane_cargo.hand.nowOn) {
+			look = false;
+
+
+			var pos = pane_cargo.MouseCellPos;
+			pos = (pos.x - 1, pos.y - 1);
+			if(pos is (>-1, >-1)) {
+				var i = pos.y;
+				if(i < player.items.Count) {
+					var item = player.items.ElementAt(i);
+
+				}
+			}
+		}
+		if(look) {
+			var pos = (XYI)mouse.pos / sf_main.font.GlyphSize - center;
+			pos = player.pos + (pos.x, -pos.y) + (0, -1);
+			if(!level.entities.Contains(marker))
+				level.AddEntity(marker);
+			marker._pos = (pos.x, pos.y);
+		} else {
 			level.RemoveEntity(marker);
-			return;
 		}
-		var pos = (XYI)mouse.pos / sf_main.font.GlyphSize - center;
-		pos = player.pos + (pos.x, -pos.y) + (0, -1);
-		if(!level.entities.Contains(marker))
-			level.AddEntity(marker);
-		marker._pos = (pos.x, pos.y);
-#if true
-		if(mouse.leftDown && player.shoot?.done != false) {
-			player.shoot = new Shoot() { target = (XY)pos };
-			player.shoot.Init(player);
-		}
-#endif
 		return;
 	}
+}
+
+record SfPane(Sf on, Rect rect, RectOptions border) {
+	public Hand hand = new();
+	public void HandleMouse(HandState state) {
+		hand.Update(state);
+	}
+	public (int x, int y) MouseCellPos => (hand.nowPos.x / on.GlyphWidth, hand.nowPos.y / on.GlyphHeight);
+	public Rect screenRect => on.SubRect(rect);
+
+	public void Render(TimeSpan delta) {
+		DrawRect(on, rect.x, rect.y, rect.width, rect.height, border);
+	}
+	public void Print (int line, Tile[] str) => on.Print(rect.x + 1, rect.y + 1 + line, str);
+	public (int x, int y) firstLine => (rect.x + 1, rect.y + 1);
 }

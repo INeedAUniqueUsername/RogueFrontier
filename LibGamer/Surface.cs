@@ -32,6 +32,9 @@ public class Sf {
 	public (int w, int h) GlyphSize => font.GlyphSize;
 	public Rect rect => new Rect(GlyphWidth * pos.xi, GlyphHeight * pos.yi, GlyphWidth * GridWidth, GlyphHeight * GridHeight);
 	public Rect SubRect (int x, int y, int w, int h) => new Rect((pos.xi + x) * GlyphWidth, (y + pos.yi) * GlyphHeight, w * GlyphWidth, h * GlyphHeight);
+	public Rect SubRect (Rect r) => SubRect(r.x, r.y, r.width, r.height);
+
+
 	public Sf(int Width, int Height, Tf font) {
 		this.GridWidth = Width;
 		this.GridHeight = Height;
@@ -131,6 +134,8 @@ public class Sf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
+
+	public static void DrawBorder (Sf sf, RectOptions op) => DrawRect(sf, 0, 0, sf.GridWidth, sf.GridHeight, op);
 	public static void DrawRect ( Sf sf, int xStart, int yStart, int dx, int dy, RectOptions op) {
 		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>
 			(char)BoxInfo.IBMCGA.glyphFromInfo[new(n, e, s, w)];

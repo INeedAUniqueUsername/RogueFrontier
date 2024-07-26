@@ -3,7 +3,7 @@ using LibGamer;
 
 namespace LibAtomics;
 /// <summary>Takes items and stashes them somewhere. Usually runs away if encountered. If provoked, summons other Roach bots to fight. Melee attacks.</summary>
-public class Roach : IEntity, IActor {
+public class Tankroach : IEntity, IActor {
 	public XYI pos { get; set; }
 	public Tile tile { get; set; } = new Tile(ABGR.Tan, ABGR.Black, 'r');
 	public Action Removed { get; set; }
@@ -12,7 +12,7 @@ public class Roach : IEntity, IActor {
 
 	public int exciteTicks = 10;
 	public int runEnergy = 60;
-	public Roach(World world, XYI pos) {
+	public Tankroach(World world, XYI pos) {
 		this.world = world;
 		this.pos = pos;
 	}
@@ -24,11 +24,9 @@ public class Roach : IEntity, IActor {
 
 		var d = target.pos - pos;
 		if(d.manhattan < 2) {
-
-
 			var on = target.body.parts.GetRandom(r);
 			on.Damage(5);
-			target.Tell(new Player.Message(Tile.Arr($"Roachbot bites You at {on.name} for {5} damage"), target.time, target.tick));
+			target.Tell(new Player.Message(Tile.Arr($"Tankroach bites You at {on.name} for {5} damage"), target.time, target.tick));
 			
 			//target.delay = 5;
 		}
@@ -41,17 +39,12 @@ public class Roach : IEntity, IActor {
 			dest = next;
 		}
 		var path = GetPath(pos, dest);
-
-
 		bool run = false;
-
 		if(exciteTicks > 0 && runEnergy > 0) {
 			run = true;
 			exciteTicks--;
 		}
-
 		runEnergy += 1;
-
 		void Step(XYI to) {
 			pos = to;
 			if(run) {

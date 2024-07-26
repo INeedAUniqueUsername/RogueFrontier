@@ -27,7 +27,6 @@ using Debug = System.Diagnostics.Debug;
 public record struct VertexShaderInput
 {
 	public DVertex Vertex;
-	public DColor Color;
 	public DTex Tex;
 };
 public class Downloader {
@@ -155,25 +154,29 @@ public class Runner {
 		BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
 		Console.WriteLine("F");
 
-		var vap = (
+		(uint stride, uint index, int pointer, Action<int, uint> add) vap = default;
+		vap = (
 			stride: (uint)Marshal.SizeOf<VertexShaderInput>(),
-			index: 0u,
+			index: 0,
 			pointer: 0,
-			add: default(Action<int>)
-		);
-		vap = vap with {
-			add = (int sz) => {
+			add: (int sz, uint divisor = 0) => {
 				gl.EnableVertexAttribArray(vap.index);
 				gl.VertexAttribPointer(vap.index, sz / sizeof(float), VertexAttribPointerType.Float, false, vap.stride, (void*)vap.pointer);
+				if(divisor > 0)
+					gl.VertexAttribDivisor(vap.index, divisor);
 				vap.index += 1;
 				vap.pointer += sz;
 			}
-		};
+		);
 		Enumerable.ToList([
 			Marshal.SizeOf<DVertex>(),
-			Marshal.SizeOf<DColor>(),
 			Marshal.SizeOf<DTex>()
-		]).ForEach(vap.add);
+		]).ForEach(i => vap.add(i, 0));
+		Enumerable.ToList([
+			Marshal.SizeOf<DVertex>(),
+			Marshal.SizeOf<DTex>(),
+			Marshal.SizeOf<DColor>()
+		]).ForEach(i => vap.add(i, 1));
 
 		gl.BindVertexArray(0);
 		CheckError(gl, "VertexAttribPointer");
@@ -240,18 +243,37 @@ public class Runner {
 			li_index.AddRange(from i in ind select (ushort)(i + sz));
 			li_vertex.AddRange(inp);
 		}
-		public void AddSquare ((DVertex pos, DVertex size) vertex, DColor color, (DTex pos, DTex size) tex) {
+		public void AddRect ((DVertex pos, DVertex size) vertex, (DTex pos, DTex size) tex) {
 			AddPolygon([
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Color = color, Tex = tex.pos + tex.size*new DTex(0, 1) }, //nw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Color = color, Tex = tex.pos + tex.size*new DTex(1, 1) }, //ne
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,1), Color = color, Tex = tex.pos + tex.size*new DTex(0, 0) }, //sw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,1), Color = color, Tex = tex.pos + tex.size*new DTex(1, 0) }, //se
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Tex = tex.pos + tex.size*new DTex(0, 1) }, //nw
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Tex = tex.pos + tex.size*new DTex(1, 1) }, //ne
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,1), Tex = tex.pos + tex.size*new DTex(0, 0) }, //sw
+				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,1), Tex = tex.pos + tex.size*new DTex(1, 0) }, //se
 			], [
 				0,1,2,
 				1,2,3
 			]);
 		}
+		public void AddRect(VertexShaderInput pos, VertexShaderInput size) {
+
+			var si = (DVertex vfactor, DTex tfactor) => new VertexShaderInput {
+				Vertex = pos.Vertex + 2 * size.Vertex * vfactor,
+				Tex = pos.Tex + size.Tex * tfactor
+			};
+			AddPolygon([
+				si(new DVertex(0, 0), new DTex(0, 1)),
+				si(new DVertex(1, 0), new DTex(1, 1)),
+				si(new DVertex(0, 1), new DTex(0, 0)),
+				si(new DVertex(1, 1), new DTex(1, 0)),
+				], [
+				0,1,2,
+				1,2,3
+			]);
+		}
 	}
+
+
+	Dictionary<Tf, uint> vaoOf = [];
 	void RenderSf (Sf sf) {
 		DVertex VecXYI ((int x, int y) p) =>
 			new(p.x, p.y);
@@ -261,7 +283,23 @@ public class Runner {
 		var szPixelVert = new DVertex(scale, scale) / new DVertex(width, height);
 		var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
 		var szTileTex = new DTex(sf.font.GlyphWidth, sf.font.GlyphHeight) / new DVertex(sf.font.ImageWidth, sf.font.ImageHeight);
-		foreach(var posTile in sf.Positions) {
+
+
+		if(vaoOf.TryGetValue(sf.font, out var vao)) {
+			vao = gl.GenVertexArray();
+			gl.BindVertexArray(vao);
+
+
+
+			vaoOf[sf.font] = vao;
+
+		}
+
+		//canvas.AddSquare((posTileVert, szTileVert), (backTex, szTileTex));
+
+
+
+		foreach(var (i, posTile) in sf.Positions.Index()) {
 			var posTileVert = new DVertex(
 				2f * posTile.x * szTileVert.X - 1f,
 				-(2f * posTile.y * szTileVert.Y - 1f)
@@ -270,11 +308,9 @@ public class Runner {
 
 			var back = VecABGR(t.Background);
 			var backTex = VecXYI(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / VecXYI(sf.font.GridSize);
-			canvas.AddSquare((posTileVert, szTileVert), back, (backTex, szTileTex));
+
 			var front = VecABGR(t.Foreground);
-			var frontTex = VecXYI(sf.font.GetGlyphPos((int)t.Glyph)) / VecXYI(sf.font.GridSize);			
-			canvas.AddSquare((posTileVert, szTileVert), front, (frontTex, szTileTex));
-			//var fontPos = Vec(sf.font.GetGlyphPos((int)t.Glyph)) * tex_size;
+			var frontTex = VecXYI(sf.font.GetGlyphPos((int)t.Glyph)) / VecXYI(sf.font.GridSize);
 		}
 	}
 	KB kb = new();
@@ -305,6 +341,9 @@ public class Runner {
 		gl.BufferData<VertexShaderInput>(BufferTargetARB.ArrayBuffer, buf_vertex, BufferUsageARB.StreamDraw);
 		gl.BufferData<ushort>(BufferTargetARB.ElementArrayBuffer, buf_index, BufferUsageARB.StreamDraw);
 		gl.DrawElements(PrimitiveType.Triangles, (uint)buf_index.Length, DrawElementsType.UnsignedShort, (void*)0);
+
+
+
 		CheckError(gl, "DrawElements");
 		UnbindVAO();
 		void Bind (uint vao, uint vbo, uint vbi) {

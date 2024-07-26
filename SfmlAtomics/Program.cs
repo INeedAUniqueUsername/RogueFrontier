@@ -10,5 +10,5 @@ SadConsole.Settings.WindowTitle = $"Rogue Atomics";
 
 var assets = Assets.CreateAsync(new(async s => File.ReadAllText(s), async s => File.ReadAllBytes(s))).Result;
 Runner.Run(RogueFrontier.Fonts.IBMCGA_8X8_FONT, r => {
-	r.Go(new TitleScreen(Runner.WIDTH, Runner.HEIGHT, assets));
+	r.Go(new Mainframe(Runner.WIDTH, Runner.HEIGHT, assets));
 });
