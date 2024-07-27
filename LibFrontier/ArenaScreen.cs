@@ -27,7 +27,27 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	Hand mouse;
 	public ActiveObject pov;
 	ActiveObject nearest;
-	public Mainframe mainframe;
+
+
+	private Mainframe _current;
+	public Mainframe current {
+		get => _current;
+		set {
+			if(_current is { } prev) {
+				prev.PlaySound -= PlaySound;
+				prev.Draw -= Draw;
+			}
+			_current = value;
+			if(value is { } v) {
+				v.PlaySound += PlaySound;
+				v.Draw += Draw;
+			}
+			void PlaySound (SoundCtx snd) =>
+				this.PlaySound?.Invoke(snd);
+			void Draw (Sf sf) =>
+				this.Draw?.Invoke(sf);
+		}
+	}
 
 	bool passTime = true;
 	Sf sf_world;
@@ -193,8 +213,6 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 					}
 				}
 			}
-
-
 			void AddCargoField() {
 				var x = 1;
 				var y = 7 + 18;
@@ -317,11 +335,11 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	public void ToggleArena() {
 		showUI = !showUI;
 	}
-	public void Reset() => Reset(mainframe?.camera.position ?? camera);
+	public void Reset() => Reset(current?.camera.position ?? camera);
 	public void Reset(XY camera) {
 
 		this.camera = camera;
-		mainframe = null;
+		current = null;
 #if false
 		foreach (var c in Children) {
 			c.IsVisible = true;
@@ -335,8 +353,8 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 		World.PlaceTiles(tiles);
 	}
 	public void Update(TimeSpan timeSpan) {
-		if (mainframe != null) {
-			mainframe.Update(timeSpan);
+		if (current != null) {
+			current.Update(timeSpan);
 			//IsFocused = true;
 			return;
 		}
@@ -390,8 +408,8 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 		}
 	}
 	public void Render(TimeSpan delta) {
-		if (mainframe != null) {
-			mainframe.Render(delta);
+		if (current != null) {
+			current.Render(delta);
 			return;
 		}
 
@@ -434,27 +452,27 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				}
 			}
 		if (kb.IsPress(KC.Escape)) {
-			if (mainframe != null) {
+			if (current != null) {
 
-				if (mainframe.dialog != null) {
-					mainframe.HandleKey(kb);
+				if (current.dialog != null) {
+					current.HandleKey(kb);
 					return;
 				}
 
-				World.RemoveEntity(mainframe.playerShip);
-				var aiShip = new AIShip(mainframe.playerShip.ship, mainframe.playerShip.sovereign, new AttackNearby());
+				World.RemoveEntity(current.playerShip);
+				var aiShip = new AIShip(current.playerShip.ship, current.playerShip.sovereign, new AttackNearby());
 				World.AddEntity(aiShip);
 				World.AddEffect(new Heading(aiShip));
 
 				pov = aiShip;
-				Reset(mainframe.camera.position);
+				Reset(current.camera.position);
 			} else {
 				prev.pov = null;
 				prev.camera = camera;
 				Go(prev);
 			}
-		} else if (mainframe != null) {
-			mainframe.HandleKey(kb);
+		} else if (current != null) {
+			current.HandleKey(kb);
 			return;
 		}
 
@@ -473,13 +491,11 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 				var p = new Player() { Genome = new GenomeType() { name = "Human" } };
 				var playerShip = new PlayerShip(p, new BaseShip(a.ship), a.sovereign);
 
-				mainframe = new Mainframe(Width, Height, new Profile(), playerShip);
-
-				mainframe.PlaySound += snd => PlaySound?.Invoke(snd);
-				mainframe.Draw += sf => Draw?.Invoke(sf);
+				current = new Mainframe(Width, Height, new Profile(), playerShip);
 
 
-				mainframe.camera.position = camera;
+
+				current.camera.position = camera;
 				playerShip.onDestroyed += this;
 				World.AddEntity(playerShip);
 				World.AddEffect(new Heading(playerShip));
@@ -525,8 +541,8 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 	}
 	XY prevPos = (0, 0);
 	public void HandleMouse (HandState state) {
-		if (mainframe != null) {
-			mainframe.HandleMouse(state);
+		if (current != null) {
+			current.HandleMouse(state);
 			return;
 		}
 

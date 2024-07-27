@@ -256,7 +256,7 @@
 				attributes=	"Errorists"
 				level=		"6"
 				mass=		"2000"
-				desc=		"The Lucifer cannon fires a high-energy beam that causes armor to, in a word, melt."
+				desc=		"The Lucifer cannon fires a high-energy beam that causes armor to disintegrate."
 		>
 		<Weapon	initialCharges="480"
 				powerUse=		"30"
@@ -358,7 +358,7 @@
 		</LayeredArmorSystem>
 		<PlayerSettings
 			startingClass=	"false"
-			description=	"The Nauseous is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			description=	"The Nauseous wields an armor-pelting sand cannon"
 			/>
 	</ShipClass>
 	<ShipClass	codename=	"ship_errorist_fighter"
@@ -382,7 +382,7 @@
 		</LayeredArmorSystem>
 		<PlayerSettings
 			startingClass="false"
-			description="The Noxious is armed with the armor-melting sludge cannon and armor-pelting sand cannon"
+			description="The Noxious wields an armor-melting sludge cannon and armor-pelting sand cannon"
 			/>
 	</ShipClass>
 	<ShipClass codename=	"ship_errorist_missileship"

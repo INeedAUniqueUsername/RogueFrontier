@@ -6,7 +6,13 @@ namespace Common;
 public static class Debug {
     public static List<string> log = new();
     public static string state = "";
+
+#if DEBUG
+
     public static bool printing = true;
+#else
+    public static bool printing = false;
+#endif
     public static void Print(string state) {
         log.Add(state);
         Debug.state = state;

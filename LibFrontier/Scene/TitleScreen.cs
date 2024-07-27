@@ -46,12 +46,10 @@ public class TitleScreen : IScene {
 		int x = 2;
 		int y = 9;
 		//var fs = FontSize * 1;
-
-
-
 		foreach (var (s,a) in new Dictionary<string, Action>{
-			["[Enter]   New Adventure"] = StartGame,
-			["[Shift-L] Load Adventure"] = null,
+			["[Enter]   Traveler Mode - New Game"] = StartGame,
+			["[Shift-L] Traveler Mode - Load Game"] = null,
+			["[Shift-F] Fortress Mode - New Game"] = null,
 			["[Shift-A] Arena Mode"] = StartArena,
 			["[Shift-C] Controls"] = null,
 			["[Shift-Z] Credits"] = null,
