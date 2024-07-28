@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using static LibGamer.Sf;
 namespace LibAtomics;
-
 public class TitleScreen : IScene {
+	public static uint RED = ABGR.DeepPink;
+	public static uint BLACK = ABGR.Black;
 	class Particle {
 		public double x, y;
 		public double speed;
@@ -23,10 +24,7 @@ public class TitleScreen : IScene {
 	Sf sf_ui;
 	List<SfControl> controls = [];
 	Assets assets;
-
-
 	SfLink start;
-
 	public TitleScreen (int Width, int Height, Assets assets) {
 		this.assets = assets;
 		sf_mono = new Sf(Width / 2, Height / 2, assets.RF_8x8) { scale = 2 };
@@ -111,9 +109,8 @@ public class TitleScreen : IScene {
 			var dest = r.Next(0, 102);
 			g += (dest - g) * delta.TotalSeconds * 4;
 			sf_mono.Tile[pos] = new(
-				ABGR.SetA(ABGR.DeepPink, (byte)(g * factor)),
-				ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.DeepPink, (byte)((1 - factor) * hiveAlpha/10))),
-				'=');
+				ABGR.SetA(RED, (byte)(g * factor)),
+				ABGR.Blend(BLACK, ABGR.SetA(RED, (byte)((1 - factor) * hiveAlpha/10))), '=');
 		}
 
 		assets.title.Render(sf_mono, (sf_mono.GridWidth/2 - assets.title.Width/2, 8));

@@ -21,14 +21,19 @@ namespace WebAtomics;
 using DVertex = Vector2;
 using DColor = Vector4;
 using DTex = Vector2;
+using Vec2 = Vector2;
+using Vec4 = Vector4;
 using Debug = System.Diagnostics.Debug;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "POD")]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public record struct VertexShaderInput
 {
-	public DVertex Vertex;
-	public DTex Tex;
+	public Vec2 xy_pos;
+	public Vec2 tex_pos;
+	public Vec2 xy_rect;
+	public Vec2 tex_rect;
+	public Vec4 rgba;
 };
 public class Downloader {
 	private static async Task<HttpContent> Get(HttpClient client, string path) {
@@ -101,8 +106,6 @@ public class Runner {
 	private GL gl { get; }
 	private Scheduler Scheduler { get; }
 
-	uint vao, vbo, vbi;
-
 	TexMaker tm;
 	public Runner(GL gl){
 		this.gl = gl;
@@ -132,7 +135,7 @@ public class Runner {
 		}
 		gl.UseProgram(iProgram);
 
-		CheckError(gl, "GetUniformLocation()");
+		CheckError(gl, "UseProgram()");
 
 		Console.WriteLine($"C"); {
 			//Configure shader
@@ -197,10 +200,10 @@ public class Runner {
 		}
 		public void AddRect ((DVertex pos, DVertex size) vertex, (DTex pos, DTex size) tex) {
 			AddPolygon([
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,0), Tex = tex.pos + tex.size*new DTex(0, 1) }, //nw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,0), Tex = tex.pos + tex.size*new DTex(1, 1) }, //ne
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(0,1), Tex = tex.pos + tex.size*new DTex(0, 0) }, //sw
-				new(){ Vertex = vertex.pos + 2*vertex.size*new DVertex(1,1), Tex = tex.pos + tex.size*new DTex(1, 0) }, //se
+				new(){ xy_pos = vertex.pos + 2*vertex.size*new DVertex(0,0), tex_pos = tex.pos + tex.size*new DTex(0, 1) }, //nw
+				new(){ xy_pos = vertex.pos + 2*vertex.size*new DVertex(1,0), tex_pos = tex.pos + tex.size*new DTex(1, 1) }, //ne
+				new(){ xy_pos = vertex.pos + 2*vertex.size*new DVertex(0,1), tex_pos = tex.pos + tex.size*new DTex(0, 0) }, //sw
+				new(){ xy_pos = vertex.pos + 2*vertex.size*new DVertex(1,1), tex_pos = tex.pos + tex.size*new DTex(1, 0) }, //se
 			], [
 				0,1,2,
 				1,2,3
@@ -208,8 +211,8 @@ public class Runner {
 		}
 		public void AddRect(VertexShaderInput pos, VertexShaderInput size) {
 			var si = (DVertex vfactor, DTex tfactor) => new VertexShaderInput {
-				Vertex = pos.Vertex + 2 * size.Vertex * vfactor,
-				Tex = pos.Tex + size.Tex * tfactor
+				xy_pos = pos.xy_pos + 2 * size.xy_pos * vfactor,
+				tex_pos = pos.tex_pos + size.tex_pos * tfactor
 			};
 			AddPolygon([
 				si(new DVertex(0, 0), new DTex(0, 1)),
@@ -222,71 +225,71 @@ public class Runner {
 			]);
 		}
 	}
-	Dictionary<Tf, (uint vao, TexInfo tex)> fontData = [];
+	Dictionary<Tf, (uint vao, uint vbo, TexInfo tex)> fontData = [];
+	record VapMaker (GL gl) {
+		uint stride = (uint)Marshal.SizeOf<VertexShaderInput>();
+		uint index = 0;
+		int pointer = 0;
+		public unsafe void add (int sz, uint divisor = 0) {
+			gl.EnableVertexAttribArray(index);
+			gl.VertexAttribPointer(index, sz / sizeof(float), VertexAttribPointerType.Float, false, stride, (void*)pointer);
+			if(divisor > 0)
+				gl.VertexAttribDivisor(index, divisor);
+
+			CheckError(gl, $"Attribute {index}");
+			index += 1;
+			pointer += sz;
+		}
+	}
 	unsafe void RenderSf (Sf sf) {
-		DVertex VecXYI ((int x, int y) p) =>
+		void BindBuffer (BufferTargetARB target, uint i) {
+			gl.BindBuffer(target, i);
+			gl.BufferData(target, 0, 0, BufferUsageARB.StreamDraw);
+		};
+
+		Vec2 VecXYI ((int x, int y) p) =>
 			new(p.x, p.y);
-		DColor VecABGR (uint c) =>
+		Vec4 VecABGR (uint c) =>
 			new(ABGR.R(c) / 255f, ABGR.G(c) / 255f, ABGR.B(c) / 255f, ABGR.A(c) / 255f);
 		var scale = (float)sf.scale  * 1f;
-		var szPixelVert = new DVertex(scale, scale) / new DVertex(width, height);
-		var szTileVert = new DVertex(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
-		var szTileTex = new DTex(sf.font.GlyphWidth, sf.font.GlyphHeight) / new DVertex(sf.font.ImageWidth, sf.font.ImageHeight);
+		var szPixelVert = new Vec2(scale, scale) / new DVertex(width, height);
+		var szTileVert = new Vec2(sf.GlyphWidth, sf.GlyphHeight) * szPixelVert;
+		var szTileTex = new Vec2(sf.font.GlyphWidth, sf.font.GlyphHeight) / new Vec2(sf.font.ImageWidth, sf.font.ImageHeight);
 
-		
+
+
 		if(!fontData.TryGetValue(sf.font, out var data)) {
+
+			Console.WriteLine($"Initialize {sf.font.name}");
+
 			data.vao = gl.GenVertexArray();
 			gl.BindVertexArray(data.vao);
+			CheckError(gl, "BindVAO");
+			data.vbo = gl.GenBuffer();
+			BindBuffer(BufferTargetARB.ArrayBuffer, data.vbo);
+			CheckError(gl, "BindVBO");
+			VapMaker vap = new VapMaker(gl);
 
-			var vbos = (Span<uint>)stackalloc uint[2];
-			gl.GenBuffers(vbos);
-			vbo = vbos[0];
-			vbi = vbos[1];
-
-			BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-			BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
-
-			void BindBuffer (BufferTargetARB target, uint i) {
-				gl.BindBuffer(target, i);
-				gl.BufferData(target, 0, 0, BufferUsageARB.StreamDraw);
-			};
-
-			(uint stride, uint index, int pointer, Action<int, uint> add) vap = default;
-			vap = (
-				stride: (uint)Marshal.SizeOf<VertexShaderInput>(),
-				index: 0,
-				pointer: 0,
-				add: (int sz, uint divisor = 0) => {
-					gl.EnableVertexAttribArray(vap.index);
-					gl.VertexAttribPointer(vap.index, sz / sizeof(float), VertexAttribPointerType.Float, false, vap.stride, (void*)vap.pointer);
-					if(divisor > 0)
-						gl.VertexAttribDivisor(vap.index, divisor);
-					vap.index += 1;
-					vap.pointer += sz;
-				}
-			);
+			CheckError(gl, "Attribute");
 			Enumerable.ToList([
-				Marshal.SizeOf<DVertex>(),
-				Marshal.SizeOf<DTex>()
-			]).ForEach(i => vap.add(i, 0));
-			Enumerable.ToList([
-				Marshal.SizeOf<DVertex>(),
-				Marshal.SizeOf<DTex>(),
-				Marshal.SizeOf<DColor>()
+				Marshal.SizeOf<Vec2>(),
+				Marshal.SizeOf<Vec2>(),
+				Marshal.SizeOf<Vec2>(),
+				Marshal.SizeOf<Vec2>(),
+				Marshal.SizeOf<Vec4>()
 			]).ForEach(i => vap.add(i, 1));
 
 			gl.BindVertexArray(0);
 			CheckError(gl, "VertexAttribPointer");
 
-
 			data.tex = tm.MakeTexture(sf.font.rgba, (uint)sf.font.ImageWidth, (uint)sf.font.ImageHeight);
 			fontData[sf.font] = data;
 		}
+		gl.BindVertexArray(data.vao);
 
-		data.tex.BindSampler(gl, iProgram, "uSampler");
+		List<VertexShaderInput> buf = new(sf.TileCount * 2);
 		//canvas.AddSquare((posTileVert, szTileVert), (backTex, szTileTex));
-
-		foreach(var (i, posTile) in sf.Positions.Index()) {
+		foreach(var posTile in sf.Positions) {
 			var posTileVert = new DVertex(
 				2f * posTile.x * szTileVert.X - 1f,
 				-(2f * posTile.y * szTileVert.Y - 1f)
@@ -295,13 +298,39 @@ public class Runner {
 
 			var back = VecABGR(t.Background);
 			var backTex = VecXYI(sf.font.GetGlyphPos(sf.font.solidGlyphIndex)) / VecXYI(sf.font.GridSize);
-
+			buf.Add(new() {
+				xy_pos = posTileVert,
+				xy_rect = szTileVert,
+				tex_pos = backTex,
+				tex_rect = szTileTex,
+				rgba = back
+			});
 			var front = VecABGR(t.Foreground);
 			var frontTex = VecXYI(sf.font.GetGlyphPos((int)t.Glyph)) / VecXYI(sf.font.GridSize);
+			buf.Add(new() {
+				xy_pos = posTileVert,
+				xy_rect = szTileVert,
+				tex_pos = frontTex,
+				tex_rect = szTileTex,
+				rgba = front
+			});
 		}
+
+		var buf_input = CollectionsMarshal.AsSpan(buf);
+		gl.BindBuffer(GLEnum.ArrayBuffer, data.vbo);
+		gl.BufferData<VertexShaderInput>(GLEnum.ArrayBuffer, buf_input, GLEnum.StreamDraw);
+
+		//Console.WriteLine("DrawSf");
+		data.tex.BindSampler(gl, iProgram, "uSampler");
+		//Console.WriteLine("BindSampler");
+		gl.DrawArraysInstanced(GLEnum.TriangleStrip, 0, 4, (uint)sf.TileCount * 2);
+		//Console.WriteLine("DrawArraysInstanced");
+
+		gl.BindVertexArray(0);
+		//Console.WriteLine("BindVertexArray(0)");
+
 	}
 	KB kb = new();
-	Canvas canvas = new();
 	DateTime prevRender = DateTime.Now;
 	public unsafe void Update() {
 		// iterate our logic thread
@@ -309,38 +338,16 @@ public class Runner {
 		gl.ClearColor(0f, 0f, 0f, 1.0f);
 		gl.Clear(ClearBufferMask.ColorBufferBit);
 
-
 		var delta = (DateTime.Now - prevRender);
 		kb.Update(Interop.down);
 		Console.WriteLine(string.Join(",", kb.Down));
 
-		canvas.Clear();
 		current?.Update(delta);
 		current?.HandleKey(kb);
 		current?.HandleMouse(Interop.hand);
 		current?.Render(delta);
 		prevRender = DateTime.Now;
 		
-		var buf_vertex = CollectionsMarshal.AsSpan(canvas.li_vertex);
-		var buf_index = CollectionsMarshal.AsSpan(canvas.li_index);
-
-		BindVAO();
-		gl.BufferData<VertexShaderInput>(BufferTargetARB.ArrayBuffer, buf_vertex, BufferUsageARB.StreamDraw);
-		gl.BufferData<ushort>(BufferTargetARB.ElementArrayBuffer, buf_index, BufferUsageARB.StreamDraw);
-		gl.DrawElements(PrimitiveType.Triangles, (uint)buf_index.Length, DrawElementsType.UnsignedShort, (void*)0);
-
-
-
-		CheckError(gl, "DrawElements");
-		UnbindVAO();
-		void Bind (uint vao, uint vbo, uint vbi) {
-			gl.BindVertexArray(vao);
-			gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, vbi);
-			CheckError(gl, $"{vao}, {vbo}, {vbi}");
-		};
-		void UnbindVAO () => Bind(0, 0, 0);
-		void BindVAO () => Bind(vao, vbo, vbi);
 
 	}
 	public static void CheckError (GL gl, string msg = null) {
