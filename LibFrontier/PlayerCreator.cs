@@ -84,9 +84,7 @@ class PlayerCreator : IScene {
         double lastClick = 0;
         int fastClickCount = 0;
         identityButton = new SfLink(sf_ui, (x+16,y),playerGenome.name, () => {
-
             //Tones.pressed.Play();
-
             if (time - lastClick > 0.5) {
                 genomeIndex = (genomeIndex + 1) % genomes.Count;
                 playerGenome = genomes[genomeIndex];
@@ -124,13 +122,17 @@ class PlayerCreator : IScene {
             }
             lastClick = time;
         });
-        controls.Add(identityButton); {
+        controls.Add(identityButton);
+        {
             string back = "[Escape] Back";
             controls.Add(new SfLink(sf_ui, (sf_ui.GridWidth - back.Length, 1), back, Back));
-        } {
+        }
+        {
             string start = "[Enter] Start";
             controls.Add(new SfLink(sf_ui, (sf_ui.GridWidth - start.Length, Height - 1), start, Start));
-        } PlaceArrows();
+        }
+        
+        PlaceArrows();
     }
     public void Update(TimeSpan delta) {
         time += delta.TotalSeconds;
@@ -138,41 +140,30 @@ class PlayerCreator : IScene {
     public void Render(TimeSpan drawTime) {
         sf_img.Clear();
         sf_ui.Clear();
-
         var current = playable[index];
-
         int shipDescY = 12;
-
         shipDescY++;
         shipDescY++;
-
-        var nameX = Width / 4 - current.name.Length / 2;
+        var nameX = 24 - current.name.Length / 2;
         var y = shipDescY;
         sf_ui.Print(nameX, y, current.name);
         //We print each line twice since the art gets flattened by the square font
         //Ideally the art looks like the original with an added 3D effect
-
-        
         Sf.DrawRect(sf_img, 16, y + 2, 4, 4, new());
         //sf_img.Tile[18, y + 3] = current.tile;
-        
         sf_icon.Tile[0, 0] = current.tile;
-
+        Sf.DrawRect(sf_img, 0, 22, 36, 36, new());
         foreach (var (p,t) in current.playerSettings.heroImage) {
-
-            var pos = (p.X + 2, -p.Y + Height - 36 - 2);
+            var pos = (p.X + 2, -p.Y + 24);
             sf_img.Tile[pos] = t;
         }
-
         var descX = 48;
         y = shipDescY;
         foreach (var line in current.playerSettings.description.Wrap(Width / 3)) {
             sf_ui.Print(descX, y, line);
             y++;
         }
-
         y++;
-
         //Show installed devices on the right pane
         sf_ui.Print(descX, y, "[Devices]");
         y++;
@@ -180,13 +171,11 @@ class PlayerCreator : IScene {
             sf_ui.Print(descX + 4, y, device.source.type.name);
             y++;
         }
-
-        descX = 88;
+        descX = 100;
         y = shipDescY;
         foreach (var line in settings.GetString().Split('\n', '\r')) {
             sf_ui.Print(descX, y++, line);
         }
-
         for (y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
 
@@ -197,8 +186,8 @@ class PlayerCreator : IScene {
                 }
             }
 		}
-
         foreach(var c in controls) c.Render(drawTime);
+
 		Draw?.Invoke(sf_img);
 		Draw?.Invoke(sf_icon);
 		Draw?.Invoke(sf_ui);
@@ -214,10 +203,10 @@ class PlayerCreator : IScene {
     }
 	public void HandleKey(KB kb) {
         if (kb[KC.Right] == KS.Press && showRight) {
-            SelectRight();
+            rightArrow.leftClick();
         }
         if (kb[KC.Left] == KS.Press && showLeft) {
-            SelectLeft();
+            leftArrow.leftClick();
         }
         if (kb[KC.Escape] == KS.Press) {
             Back();
@@ -237,15 +226,14 @@ class PlayerCreator : IScene {
     }
     public void PlaceArrows() {
         int shipDescY = 12;
-
-        string left = "<===  [Left Arrow]";
         if (showLeft) {
-            int x = sf_ui.GridWidth / 4 - left.Length - 1;
+			string left = "<===  [Left Arrow]";
+			int x = sf_ui.GridWidth / 4 - left.Length - 1;
             controls.Add(leftArrow = new SfLink(sf_ui, (x, shipDescY), left, SelectLeft));
         }
-
-        string right = "[Right Arrow] ===>";
         if (showRight) {
+
+			string right = "[Right Arrow] ===>";
             var x = sf_ui.GridWidth * 3 / 4 + 1;
             controls.Add(rightArrow = new SfLink(sf_ui, (x, shipDescY), right, SelectRight));
         }

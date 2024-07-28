@@ -600,6 +600,10 @@ public record FragmentDesc {
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;
 		Func<Guidance> getManeuver = null;
 		if(guidanceDesc is {} g) {
+
+			if(owner is PlayerShip ps) {
+
+			}
 			var f = g.Create;
 			var i = 0;
 			getManeuver = targets?.Count switch {
@@ -634,11 +638,13 @@ public record GuidanceDesc {
 	[Opt] public double maneuver;
 	/// <summary>If nonzero, the projectile maintains this distance from target</summary>
 	[Opt] public double maneuverRadius;
-	public GuidanceDesc (XElement e) => e.Initialize(this, transform: new() {
-		[nameof(maneuver)] = (double d) => {
-			return d * PI / 180;
-		},
-	});
+	public GuidanceDesc (XElement e) {
+		e.Initialize(this, transform: new() {
+			[nameof(maneuver)] = (double d) => {
+				return d * PI / 180;
+			},
+		});
+	}
 	public Guidance Create (ActiveObject target) => target is { } t ? new(t, this) : null;
 }
 public record TrailDesc : ITrail {

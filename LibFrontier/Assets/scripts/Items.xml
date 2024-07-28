@@ -249,11 +249,11 @@
 				desc=		"The Claw missile launcher fires two quick tracking missiles at a time."
 		>
 		<Weapon	powerUse=		"10"
-				fireCooldown=	"40"
+				fireCooldown=	"45"
 				ammoType=		"item_klaw_missile"
 				sound=			"klaw_launcher.wav"
 			>
-			<Projectile	count=			"3"
+			<Projectile	count=			"2"
 						spreadAngle=	"30"
 						maneuver=		"4"
 						missileSpeed=	"60"
@@ -547,7 +547,7 @@
 		>
 		<Weapon	
 			powerUse=		"10"
-			fireCooldown=	"20"
+			fireCooldown=	"30"
 			ammoType=		"item_dynamite_charge"
 			sound=			"generic_missile.wav"
 			>

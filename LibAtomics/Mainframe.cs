@@ -19,7 +19,8 @@ public class TitleScreen : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-	Sf sf;
+	Sf sf_mono;
+	Sf sf_ui;
 	List<SfControl> controls = [];
 	Assets assets;
 
@@ -28,22 +29,29 @@ public class TitleScreen : IScene {
 
 	public TitleScreen (int Width, int Height, Assets assets) {
 		this.assets = assets;
-		sf = new Sf(Width / 2, Height / 2, assets.RF_8x8) { scale = 2 };
+		sf_mono = new Sf(Width / 2, Height / 2, assets.RF_8x8) { scale = 2 };
+		sf_ui = new Sf(sf_mono.GridWidth * 8 / 6, sf_mono.GridHeight, assets.IBMCGA_6x8) { scale = sf_mono.scale };
 		var str = "New Adventure";
-		start = new SfLink(sf, (sf.GridWidth / 2 - str.Length / 2, sf.GridHeight / 2 - 4), str, () => {
+		start = new SfLink(sf_ui, (sf_ui.GridWidth / 2 - str.Length / 2, sf_ui.GridHeight / 2 - 6), str, () => {
 			Go?.Invoke(new Mainframe(Width, Height, assets));
 		});
 		controls.Add(start);
 
+		str = "Arena Mode";
+		var arena = new SfLink(sf_ui, (sf_ui.GridWidth / 2 - str.Length / 2, sf_ui.GridHeight / 2 - 4), str, () => {
+			//Go?.Invoke(new ArenaScreen(Width, Height, assets));
+		});
+		controls.Add(arena);
+
 		glow = new double[Width, Height];
-		foreach(var pos in sf.Positions) {
+		foreach(var pos in sf_mono.Positions) {
 			glow[pos.x, pos.y] = 0;
 		}
 	}
 	void IScene.HandleMouse(LibGamer.HandState mouse) {
 		foreach(var c in controls) c.HandleMouse(mouse);
-		var pos = sf.GetMousePos(mouse.pos);
-		if(pos.x >= 0 && pos.x < sf.GridWidth && pos.y >= 0 && pos.y < sf.GridHeight) {
+		var pos = sf_mono.GetMousePos(mouse.pos);
+		if(pos.x >= 0 && pos.x < sf_mono.GridWidth && pos.y >= 0 && pos.y < sf_mono.GridHeight) {
 			glow[pos.x, pos.y] = 255;
 		}
 	}
@@ -51,17 +59,17 @@ public class TitleScreen : IScene {
 	void IScene.Update(System.TimeSpan delta) {
 		var r = new Rand();
 		for(var i = particles.Count; i < 50; i++) {
-			var x = r.NextBool() ? 0 : sf.GridWidth - 1;
+			var x = r.NextBool() ? 0 : sf_mono.GridWidth - 1;
 			particles.Add(new() {
 				x = x,
-				y = r.NextInteger(sf.GridHeight),
+				y = r.NextInteger(sf_mono.GridHeight),
 				speed = (x > 0 ? -1 : 1) * r.NextInteger(5, 10)
 			});
 		}
 		var d = new ConcurrentDictionary<(int x, int y), HashSet<Particle>>();
 		particles.ForEach(p => {
 			p.x += p.speed * delta.TotalSeconds;
-			if(p.x > sf.GridWidth - 1 || p.x < 0) {
+			if(p.x > sf_mono.GridWidth - 1 || p.x < 0) {
 				p.active = false;
 				return;
 			}
@@ -71,7 +79,7 @@ public class TitleScreen : IScene {
 			if(others.Count > 1) {
 				foreach(var o in others)
 					o.active = false;
-				foreach(var y in sf.GridHeight) {
+				foreach(var y in sf_mono.GridHeight) {
 					glow[(int)p.x, y] = 255;
 				}
 			}
@@ -98,20 +106,23 @@ public class TitleScreen : IScene {
 		}
 
 		factor += (factorDest - factor) * delta.TotalSeconds * 4;
-		foreach(var pos in sf.Positions) {
+		foreach(var pos in sf_mono.Positions) {
 			ref var g = ref glow[pos.x, pos.y];
 			var dest = r.Next(0, 102);
 			g += (dest - g) * delta.TotalSeconds * 4;
-			sf.Tile[pos] = new(
+			sf_mono.Tile[pos] = new(
 				ABGR.SetA(ABGR.DeepPink, (byte)(g * factor)),
 				ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.DeepPink, (byte)((1 - factor) * hiveAlpha/10))),
 				'=');
 		}
 
-		assets.title.Render(sf, (sf.GridWidth/2 - assets.title.Width/2, 8));
-		assets.hive.Render(sf, (sf.GridWidth / 2- assets.hive.Width / 2, 24));
+		assets.title.Render(sf_mono, (sf_mono.GridWidth/2 - assets.title.Width/2, 8));
+		assets.hive.Render(sf_mono, (sf_mono.GridWidth / 2- assets.hive.Width / 2, 24));
+
+		sf_ui.Clear();
 		foreach(var c in controls) c.Render(delta);		
-		Draw?.Invoke(sf);
+		Draw?.Invoke(sf_mono);
+		Draw?.Invoke(sf_ui);
 	}
 }
 public class Mainframe : IScene {

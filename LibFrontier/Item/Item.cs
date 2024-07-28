@@ -843,6 +843,8 @@ public class Weapon : Device, Ob<Projectile.OnHitActive> {
                 new(false) :
             aiming != null ?
                 new(false) :
+            desc.projectile.guidanceDesc is { } ?
+                new(false) :
             null;
         UpdateProjectileDesc();
         structural = desc.structural;

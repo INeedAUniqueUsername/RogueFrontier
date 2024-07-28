@@ -114,14 +114,12 @@
 			background=		"Transparent"
 			/>
 	</StationType>
-	<StationType	codename="station_constellation_habitat"
-					name=		"Constellation Shelter"
-					sovereign=	"sovereign_constellation"
-
-					crimeOnDestroy="true"
-
-					glyph=		"H"
-					foreground="BB6633FF"
+	<StationType
+		codename="station_constellation_habitat"
+		name=		"Constellation Shelter"
+		sovereign=	"sovereign_constellation"
+		crimeOnDestroy="true"
+		structure=	"station_constellation_habitat.dat"
 		>
 
 		<HP	maxHP="250"/>

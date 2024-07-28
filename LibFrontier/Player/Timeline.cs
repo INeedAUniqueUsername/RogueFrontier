@@ -798,7 +798,8 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
 	}.ToDict<int>();
     public Timeline(PlayerShip playerShip) {
         var i = playerShip.world.types.GetDict<ItemType>();
-        stdPrice = stdPriceTable.ToDictionary(pair => i[pair.Key], pair => pair.Value);
+        stdPrice = stdPriceTable.ToDictionary(pair => 
+		i[pair.Key], pair => pair.Value);
         var missing = i.Keys.Except(stdPriceTable.Keys).ToList();
         if (missing.Any()) {
             //throw new Exception(string.Join('\n', missing.Select(m => @$"[""{m}""] = 0,")));
