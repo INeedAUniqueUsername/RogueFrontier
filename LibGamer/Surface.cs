@@ -197,6 +197,7 @@ public record Tf (byte[] png, string name, int GlyphWidth, int GlyphHeight, int 
 	public (int x, int y) GlyphSize => (GlyphWidth, GlyphHeight);
 	public int ImageWidth => GlyphWidth * cols;
 	public int ImageHeight=>GlyphHeight * rows;
+	public (int x, int y) ImageSize => (ImageWidth, ImageHeight);
 	public (int x, int y) GetGlyphPos(int index) {
 		return(index % cols, index / cols);
 	}
