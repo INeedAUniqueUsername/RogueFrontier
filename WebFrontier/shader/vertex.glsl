@@ -4,9 +4,11 @@
 
 layout(location = 0) in highp vec2 in_xy_pos;
 layout(location = 1) in highp vec2 in_tex_pos;
-layout(location = 2) in highp vec2 in_xy_size;
-layout(location = 3) in highp vec2 in_tex_size;
 layout(location = 4) in highp vec4 in_rgba;
+
+uniform highp vec2 in_xy_size;
+uniform highp vec2 in_tex_size;
+
 //nw, ne, sw, se
 const vec2 xy_points[] = vec2[] (
     vec2(0,0), vec2(1,0), vec2(0,1), vec2(1,1)
