@@ -98,7 +98,7 @@ public class Swift : IShipBehavior, Ob<AIShip.Destroyed> {
         this.order = order;
 
         Func<string, ShipClass> f = ai.world.types.Lookup<ShipClass>;
-        frigateType = f("ship_iron_destroyer");
+        frigateType = f("ship_iron_missileship");
     }
     public void Update(double delta, AIShip owner) {
         order?.Update(delta, owner);

@@ -704,10 +704,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_klaw_missile = 8,
         item_klaw_missile_launcher = 400,
 
-
-        item_fang_missile = 20,
-        item_fang_missile_launcher = 1000,
-
         item_musket_turret = 3500,
         item_sidearm_turret = 3500,
         item_missile_defender = 4000,
@@ -737,7 +733,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_dagger_cannon = 3500,
         item_shrapnel_bomb = 12,
         item_bomb_launcher = 2500,
-        item_metal_grinder = 6000,
         item_cloaking_shield = 2400,
         item_darkened_knightsteel_plate = 7500,
 
@@ -746,16 +741,12 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_sludge_vent = 2400,
         item_gamma_launcher = 6000,
 
-        item_hull_puncher = 6000,
         item_iron_hook_cannon = 3200,
         item_iron_hook = 10,
         
         item_flashbang_cannon = 4800,
         item_lightning_vent = 2400,
         item_shining_armor = 6400,
-        
-        item_nova_missile = 24,
-        item_nova_missile_launcher = 4800,
 
         item_10mw_loneheart = 8000,
         item_20mw_primary = 8000,
@@ -781,8 +772,6 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
 
         item_bronze_rice = 600,
         item_biocart_transcendence = 900,
-
-        item_flakbang_cannon = 4800,
 
         item_specrom_magic_blaster_i = 8400,
 
@@ -1176,8 +1165,6 @@ on their tablet showing a tactical map.
 					ship_orion_huntsman = 40,
 					ship_iron_gunboat = 40,
 					ship_iron_missileship = 80,
-					ship_iron_destroyer = 60,
-					ship_iron_frigate = 80
 				}).ToDict<int>();
 				var groups = playerShip.shipsDestroyed
 					.Except(t.militiaRecordedKills)

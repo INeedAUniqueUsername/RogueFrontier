@@ -107,36 +107,6 @@
 			</Projectile>
 		</Weapon>
 	</ItemType>
-	<ItemType	codename=	"item_metal_grinder"
-				name=		"Metal Grinder"
-				attributes=	"DarkStar"
-				level=		"1"
-				mass=		"2000"
-				value=		"3000"
-
-				desc=		""
-		>
-		<Weapon	initialCharges=	"1200"
-				powerUse=		"20"
-				fireCooldown=	"20"
-				repeat="2"
-				repeatDelay="10"
-			>
-
-			<Projectile
-						missileSpeed=	"60"
-						damageType=		"1"
-						damageHP=		"4"
-						shock=			"2"
-			
-						lifetime=		"240"
-
-						glyph=			"-"
-						foreground=		"White"
-						background=		"505e75FF"
-				/>
-		</Weapon>
-	</ItemType>
 	
 	<ItemType	codename=	"item_cloaking_shield"
 		name=		"Cloaking shield"

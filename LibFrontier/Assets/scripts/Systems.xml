@@ -38,9 +38,6 @@
 						</Sibling>
 					</At>
 					<Station	codename="station_orion_warlords_camp"/>
-					<!--
-					<Ship count="1" codename="ship_iron_frigate" sovereign="sovereign_iron_pirates"/>
-					-->
 				</Sibling>
 			</Orbital>
 			<Orbital radius="1500"
@@ -87,11 +84,7 @@
 								<At index="2">
 									<Sibling radiusInc="-30">
 										<Station codename="station_amethyst_store"/>
-										<!--
-										<Sibling radiusInc="-15">
-											<Station codename="station_constellation_missile_sentry"/>
-										</Sibling>
-										-->
+										
 									</Sibling>
 								</At>
 								<At index="3">
@@ -114,9 +107,6 @@
 									<!---->
 									<Group>
 										<Marker		name="Start"/>
-										<!--
-										<Ship count="4" codename="ship_iron_destroyer" sovereign="sovereign_iron_pirates"/>
-										-->
 									</Group><!---->
 								</Orbital>
 							</Group>
@@ -286,9 +276,9 @@
 				<Orbital radius="35" angle="random">
 					<Station codename="station_iron_pirates_foundry">
 						<Ships>
-							<Ship codename="ship_iron_frigate" order="guard" sovereign="sovereign_iron_pirates">
+							<Ship codename="ship_iron_missileship" order="guard" sovereign="sovereign_iron_pirates">
 								<Ships>
-									<Ship codename="ship_iron_destroyer" count="4" order="escort" sovereign="sovereign_iron_pirates"/>
+									<Ship codename="ship_iron_gunboat" count="8" order="escort" sovereign="sovereign_iron_pirates"/>
 								</Ships>
 							</Ship>
 						</Ships>
@@ -315,13 +305,6 @@
 					<Orbital radius="25" angle="random" increment="20-40" count="5">
 						<At index="0">
 							<Station chance="1" codename="station_constellation_astra"/>
-						</At>
-						<!--
-						<At index="1">
-							<Station chance="1" codename="station_constellation_missile_sentry"/>
-						</At>-->
-						<At index="2">
-							<Station chance="1" codename="station_constellation_bunker"/>
 						</At>
 						<At index="3">
 							<Station chance="1" codename="station_constellation_habitat"/>

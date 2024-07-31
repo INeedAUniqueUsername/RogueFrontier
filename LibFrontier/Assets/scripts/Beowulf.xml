@@ -171,67 +171,6 @@
 			<Armor  codename="item_knightsteel_plate"/>
 		</LayeredArmorSystem>
 	</ShipClass>
-	<ItemType	codename=	"item_flakbang_cannon"
-			name=		"Flakbang cannon"
-			level=		"6"
-			mass=		"2000"
-			desc=		"."
-		>
-		<Weapon	initialCharges=	"400"
-				powerUse=		"30"
-				fireCooldown=	"90"
-				sound=			"flashbang_cannon.wav"
-			>
-			<Projectile
-				missileSpeed=	"40"
-				recoil=			"5"
-				damageType=		"1"
-				damageHP=		"5"
-				lifetime=		"60"
-				glyph=			"*"
-				foreground=		"White"
-				background=		"Black"
-				
-				detonateRadius=	"5"
-				detonateSound=	"flashbang_explosion.wav"
-				>
-				<Flash intensity="20"/>
-				<Fragment
-					precise=		"false"
-					hitSource=		"true"
-					
-					blind=			"5d4"
-					count=			"45"
-					spreadAngle=	"360"
-					missileSpeed=	"200"
-					damageType=		"1"
-					damageHP=		"0, 0, 1"
-					lifetime=		"6"
-					glyph=			" "
-					foreground=		"Transparent"
-					background=		"Transparent"
-					/>
-
-				<Fragment
-					precise=		"false"
-					hitSource=		"true"
-					
-					count=			"60"
-					spreadAngle=	"360"
-					missileSpeed=	"45"
-					damageType=		"1"
-					damageHP=		"0, 0, 0, 1, 1, 2, 3, 4"
-					lifetime=		"16"
-					glyph=			"z"
-					foreground=		"White"
-					background=		"Transparent"
-					/>
-			</Projectile>
-		</Weapon>
-	</ItemType>
-	
-	
-	
 	
 	<!--
 	<ItemType	codename=	"item_flamethrower"

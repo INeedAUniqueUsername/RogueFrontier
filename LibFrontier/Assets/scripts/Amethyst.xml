@@ -264,14 +264,14 @@
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_light_launcher_i"
-		name=		"Luminescent Launcher I"
+		name=		"Luma Launcher I"
 		level=		"1"
 		mass=		"1000"
 		value=		"7200"
 				
 		attributes= "Amethyst"
 
-		desc=		"The Luminescent Launcher by Amethyst, Inc fires multiple independent high-speed missiles that cause targets to glow on impact, breaking their stealth."
+		desc=		"The Luma Launcher by Amethyst, Inc fires multiple independent high-speed missiles that cause targets to glow on impact, breaking their stealth."
 		>
 		<Weapon
 			powerUse=		"30"

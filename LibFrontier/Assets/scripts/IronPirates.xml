@@ -62,34 +62,6 @@
 		</Weapon>
 	</ItemType>
 
-	<ItemType	codename=	"item_hull_puncher"
-		name=		"Hull Puncher"
-		attributes=	"IronPirates"
-		mass=		"3000"
-		level=		"2"
-		desc=		"This powerful mass driver can punch holes in armor, cutting down to the hull with ease."
-				>
-		<Weapon		powerUse=		"15"
-					fireCooldown=	"20"
-					initialCharges=	"180"
-					armorDrill=	"0.3"
-			>
-			<Projectile	missileSpeed=	"60"
-						damageType=		"2"
-						damageHP=		"8"
-						lifetime=		"60"
-						glyph=			"+"
-						foreground=		"White"
-				/>
-			<Capacitor
-					minChargeToFire=		"10"
-					dischargeOnFire=		"10"
-					rechargePerTick=			"6/30"
-					maxCharge=				"100"
-				/>
-		</Weapon>
-	</ItemType>
-	
 	<ItemType	codename=	"item_iron_hook_cannon"
 			name=		"Hook Cannon"
 			attributes=	"IronPirates"
@@ -189,66 +161,6 @@
 			<Armor	codename="item_ironclad_plate"/>
 		</LayeredArmorSystem>
 	</ShipClass>
-	<ShipClass	codename=			"ship_iron_destroyer"
-				name=				"Ironside-class destroyer"
-				thrust=				"0.3"
-				maxSpeed=			"15"
-
-				rotationAccel=		"3"
-				rotationDecel=		"6"
-				rotationMaxSpeed=	"4"
-				
-				glyph=				"7"
-				foreground=			"Yellow"
-		>
-		<Cargo>
-			<Item count="120"	codename="item_iron_hook"/>
-		</Cargo>
-		<Devices>
-			<Weapon	codename="item_iron_hook_cannon" omnidirectional="true"/>
-			<Weapon	codename="item_iron_driver" omnidirectional="true"/>
-			<Weapon	codename="item_iron_driver" omnidirectional="true"/>
-		</Devices>
-		<LayeredArmorSystem>
-			<Armor	codename="item_ironside_plate"/>
-			<Armor	codename="item_ironclad_plate"/>
-			<Armor	codename="item_ironclad_plate"/>
-			<Armor	codename="item_ironside_plate"/>
-		</LayeredArmorSystem>
-	</ShipClass>
-
-	<ShipClass	codename=			"ship_iron_frigate"
-			name=				"Iron frigate"
-			thrust=				"0.4"
-			maxSpeed=			"20"
-
-			rotationAccel=		"3"
-			rotationDecel=		"6"
-			rotationMaxSpeed=	"4"
-				
-			behavior=			"swift"
-				
-			glyph=				"F"
-			foreground=			"LightYellow"
-		>
-		<Names>
-			Tom Swift
-			John Hawkins
-		</Names>
-		<Cargo>
-			<Item count="120"	codename="item_iron_hook"/>
-		</Cargo>
-		<Devices>
-			<Weapon	codename="item_iron_hook_cannon" omnidirectional="true"/>
-			<Weapon	codename="item_hull_puncher" omnidirectional="true"/>
-		</Devices>
-		<LayeredArmorSystem>
-			<Armor	codename="item_ironside_plate"/>
-			<Armor	codename="item_ironside_plate"/>
-			<Armor	codename="item_ironside_plate"/>
-			<Armor	codename="item_ironside_plate"/>
-		</LayeredArmorSystem>
-	</ShipClass>
 	<StationType	codename=	"station_iron_pirates_hideout"
 					name=		"Iron Pirate cache"
 					sovereign=	"sovereign_iron_pirates"
@@ -279,7 +191,7 @@
 					<Ship count="4" codename="ship_iron_gunboat" order="escort"/>
 				</Ships>
 			</Ship>
-			<Ship	count="1"	codename="ship_iron_destroyer" order="patrol" patrolRadius="30"/>
+			<Ship	count="1"	codename="ship_iron_missileship" order="patrol" patrolRadius="30"/>
 		</Ships>
 		<Weapons>
 			<Weapon	codename="item_iron_cannon"/>

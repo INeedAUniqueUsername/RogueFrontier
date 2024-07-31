@@ -266,93 +266,6 @@
 		</Weapon>
 	</ItemType>
 
-	<ItemType	codename=	"item_fang_missile"
-				name=		"Fang missile"
-				level=		"2"
-				mass=		"200"
-				value=		"8"
-				
-				desc=		"The Fang missile carries a payload of corrosive 'magic' energy."
-		>
-	</ItemType>
-	<ItemType	codename=	"item_fang_missile_launcher"
-			name=		"Fang missile launcher"
-			level=		"2"
-			mass=		"2000"
-			value=		"400"
-			invoke=		"installWeapon"
-			desc=		"The Klaw missile launcher fires two quick tracking missiles at a time."
-		>
-		<Weapon	powerUse=		"10"
-				fireCooldown=	"45"
-				ammoType=		"item_fang_missile"
-				sound=			"klaw_launcher.wav"
-			>
-			<Capacitor
-				minChargeToFire=		"0"
-				dischargeOnFire=		"100"
-				rechargePerTick=		"100/90"
-				maxCharge=				"100"
-				bonusSpeedPerCharge=	"20/100"
-				bonusDamagePerCharge=	"15/100"
-				/>
-			<Projectile	count=			"2"
-						spreadAngle=	"30"
-						maneuver=		"4"
-						missileSpeed=	"60"
-						damageType=		"1"
-						damageHP=		"5d3"
-						shock=			"3"
-						lifetime=		"180"
-						glyph=			"m"
-						foreground=		"White"
-				>
-				<Corrode lifetime="30" damageRate="1/60" degradeFactor="2.5" lethal="true" descend="true"/>
-				<Trail
-					lifetime=	"10"
-					glyph=		"*"
-					foreground=	"FF55FFFF"
-					background=	"BB77DDFF"/>
-			</Projectile>
-		</Weapon>
-	</ItemType>
-	<ItemType	codename=	"item_nova_missile"
-				name=		"Nova missile"
-				level=		"2"
-				mass=		"200"
-				value=		"40"
-				
-				desc=		"The Nova missile can track targets over extremely long distances."
-		>
-	</ItemType>
-	<ItemType	codename=	"item_nova_missile_launcher"
-				name=		"Nova missile launcher"
-				level=		"2"
-				mass=		"2000"
-				value=		"400"
-				
-				desc=		"The Nova missile system is designed for targeted destruction over extremely long range."
-		>
-		<Weapon	powerUse=		"10"
-				fireCooldown=	"300"
-				ammoType=		"item_nova_missile"
-				structural=		"true"
-				sound=			"generic_missile.wav"
-			>
-			<Projectile	count=			"1"
-						maneuver=		"4"
-						missileSpeed=	"60"
-						damageType=		"1"
-						damageHP=		"40"
-						shock=			"5"
-			
-						lifetime=		"900"
-
-						glyph=			"N"
-						foreground=		"White"
-				/>
-		</Weapon>
-	</ItemType>
 	<ItemType	codename=	"item_musket_turret"
 				name=		"Crockett shotgun"
 				level=		"2"
@@ -413,40 +326,13 @@
 				/>
 		</Weapon>
 	</ItemType>
-	<ItemType	codename=	"item_sidearm_turret"
-				name=		"Sidearm turret"
-				level=		"2"
-				mass=		"2000"
-
-				value=		"3500"
-
-				invoke=		"installWeapon"
-
-				desc=		"This kinetic gun is designed for emergencies that require a lot of firepower"
-		>
-		<Weapon
-			initialCharges=	"100"
-			powerUse=		"0"
-			fireCooldown=	"6"
-			>
-			<Projectile
-				omnidirectional="true"
-				missileSpeed=	"40"
-				damageType=		"2"
-				damageHP=		"12"
-				lifetime=		"120"
-				glyph=			"\249"
-				foreground=		"White"
-				/>
-		</Weapon>
-	</ItemType>
 	<ItemType	codename=	"item_flintlock"
 				name=		"Flintlock mass driver"
 				level=		"2"
 				mass=		"4000"
 				value=		"1500"
 				
-				desc=		"The flintlock mass driver fires a basic kinetic projectile."
+				desc=		"This is one of the earliest space weapons still in use today."
 		>
 		<Weapon	powerUse=		"20"
 				fireCooldown=	"20"
@@ -467,7 +353,7 @@
 		level=		"2"
 		mass=		"4000"
 		value=		"2500"
-		desc=		"The sabre mass driver fires a stronger kinetic projectile."
+		desc=		"This is one of the earliest space weapons still in use today."
 		>
 		<Weapon
 			powerUse=		"20"
