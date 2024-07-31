@@ -8,7 +8,7 @@ public class SplashScreen : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Action next;
-    System World;
+    World World;
     public Dictionary<(int, int), Tile> tiles;
     XY screenCenter;
     double time = 8;

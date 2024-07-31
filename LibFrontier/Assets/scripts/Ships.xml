@@ -73,33 +73,6 @@
 			<Armor  codename="item_gemsteel_plate_ii"/>
 			<Armor  codename="item_gemsteel_plate_ii"/>
         </LayeredArmorSystem>
-        <PlayerSettings
-            startingClass="false"
-            description="The Amethyst-class yacht (64 ton edition) (second generation), more than just a symbol of middle-class conspicuous consumption, is a well-rounded multipurpose starship designed for the everyday pilot."
-            >
-            <Map>                                     
-                       __                       
-                      /%%\                      
-                     /%%%%\                     
-                    //.LL.\\                    
-                   ||......||                   
-                    \\....//                    
-                     |#..#|                     
-                 /--/##..##\--\                 
-               /++#####..#####++\               
-              /+/-----#..#-----\+\              
-             //#/  /###..###\  \#\\             
-            //#/   |--------|   \#\\            
-           //=/    |--------|    \=\\           
-          //#/    /|--------|\    \#\\          
-         //#/    /|\########/|\    \#\\         
-        //#/    /|     ||     |\    \#\\        
-       /#/      ||     ||     ||      \#\       
-     /#/       /|      ||      |\       \#\     
-   /#/        /|       ||       |\        \#\   
- /#/         /|        ||        |\         \#\ 
-            </Map>
-        </PlayerSettings>
     </ShipClass>
 	<ShipClass    codename="ship_beowulf"
 				  name="Beowulf-class gunship"
@@ -116,7 +89,7 @@
 				  background="Black"
         >
 		<Items>
-			<Item codename="item_klaw_missile" count="40"/>
+			<Item codename="item_klaw_missile" count="60"/>
 			<Item codename="item_simple_fuel_rod" count="24"/>
 			<Item codename="item_armor_repair_patch"	count="6"/>
 		</Items>

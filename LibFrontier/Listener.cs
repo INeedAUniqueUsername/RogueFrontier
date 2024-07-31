@@ -42,8 +42,8 @@ public class SilenceListener : IWeaponListener {
 	public void Observe (IWeaponListener.WeaponFired ev) => Add(ev.proj);
 	private void Add (List<Projectile> p) =>
 		p.ForEach(silence.AddEntity);
-	System silence;
-	public SilenceListener (System s) {
+	World silence;
+	public SilenceListener (World s) {
 		this.silence = s;
 	}
 }

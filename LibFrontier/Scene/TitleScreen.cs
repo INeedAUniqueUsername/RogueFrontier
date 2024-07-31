@@ -16,7 +16,7 @@ public class TitleScreen : IScene {
 	//LoadPane load;
 	//Console credits;
 	public Profile profile;
-	public System World;
+	public World World;
 	public static string[] title = File.ReadAllText($"{Assets.ROOT}/sprites/Title.txt").Replace("\r\n", "\n").Split('\n');
 	public ShipControls settings;
 	public AIShip pov;
@@ -31,7 +31,7 @@ public class TitleScreen : IScene {
 	public int Height => sf.GridHeight;
 	public Sf sf;
 	private List<SfLink> buttons = [];
-	public TitleScreen(int Width, int Height, System World) {
+	public TitleScreen(int Width, int Height, World World) {
 		this.sf = new Sf(Width, Height, Fonts.FONT_8x8);
 		this.World = World;
 

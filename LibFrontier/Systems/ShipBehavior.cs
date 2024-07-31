@@ -848,7 +848,7 @@ public class AttackTarget : IShipOrder {
 }
 public class GateThrough : IShipOrder {
     public Stargate gate;
-    public System destWorld => gate.destWorld;
+    public World destWorld => gate.destWorld;
     public GateThrough(Stargate gate) {
         this.gate = gate;
         Active = true;

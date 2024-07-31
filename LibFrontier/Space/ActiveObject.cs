@@ -30,7 +30,7 @@ public interface IDockable : StructureObject {
 }
 public interface MovingObject : Entity {
 
-    System world { get; }
+    World world { get; }
     XY velocity { get; }
 }
 public interface StructureObject : MovingObject {

@@ -20,7 +20,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 
 	TitleScreen prev;
 	ShipControls settings;
-	System World;
+	World World;
 	public XY camera;
 	public Dictionary<(int, int), Tile> tiles;
 	XY screenCenter;
@@ -57,7 +57,7 @@ public class ArenaScreen : IScene, Ob<PlayerShip.Destroyed> {
 
 	public List<SfControl> controls = new();
 
-	public ArenaScreen(TitleScreen prev, ShipControls settings, System World) {
+	public ArenaScreen(TitleScreen prev, ShipControls settings, World World) {
 		this.prev = prev;
 		this.sf_world = new Sf(prev.Width, prev.Height, Fonts.FONT_8x8);
 		this.sf_ui = new Sf(prev.Width, prev.Height, Fonts.FONT_6x8);

@@ -11,8 +11,8 @@ public class FixedMarker : Entity {
     public bool active { get; set; }
     public Tile tile => null;
     public XY Velocity { get; set; }
-    public System world;
-    public FixedMarker(System world, string Name, XY Position) {
+    public World world;
+    public FixedMarker(World world, string Name, XY Position) {
         this.world = world;
         this.Name = Name;
         this.position = Position;
@@ -26,7 +26,7 @@ class ActiveMarker : ActiveObject {
     [JsonIgnore]
     public Tile tile => null;
     [JsonIgnore]
-    public System world { get; set; }
+    public World world { get; set; }
     [JsonIgnore]
     public Sovereign sovereign { get; set; }
     [JsonIgnore]
@@ -37,7 +37,7 @@ class ActiveMarker : ActiveObject {
     public XY velocity { get; set; }
     public bool active { get; set; }
 
-    public ActiveMarker(System world, Sovereign sovereign, XY Position) {
+    public ActiveMarker(World world, Sovereign sovereign, XY Position) {
         this.world = world;
         this.sovereign = sovereign;
         this.position = Position;
@@ -55,7 +55,7 @@ public class TargetingMarker : ActiveObject {
     [JsonIgnore]
     public Tile tile => null;
     [JsonIgnore]
-    public System world => Owner.world;
+    public World world => Owner.world;
     [JsonIgnore]
     public Sovereign sovereign => Owner.sovereign;
     [JsonIgnore]

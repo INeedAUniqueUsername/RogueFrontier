@@ -50,7 +50,7 @@
 		</Weapon>
 	</ItemType>
 	<ShipClass    codename="ship_player_test"
-				  name=			"TEST"
+				  name=			"Debug"
 				  attributes=	""
 				  thrust=		"1"
 				  maxSpeed=		"30"
@@ -69,6 +69,7 @@
 		</Items>
 		<Devices>
 			<Weapon codename="item_gamma_launcher"/>
+			<Weapon codename="item_magic_shotgun_i"/>
 			<Shield codename="item_buckler_shield"/>
 			<Reactor codename="item_20mw_generator"/>
 			<Reactor codename="item_10mw_secondary"/>

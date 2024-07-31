@@ -4,7 +4,7 @@ using RogueFrontier;
 using System;
 using System.Linq;
 using System.Xml.Linq;
-using Sys = RogueFrontier.System;
+using Sys = RogueFrontier.World;
 public record FlashDesc(){
     [Req] public int intensity;
     [Opt] public int lifetime = 60;

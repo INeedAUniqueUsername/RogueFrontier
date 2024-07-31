@@ -19,7 +19,7 @@ public class Stargate : ActiveObject {
     [JsonProperty]
     public ulong id { get; private set; }
     [JsonProperty]
-    public System world { get; private set; }
+    public World world { get; private set; }
     [JsonProperty]
     public Sovereign sovereign { get; private set; }
     [JsonProperty]
@@ -33,9 +33,9 @@ public class Stargate : ActiveObject {
     public string destGateId;
     public Stargate destGate;
     [JsonIgnore]
-    public System destWorld => destGate?.world;
+    public World destWorld => destGate?.world;
     public Stargate() { }
-    public Stargate(System World, XY Position) {
+    public Stargate(World World, XY Position) {
         this.id = World.nextId++;
         this.world = World;
         this.sovereign = Sovereign.Inanimate;

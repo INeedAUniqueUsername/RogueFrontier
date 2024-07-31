@@ -100,9 +100,6 @@ record TexInfo(int slot) {
 }
 
 public class Runner {
-
-
-
 	private GL gl { get; }
 	private Scheduler Scheduler { get; }
 

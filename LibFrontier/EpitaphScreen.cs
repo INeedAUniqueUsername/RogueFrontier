@@ -1,5 +1,7 @@
-﻿using LibGamer;
+﻿using Common;
+using LibGamer;
 using System;
+
 using System.Collections.Generic;
 
 namespace RogueFrontier;
@@ -43,9 +45,7 @@ public class EpitaphScreen : IScene {
         playerShip.AddMessage(new Message("A vision of disaster flashes before your eyes"));
         world.AddEntity(playerShip);
         world.AddEffect(new Heading(playerShip));
-
         playerMain.silenceSystem.AddEntity(playerShip);
-
         PausePrev p = null;
         p = new PausePrev(playerMain, Resume, 2);
 		Go(new FadeIn(p, playerMain.sf));
@@ -93,9 +93,13 @@ public class EpitaphScreen : IScene {
         */
         TitleScreen();
         void TitleScreen() {
-            var ts = new TitleScreen(sf_ui.GridWidth, sf_ui.GridHeight, new System(playerMain.world.universe));
+            var ts = new TitleScreen(sf_ui.GridWidth, sf_ui.GridHeight, new World(playerMain.world.universe));
             Go(new TitleSlideOpening(ts, ts.sf));
         }
+    }
+    double time;
+    void IScene.Update(System.TimeSpan delta) {
+        time += delta.TotalSeconds;
     }
     public void Render(TimeSpan delta) {
         sf_ui.Clear();
@@ -105,17 +109,30 @@ public class EpitaphScreen : IScene {
             sf_ui.Print(2, y++, Tile.Arr(line));
 		}
 		foreach(var c in controls) c.Render(delta);
+        var y0 = (int)Main.Lerp(time, 0, 1, 0, sf_ui.GridHeight, 1);
+        if(y0 < sf_ui.GridHeight) {
+            Sf.DrawRect(sf_ui, 0, y0, sf_ui.GridWidth, 1, new());
+            for(y = y0+1; y < sf_ui.GridHeight; y++) {
+                Sf.FillRow(sf_ui, y, Tile.black);
+            }
+        }
 		Draw(sf_ui);
-		if (epitaph.deathFrame != null) {
-            var size = epitaph.deathFrame.GetLength(0);
+		if (epitaph.deathFrame is {}df) {
+            var size = df.GetLength(0);
             for (y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
-                    sf_img.Tile[x, y] = epitaph.deathFrame[x, y];
+                    sf_img.Tile[x, y] = df[x, y];
                 }
             }
         }
-        Draw(sf_img);
-
+		y0 = (int)Main.Lerp(time, 0, 1, 0, sf_img.GridHeight, 1);
+		if(y0 < sf_img.GridHeight) {
+			Sf.DrawRect(sf_img, 0, y0, sf_img.GridWidth, 1, new());
+			for(y = y0+1; y < sf_img.GridHeight; y++) {
+				Sf.FillRow(sf_img, y, Tile.black);
+			}
+		}
+		Draw(sf_img);
     }
     void IScene.HandleMouse(LibGamer.HandState mouse) {
         foreach(var c in controls) c.HandleMouse(mouse);
@@ -125,12 +142,10 @@ public class IntermissionScreen : IScene {
     Mainframe playerMain;
     LiveGame game;
     string desc;
-
     public Action<IScene> Go { set; get; }
     public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Sf Surface;
-
 	public IntermissionScreen(Mainframe playerMain, LiveGame game, string desc) {
         this.Surface = new Sf(playerMain.sf.GridWidth, playerMain.sf.GridHeight, Fonts.FONT_8x8);
         this.playerMain = playerMain;
@@ -148,7 +163,6 @@ public class IntermissionScreen : IScene {
     public void Continue() {
         game.Save();
         //game.OnLoad(playerMain);
-
         Go(new TitleSlideOpening(new PausePrev(playerMain, Resume, 4), playerMain.sf));
         void Resume() {
             Go(playerMain);
@@ -157,7 +171,7 @@ public class IntermissionScreen : IScene {
     }
     public void Exit() {
         game.Save();
-        var ts = new TitleScreen(Surface.GridWidth, Surface.GridHeight, new System(playerMain.world.universe));
+        var ts = new TitleScreen(Surface.GridWidth, Surface.GridHeight, new World(playerMain.world.universe));
 		Go(new TitleSlideOpening(ts, ts.sf));
     }
     public void Render(TimeSpan delta) {
@@ -169,7 +183,6 @@ public class IntermissionScreen : IScene {
         }
     }
 }
-
 public class IdentityScreen : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }

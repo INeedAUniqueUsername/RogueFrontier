@@ -17,18 +17,17 @@
 		1. Destroy the Beowulf Club and call it an outlaw base.
 		2. Dock with the Beowulf Club and join its members.
 	-->
-	<Sovereign	codename="sovereign_beowulf_club"
-				alignment=	"ConstructiveChaos"
+	<Sovereign
+		codename="sovereign_beowulf_club"
+		alignment=	"ConstructiveChaos"
 		/>
-	<StationType	codename="station_beowulf_club"
-				name=		"Beowulf Club"
-				sovereign=	"sovereign_beowulf_club"
-
-				behavior=	"none"
-					
-				structure=	"station_beowulf_club.dat"
+	<StationType
+		codename="station_beowulf_club"
+		name=		"Beowulf Club"
+		sovereign=	"sovereign_beowulf_club"
+		behavior=	"none"			
+		structure=	"station_beowulf_club.dat"
 		>
-
 		<HP	maxHP="300"/>
 		<!--
 		<Satellites>
@@ -63,15 +62,16 @@
 			<Weapon codename="item_klaw_missile_launcher" posX="-2" posY="-2"	angle="-135"/>
 		</Weapons>
 	</StationType>
-	<StationType	codename="station_barricade"
-			name=		"Barricade"
-			sovereign=	"sovereign_beowulf_club"
+	<StationType
+		codename="station_barricade"
+		name=		"Barricade"
+		sovereign=	"sovereign_beowulf_club"
 
-			behavior=	"none"
+		behavior=	"none"
 					
-			glyph=		"#"
-			foreground=	"White"
-			background=	"Black"
+		glyph=		"#"
+		foreground=	"White"
+		background=	"Black"
 		>
 
 		<HP	maxHP="150"/>
@@ -121,7 +121,24 @@
 			<Armor  codename="item_bumpersteel_plate"/>
 		</LayeredArmorSystem>
 	</ShipClass>
-
+	
+	<!--
+	<ItemType	codename=	"item_lionized_knightsteel_plate"
+		name=		"Lionized Knight plate"
+		mass=		"6000"
+		level=		"1"
+		value=		"5000"
+		desc=		""
+		>
+		<Armor
+			minAbsorb=		"1"
+			killHP=			"6"
+			reflectFactor=	"1.0"
+			maxHP=			"150"
+			>
+		</Armor>
+	</ItemType>
+	-->
 	<ItemType	codename=	"item_combat_drone_i"
 				name=		"Beowulf drone v1"
 				level=		"2"
@@ -134,17 +151,18 @@
 				desc=		""
 		>
 	</ItemType>
-	<ShipClass codename=    "ship_combat_drone_i"
-		   name=                "Beowulf drone v1"
-		   thrust=              "0.4"
-		   maxSpeed=            "25"
+	<ShipClass
+		codename=			"ship_combat_drone_i"
+		name=               "Beowulf drone v1"
+		thrust=             "0.4"
+		maxSpeed=			"25"
 
-		   rotationAccel=       "4"
-		   rotationDecel=       "8"
-		   rotationMaxSpeed=    "4"
+		rotationAccel=      "4"
+		rotationDecel=      "8"
+		rotationMaxSpeed=   "4"
 
-		   glyph=                "d"
-		   foreground=          "White"
+		glyph=              "d"
+		foreground=         "White"
         >
 		<Devices>
 			<Weapon codename="item_beowulf_dual_laser_cannon"/>
@@ -153,24 +171,13 @@
 			<Armor  codename="item_knightsteel_plate"/>
 		</LayeredArmorSystem>
 	</ShipClass>
-	
-	
-
-
-
-
-
-
-
-
-
 	<ItemType	codename=	"item_flakbang_cannon"
 			name=		"Flakbang cannon"
 			level=		"6"
 			mass=		"2000"
 			desc=		"."
 		>
-		<Weapon	initialCharges="400"
+		<Weapon	initialCharges=	"400"
 				powerUse=		"30"
 				fireCooldown=	"90"
 				sound=			"flashbang_cannon.wav"

@@ -19,7 +19,7 @@ public class Wreck : MovingObject, IDockable {
     [JsonProperty]
     public StructureObject creator { get; set; }
     [JsonProperty]
-    public System world { get; private set; }
+    public World world { get; private set; }
     [JsonProperty]
     public XY position { get; set; }
     [JsonProperty]
@@ -88,7 +88,7 @@ public class Station : ActiveObject, ITrader, IDockable {
     [JsonProperty]
     public ulong id { get; set; }
     [JsonProperty]
-    public System world { get; set; }
+    public World world { get; set; }
     [JsonProperty]
     public StationType type { get; set; }
     [JsonProperty]
@@ -123,7 +123,7 @@ public class Station : ActiveObject, ITrader, IDockable {
     public record WeaponFired(Station station, Weapon w, List<Projectile> p);
     public Vi<WeaponFired> onWeaponFire = new();
     public Station() { }
-    public Station(System World, StationType type, XY Position) {
+    public Station(World World, StationType type, XY Position) {
         this.id = World.nextId++;
         this.world = World;
         this.type = type;
@@ -292,7 +292,7 @@ public interface ISegment : MovingObject {
 }
 public class Segment : ISegment {
     //The segment essentially impersonates its parent station but with a different tile
-    public System world => parent.world;
+    public World world => parent.world;
     public XY position => parent.position + desc.offset;
     public XY velocity => parent.velocity;
     public ulong id { get; private set; }
@@ -313,7 +313,7 @@ public class AngledSegment : ISegment {
     [JsonIgnore]
     public string name => parent.name;
     [JsonIgnore]
-    public System world => parent.world;
+    public World world => parent.world;
     [JsonIgnore]
     public XY position => parent.position + desc.offset.Rotate(parent.rotationRad);
     [JsonIgnore]

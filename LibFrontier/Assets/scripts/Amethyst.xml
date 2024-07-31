@@ -1,13 +1,14 @@
 ﻿<Module>
-	<StationType	codename="station_amethyst_store"
-					name=		"The Amethyst Store"
-					sovereign=	"sovereign_constellation"
+	<StationType
+		codename=	"station_amethyst_store"
+		name=		"The Amethyst Store"
+		sovereign=	"sovereign_constellation"
 
-					behavior=	"amethystStore"
+		behavior=	"amethystStore"
 					
-					structure=	"station_amethyst_store.dat"
+		structure=	"station_amethyst_store.dat"
 					
-					crimeOnDestroy="true"
+		crimeOnDestroy="true"
 		>
 		<HP	maxHP="300"/>
 		<Dock>
@@ -37,15 +38,17 @@
 		</Weapons>
 	</StationType>
 
-	<ShipClass  codename="ship_amethyst_i_32t"
-				inherit=	"ship_amethyst_i"
-				capacity=	"32"
+	<ShipClass
+		codename=	"ship_amethyst_i_32t"
+		inherit=	"ship_amethyst_i"
+		capacity=	"32"
 	    >
 		<PlayerSettings startingClass="false"/>
 	</ShipClass>
-	<ShipClass  codename="ship_amethyst_i_64t"
-				inherit=	"ship_amethyst_i"
-				capacity=	"64"
+	<ShipClass 
+		codename=	"ship_amethyst_i_64t"
+		inherit=	"ship_amethyst_i"
+		capacity=	"64"
 	    >
 		<PlayerSettings startingClass="false"/>
 	</ShipClass>
@@ -76,7 +79,7 @@
 			/>
 	</ItemType>
 	<ItemType	codename=	"item_amethyst_50mw_generator"
-				name=		"Amethyst 50MW generator"
+				name=		"Amethyst 50* generator"
 				level=		"1"
 				mass=		"3000"
 		>
@@ -139,7 +142,7 @@
 		<Weapon
 			initialCharges=	"300"
 			powerUse=		"10"
-			fireCooldown=	"20"
+			fireCooldown=	"30"
 			sound=			"magic_blaster.wav"
 			>
 			<Projectile
@@ -149,7 +152,7 @@
 				damageType=		"1"
 				damageHP=		"1d8"
 				
-				lifetime=		"40"
+				lifetime=		"45"
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
@@ -206,7 +209,7 @@
 		<Weapon
 			initialCharges=	"600"
 			powerUse=		"10"
-			fireCooldown=	"20"
+			fireCooldown=	"30"
 			sound=			"magic_blaster.wav"
 			>
 			<Projectile
@@ -216,7 +219,7 @@
 				damageType=		"1"
 				damageHP=		"2d8"
 				
-				lifetime=		"40"
+				lifetime=		"45"
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
 				>
@@ -302,10 +305,6 @@
 			</Projectile>
 		</Weapon>
 	</ItemType>
-	
-	
-
-
 	<ItemType	codename=	"item_shine_launcher_i"
 				name=		"Starburst Launcher I"
 				attributes=	""
@@ -355,7 +354,6 @@
 			</Projectile>
 		</Weapon>
 	</ItemType>
-
 	<ItemType	codename=	"item_shimmer_shield_i"
 		name=		"Karat Shield I"
 		level=		"2"
@@ -396,7 +394,6 @@
 			>
 		</Shield>
 	</ItemType>
-	
 	<ItemType	codename=	"item_gemsteel_plate_i"
 		name=		"Amethyst armor I"
 		mass=		"4000"
@@ -431,8 +428,6 @@
 			<RestrictRepair require="Amethyst"/>
 		</Armor>
 	</ItemType>
-	
-	
 	<ItemType	codename=	"item_amethyst_armor_polish"
 		name=		"Amethyst armor polish"
 		mass=		"4000"
@@ -445,7 +440,6 @@
 			
 		</Mod>
 	</ItemType>
-	
 	<ItemType	codename=	"item_prescience_book"
 			name=		"Prospering With Prescience: The Ultimate Guide - Hardcover Edition"
 			level=		"1"
@@ -480,8 +474,6 @@
 		<ProjectileBarrier barrierType="shield" lifetime="900" radius="6" shape="diamond" color="FF55FFFF"/>
 		<ProjectileBarrier barrierType="shield" lifetime="900" radius="5" shape="diamond" color="FF55FFFF"/>
 	</PowerType>
-
-
 
 	<ItemType	codename=	"item_spec_amethyst_laser_i"
 			name=		"Specification: Amethyst Cannon I"

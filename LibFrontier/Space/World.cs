@@ -23,9 +23,9 @@ public interface ISystem {
 public class SilentSystem {
     public PlayerShip playerShip;
 }
-public class System {
+public class World {
     [JsonIgnore]
-    public static readonly System empty = new(new());
+    public static readonly World empty = new(new());
 
     public string id, name;
 
@@ -56,12 +56,12 @@ public class System {
 
     private bool updating;
 
-    public System() {
+    public World() {
         this.universe = new();
         universe.systems["origin"] = this;
         onEntityAdded += universe;
     }
-    public System(Universe universe) {
+    public World(Universe universe) {
         this.universe = universe;
     }
     public void AddEvent(Event e) => eventsAdded.Add(e);
@@ -193,7 +193,7 @@ public class System {
             tiles[e.position.roundDown] = e.tile;
         }
     }
-    public Stargate FindGateTo(System to) => universe.FindGateTo(this, to);
+    public Stargate FindGateTo(World to) => universe.FindGateTo(this, to);
 
     public record SoundPlayed(XY position, byte[] sb);
     public Vi<SoundPlayed> onSoundPlayed = new();

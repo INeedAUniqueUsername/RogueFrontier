@@ -1197,9 +1197,9 @@ public static class Main {
 							object value = element;
 							if (sub.construct) {
 
-								var c = (sub.type ?? p.FieldType).GetConstructor(new[] { typeof(XElement) });
+								var c = (sub.type ?? p.FieldType).GetConstructor([ typeof(XElement) ]);
 
-								value = c.Invoke(new[] { element });
+								value = c.Invoke([ element ]);
 							}
 							if (transform?.TryGetValue(p.Name, out object f) == true) {
 								Transform(ref value, f);

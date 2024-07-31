@@ -120,6 +120,6 @@ public class PauseScreen : IScene {
     }
     public void Quit() {
         var w = playerMain.world;
-        Go(new TitleScreen(playerMain.Width, playerMain.Height, new System(new Universe(w.types, new Rand()))));
+        Go(new TitleScreen(playerMain.Width, playerMain.Height, new World(new Universe(w.types, new Rand()))));
     }
 }

@@ -8,7 +8,7 @@ public class Viewport {
     public int Width => sf.GridWidth;
     public int Height => sf.GridHeight;
     public Camera camera;
-    public System world;
+    public World world;
     public Dictionary<(int, int), Tile> tiles = [];
     public Sf sf;
 

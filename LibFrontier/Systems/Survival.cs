@@ -41,7 +41,7 @@ class Waves : Event {
     public void CreateWave() {
 
         ships = new HashSet<AIShip>();
-        System world = playerShip.world;
+        World world = playerShip.world;
         difficulty += 90;
 
 

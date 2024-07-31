@@ -18,7 +18,7 @@ public class EffectParticle : Effect {
         this.tile = Tile;
         this.lifetime = Lifetime;
     }
-    public static void DrawArrow(System world, XY worldPos, XY offset, uint color) {
+    public static void DrawArrow(World world, XY worldPos, XY offset, uint color) {
         //Draw an effect for the cursor
         world.AddEffect(new EffectParticle(worldPos, new Tile(color, ABGR.Transparent, 7), 1));
         //Draw a trail leading back to the player

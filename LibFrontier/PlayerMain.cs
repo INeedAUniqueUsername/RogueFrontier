@@ -13,7 +13,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 namespace RogueFrontier;
-public record Monitor (int Width, int Height, System world, PlayerShip playerShip, Camera camera) {
+public record Monitor (int Width, int Height, World world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
 }
 //SadConsole-specific code
@@ -30,7 +30,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Sf sf;
     public int Width => sf.GridWidth;
     public int Height => sf.GridHeight;
-    public System world => playerShip.world;
+    public World world => playerShip.world;
     public Camera camera { get; private set; }
 	public Profile profile;
     public Timeline story;
@@ -72,9 +72,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public bool autopilotUpdate;
     //public bool frameRendered = true;
     public int updatesSinceRender = 0;
-    private ListTracker<System> systems;
+    private ListTracker<World> systems;
     public SoundCtx music;
-    public System silenceSystem;
+    public World silenceSystem;
     public Monitor monitor;
     public Hand mouse = new();
     public IScene dialog {
@@ -109,7 +109,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         this.playerShip = playerShip;
         this.playerControls = new(playerShip, this);
         Settings = ShipControls.standard;
-        silenceSystem = new System(world.universe);
+        silenceSystem = new World(world.universe);
         var tc = silenceSystem.types;
         silenceSystem.AddEntity(playerShip);
 
@@ -149,7 +149,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 		pauseScreen = new(this) { visible = false };
         networkMap = new(this) { visible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
-        systems = new(new List<System>(playerShip.world.universe.systems.Values));
+        systems = new(new List<World>(playerShip.world.universe.systems.Values));
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {

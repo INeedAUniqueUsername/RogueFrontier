@@ -415,8 +415,8 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 
 
 
-
-	public static Tile empty { get; } = new(0, 0, 0);
+	public static readonly Tile black = new Tile (0, ABGR.Black, 0);
+	public static readonly Tile empty = new Tile(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
 	public static Tile[] Arr (string str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => [.. str.Select(c => new Tile(Foreground, Background, c))];

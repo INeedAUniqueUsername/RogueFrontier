@@ -16,7 +16,7 @@ public record SimpleTrail(Tile tile) : ITrail {
 }
 public class Projectile : MovingObject {
     public ulong id { get; set; }
-    public System world { get; set; }
+    public World world { get; set; }
     public ActiveObject source;
     public XY position { get; set; }
     public XY velocity { get; set; }
@@ -270,7 +270,8 @@ public class Projectile : MovingObject {
         }
         Burst burst = new();
         for (int i = 0; i < fragment.count; i++) {
-            double angle = fragmentAngle + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1);
+
+            double angle = fragmentAngle + (fragment.spreadDeviation.Roll() * PI / 180) + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1);
             var p = new Projectile(source,
                 fragment,
                 position + XY.Polar(angle, 0.5),

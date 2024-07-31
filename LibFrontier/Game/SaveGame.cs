@@ -87,13 +87,13 @@ public static class SaveGame {
     public static readonly Formatting format = Formatting.Indented;
 }
 public class LiveGame {
-    public System world;
+    public World world;
     public Player player => playerShip.person;
     public PlayerShip playerShip;
     //public Lis<LoadHook> hook;
 
     public LiveGame() { }
-    public LiveGame(System world, PlayerShip playerShip /*, Lis<LoadHook> onLoad = null*/) {
+    public LiveGame(World world, PlayerShip playerShip /*, Lis<LoadHook> onLoad = null*/) {
         this.world = world;
         this.playerShip = playerShip;
         //this.hook = onLoad;
@@ -105,12 +105,12 @@ public class LiveGame {
     }
 }
 public class DeadGame {
-    public System world;
+    public World world;
     public Player player { get; private set; }
     public PlayerShip playerShip;
     public Epitaph epitaph;
     public DeadGame() { }
-    public DeadGame(System world, PlayerShip playerShip, Epitaph epitaph) {
+    public DeadGame(World world, PlayerShip playerShip, Epitaph epitaph) {
         this.world = world;
         this.player = playerShip.person;
         this.playerShip = playerShip;

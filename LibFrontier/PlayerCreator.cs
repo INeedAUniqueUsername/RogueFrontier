@@ -6,7 +6,7 @@ using System.Linq;
 namespace RogueFrontier;
 
 class ShipSelectorModel {
-    public System World;
+    public World World;
     public List<ShipClass> playable;
     public int shipIndex;
 
@@ -24,7 +24,7 @@ class PlayerCreator : IScene {
 	public Action<SoundCtx> PlaySound { get; set; }
 
 
-	private ref System World => ref context.World;
+	private ref World World => ref context.World;
     private ref List<ShipClass> playable => ref context.playable;
     private ref int index => ref context.shipIndex;
     private ref List<GenomeType> genomes => ref context.genomes;
@@ -46,7 +46,7 @@ class PlayerCreator : IScene {
     double time = 0;
 
     public List<SfControl> controls = [];
-    public PlayerCreator(IScene prev, Sf sf_prev, System World, ShipControls settings, Action<ShipSelectorModel> next) {
+    public PlayerCreator(IScene prev, Sf sf_prev, World World, ShipControls settings, Action<ShipSelectorModel> next) {
         sf_img = new Sf(sf_prev.GridWidth, sf_prev.GridHeight, Fonts.FONT_8x8);
         sf_ui = new Sf(Width * 4 / 3, Height, Fonts.FONT_6x8);
         sf_icon = new Sf(1, 1, Fonts.FONT_8x8) { scale = 2, pos = (17, 17) };
@@ -157,13 +157,24 @@ class PlayerCreator : IScene {
             var pos = (p.X + 2, -p.Y + 24);
             sf_img.Tile[pos] = t;
         }
-        var descX = 48;
+
+
+
+
+
+		Sf.DrawRect(sf_ui, 48, y-1, 52, 32, new() {
+
+		});
+
+
+		var descX = 49;
         y = shipDescY;
-        foreach (var line in current.playerSettings.description.Wrap(Width / 3)) {
+        foreach (var line in current.playerSettings.description.Wrap(48)) {
             sf_ui.Print(descX, y, line);
             y++;
         }
         y++;
+
         //Show installed devices on the right pane
         sf_ui.Print(descX, y, "[Devices]");
         y++;
@@ -173,6 +184,9 @@ class PlayerCreator : IScene {
         }
         descX = 100;
         y = shipDescY;
+
+        Sf.DrawRect(sf_ui, descX, y-1, 48, 32, new() { });
+        descX++;
         foreach (var line in settings.GetString().Split('\n', '\r')) {
             sf_ui.Print(descX, y++, line);
         }
@@ -192,7 +206,6 @@ class PlayerCreator : IScene {
 		Draw?.Invoke(sf_icon);
 		Draw?.Invoke(sf_ui);
 	}
-
     public bool showRight => index < playable.Count - 1;
     public bool showLeft => index > 0;
 

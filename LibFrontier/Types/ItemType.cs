@@ -180,12 +180,12 @@ public record RechargeWeapon() : ItemUse {
 }
 public record UnlockPrescience() : ItemUse {
 	Power prescience = new(new() {
-		codename="power_prescience",
-		name="PRESCIENCE",
-		cooldownTime=9000,
-		invokeDelay=90,
-		message="You invoked PRESCIENCE!",
-		Effect = new()
+		codename =		"power_prescience",
+		name =			"PRESCIENCE",
+		cooldownTime =	9000,
+		invokeDelay =	90,
+		message=		"You invoked PRESCIENCE!",
+		Effect =		[]
 	});
 	public string GetDesc(PlayerShip player, Item item) =>
 		$"Read book";
@@ -458,6 +458,7 @@ public record FragmentDesc {
 	[Opt] public bool? targetLocked;
 	[Opt] public bool omnidirectional;
 	[Opt] public double spreadAngle;
+	[Opt] public IDice spreadDeviation = new Constant(0);
 	[Opt] public bool spreadOmni;
 	[Req] public int missileSpeed;
 	[Req] public int damageType;
@@ -564,6 +565,7 @@ public record FragmentDesc {
 			},
 			[nameof(detonateSound)] = (string s) => Assets.GetAudio(s),
 			[nameof(spreadAngle)] = (double d) => d * PI / 180,
+			[nameof(spreadDeviation)] = (IDice d) => d,
 			[nameof(fragmentSpin)] = (double d) => d * PI / 180,
 			[nameof(spreadOmni)] = (bool b) => {
 				spreadAngle = 2 * PI / count;
@@ -594,7 +596,7 @@ public record FragmentDesc {
 		*/
 	}
 	public IEnumerable<double> GetAngles(double direction) =>
-		(0..count).Select(i => direction + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1));
+		(0..count).Select(i => direction + (spreadDeviation.Roll() * PI / 180) + ((i + 1) / 2) * angleInterval * (i % 2 == 0 ? -1 : 1));
 	public List<Projectile> CreateProjectiles(ActiveObject owner, List<ActiveObject> targets, double direction, XY offset = null, HashSet<Entity> exclude = null /*, int projectilesPerTarget = 0*/) {
 		var position = owner.position + (offset ?? new(0, 0));
 		var adj = count % 2 == 0 ? -angleInterval / 2 : 0;
@@ -667,7 +669,6 @@ public record DisruptDesc {
 	[Opt] public IDice lifetime = new Constant(60);
 	public DisruptDesc() { }
 	public DisruptDesc(XElement e) {
-
 		var f = GetMode;
 		e.Initialize(this, transform:new() {
 			[nameof(thrust)] = f,

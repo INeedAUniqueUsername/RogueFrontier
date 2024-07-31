@@ -20,7 +20,7 @@ public record SystemType : IDesignType {
             systemGroup = new SystemGroup(xmlSystem, SGenerator.ParseFrom(collection, SSystemElement.Create));
         }
     }
-    public void Generate(System world) {
+    public void Generate(World world) {
         systemGroup.Generate(new LocationContext() {
             pos = new XY(0, 0),
             focus = new XY(0, 0),
@@ -31,7 +31,7 @@ public record SystemType : IDesignType {
     }
 }
 public record LocationContext {
-    public System world;
+    public World world;
     public XY pos;
     public double angle;
     public double angleRad => angle * PI / 180;

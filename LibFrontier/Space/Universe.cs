@@ -68,7 +68,7 @@ public class Universe : Ob<EntityAdded> {
     public Assets types;
 
     public Dictionary<string, Entity> identifiedObjects=new();
-    public Dictionary<string, System> systems=new();
+    public Dictionary<string, World> systems=new();
     public Dictionary<string, Stargate> stargates=new();
     public Dictionary<string, HashSet<Stargate>> systemGates=new();
     public Dictionary<string, (int, int)> grid = new();
@@ -79,7 +79,7 @@ public class Universe : Ob<EntityAdded> {
     }
     public Universe(UniverseDesc desc, Assets types = null, Rand karma = null) : this(types, karma) {
         foreach (var entry in desc.systems) {
-            var s = new System(this) { id = entry.id, name = entry.name };
+            var s = new World(this) { id = entry.id, name = entry.name };
             s.onEntityAdded += this;
             systems[entry.id] = s;
             grid[s.id] = (entry.x, entry.y);
@@ -125,11 +125,11 @@ public class Universe : Ob<EntityAdded> {
 
         var _ = FindGateTo(systems.Values.First(), systems.Values.Last());
     }
-    public Stargate FindGateTo(System from, System to) {
-        Dictionary<System, Stargate> gateTo = new();
-        HashSet<System> visited = new();
+    public Stargate FindGateTo(World from, World to) {
+        Dictionary<World, Stargate> gateTo = new();
+        HashSet<World> visited = new();
         visited.Add(from);
-        Queue<System> q = new();
+        Queue<World> q = new();
         q.Enqueue(from);
         while (q.Any()) {
             var top = q.Dequeue();

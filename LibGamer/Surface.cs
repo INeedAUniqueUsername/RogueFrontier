@@ -134,7 +134,11 @@ public class Sf {
 		}
 		public static implicit operator Grid<T> ((Get get, Set set) t) => new(t.get, t.set);
 	}
-
+	public static void FillRow(Sf sf, int y, Tile t) {
+		for(int x = 0; x < sf.GridWidth; x++) {
+			sf.Tile[x, y] = t;
+		}
+	}
 	public static void DrawBorder (Sf sf, RectOptions op) => DrawRect(sf, 0, 0, sf.GridWidth, sf.GridHeight, op);
 	public static void DrawRect ( Sf sf, int xStart, int yStart, int dx, int dy, RectOptions op) {
 		char Box (Line n = Line.None, Line e = Line.None, Line s = Line.None, Line w = Line.None) =>

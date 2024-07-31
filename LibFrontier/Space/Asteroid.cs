@@ -13,7 +13,7 @@ public class Asteroid : Entity {
     public bool active { get; set; }
     public Tile tile => (ABGR.Gray, ABGR.Transparent, '%');
 
-    public Asteroid(System world, XY pos) {
+    public Asteroid(World world, XY pos) {
         this.id = world.nextId++;
         this.position = pos;
         this.active = true;

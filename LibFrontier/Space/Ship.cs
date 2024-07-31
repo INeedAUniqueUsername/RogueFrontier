@@ -77,7 +77,7 @@ public interface IShip : ActiveObject {
 }
 public class BaseShip {
     [JsonIgnore]
-    public static BaseShip dead => new(System.empty, ShipClass.empty, XY.Zero) { active = false };
+    public static BaseShip dead => new(World.empty, ShipClass.empty, XY.Zero) { active = false };
     [JsonIgnore]
     public string name => shipClass.name;
     [JsonIgnore]
@@ -98,7 +98,7 @@ public class BaseShip {
             return rotationDeg + (rotatingVel * stoppingTime) + Sign(rotatingVel) * ((stoppingRate / Constants.TICKS_PER_SECOND) * stoppingTime * stoppingTime) / 2;
         }
     }
-    public System world;
+    public World world;
     public ShipClass shipClass;
     public XY position;
     public ulong id;
@@ -120,7 +120,7 @@ public class BaseShip {
 
     public Wreck wreck;
     public BaseShip() { }
-    public BaseShip(System world, ShipClass shipClass, XY Position) {
+    public BaseShip(World world, ShipClass shipClass, XY Position) {
         this.world = world;
         this.id = world.nextId++;
         this.shipClass = shipClass;
@@ -338,7 +338,7 @@ public static class SShipBehavior {
 public class AIShip : IShip {
     [JsonIgnore] public ulong id => ship.id;
     [JsonIgnore] public string name => ship.name;
-    [JsonIgnore] public System world => ship.world;
+    [JsonIgnore] public World world => ship.world;
     [JsonIgnore] public XY position { get => ship.position; set => ship.position = value; }
     [JsonIgnore] public XY velocity { get => ship.velocity; set => ship.velocity = value; }
     [JsonIgnore] public ShipClass shipClass => ship.shipClass;
@@ -463,7 +463,7 @@ public class PlayerShip : IShip {
     [JsonIgnore]
     public ulong id => ship.id;
     [JsonIgnore]
-    public System world => ship.world;
+    public World world => ship.world;
     [JsonIgnore]
     public XY position { get => ship.position; set => ship.position = value; }
     [JsonIgnore]

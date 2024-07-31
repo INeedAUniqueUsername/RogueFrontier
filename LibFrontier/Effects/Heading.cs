@@ -135,7 +135,7 @@ public class Heading : Effect {
         ticks++;
 
     }
-    public static void AimLine(System World, XY start, double angle, int lifetime = 1) {
+    public static void AimLine(World World, XY start, double angle, int lifetime = 1) {
         //ColoredGlyph pointEffect = new ColoredGlyph((char)249, new Color(153, 153, 76), Color.Transparent);
         var here = start;
         var inc = XY.Polar(angle);
@@ -182,7 +182,7 @@ public class Heading : Effect {
             World.AddEffect(new EffectParticle(point, bright, 1));
         }
     }
-    public static void Crosshair(System World, XY point, uint foreground) {
+    public static void Crosshair(World World, XY point, uint foreground) {
         //Color foreground = new Color(153, 153, 153);
         var background = ABGR.Transparent;
         var cg = (int c) => new Tile(foreground, background, c);

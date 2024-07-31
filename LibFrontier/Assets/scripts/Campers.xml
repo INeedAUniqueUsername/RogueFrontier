@@ -50,17 +50,26 @@
 			desc=		"An unlicensed modification turns a first-generation Magic Blaster into a much more explosive and much less accurate weapon."
 		>
 		<Weapon
-			initialCharges=	"200"
+			initialCharges=	"240"
 			powerUse=		"20"
-			fireCooldown=	"40"
+			fireCooldown=	"20"
 			recoil=			"4"
+			
+			sound=			"magic_shotgun.wav"
 			>
+			<Capacitor
+				minChargeToFire=		"25"
+				dischargeOnFire=		"25"
+				rechargePerTick=		"100/120"
+				maxCharge=				"100"
+				/>
 			<Projectile
-				count=			"15"
+				count=			"20"
 				spreadAngle=	"36"
 				missileSpeed=	"60"
 				damageType=		"1"
 				damageHP=		"1d8"
+				spreadDeviation="1d24-12"
 				
 				reflectFactor=	"0.5"
 				
@@ -68,6 +77,7 @@
 				glyph=			"*"
 				foreground=		"FF55FFFF"
 				>
+
 				<Corrode lifetime="10" damageRate="1/60"/>
 				<Trail
 					lifetime=	"10"
