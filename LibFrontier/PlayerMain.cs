@@ -16,7 +16,6 @@ namespace RogueFrontier;
 public record Monitor (int Width, int Height, World world, PlayerShip playerShip, Camera camera) {
 	public Monitor FreezeCamera => this with { camera = new(playerShip.position) };
 }
-//SadConsole-specific code
 public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public Action<IScene> Go { set; get; }
     public Action<Sf> Draw { set; get; }
@@ -54,8 +53,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 
 		}
     }
-
-
     private GateTransition _gate;
     public Megamap uiMegamap;
     public Vignette vignette;
@@ -143,13 +140,12 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 		void DrawPar (Sf sf) {
 			Draw?.Invoke(sf);
 		}
-		powerWidget = new(this);
-        powerWidget.visible = false;
+		powerWidget = new(this) { visible = false };
 
 		pauseScreen = new(this) { visible = false };
         networkMap = new(this) { visible = false };
         crosshair = new(playerShip, "Mouse Cursor", new());
-        systems = new(new List<World>(playerShip.world.universe.systems.Values));
+        systems = new([..playerShip.world.universe.systems.Values]);
     }
     public void SleepMouse() => sleepMouse = true;
     public void HideUI() {
@@ -169,69 +165,50 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         pauseScreen.visible = false;
     }
     public void Jump() {
-        var prevViewport = new Viewport(Width, Height, monitor with { camera = new(playerShip.position)});
+        var prevViewport = new Viewport(Width, Height, monitor.FreezeCamera);
         var nextViewport = new Viewport(Width, Height, monitor);
-
         uiBack = new(nextViewport);
         uiViewport = nextViewport;
         gate = new GateTransition(prevViewport, nextViewport, () => {
             gate = null;
-            if (playerShip.mortalTime <= 0) {
-                vignette.glowAlpha = 0f;
-            }
         });
     }
     public void Gate() {
-        if (!playerShip.CheckGate(out Stargate gate))
+        if (!playerShip.CheckGate(out var exit))
             return;
-        var destGate = gate.destGate;
+        var destGate = exit.destGate;
         if (destGate == null) {
             world.entities.Remove(playerShip);
-            this.gate = new GateTransition(new Viewport(Width, Height, monitor.FreezeCamera), null, () => {
-                this.gate = null;
+            gate = new GateTransition(new Viewport(Width, Height, monitor.FreezeCamera), null, () => {
+                gate = null;
 				OnPlayerLeft();
             });
             return;
         }
-        var prevViewport = new Viewport(Width, Height, monitor.FreezeCamera);
-        world.entities.Remove(playerShip);
-
+		var prevViewport = new Viewport(Width, Height, monitor.FreezeCamera);
+		world.entities.Remove(playerShip);
         var dest = destGate.world;
-        playerShip.ship.world = dest;
-        playerShip.ship.position = destGate.position + (playerShip.ship.position - gate.position);
-        dest.entities.Add(playerShip);
-        dest.effects.Add(new Heading(playerShip));
-        var nextViewport = new Viewport(Width, Height, monitor with { world = dest });
+		dest.entities.Add(playerShip);
+		dest.effects.Add(new Heading(playerShip));
+		playerShip.ship.world = dest;
+        playerShip.ship.position = destGate.position + (playerShip.ship.position - exit.position);
 
-        this.gate = new GateTransition(prevViewport, nextViewport, () => {
-            this.gate = null;
+		monitor = monitor with { world = dest };
+		var nextViewport = new Viewport(Width, Height, monitor);
+		gate = new GateTransition(prevViewport, nextViewport, () => {
+            gate = null;
         });
-		uiBack = new(nextViewport);
 		uiViewport = nextViewport;
+		uiBack = new(nextViewport);
 	}
-    public void OnIntermission() {
-        HideAll();
-        Go(new ExitTransition(this, this.sf, () => {
-			PlainCrawlScreen ds = null;
-			ds = new PlainCrawlScreen(Width, Height, "Intermission\n\n", EndPause);
-			void EndPause () {
-				Go(new PausePrev(ds, EndGame, 3));
-				void EndGame () {
-					Go(new IntermissionScreen(
-						this,
-						new(world, playerShip),
-						$"Fate unknown"));
-				}
-			}
-            Go(ds);
-		}));
-    }
     public void OnPlayerLeft() {
         HideAll();
         world.entities.Remove(playerShip);
-        Go(new OutroCrawl(Width, Height, EndGame));
+        var oc = default(OutroCrawl);
+        oc = new OutroCrawl(Width, Height, EndGame);
+		Go(oc);
         void EndGame() {
-            Go(new EpitaphScreen(this, new() { desc = $"Left Human Space", deathFrame = null, wreck = null }));
+            oc.Go(new EpitaphScreen(this, new() { desc = $"Left Human Space", deathFrame = null, wreck = null }));
         }
     }
     public void OnPlayerDestroyed(string message, Wreck wreck) {
@@ -247,33 +224,27 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
         var center = new XY(size / 2, size / 2);
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                var tile = GetTile(camera.position - new XY(x, y) + center);
-                deathFrame[x, y] = tile;
+                var tile = GetTile(camera.position + new XY(-x, -y) + center);
+                deathFrame[size - x - 1, y] = tile;
             }
         }
         Tile GetTile(XY xy) {
             var back = world.backdrop.GetTile(xy, camera.position);
             //Round down to ensure we don't get duplicated tiles along the origin
-
             if (uiViewport.tiles.TryGetValue(xy.roundDown, out var g)) {
-                g = g with { Background = ABGR.Blend(ABGR.Premultiply(back.Background), g.Background) };
-                return g;
+                return g with { Background = ABGR.Blend(ABGR.Premultiply(back.Background), g.Background) };
             } else {
                 return back;
             }
         }
-        var ep = new Epitaph() {
-            desc = message,
-            deathFrame = deathFrame,
-            wreck = wreck
-        };
+        var ep = new Epitaph { desc = message, deathFrame = deathFrame, wreck = wreck };
         playerShip.person.Epitaphs.Add(ep);
-
         playerShip.autopilot = false;
         //Bug: Background is not included because it is a separate console
         var ds = new EpitaphScreen(this, ep);
         var dt = new DeathTransition(this, sf, ds);
         var dp = new DeathPause(this, dt);
+
         Go?.Invoke(dp);
         Task.Run(() => {
             lock (world) {
@@ -285,7 +256,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
                     //Task.Delay(2000);
                     Thread.Sleep(2000);
 #endif
-
                 } catch(Exception e) {
 #if !DEBUG
                     throw;
@@ -349,9 +319,9 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             return;
         }
         var gameDelta = delta.TotalSeconds * (playerShip.autopilot ? 3 : 1) * Max(0, 1 - playerShip.ship.silence);
-        if(playerShip is { active:true, mortalTime: > 0 }) {
-            playerShip.mortalTime -= gameDelta;
-            gameDelta /= (1 + playerShip.mortalTime/2);
+        if(playerShip is { active:true, mortalTime: > 0 } ps) {
+            ps.mortalTime -= gameDelta;
+            gameDelta /= (1 + ps.mortalTime/2);
         }
         void UpdateUniverse() {
             //playerShip.updated = false;
@@ -719,16 +689,16 @@ public class Noisemaker : Ob<EntityAdded>, IDestroyedListener, IDamagedListener,
             p.SetValue(null, Load(p.Name));
         }
     }
-    PlayerShip player;
-    List<IShip> exhaustList = new();
+    readonly PlayerShip player;
+    readonly List<IShip> exhaustList = [];
     const float distScale = 1 / 16f;
-    public SoundCtx button_press = new(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
-    private ListTracker<SoundCtx>
-        _exhaust = new(new List<SoundCtx>((0..16).Select(i => new SoundCtx([], 10)))),
-        _gunfire = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 50)))),
-        _damage = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 50)))),
-        _explosion = new(new List<SoundCtx>((0..4).Select(i => new SoundCtx([], 75)))),
-        _discovery = new(new List<SoundCtx>((0..8).Select(i => new SoundCtx([], 25))));
+    public readonly SoundCtx button_press = new(File.ReadAllBytes($"{Assets.ROOT}/sounds/button_press.wav"), 33);
+    private readonly ListTracker<SoundCtx>
+        _exhaust = new([..(0..16).Select(i => new SoundCtx([], 10))]),
+        _gunfire = new([.. (0..8).Select(i => new SoundCtx([], 50))]),
+        _damage = new([.. (0..8).Select(i => new SoundCtx([], 50))]),
+        _explosion = new([.. (0..4).Select(i => new SoundCtx([], 75))]),
+        _discovery = new([.. (0..8).Select(i => new SoundCtx([], 25))]);
     private class Vol : Attribute {}
     [Vol]
     public SoundCtx targeting, autopilot, dock, powerCharge;
@@ -888,8 +858,7 @@ public class BackdropConsole {
         this.backdrop = m.world.backdrop;
         screenCenter = new XY(Width / 2f, Height / 2f);
     }
-    public void Update(TimeSpan delta) {
-    }
+    public void Update(TimeSpan delta) {}
     public void Render(TimeSpan drawTime) {
         sf.Clear();
         for (int x = 0; x < Width; x++) {
@@ -1058,7 +1027,7 @@ public class Megamap {
                 var t = entity.tile;
                 var f = t.Foreground;
                 //Apply stealth
-                const double threshold = 16;
+                const double threshold = 16d;
                 if (distance < threshold) {
                     f = ABGR.MA(f) * 0 + (byte)(255 * distance / threshold);
                 }
@@ -1108,18 +1077,14 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
     public Random r;
     public int[,] grid;
     public bool chargingUp;
-    int recoveryTime;
+    
     public int lightningHit;
     public int flash;
-
-
-    uint glowColor = PowerType.glowColors[Voice.Orator];
-
-    double silence;
-    double[,] silenceGrid;
-
-    Viewport silenceViewport;
-
+	private int recoveryTime;
+	private uint glowColor = PowerType.glowColors[Voice.Orator];
+	private double silence;
+	private double[,] silenceGrid;
+	private Viewport silenceViewport;
 
     public void Observe(PlayerShip.Damaged ev) {
         var (pl, pr) = ev;
@@ -1135,11 +1100,11 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
     }
     public Vignette(Mainframe main) {
         player = main.playerShip;
-        this.sf = new Sf(main.Width, main.Height, Fonts.FONT_8x8);
+        sf = new Sf(main.Width, main.Height, Fonts.FONT_8x8);
         player.onDamaged += this;
         player.onDestroyed += this;
         glowAlpha = 0;
-        particles = new();
+        particles = [];
         screenCenter = new(Width / 2, Height / 2);
         r = new();
         grid = new int[Width, Height];
@@ -1147,7 +1112,6 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
                 grid[x, y] = r.Next(0, 240);
-
                 silenceGrid[x, y] = r.NextDouble();
             }
         }
@@ -1171,7 +1135,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             chargingUp = true;
         } else {
             if (player.CheckGate(out Stargate gate)) {
-                float targetAlpha = 1;
+                var targetAlpha = 1f;
                 if (glowAlpha < targetAlpha) {
                     glowAlpha += (targetAlpha - glowAlpha) / 30;
                 }
@@ -1186,12 +1150,12 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         }
         ticks++;
         if (ticks % 5 == 0 && player.ship.disruption?.ticksLeft > 30) {
-            int i = 0;
+            var i = 0;
             var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
             foreach (var p in screenPerimeter.Perimeter.Select(p => new XY(p))) {
                 if (r.Next(0, 10) == 0) {
-                    int speed = 15;
-                    int lifetime = 60;
+                    var speed = 15;
+                    var lifetime = 60;
                     var v = new XY(p.xi == 0 ? speed : p.xi == screenPerimeter.width - 1 ? -speed : 0,
                                     p.yi == 0 ? speed : p.yi == screenPerimeter.height - 1 ? -speed : 0);
                     particles.Add(new EffectParticle(p, (ABGR.Cyan, ABGR.Transparent, '#'), lifetime) { Velocity = v });
@@ -1217,8 +1181,8 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         }
         //XY screenSize = new XY(Width, Height);
         //Set the color of the vignette
-        uint borderColor = ABGR.Black;
-        var borderSize = 2d;
+        var borderColor = ABGR.Black;
+        var borderSize = 6d;
 
         if (glowAlpha > 0) {
             var v = ABGR.SetA(glowColor, (byte)(255 * (float)Min(1, glowAlpha * 1.5)));
@@ -1250,29 +1214,23 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         //Cover the border in visual snow
         if (player.ship.blindTicks > 0) {
             for (int i = 0; i < borderSize; i++) {
-                var d = 1d * i / borderSize;
-                d = Pow(d, 1.4);
-                byte alpha = (byte)(255 - d * 255 / 2);
+                var d = Pow(1d * i / borderSize, 1.4);
+                var alpha = (byte)(255 - d * 255 / 2);
                 var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
-                foreach (var point in screenPerimeter.Perimeter) {
+                foreach (var (x,y) in screenPerimeter.Perimeter) {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
-                    var (x, y) = point;
-
                     var inc = (byte)r.Next(102);
-                    var c = ABGR.SetA(ABGR.ToGray(ABGR.IncRGB(borderColor, inc)), alpha);
-                    sf.Back[x, y] = c;
+                    sf.Back[x, y] = ABGR.SetA(ABGR.ToGray(ABGR.IncRGB(borderColor, inc)), alpha);
                 }
             }
         } else {
             for (int i = 0; i < borderSize; i++) {
-                var d = 1d * i / borderSize;
-                d = Pow(d, 1.4);
-                byte alpha = (byte)(255 - 255 * d);
+                var d = Pow(1d * i / borderSize, 1.4);
+                var alpha = (byte)(255 - 255 * d);
                 var c = ABGR.SetA(borderColor, alpha);
                 var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
-                foreach (var point in screenPerimeter.Perimeter) {
+                foreach (var (x,y) in screenPerimeter.Perimeter) {
                     //var back = this.GetBackground(point.X, point.Y).Premultiply();
-                    var (x, y) = point;
                     sf.Back[x, y] = c;
                 }
             }
@@ -1280,8 +1238,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         if (lightningHit > 0) {
             var i = 1;
             var c = ABGR.RGBA(255, 0, 0, (byte)(153 * lightningHit/5));
-            foreach(var p in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
-                var (x, y) = p;
+            foreach(var (x,y) in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
                 sf.Back[x, y] = ABGR.Blend(sf.Back[x, y], c);
                 //Surface.SetBackground(x, y, c);
             }
@@ -1289,8 +1246,7 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
         if (armorDecay) {
             var i = 2;
             var c = ABGR.RGBA(255, 255, 0, (byte)(255 - 48 + (int)(Sin(ticks / 5f) * 24)));
-            foreach (var p in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
-                var (x, y) = p;
+            foreach (var (x,y) in new Rect(i, i, Width - i * 2, Height - i * 2).Perimeter) {
                 sf.Back[x, y] = c;
             }
         }
@@ -1299,17 +1255,16 @@ public class Vignette : Ob<PlayerShip.Damaged>, Ob<PlayerShip.Destroyed> {
             var (fore, glyph) = (p.tile.Foreground, p.tile.Glyph);
             sf.Tile[x, y] = new(fore, sf.Back[x, y], glyph);
         }
-
         silence += (player.ship.silence - silence) * delta.TotalSeconds * 10;
         if(silence > 0) {
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(var x = 0; x < Width; x++) {
+                for(var y = 0; y < Height; y++) {
                     var alpha = (byte)(255 * Min(1, silence / silenceGrid[x, y]));
                     if(alpha < 2) {
                         continue;
                     }
                     var t = silenceViewport.GetTile(x, y);
-                    sf.Tile[x, Height - y - 1] = (ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), (int)t.Glyph);
+                    sf.Tile[x, Height - y - 1] = new Tile(ABGR.SetA(t.Foreground,alpha), ABGR.SetA(t.Background,alpha), (int)t.Glyph);
                 }
             }
         }
@@ -1366,10 +1321,10 @@ public class Readout {
         }
         //var autoTarget = player.devices.Weapons.Select(w => w.target).FirstOrDefault();
         var autoTargets = player.primary.item?.targeting?.GetMultiTarget()
-            .Except(new ActiveObject[] { null })
+            .Except([ null ])
             .Except(player.tracking.Keys)
             .Take(player.primary.item.desc.burstSize);
-        foreach (var at in autoTargets ?? Enumerable.Empty<ActiveObject>()) {
+        foreach (var at in autoTargets ?? []) {
             DrawTargetArrow(at, ABGR.LightYellow);
         }
         void DrawTargetArrow(ActiveObject target, uint c) {
@@ -1395,9 +1350,7 @@ public class Readout {
     }
     public void Render(TimeSpan drawTime) {
         sf_ui.Clear();
-
         var wd = 42;
-
 		var messageY = Height * 3 / 5;
         int targetX = wd + 4, targetY = 1;
         int tick = player.world.tick;
@@ -1412,19 +1365,14 @@ public class Readout {
 
                 var screenCenterOffset = ((xStart, Height - messageY) - screenCenter) * (1, 1);
                 var messagePos = (player.position + screenCenterOffset).roundDown;
-
                 var sourcePos = t.source.position.roundDown;
                 sourcePos = player.position + (sourcePos - player.position).Rotate(-camera.rotation) / viewScale;
                 if (messagePos.yi == sourcePos.yi) {
                     continue;
                 }
-
-                int screenX = xStart;
-                int screenY = messageY;
-
+                var screenX = xStart;
+                var screenY = messageY;
                 var (f, b) = line.Any() ? (line[0].Foreground, ABGR.Transparent) : (ABGR.White, ABGR.Transparent);
-
-
                 var lineWidth = Line.Single;
 
                 screenX++;
@@ -1454,8 +1402,8 @@ public class Readout {
                 */
                 var offset = (sourcePos - player.position) * (4/3f, 1) + (0, 0);
                 var offsetLeft = new XY(0, 0);
-                bool truncateX = Abs(offset.x) > Width / 2 - 3;
-                bool truncateY = Abs(offset.y) > Height / 2 - 3;
+                var truncateX = Abs(offset.x) > Width / 2 - 3;
+                var truncateY = Abs(offset.y) > Height / 2 - 3;
                 if (truncateX || truncateY) {
                     var sourcePosEdge = Main.GetBoundaryPoint(screenSize, offset.angleRad) - screenSize / 2 + player.position;
                     offset = sourcePosEdge - player.position;
@@ -1464,8 +1412,8 @@ public class Readout {
                     offsetLeft = sourcePos - sourcePosEdge;
                 }
                 offset += player.position - messagePos;
-                int screenLineY = offset.yi + (offset.yi < 0 ? 0 : 1);
-                int screenLineX = offset.xi;
+                var screenLineY = offset.yi + (offset.yi < 0 ? 0 : 1);
+                var screenLineX = offset.xi;
                 if (screenLineY != 0) {
                     sf_ui.Tile[screenX, screenY] = new Tile(f, b, BoxInfo.IBMCGA.glyphFromInfo[new BoxGlyph {
                         n = offset.y > 0 ? lineWidth : Line.None,
@@ -1516,7 +1464,7 @@ public class Readout {
         const int BAR = 8;
 
 
-        ActiveObject target;
+        var target = default(ActiveObject);
         if (player.GetTarget(out target)) {
             sf_ui.Print(targetX, targetY++, Tile.Arr("[Target]", ABGR.White, ABGR.Black));
         } else if(player.primary.item?.target is ActiveObject found) {
@@ -1547,21 +1495,21 @@ public class Readout {
                 var shields = devices.Shield;
                 var misc = devices.Installed.OfType<Service>();
                 foreach (var reactor in reactors) {
-                    Tile[] bar;
+                    var bar = default(Tile[]);
                     if (reactor.energy > 0) {
-                        (var arrow, var f) = reactor.energyDelta switch {
+                        var(arrow, f) = reactor.energyDelta switch {
                             < 0 => ('<', ABGR.Yellow),
                             > 0 => ('>', ABGR.Cyan),
                             _   => ('=', ABGR.White)
                         };
                         int length = (int)Ceiling(BAR * reactor.energy / reactor.desc.capacity);
-                        bar = [..Tile.Arr(new string('=', length - 1) + arrow, f, b),
-                            ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)];
+                        bar = [..Tile.Arr($"{new string('=', length - 1)}{arrow}", f, b),
+                            ..Tile.Arr(new('=', BAR - length), ABGR.Gray, b)];
                     } else {
-                        bar = Tile.Arr(new string('=', BAR), ABGR.Gray, b);
+                        bar = Tile.Arr(new('=', BAR), ABGR.Gray, b);
                     }
 
-                    int l = (int)Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
+                    var l = (int)Ceiling(-BAR * (double)reactor.energyDelta / reactor.maxOutput);
                     Array.Copy(bar[..l].Select(t => t with { Background = ABGR.DarkKhaki }).ToArray(), bar, l);
 
                     sf_ui.Print(x, y, [
@@ -1578,9 +1526,9 @@ public class Readout {
                         int length = (int)Ceiling(BAR * (double)s.maxOutput / s.desc.maxOutput);
                         int sublength = s.maxOutput > 0 ? (int)Ceiling(length * (-s.energyDelta) / s.maxOutput) : 0;
                         Tile[] bar = [
-                            ..Tile.Arr(new string('=', sublength), ABGR.Yellow, ABGR.DarkKhaki),
-                            ..Tile.Arr(new string('=', length - sublength), ABGR.Cyan, b),
-                            ..Tile.Arr(new string('=', BAR - length), ABGR.Gray, b)];
+                            ..Tile.Arr(new('=', sublength), ABGR.Yellow, ABGR.DarkKhaki),
+                            ..Tile.Arr(new('=', length - sublength), ABGR.Cyan, b),
+                            ..Tile.Arr(new('=', BAR - length), ABGR.Gray, b)];
                         /*
                         int l = (int)Math.Ceiling(-16f * s.maxOutput / s.desc.maxOutput);
                         for (int i = 0; i < l; i++) {
@@ -1625,7 +1573,7 @@ public class Readout {
                 }
                 if (misc.Any()) {
                     foreach (var m in misc) {
-                        string tag = m.source.type.name;
+                        var tag = m.source.type.name;
                         var f = ABGR.White;
                         sf_ui.Print(x, y, Tile.Arr($"{tag}", f, b));
                         y++;
@@ -1673,10 +1621,9 @@ public class Readout {
                                     !armor.allowRecovery ?
                                         ABGR.Blend(ABGR.Black, ABGR.SetA(ABGR.Yellow, 128)) :
                                         b;
-                                int available = BAR * Min(armor.maxHP, armor.desc.maxHP) / Max(1, armor.desc.maxHP);
+                                var available = BAR * Min(armor.maxHP, armor.desc.maxHP) / Max(1, armor.desc.maxHP);
 
-                                int active = available * Min(armor.hp, armor.maxHP) / Max(1, armor.maxHP);
-                                
+                                var active = available * Min(armor.hp, armor.maxHP) / Max(1, armor.maxHP);
                                 sf_ui.Print(x, y, [
                                     ..Tile.Arr("[", f, b),
 									..Tile.Arr(new('=', active), f, b),
@@ -1702,10 +1649,10 @@ public class Readout {
         }
         //Print Player
         {
-            int x = 4;
-            int y = 3;
+            int x = 2;
+            int y = 2;
 
-            Sf.DrawRect(sf_ui, x++, y++, wd, 16, new() {
+            Sf.DrawRect(sf_ui, x++, y++, wd, 24, new() {
                 f = ABGR.White,
                 b = ABGR.SetA(ABGR.Black, 128),
             });
@@ -1751,7 +1698,7 @@ public class Readout {
                     ..bar,
                     ..Tile.Arr("]", 0xFFFFFFFF, b),
                     (0, 0, ' '),
-                    ..Tile.Arr($"{totalUsed,3}/{totalMax,3} Total Power", 0xFFFFFFFF, b)
+                    ..Tile.Arr($"{totalUsed,3}/{totalMax,3} Total Capacity", 0xFFFFFFFF, b)
                     ]
                     );
             }
@@ -1794,7 +1741,7 @@ public class Readout {
                     sf_ui.Print(x, y, entry);
                     y++;
                 }
-                y++;
+                //y++;
             }
             if (solars.Any()) {
                 foreach (var s in solars) {
@@ -1815,32 +1762,9 @@ public class Readout {
                     sf_ui.Print(x, y, line);
                     y++;
                 }
-                y++;
+                
             }
-            if (weapons.Any()) {
-                int i = 0;
-                foreach (var w in weapons) {
-                    var arrow =
-                        i == player.primary.index ?
-                            "->" :
-                        i == player.secondary.index ?
-                            "=>" :
-                            "  ";
-                    var name = w.GetReadoutName();
-                    string enhancement = w.mod != FragmentMod.EMPTY ? "+" : "";
-                    var tag = $"{arrow} {name} {enhancement}";
-                    var foreground =
-                        player.energy.off.Contains(w) ?
-							ABGR.Gray :
-                        w.firing || w.delay > 0 ?
-							ABGR.Yellow :
-						ABGR.White;
-                    sf_ui.Print(x, y, [..Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), ..Tile.Arr(tag, foreground, b)]);
-                    y++;
-                    i++;
-                }
-                y++;
-            }
+			y++;
             if (misc.Any()) {
                 foreach (var m in misc) {
                     var tag = m.source.type.name;
@@ -1848,7 +1772,7 @@ public class Readout {
                     sf_ui.Print(x, y, Tile.Arr($"[{new string('-', BAR)}] {tag}", f, b));
                     y++;
                 }
-                y++;
+                //y++;
             }
             if (shields.Any()) {
                 foreach (var s in shields.Reverse<Shield>()) {
@@ -1944,8 +1868,34 @@ public class Readout {
                         break;
                     }
             }
+
             y++;
 
+
+			if(weapons.Any()) {
+				int i = 0;
+				foreach(var w in weapons) {
+					var arrow =
+						i == player.primary.index ?
+							"->" :
+						i == player.secondary.index ?
+							"=>" :
+							"  ";
+					var name = w.GetReadoutName();
+					string enhancement = w.mod != FragmentMod.EMPTY ? "+" : "";
+					var tag = $"{arrow} {name} {enhancement}";
+					var foreground =
+						player.energy.off.Contains(w) ?
+							ABGR.Gray :
+						w.firing || w.delay > 0 ?
+							ABGR.Yellow :
+						ABGR.White;
+					sf_ui.Print(x, y, [.. Tile.Arr("[", ABGR.White, b), .. w.GetBar(BAR), .. Tile.Arr(tag, foreground, b)]);
+					y++;
+					i++;
+				}
+				y++;
+			}
             var (_f, _b) = (ABGR.White, ABGR.Black);
             sf_ui.Print(x, y++, Tile.Arr($"Stealth: {ship.stealth:0.00}", _f, _b));
             sf_ui.Print(x, y++, Tile.Arr($"Visibility: {SStealth.GetVisibleRangeOf(player):0.00}", _f, _b));
@@ -2031,7 +1981,7 @@ public class Minimap {
     public Minimap(Monitor m) {
         this.player = m.playerShip;
         this.size = 16;
-		this.sf = new Sf(size, size, Fonts.FONT_8x8) { pos = (m.Width - 16 - 3, 3) };
+		this.sf = new Sf(size, size, Fonts.FONT_8x8) { pos = (m.Width - 16 - 2, 2) };
 		this.camera = m.camera;
 		screenSize = new(Width, Height);
         screenCenter = screenSize / 2;

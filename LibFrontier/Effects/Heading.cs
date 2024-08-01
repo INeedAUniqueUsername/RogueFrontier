@@ -7,11 +7,13 @@ using System.Runtime.Intrinsics.X86;
 namespace RogueFrontier;
 public class Heading : Effect {
     public IShip parent;
+    public World world;
     public Heading(IShip parent) {
         this.parent = parent;
+        world = parent.world;
     }
     public XY position => parent?.position ?? new();
-    public bool active => parent.active;
+    public bool active => parent.active && world == parent.world;
     public Tile tile => null;
     int ticks;
     public EffectParticle[] particles;

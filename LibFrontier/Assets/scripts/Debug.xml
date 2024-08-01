@@ -14,12 +14,12 @@
 			mass=		"2000"
 			value=		"400"
 			invoke=		"installWeapon"
-			desc=		"The Klaw missile launcher fires two quick tracking missiles at a time."
+			desc=		"The Claw missile launcher fires two quick tracking missiles at a time."
 		>
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"45"
 				ammoType=		"item_debug_missile"
-				sound=			"Assets/sounds/klaw_launcher.wav"
+				sound=			"Assets/sounds/claw_launcher.wav"
 			>
 			<Capacitor
 				minChargeToFire=		"0"
@@ -70,6 +70,7 @@
 		<Devices>
 			<Weapon codename="item_gamma_launcher"/>
 			<Weapon codename="item_magic_shotgun_i"/>
+			<Weapon codename="item_iron_revolver"/>
 			<Shield codename="item_buckler_shield"/>
 			<Reactor codename="item_20mw_generator"/>
 			<Reactor codename="item_10mw_secondary"/>

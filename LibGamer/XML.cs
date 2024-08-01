@@ -43,8 +43,13 @@ public static class Main {
 		
 		var toDist = (Math.Clamp(x, fromMin, fromMax) - fromMin) * toRange / fromRange;
 		toDist = Math.Pow(toDist / toRange, pow);
-		return toMin + toRange * toDist;
+		var result = toMin + toRange * toDist;
+
+		return result;
 	}
+
+
+
 	public static string LerpString(this string str, double x, double fromMin, double fromMax, double pow) =>
 		str.Substring(0, (int)Main.Lerp(x, fromMin, fromMax, 0, str.Length, pow));
 	public static Tile[] LerpString(this Tile[] str, double x, double fromMin, double fromMax, double gamma) =>

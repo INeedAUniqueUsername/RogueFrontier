@@ -117,7 +117,15 @@
 				lifetime=		"75"
 				glyph=			"\249"
 				foreground=		"Magenta"
-				/>
+				background=	"Transparent"
+				>
+
+				<Trail
+					lifetime=	"9"
+					glyph=		"\249"
+					foreground=	"Magenta"
+					background=	"Transparent"/>
+			</Projectile>
 
 			<Capacitor
 				dischargeOnFire=		"100"
@@ -155,10 +163,11 @@
 				lifetime=		"45"
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
+				background=	"Transparent"
 				>
 				<Corrode lifetime="10" damageRate="1/60" degradeFactor="2.5"/>
 				<Trail
-					lifetime=	"10"
+					lifetime=	"15"
 					glyph=		"\7"
 					foreground=	"FF55FFFF"
 					background=	"BB77DDFF"/>
@@ -192,7 +201,16 @@
 				lifetime=		"90"
 				glyph=			"\249"
 				foreground=		"Magenta"
-				/>
+				
+				background=		"Transparent"
+				>
+
+				<Trail
+					lifetime=	"9"
+					glyph=		"\249"
+					foreground=	"Magenta"
+					background=	"Transparent"/>
+			</Projectile>
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_magic_blaster_ii"
@@ -225,7 +243,7 @@
 				>
 				<Corrode lifetime="20" damageRate="2/60" degradeFactor="2.5"/>
 				<Trail
-					lifetime=	"10"
+					lifetime=	"24"
 					glyph=		"\7"
 					foreground=	"FF55FFFF"
 					background=	"BB77DDFF"/>
@@ -324,7 +342,6 @@
 				lifetime=		"120"
 				glyph=			"\15"
 				foreground=		"FF55FFFF"
-				background=		"Black"
 
 				fragmentSpin=	"180"
 				>

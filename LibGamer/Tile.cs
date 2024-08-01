@@ -419,7 +419,11 @@ public record Tile (uint Foreground, uint Background, uint Glyph) {
 	public static readonly Tile empty = new Tile(0, 0, 0);
 	public Tile () : this(0, 0, 0) { }
 	public Tile (uint Foreground, uint Background, int Glyph) : this(Foreground, Background, (uint)Glyph) { }
-	public static Tile[] Arr (string str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => [.. str.Select(c => new Tile(Foreground, Background, c))];
+	public static Tile[] Arr (string str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => Arr(str, Foreground, Background);
+
+	public static Tile[] ArrChar (IEnumerable<char> str, uint Foreground = ABGR.White, uint Background = ABGR.Black) => [.. str.Select(c => new Tile(Foreground, Background, c))];
+
+
 	public static IEnumerable<Tile> WithA (IEnumerable<Tile> str, byte front, byte back) =>
 		from t in str select t with {
 			Foreground = ABGR.SetA(t.Foreground, front),

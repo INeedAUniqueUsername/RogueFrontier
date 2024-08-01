@@ -163,8 +163,14 @@
 					shieldFactor=	"2"
 					glyph=			"\249"
 					foreground=		"Red"
-					background=		"Black"
-				/>
+				>
+
+				<Trail
+					lifetime=	"8"
+					glyph=		"\249"
+					foreground=	"Red"
+					background=	"Transparent"/>
+			</Projectile>
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_beowulf_dual_laser_repeater"
@@ -191,7 +197,6 @@
 					shieldFactor=	"2"
 					glyph=			"\249"
 					foreground=		"Red"
-					background=		"Black"
 				>
 			</Projectile>
 			<Capacitor
@@ -226,7 +231,7 @@
 		</Shield>
 	</ItemType>
 
-	<ItemType	codename=	"item_klaw_missile"
+	<ItemType	codename=	"item_claw_missile"
 				name=		"Claw missile"
 				level=		"2"
 				mass=		"200"
@@ -235,7 +240,7 @@
 				desc=		"The Claw is the standard homing missile of the Beowulf gunship."
 		>
 	</ItemType>
-	<ItemType	codename=	"item_klaw_missile_launcher"
+	<ItemType	codename=	"item_claw_missile_launcher"
 				name=		"Claw launcher"
 				level=		"2"
 				mass=		"2000"
@@ -243,12 +248,12 @@
 
 				invoke=		"installWeapon"
 				
-				desc=		"The Claw missile launcher fires two quick tracking missiles at a time."
+				desc=		"The Claw missile launcher fires two tracking missiles at a time."
 		>
 		<Weapon	powerUse=		"10"
 				fireCooldown=	"45"
-				ammoType=		"item_klaw_missile"
-				sound=			"klaw_launcher.wav"
+				ammoType=		"item_claw_missile"
+				sound=			"claw_launcher.wav"
 			>
 			<Projectile	count=			"2"
 						spreadAngle=	"30"
@@ -262,7 +267,13 @@
 
 						glyph=			"m"
 						foreground=		"White"
-				/>
+				>
+				<Trail
+					lifetime=	"8"
+					glyph=		"\249"
+					foreground=	"White"
+					background=	"Transparent"/>
+			</Projectile>
 		</Weapon>
 	</ItemType>
 
@@ -294,10 +305,18 @@
 				
 				armorDisrupt=	"120"
 				
-				glyph=			"\7"
+				glyph=			"\249"
 				foreground=		"White"
-				background=		"Black"
-				/>
+				background=	"Transparent"
+				
+				>
+
+				<Trail
+					lifetime=	"8"
+					glyph=		"\249"
+					foreground=	"White"
+					background=	"Transparent"/>
+			</Projectile>
 		</Weapon>
 	</ItemType>
 	<ItemType	codename=	"item_missile_defender"
@@ -432,7 +451,7 @@
 			powerUse=		"10"
 			fireCooldown=	"30"
 			ammoType=		"item_dynamite_charge"
-			sound=			"generic_missile.wav"
+			sound=			"dynamite_launcher.wav"
 			>
 			<Projectile
 				missileSpeed=	"20"
@@ -465,7 +484,22 @@
 					lifetime=		"60"
 					glyph=			"z"
 					foreground=		"FF0000FF"
+					>
+
+					<Trail
+						lifetime=	"9"
+						glyph=		"\249"
+						foreground=	"Red"
+						background=	"Transparent"			
 					/>
+				</Fragment>
+
+
+				<Trail
+					lifetime=	"9"
+					glyph=		"\249"
+					foreground=	"Red"
+					background=	"Transparent"/>
 			</Projectile>
 		</Weapon>
 	</ItemType>

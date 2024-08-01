@@ -50,16 +50,16 @@
 			<Ship	count="2"	codename="ship_ulysses"/>
 		</Ships>
 		<Cargo>
-			<Item count="480"	codename="item_klaw_missile"/>
+			<Item count="480"	codename="item_claw_missile"/>
 			<Item count="32"	codename="item_scanner_drone"/>
 			<Item count="32"	codename="item_combat_drone_i"/>
 			<Item count="12"	codename="item_beowulf_dual_laser_upgrade"/>
 		</Cargo>
 		<Weapons>
-			<Weapon codename="item_klaw_missile_launcher" posX="2" posY="2"		angle="45"/>
-			<Weapon codename="item_klaw_missile_launcher" posX="2" posY="-2"	angle="-45"/>
-			<Weapon codename="item_klaw_missile_launcher" posX="-2" posY="2"	angle="135"/>
-			<Weapon codename="item_klaw_missile_launcher" posX="-2" posY="-2"	angle="-135"/>
+			<Weapon codename="item_claw_missile_launcher" posX="2" posY="2"		angle="45"/>
+			<Weapon codename="item_claw_missile_launcher" posX="2" posY="-2"	angle="-45"/>
+			<Weapon codename="item_claw_missile_launcher" posX="-2" posY="2"	angle="135"/>
+			<Weapon codename="item_claw_missile_launcher" posX="-2" posY="-2"	angle="-135"/>
 		</Weapons>
 	</StationType>
 	<StationType

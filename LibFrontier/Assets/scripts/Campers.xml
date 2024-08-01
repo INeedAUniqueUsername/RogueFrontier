@@ -50,7 +50,7 @@
 			desc=		"An unlicensed modification turns a first-generation Magic Blaster into a much more explosive and much less accurate weapon."
 		>
 		<Weapon
-			initialCharges=	"240"
+			initialCharges=	"200"
 			powerUse=		"20"
 			fireCooldown=	"20"
 			recoil=			"4"
@@ -115,6 +115,38 @@
 		</Weapon>
 	</ItemType>
 
+	<ItemType
+		codename=	"item_iron_revolver"
+		name=		"Iron Revolver"
+		attributes=	""
+		mass=		"3000"
+		level=		"2"
+		invoke=		"installWeapon"
+		desc=		"With some rather complicated modifications, the Iron Driver can be made to cut through shields."
+		sprite=		"item_iron_driver.dat"
+		>
+		<Weapon	
+			powerUse=		"10"
+			fireCooldown=	"30"
+			initialCharges=	"200"
+			sound=			"iron_driver.wav"
+			>
+			<Projectile
+				missileSpeed=	"60"
+				damageType=		"2"
+				damageHP=		"4"
+				
+				shieldFactor=	"2"
+				
+				lifetime=		"60"
+				glyph=			"+"
+				foreground=		"White"
+				/>
+		</Weapon>
+	</ItemType>
+	
+	
+	
 
 	<ItemType	codename=	"item_laser_enhancer"
 		name=		"laser enhancer"

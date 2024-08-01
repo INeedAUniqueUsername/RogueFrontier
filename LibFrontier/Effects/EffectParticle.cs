@@ -39,36 +39,38 @@ public class EffectParticle : Effect {
     }
 }
 public class FadingTile : Effect {
-    private int Lifetime;
+
+    private double lifespan;
+    private double timeLeft;
     public FadingTile() {
 
     }
     public FadingTile(XY Position, Tile Tile, int Lifetime) {
         this.position = Position;
-        this.Velocity = new();
-        this._Tile = Tile;
-        this.Lifetime = Lifetime;
+        this.velocity = new();
+        this.original = Tile;
+        this.timeLeft = Lifetime / 30d;
+        this.lifespan = timeLeft;
     }
     public FadingTile(XY Position, XY Velocity, Tile Tile, int Lifetime) {
         this.position = Position;
-        this.Velocity = Velocity;
-        this._Tile = Tile;
-        this.Lifetime = Lifetime;
-    }
+        this.velocity = Velocity;
+        this.original = Tile;
+        this.timeLeft = Lifetime / 30d;
+		this.lifespan = timeLeft;
+	}
     public XY position { get; private set; }
-    public XY Velocity { get; private set; }
+    public XY velocity { get; private set; }
+    public bool active => timeLeft > 0;
+    private Tile original;
+    public Tile tile => new(
+        ABGR.SetA(original.Foreground, (byte)Main.Lerp(timeLeft, 0, lifespan, 0, ABGR.A(original.Foreground), 0.5)),
+        ABGR.SetA(original.Background, (byte)Main.Lerp(timeLeft, 0, lifespan, 0, ABGR.A(original.Background), 0.5)),
 
-    public bool active => Lifetime > 0;
-
-    private Tile _Tile;
-    public Tile tile => new Tile(
-
-        ABGR.SetA(_Tile.Foreground, (byte)Min(255, 255f * Lifetime / 10)),
-        ABGR.SetA(_Tile.Background, (byte)Min(255, 255f * Lifetime / 10)),
-        _Tile.Glyph);
+        original.Glyph);
 
     public void Update(double delta) {
-        position += Velocity / Constants.TICKS_PER_SECOND;
-        Lifetime--;
+        position += velocity / Constants.TICKS_PER_SECOND;
+        timeLeft -= delta;
     }
 }

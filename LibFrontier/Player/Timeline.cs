@@ -701,11 +701,10 @@ public class Timeline : Ob<EntityAdded>, Ob<Station.Destroyed>, Ob<AIShip.Destro
         item_beowulf_dual_laser_repeater = 3000,
         item_beowulf_dual_laser_upgrade = 3000,
         item_buckler_shield = 400,
-        item_klaw_missile = 8,
-        item_klaw_missile_launcher = 400,
+        item_claw_missile = 8,
+        item_claw_missile_launcher = 400,
 
         item_musket_turret = 3500,
-        item_sidearm_turret = 3500,
         item_missile_defender = 4000,
         item_scanner_drone = 1500,
         item_combat_drone_i = 4000,

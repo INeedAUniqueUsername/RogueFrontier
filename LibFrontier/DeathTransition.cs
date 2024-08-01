@@ -1,4 +1,5 @@
-﻿using LibGamer;
+﻿using Common;
+using LibGamer;
 using System;
 using System.Collections.Generic;
 
@@ -40,10 +41,12 @@ public class DeathTransition : IScene {
 	public Action<IScene> Go { get; set; }
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
-	Sf sf;
+	Sf sf_vignette;
+    Sf sf_particles;
+
 	IScene prev, next;
-    int Width => sf.GridWidth;
-    int Height => sf.GridHeight;
+    int Width => sf_vignette.GridWidth;
+    int Height => sf_vignette.GridHeight;
 	public class Particle {
         public int x, destY;
         public double y, delay;
@@ -54,7 +57,9 @@ public class DeathTransition : IScene {
         this.prev = prev;
         this.next = next;
         prev.Draw += sf => Draw?.Invoke(sf);
-        this.sf = Sf.From(sf_prev);
+        this.sf_vignette = Sf.From(sf_prev);
+
+        sf_particles = Sf.From(sf_prev);
         particles = new HashSet<Particle>();
         for (int y = 0; y < Height / 2; y++) {
             for (int x = 0; x < Width; x++) {
@@ -62,7 +67,7 @@ public class DeathTransition : IScene {
                     x = x,
                     y = -1,
                     destY = y,
-                    delay = (1 + Sin(Sin(x) + Sin(y))) * 3 / 2
+                    delay = (1 + Sin(Sin(x) + Sin(y)))
                 });
             }
         }
@@ -72,7 +77,7 @@ public class DeathTransition : IScene {
                     x = x,
                     y = Height,
                     destY = y,
-                    delay = (1 + Sin(Sin(x) + Sin(y))) * 3 / 2
+                    delay = (1 + Sin(Sin(x) + Sin(y)))
                 });
             }
         }
@@ -88,9 +93,9 @@ public class DeathTransition : IScene {
     public void Update(TimeSpan delta) {
         time += delta.TotalSeconds / 2;
         prev.Update(delta);
-        if (time < 4) {
+        if (time < 2) {
             return;
-        } else if (time < 9) {
+        } else if (time < 7) {
             foreach (var p in particles) {
                 if (p.delay > 0) {
                     p.delay -= delta.TotalSeconds / 2;
@@ -104,31 +109,35 @@ public class DeathTransition : IScene {
         }
     }
     public void Render(TimeSpan delta) {
-        sf.Clear();
-        var borderSize = Max((time - 1) * 4, 0);
-        var br = (byte)Clamp((time - 1) * 255f, 0, 255);
+
+		prev.Render(delta);
+
+		sf_vignette.Clear();
+        var borderSize = Max((time - 0.5) * 8, 0);
+        var br = (byte)Clamp((time - 0.5) * 255f, 0, 255);
         var borderColor = ABGR.RGB(br, br, br);
-        for (int i = 0; i < borderSize; i++) {
+        for(var i = 0; i < borderSize; i++) {
             var d = 1d * i / borderSize;
             d = Pow(d, 1.4);
             byte alpha = (byte)(255 - 255 * d);
             var c = ABGR.SetA(borderColor, alpha);
             var screenPerimeter = new Rect(i, i, Width - i * 2, Height - i * 2);
-            foreach (var point in screenPerimeter.Perimeter) {
+            foreach (var(x,y) in screenPerimeter.Perimeter) {
                 //var back = this.GetBackground(point.X, point.Y).Premultiply();
-                var (x, y) = point;
-                sf.SetBack(x, y, c);
+                sf_vignette.SetBack(x, y, c);
             }
         }
-        byte l = 0;
+		Draw(sf_vignette);
+        sf_particles.Clear();
+		byte l = 0;
         //int brightness = (int)Math.Min(255, 255 * Math.Max(0, time - 6) / 2);
         foreach (var p in particles) {
-
-            if(sf.IsValid(p.x, (int)p.y)) {
-                sf.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.RGBA(l, l, l, 255), ' '));
+            if(sf_particles.IsValid(p.x, (int)p.y)) {
+                var alpha = (byte)Main.Lerp(Abs(p.y - p.destY), 0, 20, 255, 0, 1);
+				sf_particles.SetTile(p.x, (int)p.y, new Tile(ABGR.Black, ABGR.SetA(ABGR.Black, alpha), ' '));
             }
         }
-		prev.Render(delta);
-		Draw(sf);
+        Draw(sf_particles);
+
     }
 }

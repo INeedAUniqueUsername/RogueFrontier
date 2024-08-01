@@ -48,8 +48,8 @@
 		<Cargo>
 			<Item count="80-120"	codename="item_simple_fuel_rod"/>
 			<Item count="16-32"	codename="item_armor_repair_patch"/>
-			<Item count="8-16"	codename="item_klaw_missile_launcher"/>
-			<Item count="240-360"	codename="item_klaw_missile"/>
+			<Item count="8-16"	codename="item_claw_missile_launcher"/>
+			<Item count="240-360"	codename="item_claw_missile"/>
 
 			<Item count="12-24" codename="item_20mw_generator"/>
 			<Item count="4-8" codename="item_50mw_generator"/>
@@ -188,8 +188,8 @@
 		<Cargo>
 			<Item count="8" codename="item_tracking_laser"/>
 			<Item count="8" codename="item_beowulf_dual_laser_cannon"/>
-			<Item count="8" codename="item_klaw_missile_launcher"/>
-			<Item count="240" codename="item_klaw_missile"/>
+			<Item count="8" codename="item_claw_missile_launcher"/>
+			<Item count="240" codename="item_claw_missile"/>
 			<Item count="8"	codename="item_musket_turret"/>
 			<Item count="8" codename="item_missile_defender"/>
 		</Cargo>

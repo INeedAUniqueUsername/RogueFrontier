@@ -89,13 +89,13 @@
 				  background="Black"
         >
 		<Items>
-			<Item codename="item_klaw_missile" count="60"/>
+			<Item codename="item_claw_missile" count="60"/>
 			<Item codename="item_simple_fuel_rod" count="24"/>
 			<Item codename="item_armor_repair_patch"	count="6"/>
 		</Items>
 		<Devices>
 			<Weapon codename="item_beowulf_dual_laser_cannon"/>
-			<Weapon codename="item_klaw_missile_launcher"/>
+			<Weapon codename="item_claw_missile_launcher"/>
 			<Shield codename="item_buckler_shield"/>
 			<Reactor codename="item_20mw_generator"/>
 			<Reactor codename="item_10mw_loneheart"/>
@@ -118,13 +118,13 @@
 				attributes=	"BeowulfClub"
         >
 		<Items>
-			<Item codename="item_klaw_missile" count="64"/>
+			<Item codename="item_claw_missile" count="64"/>
 			<Item codename="item_simple_fuel_rod" count="30"/>
 			<Item codename="item_armor_repair_patch"	count="12"/>
 		</Items>
 		<Devices>
 			<Weapon codename="item_beowulf_dual_laser_repeater"/>
-			<Weapon codename="item_klaw_missile_launcher"/>
+			<Weapon codename="item_claw_missile_launcher"/>
 			<Shield codename="item_buckler_shield"/>
 			<Reactor codename="item_20mw_generator"/>
 			<Reactor codename="item_10mw_secondary"/>
@@ -189,8 +189,8 @@
 			<Item codename="item_simple_fuel_rod" count="120"/>
 			<ItemTable count="120">
 				<Item chance="1" codename="item_simple_fuel_rod" count="4"/>
-				<Item chance="1" codename="item_klaw_missile_launcher" count="1"/>
-				<Item chance="1" codename="item_klaw_missile" count="20"/>
+				<Item chance="1" codename="item_claw_missile_launcher" count="1"/>
+				<Item chance="1" codename="item_claw_missile" count="20"/>
 				<Item chance="1" codename="item_scanner_drone" count="1"/>
 				<Item chance="1" codename="item_dynamite_cannon" count="1"/>
 				<Item chance="1" codename="item_dynamite_charge" count="10"/>
