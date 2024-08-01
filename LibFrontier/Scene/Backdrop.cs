@@ -80,7 +80,7 @@ public class GridLayer : ILayer {
     public GridLayer() { }
     public GridLayer(double parallaxFactor) {
         this.parallaxFactor = parallaxFactor;
-        this.tiles = new Dictionary<(int, int), Tile>();
+        this.tiles = [];
     }
     public Tile GetTile (XY point, XY camera) {
         var apparent = point - camera * (1 - parallaxFactor);
@@ -92,7 +92,7 @@ public class GridLayer : ILayer {
     }
 }
 public class CompositeLayer : ILayer {
-    public List<ILayer> layers = new List<ILayer>();
+    public List<ILayer> layers = [];
     public CompositeLayer() { }
     public uint GetBackgroundFixed(XY point) => GetBackground(point, XY.Zero);
     public uint GetBackground (XY point, XY camera) {
@@ -131,7 +131,7 @@ public class CompositeLayer : ILayer {
 public class CompositeColorLayer {
     Rect active = new();
 
-    private List<GeneratedGrid<uint>> layers = new List<GeneratedGrid<uint>>();
+    private List<GeneratedGrid<uint>> layers = [];
     public CompositeColorLayer() { }
     public void AddLayer(int index, GeneratedGrid<uint> layer, Rect area) {
         layers.Insert(index, layer);

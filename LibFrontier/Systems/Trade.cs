@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 namespace RogueFrontier;
 public record ItemFilter([Opt(separator = ";")] HashSet<string> require, [Opt(separator = ";")] HashSet<string> reject) {
-    public ItemFilter() : this(new(), new()) { }
+    public ItemFilter() : this([], []) { }
     public ItemFilter(XElement e) : this(
         e.TryAtt("require").Split(";").ToHashSet(),
         e.TryAtt("reject").Split(";").ToHashSet()
@@ -48,7 +48,7 @@ public record TradeDesc() : IDesignType {
         priceTable = e.Element("Prices")?.Value.Trim().Split("\n")
             .Select(line => line.Split(":")).ToDictionary(
             parts => tc.Lookup<ItemType>(parts[0]),
-            parts => int.Parse(parts[1])) ?? new();
+            parts => int.Parse(parts[1])) ?? [];
         sellAdj = e.Element("Buy")?.Elements("Item").Select(e => new TradeEntry(e)).ToList();
         buyAdj = e.Element("Sell")?.Elements("Item").Select(e => new TradeEntry(e)).ToList();
     }

@@ -6,8 +6,8 @@ using System.Xml.Linq;
 namespace RogueFrontier;
 
 public class UniverseDesc {
-    public List<SystemDesc> systems=new();
-    public List<LinkDesc> links=new();
+    public List<SystemDesc> systems=[];
+    public List<LinkDesc> links=[];
     public UniverseDesc(Assets tc, XElement e) {
         if (e.HasElement("Topology", out var xmlTopology)) {
             foreach (var element in xmlTopology.Elements()) {
@@ -67,11 +67,11 @@ public class Universe : Ob<EntityAdded> {
     public Rand karma;
     public Assets types;
 
-    public Dictionary<string, Entity> identifiedObjects=new();
-    public Dictionary<string, World> systems=new();
-    public Dictionary<string, Stargate> stargates=new();
-    public Dictionary<string, HashSet<Stargate>> systemGates=new();
-    public Dictionary<string, (int, int)> grid = new();
+    public Dictionary<string, Entity> identifiedObjects=[];
+    public Dictionary<string, World> systems=[];
+    public Dictionary<string, Stargate> stargates=[];
+    public Dictionary<string, HashSet<Stargate>> systemGates=[];
+    public Dictionary<string, (int, int)> grid = [];
     public Vi<EntityAdded> onEntityAdded = new();
     public Universe(Assets types = null, Rand karma = null) {
         this.types = types ?? new Assets();
@@ -97,7 +97,7 @@ public class Universe : Ob<EntityAdded> {
         //Record any global stargates
         foreach (var s in desc.systems) {
             var sys = systems[s.id];
-            Dictionary<string, Stargate> gateLookup = new();
+            Dictionary<string, Stargate> gateLookup = [];
             foreach (var g in sys.entities.all.OfType<Stargate>()) {
                 gateLookup[g.gateId] = g;
             }
@@ -126,9 +126,8 @@ public class Universe : Ob<EntityAdded> {
         var _ = FindGateTo(systems.Values.First(), systems.Values.Last());
     }
     public Stargate FindGateTo(World from, World to) {
-        Dictionary<World, Stargate> gateTo = new();
-        HashSet<World> visited = new();
-        visited.Add(from);
+        Dictionary<World, Stargate> gateTo = [];
+        HashSet<World> visited = [from];
         Queue<World> q = new();
         q.Enqueue(from);
         while (q.Any()) {

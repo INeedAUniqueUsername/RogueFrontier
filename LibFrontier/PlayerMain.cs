@@ -65,7 +65,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
     public GalaxyMap networkMap;
     private TargetingMarker crosshair;
     private double targetCameraRotation;
-    private double updateWait;
     public bool autopilotUpdate;
     //public bool frameRendered = true;
     public int updatesSinceRender = 0;
@@ -585,7 +584,6 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             var centerOffset = new XY(mouseScreenPos.x, sf.GridHeight - mouseScreenPos.y) - new XY(sf.GridWidth / 2, sf.GridHeight / 2);
             centerOffset *= uiMegamap.viewScale;
             mouseWorldPos = (centerOffset.Rotate(camera.rotation) + camera.position);
-            ActiveObject t;
             if (mouse.middle == Pressing.Pressed && !playerControls.input.Shift) {
                 TargetMouse();
             } else if(state.middleDown && playerControls.input.Shift) {
@@ -595,7 +593,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
             }
             bool enableMouseTurn = !sleepMouse;
             //Update the crosshair if we're aiming with it
-            if (playerShip.GetTarget(out t) && t == crosshair) {
+            if (playerShip.GetTarget(out var t) && t == crosshair) {
                 crosshair.position = mouseWorldPos;
                 crosshair.velocity = playerShip.velocity;
                 //If we set velocity to match player's velocity, then the weapon will aim directly at the crosshair
@@ -653,7 +651,7 @@ public class Mainframe : IScene, Ob<PlayerShip.Destroyed> {
 				playerShip.ClearTarget();
 			} else {
 				crosshair.active = true;
-				playerShip.SetTargetList(new() { crosshair });
+				playerShip.SetTargetList([crosshair]);
 			}
 		} else {
 			playerShip.targetList = targetList;

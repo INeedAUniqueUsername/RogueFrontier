@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 namespace RogueFrontier;
 public class Circuit {
-    public List<Device> Installed=new();
-    public List<Device> Powered=new();
+    public List<Device> Installed=[];
+    public List<Device> Powered=[];
 
-    public List<Armor> Armor = new();
-    public List<Engine> Engine = new();
-    public List<Enhancer> Enhancer = new();
-    public List<Launcher> Launcher = new();
-    public List<Reactor> Reactor = new();
-    public List<Shield> Shield = new();
-    public List<Solar> Solar = new();
-    public List<Weapon> Weapon = new();
+    public List<Armor> Armor = [];
+    public List<Engine> Engine = [];
+    public List<Enhancer> Enhancer = [];
+    public List<Launcher> Launcher = [];
+    public List<Reactor> Reactor = [];
+    public List<Shield> Shield = [];
+    public List<Solar> Solar = [];
+    public List<Weapon> Weapon = [];
     public Circuit() {}
     public void Install(IEnumerable<Device> Devices) {
         Installed.AddRange(Devices);

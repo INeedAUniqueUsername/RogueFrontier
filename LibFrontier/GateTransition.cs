@@ -25,7 +25,7 @@ public class GateTransition : IScene {
             this.pos = pos;
         }
     }
-    private List<Particle> particles = new();
+    private List<Particle> particles = [];
 	public GateTransition(Viewport prevView, Viewport nextView, Action next) {
         this.prevView = prevView;
         this.nextView = nextView;

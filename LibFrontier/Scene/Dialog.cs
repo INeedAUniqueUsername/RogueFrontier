@@ -56,8 +56,8 @@ public class Dialog : IScene {
 	double[] charge;
 
 	public List<IScene> sub = [];
-	public Dictionary<(int, int), Tile> background = new();
-	Dictionary<char, int> keyMap = new();
+	public Dictionary<(int, int), Tile> background = [];
+	Dictionary<char, int> keyMap = [];
 	bool prevEscape;
 	bool allowEnter;
 	bool prevEnter;

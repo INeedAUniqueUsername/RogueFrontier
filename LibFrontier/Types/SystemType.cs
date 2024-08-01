@@ -114,7 +114,7 @@ public record SystemTable() : SystemElement {
     private double totalChance;
     public SystemTable(XElement e, Parse<SystemElement> parse) : this() {
         e.Initialize(this);
-        generators = new();
+        generators = [];
         foreach (var element in e.Elements()) {
             var chance = element.ExpectAttDouble("chance");
             generators.Add((chance, parse(element)));

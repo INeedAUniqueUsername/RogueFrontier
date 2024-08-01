@@ -22,7 +22,7 @@ public class Cable : Entity {
 }
 public class Hook : Entity {
     public StructureObject attached, source;
-    List<Cable> segments=new();
+    List<Cable> segments=[];
     public Hook(StructureObject attached, StructureObject source) {
         this.attached = attached;
         this.source = source;

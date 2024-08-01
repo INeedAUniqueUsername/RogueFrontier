@@ -10,15 +10,14 @@ public static class SAchievements {
         { Achievement.MementoMori, "Memento Mori" }
     };
     public static HashSet<Achievement> GetAchievements(this Profile profile, PlayerShip player) {
-        HashSet<Achievement> result = new();
-        result.Add(Achievement.MementoMori);
+        HashSet<Achievement> result = [Achievement.MementoMori];
         return result;
     }
 }
 public class Profile {
     public static string file = "Profile.json";
     public bool allowDictator = false;
-    public HashSet<Achievement> achievements = new();
+    public HashSet<Achievement> achievements = [];
 
     //public ShipControls controls;
     public static bool Load(out Profile p) {

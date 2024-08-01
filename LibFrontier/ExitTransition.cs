@@ -29,7 +29,7 @@ public class ExitTransition : IScene {
         InitParticles();
     }
     public void InitParticles() {
-        particles = new HashSet<Particle>();
+        particles = [];
         for (int y = 0; y < sf.GridHeight / 2; y++) {
             for (int x = 0; x < sf.GridWidth; x++) {
                 particles.Add(new Particle() {

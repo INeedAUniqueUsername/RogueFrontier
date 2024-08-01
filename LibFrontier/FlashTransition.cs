@@ -16,7 +16,7 @@ public class FlashTransition : IScene {
 	public Action<Sf> Draw { get; set; }
 	public Action<SoundCtx> PlaySound { get; set; }
 	Action next;
-    HashSet<GlyphParticle> glyphs = new HashSet<GlyphParticle>();
+    HashSet<GlyphParticle> glyphs = [];
     uint[,] background;
     double delay = 0;
     Stage stage;

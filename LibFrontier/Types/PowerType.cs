@@ -140,11 +140,11 @@ public record Clonewall() : PowerEffect {
 		private void UpdateOffsets() {
 			XY  up = XY.Polar(owner.rotationRad - PI / 2),
 				down = XY.Polar(owner.rotationRad + PI / 2);
-			offsets = new() {
+			offsets = [
 				up * 3, down * 3,
 				up * 6, down * 6,
 				//up * 6, down * 6
-			};
+			];
 		}
 		 public void Observe(PlayerShip.WeaponFired ev){
 			var (p, w, pr, _) = ev;

@@ -127,10 +127,10 @@ public class BaseShip {
         this.position = Position;
         this.velocity = new();
         this.active = true;
-        this.cargo = new();
-        this.cargo.UnionWith(shipClass.cargo?.Generate(world.types) ?? new List<Item>());
+        this.cargo = [];
+        this.cargo.UnionWith(shipClass.cargo?.Generate(world.types) ?? []);
         this.devices = new();
-        this.devices.Install(shipClass.devices?.Generate(world.types) ?? new List<Device>());
+        this.devices.Install(shipClass.devices?.Generate(world.types) ?? []);
         this.damageSystem = shipClass.damageDesc.Create(world.types);
         if(damageSystem is LayeredArmor la) {
             this.devices.Install(la.layers);
@@ -349,7 +349,7 @@ public class AIShip : IShip {
     [JsonIgnore] public HullSystem hull => ship.damageSystem;
     [JsonIgnore] public Rand destiny => ship.destiny;
     [JsonIgnore] public double stoppingRotation => ship.stoppingRotation;
-    [JsonIgnore] public HashSet<Entity> avoidHit => new HashSet<Entity> { dock.Target, (behavior as GuardAt)?.home };
+    [JsonIgnore] public HashSet<Entity> avoidHit => [dock.Target, (behavior as GuardAt)?.home];
     
     public Sovereign sovereign { get; set; }
     private IShipBehavior _behavior;
@@ -490,17 +490,17 @@ public class PlayerShip : IShip {
     //public PlayerStory story;
     public Sovereign sovereign { get; set; }
     public EnergySystem energy { get; set; }
-    public List<Power> powers = new();
+    public List<Power> powers = [];
 
     [JsonIgnore]
-    public HashSet<Entity> avoidHit => new() {
+    public HashSet<Entity> avoidHit => [
         dock.Target
-    };
+    ];
     public Docking dock { get; set; } = new();
 
     public bool targetFriends = false;
     
-    public List<ActiveObject> targetList = new();
+    public List<ActiveObject> targetList = [];
     public int targetIndex = -1;
 
     public delegate void TargetChanged(PlayerShip pl);
@@ -513,26 +513,26 @@ public class PlayerShip : IShip {
     public int mortalChances = 3;
     public double mortalTime = 0;
     public bool autopilot = false;
-    public List<IPlayerMessage> logs = new();
-    public List<IPlayerMessage> messages = new();
-    public HashSet<Entity> visible = new();
-    public HashSet<Station> known = new();
-    public HashSet<ActiveObject> missionTargets = new();
+    public List<IPlayerMessage> logs = [];
+    public List<IPlayerMessage> messages = [];
+    public HashSet<Entity> visible = [];
+    public HashSet<Station> known = [];
+    public HashSet<ActiveObject> missionTargets = [];
     private int ticks = 0;
-    public HashSet<IShip> shipsDestroyed = new();
-    public HashSet<Station> stationsDestroyed = new();
-    public List<ICrime> crimeRecord=new();
+    public HashSet<IShip> shipsDestroyed = [];
+    public HashSet<Station> stationsDestroyed = [];
+    public List<ICrime> crimeRecord=[];
     public record Destroyed(PlayerShip playerShip, ActiveObject destroyer, Wreck wreck);
     public Vi<Destroyed> onDestroyed = new();
     public record Damaged(PlayerShip playerShip, Projectile p);
     public Vi<Damaged> onDamaged = new();
     public record WeaponFired(PlayerShip playerShip, Weapon w, List<Projectile> p, bool sound = true);
     public Vi<WeaponFired> onWeaponFire = new();
-    public List<AIShip> wingmates = new();
+    public List<AIShip> wingmates = [];
 
 
-    public Dictionary<ulong, double> visibleDistanceLeft=new();
-    public Dictionary<ActiveObject, int> tracking = new();
+    public Dictionary<ulong, double> visibleDistanceLeft=[];
+    public Dictionary<ActiveObject, int> tracking = [];
     
     public PlayerShip() { }
     public PlayerShip(Player person, BaseShip ship, Sovereign sovereign) {

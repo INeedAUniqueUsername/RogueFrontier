@@ -14,7 +14,7 @@ public interface StationBehavior {
 }
 public class OrionWarlordOutpost : StationBehavior, Ob<Station.Destroyed>, Ob<GuardAt.OnDockedHome> {
 
-    private HashSet<ActiveObject> turretsDeployed = new();
+    private HashSet<ActiveObject> turretsDeployed = [];
     public void Observe(Station.Destroyed ev) {
         (var station, var destroyer, var wreck) = ev;
         if (destroyer?.active != true) {
@@ -41,7 +41,7 @@ public class OrionWarlordOutpost : StationBehavior, Ob<Station.Destroyed>, Ob<Gu
         w.AddEntity(turret);
         turret.CreateSegments();
     }
-    Dictionary<ActiveObject, Item> turretAssignment = new();
+    Dictionary<ActiveObject, Item> turretAssignment = [];
     ItemType turretItemType;
     StationType turretStationType;
     public OrionWarlordOutpost(Station owner) {
@@ -133,10 +133,10 @@ public class ConstellationAstra : StationBehavior {
     public HashSet<StationType> stationTypes;
     public HashSet<AIShip> reserves;
     public ConstellationAstra(Station owner) {
-        stationTypes = new() {
+        stationTypes = [
             owner.world.types.Lookup<StationType>("station_constellation_shipyard"),
             owner.world.types.Lookup<StationType>("station_constellation_bunker")
-        };
+        ];
         reserves = new((0..16).Select(i => new AIShip(
             new(owner.world, owner.world.types.Lookup<ShipClass>("ship_beowulf"), owner.position),
             owner.sovereign,
@@ -181,10 +181,10 @@ public class ConstellationShipyard : StationBehavior {
     public ConstellationShipyard() { }
     public ConstellationShipyard(Station owner) {
         Func<string, ShipClass> f = owner.world.types.Lookup<ShipClass>;
-        guardTypes = new() {
+        guardTypes = [
             f("ship_ulysses"),
             f("ship_beowulf")
-        };
+        ];
     }
     public void Update(double delta, Station owner) {
         if (owner.world.tick % 900 == 0) {
@@ -206,8 +206,8 @@ public class DaughtersOutpost : StationBehavior {
 }
 public class AmethystStore : StationBehavior, Ob<Station.Destroyed>, Ob<Station.Damaged>, Ob<Weapon.OnFire>, Ob<Power.OnInvoked> {
 
-    Dictionary<PlayerShip, int> damaged=new();
-    HashSet<PlayerShip> banned = new();
+    Dictionary<PlayerShip, int> damaged=[];
+    HashSet<PlayerShip> banned = [];
     int damageTaken;
     public void Observe(Weapon.OnFire ff) {
         var(weapon, _) = ff;

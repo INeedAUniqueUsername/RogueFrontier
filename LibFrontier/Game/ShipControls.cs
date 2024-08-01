@@ -43,7 +43,7 @@ public class ShipControls {
 		}
 	};
 	//Remember to update whenever we load game
-	public Dictionary<Control, KC> controls = new Dictionary<Control, KC>();
+	public Dictionary<Control, KC> controls = [];
     public string GetString() {
 
         const int w = -16;

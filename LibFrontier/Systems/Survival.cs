@@ -32,7 +32,7 @@ class Waves : Event {
             };
     public Waves(PlayerShip playerShip) {
         this.playerShip = playerShip;
-        ships = new();
+        ships = [];
     }
     public void Validate() {
         map.Keys.ToList().Select(playerShip.world.types.Lookup<ShipClass>);
@@ -40,13 +40,13 @@ class Waves : Event {
     HashSet<AIShip> ships;
     public void CreateWave() {
 
-        ships = new HashSet<AIShip>();
+        ships = [];
         World world = playerShip.world;
         difficulty += 90;
 
 
         int difficultyLeft = difficulty;
-        List<string> shipList = new List<string>();
+        List<string> shipList = [];
 
     AddShip:
         var shuffled = map.Keys.OrderBy(k => Guid.NewGuid()).ToList();

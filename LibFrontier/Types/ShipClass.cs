@@ -45,7 +45,7 @@ public class ShipClass : IDesignType {
 		} else {
 			tile = Tile.From(e);
 		}
-		attributes = e.TryAtt("attributes", out string att) ? att.Split(";").ToHashSet() : parent?.attributes ?? new();
+		attributes = e.TryAtt("attributes", out string att) ? att.Split(";").ToHashSet() : parent?.attributes ?? [];
 		behavior = e.TryAttEnum(nameof(behavior), parent?.behavior ?? EShipBehavior.none);
 
 		damageDesc = e.HasElement("HPSystem", out var xmlHPSystem) ?

@@ -91,7 +91,7 @@ Was more than a dream after all." }.Select((line,i) => line.Replace("\r", "")).T
             }
         }
         //spinner = new LoadingSymbol(16);
-        clouds = new List<CloudParticle>();
+        clouds = [];
 
         byte b (int value) => (byte)Clamp(value, 0, 255);
         uint Front(int value) {

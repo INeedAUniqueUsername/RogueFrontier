@@ -6,7 +6,7 @@ namespace RogueFrontier;
 
 public class EnergySystem {
     public HashSet<Device> GetEnabled(Circuit c) => c.Installed.Except(off).ToHashSet();
-    public HashSet<Device> off = new();
+    public HashSet<Device> off = [];
     public int totalOutputMax;
     public int totalOutputUsed;
     public int totalOutputLeft => totalOutputMax - totalOutputUsed;
@@ -31,10 +31,7 @@ public class EnergySystem {
                 primary.Add(r);
             }
         }
-        List<PowerSource> sources = new();
-        sources.AddRange(solars);
-        sources.AddRange(primary);
-        sources.AddRange(secondary);
+        List<PowerSource> sources = [.. solars, .. primary, .. secondary];
 
         totalOutputMax = sources.Sum(r => r.maxOutput);
         totalOutputUsed = 0;

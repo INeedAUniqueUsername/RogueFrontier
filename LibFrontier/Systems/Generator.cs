@@ -24,10 +24,10 @@ public interface ShipGenerator {
 public class ShipGroup : ShipGenerator {
     public List<ShipGenerator> generators;
     public ShipGroup() {
-        generators = new List<ShipGenerator>();
+        generators = [];
     }
     public ShipGroup(XElement e, Parse<ShipGenerator> parse) {
-        generators = new();
+        generators = [];
         foreach (var element in e.Elements()) {
             generators.Add(parse(element));
         }
@@ -151,7 +151,7 @@ public interface IGenerator<T> {
 }
 public record None<T>() : IGenerator<T> {
     public None(XElement e) : this() { }
-    public List<T> Generate(Assets tc) => new();
+    public List<T> Generate(Assets tc) => [];
 }
 public static class SGenerator {
     public static Parse<T> ParseFrom<T>(Assets tc, Func<Assets, XElement, T> f) =>
@@ -214,10 +214,10 @@ public static class SGenerator {
     }
 }
 public record Group<T>() : IGenerator<T> {
-    public List<IGenerator<T>> generators=new();
+    public List<IGenerator<T>> generators=[];
     public static List<T> From(Assets tc, Parse<IGenerator<T>> parse, string str) => new Group<T>(XElement.Parse(str), parse).Generate(tc);
     public Group(XElement e, Parse<IGenerator<T>> parse) : this() {
-        generators = new();
+        generators = [];
         foreach (var element in e.Elements()) {
             generators.Add(parse(element));
         }
@@ -233,7 +233,7 @@ public record Table<T>() : IGenerator<T> {
     public static List<T> From(Assets tc, Parse<IGenerator<T>> parse, string str) => new Table<T>(XElement.Parse(str), parse).Generate(tc);
     public Table(XElement e, Parse<IGenerator<T>> parse) : this() {
         e.Initialize(this);
-        generators = new();
+        generators = [];
         foreach (var element in e.Elements()) {
             var chance = element.ExpectAttDouble("chance");
             generators.Add((chance, parse(element)));
@@ -306,7 +306,7 @@ public record ArmorEntry() : IGenerator<Armor> {
         e.Initialize(this);
     }
     List<Armor> IGenerator<Armor>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     public Armor Generate(Assets tc) =>
         SDevice.Generate<Armor>(tc, codename, mod);
     public void ValidateEager(Assets tc) =>
@@ -327,7 +327,7 @@ public record ReactorEntry() : IGenerator<Device> {
         e.Initialize(this);
     }
     List<Device> IGenerator<Device>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     Reactor Generate(Assets tc) =>
         SDevice.Generate<Reactor>(tc, codename, mod);
     public void ValidateEager(Assets tc) => Generate(tc);
@@ -340,7 +340,7 @@ public record SolarEntry() : IGenerator<Device> {
         e.Initialize(this);
     }
     List<Device> IGenerator<Device>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     Solar Generate(Assets tc) =>
         SDevice.Generate<Solar>(tc, codename, mod);
     public void ValidateEager(Assets tc) => Generate(tc);
@@ -352,7 +352,7 @@ public record ServiceEntry() : IGenerator<Device> {
         e.Initialize(this);
     }
     List<Device> IGenerator<Device>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     Service Generate(Assets tc) => SDevice.Generate<Service>(tc, codename, mod);
     public void ValidateEager(Assets tc) => Generate(tc);
 }
@@ -364,9 +364,9 @@ public record ShieldEntry() : IGenerator<Device>, IGenerator<Shield> {
         e.Initialize(this);
     }
     List<Device> IGenerator<Device>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     List<Shield> IGenerator<Shield>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     Shield Generate(Assets tc) =>
         SDevice.Generate<Shield>(tc, codename, mod);
     public void ValidateEager(Assets tc) => Generate(tc);
@@ -374,7 +374,7 @@ public record ShieldEntry() : IGenerator<Device>, IGenerator<Shield> {
 public record WeaponList() : IGenerator<Weapon> {
     public List<IGenerator<Weapon>> generators;
     public WeaponList(XElement e) : this() {
-        generators = new List<IGenerator<Weapon>>();
+        generators = [];
         foreach (var element in e.Elements()) {
             switch (element.Name.LocalName) {
                 case "Weapon":
@@ -405,9 +405,9 @@ public record WeaponEntry() : IGenerator<Device>, IGenerator<Weapon> {
         });
     }
     List<Weapon> IGenerator<Weapon>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     List<Device> IGenerator<Device>.Generate(Assets tc) =>
-        new() { Generate(tc) };
+        [Generate(tc)];
     Weapon Generate(Assets tc) {
         
         

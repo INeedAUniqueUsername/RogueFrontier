@@ -43,7 +43,7 @@ public class Stargate : ActiveObject {
         this.velocity = new XY();
     }
     public void CreateSegments() {
-        Segments = new();
+        Segments = [];
 
         var tile = new Tile(ABGR.White, ABGR.Black, '+');
 
